@@ -138,6 +138,19 @@
     border-radius: 999px;
     padding: 2px 9px;
   }
+  .logout-link {
+    display: inline-block;
+    margin-top: 6px;
+    margin-inline-start: 6px;
+    border: none;
+    background: none;
+    font-size: 11px;
+    color: var(--text-muted);
+    text-decoration: underline;
+    padding: 0;
+  }
+  .logout-link:hover { color: var(--accent2); }
+  .gate-modal { max-width: 380px; }
   .add-btn {
     flex-shrink: 0;
     display: flex;
@@ -514,6 +527,27 @@
 </head>
 <body>
 
+<div class="overlay gate open" id="gateOverlay">
+  <div class="modal gate-modal">
+    <div class="logomark" aria-hidden="true" style="margin:0 auto 14px;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M4 6c3-1.5 6-1.5 8 0v13c-2-1.5-5-1.5-8 0V6z"/>
+        <path d="M20 6c-3-1.5-6-1.5-8 0v13c2-1.5 5-1.5 8 0V6z"/>
+        <polyline points="3 10 8 10 10 6 13 15 16 10 21 10"/>
+      </svg>
+    </div>
+    <h2 style="text-align:center;">المرجع</h2>
+    <p class="sub" style="text-align:center;">أدخل كود الوصول اللي أعطاك إياه حيدر للدخول للمكتبة.</p>
+    <form id="gateForm">
+      <div class="field">
+        <input type="text" id="gateCode" placeholder="أدخل الكود هنا" autocomplete="off" required>
+      </div>
+      <p id="gateError" style="color:var(--accent2);font-size:12.5px;margin:0 0 10px;min-height:1em;"></p>
+      <button type="submit" class="btn-save" id="gateSubmit" style="width:100%;">دخول</button>
+    </form>
+  </div>
+</div>
+
 <div class="wrap">
 
   <header class="top">
@@ -530,6 +564,7 @@
         <p>مكتبة محاضراتك ومصادرك الدراسية</p>
         <div class="count" id="countLabel"></div>
         <div class="read-only-badge" id="readOnlyBadge" style="display:none">وضع القراءة فقط</div>
+        <button type="button" id="logoutBtn" class="logout-link" style="display:none">تغيير الكود</button>
       </div>
     </div>
     <button class="add-btn" id="openAddBtn" type="button">
@@ -642,11 +677,111 @@ const TOPICS = {
 };
 
 // ---------------- State ----------------
-let db = null;
 let col = null;
 let lectures = [];
 let editingId = null;
 let canWrite = true;
+
+// ---------------- Supabase data layer ----------------
+const SUPABASE_URL = 'https://wuvzteosknrzddsaexez.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_xp2-QPjUpKMxskVfVksY7A_taxJXsPD';
+const REST = SUPABASE_URL + '/rest/v1';
+const GATE_KEY = 'marja3_access_v1';
+
+function supaHeaders(extra) {
+  return Object.assign({
+    'apikey': SUPABASE_KEY,
+    'Authorization': 'Bearer ' + SUPABASE_KEY,
+    'Content-Type': 'application/json'
+  }, extra || {});
+}
+
+function rowToLecture(r) {
+  return {
+    id: r.id, title: r.title, source: r.source, category: r.category,
+    topic: r.topic, type: r.type, link: r.link, text: r.lecture_text,
+    notes: r.notes, createdAt: r.created_at
+  };
+}
+
+async function loadLecturesFromSupabase() {
+  const res = await fetch(`${REST}/lectures?select=*&order=created_at.desc`, { headers: supaHeaders() });
+  if (!res.ok) throw new Error('load_failed');
+  const rows = await res.json();
+  return rows.map(rowToLecture);
+}
+
+const supaCol = {
+  async add(data) {
+    const body = {
+      title: data.title, source: data.source, category: data.category,
+      topic: data.topic, type: data.type, link: data.link || null,
+      lecture_text: data.text || null, notes: data.notes || null
+    };
+    const res = await fetch(`${REST}/lectures`, {
+      method: 'POST',
+      headers: supaHeaders({ 'Prefer': 'return=representation' }),
+      body: JSON.stringify(body)
+    });
+    if (!res.ok) throw new Error('add_failed');
+    const rows = await res.json();
+    lectures.unshift(rowToLecture(rows[0]));
+    render();
+  },
+  doc(id) {
+    return {
+      async update(data) {
+        const body = {};
+        if ('title' in data) body.title = data.title;
+        if ('source' in data) body.source = data.source;
+        if ('category' in data) body.category = data.category;
+        if ('topic' in data) body.topic = data.topic;
+        if ('type' in data) body.type = data.type;
+        if ('link' in data) body.link = data.link || null;
+        if ('text' in data) body.lecture_text = data.text || null;
+        if ('notes' in data) body.notes = data.notes || null;
+        const res = await fetch(`${REST}/lectures?id=eq.${id}`, {
+          method: 'PATCH',
+          headers: supaHeaders({ 'Prefer': 'return=representation' }),
+          body: JSON.stringify(body)
+        });
+        if (!res.ok) throw new Error('update_failed');
+        const rows = await res.json();
+        const idx = lectures.findIndex(l => l.id === id);
+        if (idx !== -1 && rows[0]) lectures[idx] = rowToLecture(rows[0]);
+        render();
+      },
+      async delete() {
+        const res = await fetch(`${REST}/lectures?id=eq.${id}`, { method: 'DELETE', headers: supaHeaders() });
+        if (!res.ok) throw new Error('delete_failed');
+        lectures = lectures.filter(l => l.id !== id);
+        render();
+      }
+    };
+  }
+};
+col = supaCol;
+
+async function checkAccessCode(code) {
+  const res = await fetch(`${REST}/access_codes?code=eq.${encodeURIComponent(code)}&select=role`, { headers: supaHeaders() });
+  if (!res.ok) throw new Error('check_failed');
+  const rows = await res.json();
+  return rows.length ? rows[0].role : null;
+}
+
+function getSavedAccess() {
+  try {
+    const raw = localStorage.getItem(GATE_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch (e) { return null; }
+}
+function saveAccess(code, role) {
+  try { localStorage.setItem(GATE_KEY, JSON.stringify({ code, role })); } catch (e) {}
+}
+function clearAccess() {
+  try { localStorage.removeItem(GATE_KEY); } catch (e) {}
+  location.reload();
+}
 const state = {
   mode: 'source',
   selectedSource: null,
@@ -746,46 +881,70 @@ function lectureCountLabel(n) {
 async function init() {
   populateCategorySelect();
   wireStaticEvents();
-  render();
+  wireGateEvents();
 
-  try {
-    db = (window.claude && window.claude.use) ? await window.claude.use('db') : null;
-  } catch (e) {
-    db = null;
+  const saved = getSavedAccess();
+  if (saved) {
+    canWrite = saved.role === 'editor';
+    hideGate();
+    await startApp();
   }
+}
 
-  try {
-    const userCap = (window.claude && window.claude.use) ? await window.claude.use('user') : null;
-    const w = userCap ? await userCap.can('data.write') : null;
-    if (w === false) canWrite = false;
-  } catch (e) {
-    // leave canWrite at its optimistic default; a refused write will decide
-  }
-  applyAccessUI();
+function showGate() { document.getElementById('gateOverlay').classList.add('open'); }
+function hideGate() { document.getElementById('gateOverlay').classList.remove('open'); }
 
-  if (!db) {
-    document.getElementById('storageBanner').classList.add('show');
-    document.getElementById('openAddBtn').disabled = true;
-    return;
-  }
-
-  col = db.collection('lectures');
-  col.orderBy('createdAt', 'desc').onSnapshot(
-    snap => {
-      lectures = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-      render();
-    },
-    err => {
+function wireGateEvents() {
+  document.getElementById('gateForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const input = document.getElementById('gateCode');
+    const code = input.value.trim();
+    const errEl = document.getElementById('gateError');
+    const btn = document.getElementById('gateSubmit');
+    errEl.textContent = '';
+    if (!code) return;
+    btn.disabled = true;
+    btn.textContent = 'جارٍ التحقق…';
+    try {
+      const role = await checkAccessCode(code);
+      if (!role) {
+        errEl.textContent = 'الكود غير صحيح.';
+        return;
+      }
+      saveAccess(code, role);
+      canWrite = role === 'editor';
+      hideGate();
+      await startApp();
+    } catch (err) {
       console.error(err);
-      document.getElementById('storageBanner').classList.add('show');
+      errEl.textContent = 'تعذّر التحقق من الكود، تأكد من الاتصال بالإنترنت وحاول مرة أخرى.';
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'دخول';
     }
-  );
+  });
+
+  document.getElementById('logoutBtn').addEventListener('click', clearAccess);
+}
+
+async function startApp() {
+  applyAccessUI();
+  render();
+  try {
+    lectures = await loadLecturesFromSupabase();
+  } catch (e) {
+    console.error(e);
+    document.getElementById('storageBanner').classList.add('show');
+  }
+  render();
 }
 
 function applyAccessUI() {
   document.getElementById('openAddBtn').style.display = canWrite ? '' : 'none';
   const badge = document.getElementById('readOnlyBadge');
   if (badge) badge.style.display = canWrite ? 'none' : '';
+  const logoutBtn = document.getElementById('logoutBtn');
+  if (logoutBtn) logoutBtn.style.display = '';
 }
 
 // ---------------- Rendering ----------------
@@ -1141,7 +1300,7 @@ function fillFormFromLecture(l) {
 }
 
 function openModal(id) {
-  if (!db) return;
+  if (!col) return;
   editingId = id || null;
   const lec = editingId ? lectures.find(l => l.id === editingId) : null;
 
