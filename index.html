@@ -1,0 +1,1237 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>المرجع — مكتبة المحاضرات الطبية</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+
+    --bg: #F2F5F4;
+    --surface: #FFFFFF;
+    --surface-alt: #E9EFED;
+    --border: #D7E0DD;
+    --text: #17211E;
+    --text-muted: #5B6E68;
+    --accent: #1F5E56;
+    --accent-strong: #143E38;
+    --accent-soft: #E1EFEC;
+    --accent2: #8B2E3C;
+    --accent2-soft: #F5E3E5;
+    --radius: 10px;
+    --font-ui: 'Cairo', 'Segoe UI', sans-serif;
+    --font-mono: 'JetBrains Mono', 'Courier New', monospace;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #101715;
+      --surface: #16201D;
+      --surface-alt: #1C2723;
+      --border: #2A3733;
+      --text: #E7EEEC;
+      --text-muted: #8FA39D;
+      --accent: #4FA894;
+      --accent-strong: #7DC4B2;
+      --accent-soft: #1C332E;
+      --accent2: #D9808B;
+      --accent2-soft: #33191D;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #101715;
+    --surface: #16201D;
+    --surface-alt: #1C2723;
+    --border: #2A3733;
+    --text: #E7EEEC;
+    --text-muted: #8FA39D;
+    --accent: #4FA894;
+    --accent-strong: #7DC4B2;
+    --accent-soft: #1C332E;
+    --accent2: #D9808B;
+    --accent2-soft: #33191D;
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+  html, body {
+    height: 100%;
+    margin: 0;
+  }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-ui);
+    -webkit-font-smoothing: antialiased;
+    min-height: 100%;
+  }
+  button, input, select, textarea { font-family: inherit; color: inherit; }
+  button { cursor: pointer; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  @media (prefers-reduced-motion: reduce) {
+    * { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
+  }
+
+  .wrap {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: calc(20px + env(safe-area-inset-top, 0px)) 16px calc(32px + env(safe-area-inset-bottom, 0px));
+  }
+
+  /* ---------- Header ---------- */
+  header.top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 18px;
+  }
+  .brand {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .logomark {
+    flex-shrink: 0;
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: var(--accent-soft);
+    color: var(--accent-strong);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .logomark svg { width: 25px; height: 25px; }
+  .brand h1 {
+    margin: 0;
+    font-size: 26px;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    color: var(--accent-strong);
+  }
+  .brand p {
+    margin: 4px 0 0;
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+  .brand .count {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--accent);
+    margin-top: 6px;
+  }
+  .read-only-badge {
+    display: inline-block;
+    margin-top: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-muted);
+    background: var(--surface-alt);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 2px 9px;
+  }
+  .add-btn {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius);
+    padding: 10px 14px;
+    font-size: 14px;
+    font-weight: 600;
+    box-shadow: 0 1px 0 rgba(0,0,0,0.06);
+    transition: background 0.15s ease;
+  }
+  .add-btn:hover { background: var(--accent-strong); }
+  .add-btn:disabled { background: var(--border); color: var(--text-muted); cursor: not-allowed; }
+  .add-btn svg { width: 16px; height: 16px; flex-shrink: 0; }
+
+  /* ---------- Storage banner ---------- */
+  .banner {
+    display: none;
+    background: var(--accent2-soft);
+    border: 1px solid var(--accent2);
+    color: var(--accent2);
+    border-radius: var(--radius);
+    padding: 10px 14px;
+    font-size: 13px;
+    margin-bottom: 16px;
+  }
+  .banner.show { display: block; }
+
+  /* ---------- Search ---------- */
+  .search-box {
+    position: relative;
+    margin-bottom: 12px;
+  }
+  .search-box svg {
+    position: absolute;
+    top: 50%;
+    right: 14px;
+    transform: translateY(-50%);
+    width: 17px;
+    height: 17px;
+    color: var(--text-muted);
+    pointer-events: none;
+  }
+  .search-box input {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 11px 42px 11px 14px;
+    font-size: 15px;
+    color: var(--text);
+  }
+  .search-box input::placeholder { color: var(--text-muted); }
+  .search-box input:focus { border-color: var(--accent); }
+
+  /* ---------- Segmented toggle ---------- */
+  .segmented {
+    position: relative;
+    display: flex;
+    background: var(--surface-alt);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 3px;
+    margin-bottom: 20px;
+  }
+  .segmented .highlight {
+    position: absolute;
+    top: 3px;
+    bottom: 3px;
+    width: calc(50% - 3px);
+    background: var(--surface);
+    border-radius: 7px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+    transition: transform 0.22s cubic-bezier(0.4,0,0.2,1);
+    right: 3px;
+  }
+  .segmented[data-mode="topic"] .highlight { transform: translateX(calc(-100% - 0px)); }
+  .segmented button {
+    position: relative;
+    flex: 1;
+    border: none;
+    background: transparent;
+    padding: 9px 8px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-muted);
+    border-radius: 7px;
+    z-index: 1;
+    transition: color 0.2s ease;
+  }
+  .segmented button.active { color: var(--accent-strong); }
+
+  /* ---------- Empty state ---------- */
+  .empty {
+    text-align: center;
+    padding: 36px 16px;
+    color: var(--text-muted);
+    font-size: 14px;
+    border: 1px dashed var(--border);
+    border-radius: var(--radius);
+  }
+  .empty strong { display: block; color: var(--text); font-size: 15px; margin-bottom: 4px; font-weight: 700; }
+
+  /* ---------- Chips (sources / subtopics) ---------- */
+  .chip-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 4px;
+  }
+  .chip {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 8px 14px;
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--text);
+  }
+  .chip:hover { border-color: var(--accent); }
+  .chip .n {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--accent);
+    background: var(--accent-soft);
+    border-radius: 999px;
+    padding: 1px 6px;
+  }
+  .chip.empty-count .n { color: var(--text-muted); background: var(--surface-alt); }
+
+  .back-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: none;
+    border: none;
+    color: var(--accent);
+    font-size: 13.5px;
+    font-weight: 700;
+    padding: 6px 2px;
+    margin-bottom: 10px;
+  }
+  .back-chip svg { width: 14px; height: 14px; }
+
+  /* ---------- Section label ---------- */
+  .section-label {
+    font-size: 12.5px;
+    color: var(--text-muted);
+    margin: 0 0 10px;
+  }
+  .section-label b { color: var(--text); }
+
+  /* ---------- Topic accordion ---------- */
+  .category {
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+    margin-bottom: 8px;
+    overflow: hidden;
+  }
+  .category-head {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    background: none;
+    border: none;
+    padding: 13px 14px;
+    text-align: right;
+    border-inline-end: 3px solid transparent;
+  }
+  .category-head.open { border-inline-end-color: var(--accent); background: var(--accent-soft); }
+  .category-head .head-left { display: flex; align-items: center; gap: 9px; min-width: 0; }
+  .category-head .head-left svg { width: 18px; height: 18px; flex-shrink: 0; color: var(--accent); }
+  .category-head .name { font-size: 15px; font-weight: 700; }
+  .category-head .meta { display: flex; align-items: center; gap: 8px; }
+  .category-head .n {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+  .category-head svg { width: 16px; height: 16px; color: var(--text-muted); transition: transform 0.18s ease; }
+  .category-head.open svg { transform: rotate(180deg); color: var(--accent); }
+  .category-body { padding: 12px 14px 14px; border-top: 1px solid var(--border); }
+
+  /* ---------- Lecture list ---------- */
+  .lecture-list { display: flex; flex-direction: column; gap: 8px; }
+  .lecture {
+    display: flex;
+    gap: 10px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-inline-end: 3px solid var(--accent);
+    border-radius: var(--radius);
+    padding: 12px 14px;
+  }
+  .lecture .icon {
+    flex-shrink: 0;
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    background: var(--accent-soft);
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .lecture .icon svg { width: 16px; height: 16px; }
+  .lecture .body { flex: 1; min-width: 0; }
+  .lecture .title { font-size: 14.5px; font-weight: 700; margin: 0 0 4px; word-break: break-word; }
+  .lecture .meta-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 10px;
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+  .lecture .meta-row span { display: inline-flex; align-items: center; gap: 3px; }
+  .lecture .notes { font-size: 12.5px; color: var(--text-muted); margin-top: 6px; line-height: 1.5; }
+  .lecture .body.clickable { cursor: pointer; }
+  .lecture .body.clickable:hover .title { color: var(--accent-strong); }
+  .lecture .actions { display: flex; flex-direction: column; gap: 6px; align-items: center; flex-shrink: 0; }
+  .lecture .actions a, .lecture .actions button {
+    border: none;
+    background: var(--surface-alt);
+    border-radius: 7px;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    text-decoration: none;
+  }
+  .lecture .actions button.read { color: var(--accent); background: var(--accent-soft); }
+  .lecture .actions a:hover { color: var(--accent); }
+  .lecture .actions button.edit:hover { color: var(--accent); }
+  .lecture .actions button.del:hover { color: var(--accent2); }
+  .lecture .actions svg { width: 15px; height: 15px; }
+
+  /* ---------- Reader ---------- */
+  .reader-modal {
+    background: var(--surface);
+    border-radius: 16px;
+    width: 100%;
+    max-width: 680px;
+    max-height: 92vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  @media (max-width: 480px) {
+    .overlay.reader.open { align-items: stretch; padding: 0; }
+    .reader-modal { max-height: 100%; height: 100%; border-radius: 0; }
+  }
+  .reader-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+  .reader-head h2 { margin: 0; font-size: 17px; font-weight: 800; }
+  .reader-meta { margin: 5px 0 0; font-size: 12px; color: var(--text-muted); }
+  .reader-close {
+    flex-shrink: 0; width: 32px; height: 32px; border: none;
+    background: var(--surface-alt); border-radius: 8px;
+    display: flex; align-items: center; justify-content: center; color: var(--text-muted);
+  }
+  .reader-close:hover { color: var(--accent2); }
+  .reader-close svg { width: 16px; height: 16px; }
+  .reader-body {
+    flex: 1; overflow-y: auto; padding: 22px 22px 44px;
+    direction: ltr; text-align: left;
+    font-size: 14.5px; line-height: 1.8; color: var(--text);
+  }
+  .reader-body > *:first-child { margin-top: 0 !important; }
+  .r-title {
+    font-size: 20px; font-weight: 800; color: var(--accent2);
+    margin: 0 0 16px; padding-bottom: 10px; border-bottom: 1px solid var(--border);
+  }
+  .r-section {
+    font-size: 16px; font-weight: 800; color: var(--accent-strong);
+    margin: 24px 0 10px; padding-inline-start: 11px; border-inline-start: 3px solid var(--accent);
+  }
+  .r-section:first-child { margin-top: 0; }
+  .r-sub {
+    font-size: 14.5px; font-weight: 700; color: var(--accent);
+    margin: 16px 0 8px; padding-inline-start: 14px; position: relative;
+  }
+  .r-sub::before {
+    content: ""; position: absolute; inset-inline-start: 0; top: 0.6em;
+    width: 6px; height: 6px; border-radius: 50%; background: var(--accent);
+  }
+  .r-b1 { margin: 0 0 8px; padding-inline-start: 20px; position: relative; }
+  .r-b1::before {
+    content: ""; position: absolute; inset-inline-start: 3px; top: 0.68em;
+    width: 5px; height: 5px; border-radius: 50%; background: var(--accent);
+  }
+  .r-b2 {
+    margin: 0 0 6px; padding-inline-start: 38px; position: relative;
+    color: var(--text-muted); font-size: 13.5px;
+  }
+  .r-b2::before { content: "–"; position: absolute; inset-inline-start: 20px; }
+  .r-note { margin: 2px 0 8px 20px; font-size: 12.5px; font-style: italic; color: var(--text-muted); }
+  .r-p { margin: 0 0 10px; }
+  .arrow { color: var(--accent); font-weight: 700; margin: 0 4px; }
+
+  /* ---------- Modal ---------- */
+  .overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(10,15,14,0.5);
+    padding: 16px;
+    padding-top: calc(16px + env(safe-area-inset-top, 0px));
+    padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+    z-index: 50;
+    overflow-y: auto;
+  }
+  .overlay.open { display: flex; align-items: flex-end; justify-content: center; }
+  @media (min-width: 560px) {
+    .overlay.open { align-items: center; }
+  }
+  .modal {
+    background: var(--surface);
+    border-radius: 16px;
+    width: 100%;
+    max-width: 480px;
+    max-height: 90vh;
+    overflow-y: auto;
+    padding: 20px;
+  }
+  .modal h2 { margin: 0 0 2px; font-size: 18px; font-weight: 800; }
+  .modal .sub { margin: 0 0 18px; font-size: 12.5px; color: var(--text-muted); }
+  .field { margin-bottom: 14px; }
+  .field label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+  .field .hint { font-size: 11.5px; color: var(--text-muted); font-weight: 400; margin-inline-start: 4px; }
+  .field input, .field select, .field textarea {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 14px;
+  }
+  .field select[dir="ltr"], .field input[dir="ltr"] { text-align: left; }
+  .field input:focus, .field select:focus, .field textarea:focus { border-color: var(--accent); }
+  .field textarea { resize: vertical; min-height: 60px; }
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .modal-actions { display: flex; gap: 8px; margin-top: 18px; }
+  .modal-actions button { flex: 1; border-radius: 8px; padding: 11px; font-size: 14px; font-weight: 700; border: none; }
+  .btn-cancel { background: var(--surface-alt); color: var(--text); }
+  .btn-save { background: var(--accent); color: #fff; }
+  .btn-save:disabled { background: var(--border); color: var(--text-muted); }
+
+  .visually-hidden {
+    position: absolute; width: 1px; height: 1px; overflow: hidden;
+    clip: rect(0,0,0,0); white-space: nowrap;
+  }
+
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <header class="top">
+    <div class="brand">
+      <div class="logomark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 6c3-1.5 6-1.5 8 0v13c-2-1.5-5-1.5-8 0V6z"/>
+          <path d="M20 6c-3-1.5-6-1.5-8 0v13c2-1.5 5-1.5 8 0V6z"/>
+          <polyline points="3 10 8 10 10 6 13 15 16 10 21 10"/>
+        </svg>
+      </div>
+      <div class="brand-text">
+        <h1>المرجع</h1>
+        <p>مكتبة محاضراتك ومصادرك الدراسية</p>
+        <div class="count" id="countLabel"></div>
+        <div class="read-only-badge" id="readOnlyBadge" style="display:none">وضع القراءة فقط</div>
+      </div>
+    </div>
+    <button class="add-btn" id="openAddBtn" type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      إضافة محاضرة
+    </button>
+  </header>
+
+  <div class="banner" id="storageBanner">تعذّر الاتصال بالتخزين. جرّب إعادة تحميل الصفحة.</div>
+
+  <div class="search-box">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <input type="text" id="searchInput" placeholder="ابحث عن محاضرة، مصدر، أو موضوع…" autocomplete="off">
+  </div>
+
+  <div class="segmented" id="modeToggle" data-mode="source">
+    <div class="highlight"></div>
+    <button type="button" class="active" data-mode="source">حسب المصدر</button>
+    <button type="button" data-mode="topic">حسب الموضوع</button>
+  </div>
+
+  <div id="content"></div>
+
+</div>
+
+<!-- Add Lecture Modal -->
+<div class="overlay" id="overlay">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <h2 id="modalTitle">إضافة محاضرة</h2>
+    <p class="sub">حدّد المصدر والموضوع ليتم ترتيبها تلقائيًا في مكانها المناسب.</p>
+    <form id="lectureForm">
+      <div class="field">
+        <label for="f_title">عنوان المحاضرة</label>
+        <input type="text" id="f_title" required placeholder="مثال: Heart Failure — Pathophysiology">
+      </div>
+      <div class="field">
+        <label for="f_source">المصدر</label>
+        <input type="text" id="f_source" list="sourceList" required placeholder="مثال: د. أحمد — كلية طب ذي قار">
+        <datalist id="sourceList"></datalist>
+      </div>
+      <div class="two-col">
+        <div class="field">
+          <label for="f_category">التصنيف الرئيسي</label>
+          <select id="f_category" dir="ltr" required>
+            <option value="" disabled selected>اختر…</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="f_topic">الموضوع الفرعي</label>
+          <select id="f_topic" dir="ltr" required disabled>
+            <option value="" disabled selected>اختر التصنيف أولاً</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label for="f_type">نوع المادة</label>
+        <select id="f_type">
+          <option value="محاضرة">محاضرة</option>
+          <option value="فيديو">فيديو</option>
+          <option value="ملخص">ملخص</option>
+          <option value="ملف PDF">ملف PDF</option>
+          <option value="أسئلة">أسئلة</option>
+          <option value="أخرى">أخرى</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="f_link">الرابط <span class="hint">(اختياري — فيديو أو ملف)</span></label>
+        <input type="url" id="f_link" dir="ltr" placeholder="https://…">
+      </div>
+      <div class="field">
+        <label for="f_text">نص المحاضرة <span class="hint">(اختياري — للقراءة داخل التطبيق)</span></label>
+        <textarea id="f_text" style="min-height:140px" placeholder="الصق نص المحاضرة هنا. استخدم 🔴 للعنوان الرئيسي، 🔹🔶🔸 للعناوين الفرعية، 📍 أو ▪︎ للنقاط، ليظهر منسّقًا بشكل جميل."></textarea>
+      </div>
+      <div class="field">
+        <label for="f_notes">ملاحظات <span class="hint">(اختياري)</span></label>
+        <textarea id="f_notes" placeholder="أي تفاصيل إضافية تريد تذكّرها…"></textarea>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn-cancel" id="cancelBtn">إلغاء</button>
+        <button type="submit" class="btn-save" id="saveBtn">حفظ المحاضرة</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Lecture Reader -->
+<div class="overlay reader" id="readerOverlay">
+  <div class="reader-modal" role="dialog" aria-modal="true" aria-labelledby="readerTitle">
+    <div class="reader-head">
+      <div>
+        <h2 id="readerTitle"></h2>
+        <p class="reader-meta" id="readerMeta"></p>
+      </div>
+      <button type="button" class="reader-close" id="readerCloseBtn" aria-label="إغلاق">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="reader-body" id="readerBody"></div>
+  </div>
+</div>
+
+<script>
+// ---------------- Topic taxonomy ----------------
+const TOPICS = {
+  "Medicine": ["Cardiology","Respiratory","GIT","Hepatology","Renal","Endocrine","Neurology","Hematology","Rheumatology","Infectious Diseases","Dermatology","Psychiatry"],
+  "Surgery": ["General Surgery","Orthopedics","Urology","Neurosurgery","Cardiothoracic Surgery","Vascular Surgery","Ophthalmology","ENT","Anesthesia","Radiology","Trauma"],
+  "Pediatrics": ["Neonatology","Growth & Development","Nutrition","Pediatric Cardiology","Pediatric Respiratory","Pediatric GIT","Pediatric Renal","Pediatric Neurology","Pediatric Endocrine","Pediatric Hematology","Pediatric Infectious Diseases","Pediatric Rheumatology","Pediatric Emergencies"],
+  "OB/GYN": ["Obstetrics","Gynecology","Antenatal Care","Labor & Delivery","High-Risk Pregnancy","Obstetric Emergencies","Infertility","Contraception","Gynecological Oncology"],
+  "Basic Sciences": ["Anatomy","Histology","Embryology","Physiology","Biochemistry","Pathology","Pharmacology","Microbiology","Immunology","Parasitology","Genetics"]
+};
+
+// ---------------- State ----------------
+let db = null;
+let col = null;
+let lectures = [];
+let editingId = null;
+let canWrite = true;
+const state = {
+  mode: 'source',
+  selectedSource: null,
+  selectedSourceCategory: null,
+  selectedSourceTopic: null,
+  selectedSourceType: null,
+  selectedCategory: null,
+  selectedTopic: null,
+  selectedType: null,
+  search: ''
+};
+
+// ---------------- Icons ----------------
+const ICONS = {
+  book: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>',
+  play: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>',
+  file: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>',
+  help: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
+  bookmark: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>',
+  chevron: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>',
+  back: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>',
+  link: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>',
+  trash: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>',
+  read: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4h6a4 4 0 0 1 4 4v13a3 3 0 0 0-3-3H2z"/><path d="M22 4h-6a4 4 0 0 0-4 4v13a3 3 0 0 1 3-3h7z"/></svg>',
+  edit: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>',
+  download: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>',
+  pulse: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="2 12 6 12 9 3 15 21 18 12 22 12"/></svg>',
+  scissors: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><line x1="20" y1="4" x2="8.12" y2="15.88"/><line x1="14.47" y1="14.48" x2="20" y2="20"/><line x1="8.12" y1="8.12" x2="12" y2="12"/></svg>',
+  bottle: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="8" width="8" height="13" rx="3"/><rect x="10" y="4" width="4" height="5"/><line x1="9" y1="14" x2="15" y2="14"/></svg>',
+  venus: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="9" r="6"/><line x1="12" y1="15" x2="12" y2="21"/><line x1="9" y1="18" x2="15" y2="18"/></svg>',
+  flask: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6"/><path d="M10 3v5.5L4.5 18a2 2 0 0 0 1.8 3h11.4a2 2 0 0 0 1.8-3L14 8.5V3"/><line x1="7" y1="15" x2="17" y2="15"/></svg>'
+};
+const TYPE_ICON = { 'محاضرة':'book', 'فيديو':'play', 'ملخص':'file', 'ملف PDF':'download', 'أسئلة':'help', 'أخرى':'bookmark' };
+const CATEGORY_ICON = { 'Medicine':'pulse', 'Surgery':'scissors', 'Pediatrics':'bottle', 'OB/GYN':'venus', 'Basic Sciences':'flask' };
+
+// ---------------- Reader text parser ----------------
+// Recognizes a light emoji-based markup so pasted lecture notes render
+// as a clean, structured reading view instead of a raw text dump.
+const HEADER_MARKERS = [
+  { m: '🔴', cls: 'r-title' },
+  { m: '🔹', cls: 'r-section' },
+  { m: '🔶', cls: 'r-sub' },
+  { m: '🔸', cls: 'r-sub' }
+];
+const BULLET1_MARKERS = ['📍'];
+const BULLET2_MARKERS = ['▪︎', '▪', '•'];
+
+function renderInlineText(text) {
+  // Style the ➡️ arrow inline without breaking the rest of the escaped line.
+  return text.split('➡️').map(escapeHtml).join('<span class="arrow">➡️</span>');
+}
+
+function renderLectureText(text) {
+  const lines = String(text || '').split(/\r?\n/);
+  let html = '';
+  lines.forEach(raw => {
+    const line = raw.trim();
+    if (!line) return;
+
+    const header = HEADER_MARKERS.find(h => line.startsWith(h.m));
+    if (header) {
+      html += `<div class="${header.cls}">${renderInlineText(line.slice(header.m.length).trim())}</div>`;
+      return;
+    }
+    const b1 = BULLET1_MARKERS.find(b => line.startsWith(b));
+    if (b1) {
+      html += `<div class="r-b1">${renderInlineText(line.slice(b1.length).trim())}</div>`;
+      return;
+    }
+    const b2 = BULLET2_MARKERS.find(b => line.startsWith(b));
+    if (b2) {
+      html += `<div class="r-b2">${renderInlineText(line.slice(b2.length).trim())}</div>`;
+      return;
+    }
+    if (line.startsWith('*')) {
+      html += `<div class="r-note">${renderInlineText(line.slice(1).trim())}</div>`;
+      return;
+    }
+    html += `<div class="r-p">${renderInlineText(line)}</div>`;
+  });
+  return html || `<p class="r-p">لا يوجد نص.</p>`;
+}
+
+function escapeHtml(str) {
+  return String(str || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function lectureCountLabel(n) {
+  if (n === 0) return 'لا توجد محاضرات محفوظة بعد';
+  if (n === 1) return 'محاضرة واحدة محفوظة';
+  if (n === 2) return 'محاضرتان محفوظتان';
+  if (n >= 3 && n <= 10) return n + ' محاضرات محفوظة';
+  return n + ' محاضرة محفوظة';
+}
+
+// ---------------- Init ----------------
+async function init() {
+  populateCategorySelect();
+  wireStaticEvents();
+  render();
+
+  try {
+    db = (window.claude && window.claude.use) ? await window.claude.use('db') : null;
+  } catch (e) {
+    db = null;
+  }
+
+  try {
+    const userCap = (window.claude && window.claude.use) ? await window.claude.use('user') : null;
+    const w = userCap ? await userCap.can('data.write') : null;
+    if (w === false) canWrite = false;
+  } catch (e) {
+    // leave canWrite at its optimistic default; a refused write will decide
+  }
+  applyAccessUI();
+
+  if (!db) {
+    document.getElementById('storageBanner').classList.add('show');
+    document.getElementById('openAddBtn').disabled = true;
+    return;
+  }
+
+  col = db.collection('lectures');
+  col.orderBy('createdAt', 'desc').onSnapshot(
+    snap => {
+      lectures = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      render();
+    },
+    err => {
+      console.error(err);
+      document.getElementById('storageBanner').classList.add('show');
+    }
+  );
+}
+
+function applyAccessUI() {
+  document.getElementById('openAddBtn').style.display = canWrite ? '' : 'none';
+  const badge = document.getElementById('readOnlyBadge');
+  if (badge) badge.style.display = canWrite ? 'none' : '';
+}
+
+// ---------------- Rendering ----------------
+function render() {
+  document.getElementById('countLabel').textContent = lectureCountLabel(lectures.length);
+
+  const content = document.getElementById('content');
+  const q = state.search.trim().toLowerCase();
+
+  if (q) {
+    content.innerHTML = renderSearchResults(q);
+    return;
+  }
+
+  if (state.mode === 'source') {
+    content.innerHTML = renderSourceMode();
+  } else {
+    content.innerHTML = renderTopicMode();
+  }
+}
+
+function renderSearchResults(q) {
+  const matches = lectures.filter(l =>
+    (l.title || '').toLowerCase().includes(q) ||
+    (l.source || '').toLowerCase().includes(q) ||
+    (l.topic || '').toLowerCase().includes(q) ||
+    (l.category || '').toLowerCase().includes(q)
+  );
+  let html = `<p class="section-label">نتائج البحث عن «${escapeHtml(state.search.trim())}» — <b>${matches.length}</b></p>`;
+  if (matches.length === 0) {
+    html += `<div class="empty"><strong>لا توجد نتائج</strong>جرّب كلمة بحث مختلفة، أو أضف هذه المحاضرة الآن.</div>`;
+  } else {
+    html += renderLectureList(matches);
+  }
+  return html;
+}
+
+function renderSourceMode() {
+  if (!state.selectedSource) {
+    const bySource = {};
+    lectures.forEach(l => { const s = l.source || 'غير محدد'; bySource[s] = (bySource[s]||0) + 1; });
+    const sources = Object.keys(bySource).sort((a,b) => a.localeCompare(b, 'ar'));
+
+    if (sources.length === 0) {
+      return `<div class="empty"><strong>لا توجد مصادر بعد</strong>أضف أول محاضرة لتظهر مصادرك هنا.</div>`;
+    }
+    let html = `<p class="section-label">اختر مصدرًا لعرض محاضراته</p><div class="chip-grid">`;
+    sources.forEach(s => {
+      html += `<button type="button" class="chip" data-action="select-source" data-source="${escapeHtml(s)}">${escapeHtml(s)} <span class="n">${bySource[s]}</span></button>`;
+    });
+    html += `</div>`;
+    return html;
+  }
+
+  const sourceLectures = lectures.filter(l => (l.source || 'غير محدد') === state.selectedSource);
+
+  if (!state.selectedSourceCategory) {
+    const byCat = {};
+    sourceLectures.forEach(l => { const c = l.category || 'أخرى'; byCat[c] = (byCat[c]||0) + 1; });
+
+    let html = `<button type="button" class="back-chip" data-action="clear-source">${ICONS.back} كل المصادر</button>`;
+    html += `<p class="section-label"><b>${escapeHtml(state.selectedSource)}</b> — ${lectureCountLabel(sourceLectures.length)}</p>`;
+    html += `<p class="section-label">اختر موضوعًا لعرض محاضرات هذا المصدر فيه</p><div class="chip-grid">`;
+    Object.keys(TOPICS).forEach(cat => {
+      if (byCat[cat]) {
+        html += `<button type="button" class="chip" data-action="select-source-category" data-category="${escapeHtml(cat)}">${escapeHtml(cat)} <span class="n">${byCat[cat]}</span></button>`;
+      }
+    });
+    html += `</div>`;
+    return html;
+  }
+
+  const catLectures = sourceLectures.filter(l => l.category === state.selectedSourceCategory);
+
+  if (!state.selectedSourceTopic) {
+    const byTopic = {};
+    catLectures.forEach(l => { const t = l.topic || 'أخرى'; byTopic[t] = (byTopic[t]||0) + 1; });
+
+    let html = `<button type="button" class="back-chip" data-action="clear-source-category">${ICONS.back} ${escapeHtml(state.selectedSource)}</button>`;
+    html += `<p class="section-label"><b>${escapeHtml(state.selectedSourceCategory)}</b> — ${lectureCountLabel(catLectures.length)}</p>`;
+    html += `<p class="section-label">اختر الموضوع الفرعي</p><div class="chip-grid">`;
+    (TOPICS[state.selectedSourceCategory] || []).forEach(sub => {
+      if (byTopic[sub]) {
+        html += `<button type="button" class="chip" data-action="select-source-topic" data-topic="${escapeHtml(sub)}">${escapeHtml(sub)} <span class="n">${byTopic[sub]}</span></button>`;
+      }
+    });
+    html += `</div>`;
+    return html;
+  }
+
+  const list = catLectures.filter(l => l.topic === state.selectedSourceTopic);
+
+  if (!state.selectedSourceType) {
+    return renderTypeLevel(list, {
+      backAction: 'clear-source-topic',
+      backLabel: state.selectedSourceCategory,
+      selectAction: 'select-source-type',
+      headingLabel: state.selectedSourceTopic
+    });
+  }
+
+  const filtered = list.filter(l => (l.type || 'أخرى') === state.selectedSourceType);
+  let html = `<button type="button" class="back-chip" data-action="clear-source-type">${ICONS.back} ${escapeHtml(state.selectedSourceTopic)}</button>`;
+  html += `<p class="section-label"><b>${escapeHtml(state.selectedSourceType)}</b> — ${lectureCountLabel(filtered.length)}</p>`;
+  html += filtered.length ? renderLectureList(filtered) : `<div class="empty">لا توجد محاضرات بهذا النوع من هذا المصدر بعد.</div>`;
+  return html;
+}
+
+function renderTypeLevel(list, opts) {
+  const byType = {};
+  list.forEach(l => { const t = l.type || 'أخرى'; byType[t] = (byType[t]||0) + 1; });
+  let html = `<button type="button" class="back-chip" data-action="${opts.backAction}">${ICONS.back} ${escapeHtml(opts.backLabel)}</button>`;
+  html += `<p class="section-label"><b>${escapeHtml(opts.headingLabel)}</b> — ${lectureCountLabel(list.length)}</p>`;
+  html += `<p class="section-label">اختر نوع المادة</p><div class="chip-grid">`;
+  Object.keys(byType).forEach(t => {
+    html += `<button type="button" class="chip" data-action="${opts.selectAction}" data-type="${escapeHtml(t)}">${escapeHtml(t)} <span class="n">${byType[t]}</span></button>`;
+  });
+  html += `</div>`;
+  return html;
+}
+
+function renderTopicMode() {
+  if (state.selectedCategory && state.selectedTopic) {
+    const list = lectures.filter(l => l.category === state.selectedCategory && l.topic === state.selectedTopic);
+
+    if (!state.selectedType) {
+      return renderTypeLevel(list, {
+        backAction: 'clear-topic',
+        backLabel: state.selectedCategory,
+        selectAction: 'select-type',
+        headingLabel: state.selectedTopic
+      });
+    }
+
+    const filtered = list.filter(l => (l.type || 'أخرى') === state.selectedType);
+    let html = `<button type="button" class="back-chip" data-action="clear-type">${ICONS.back} ${escapeHtml(state.selectedTopic)}</button>`;
+    html += `<p class="section-label"><b>${escapeHtml(state.selectedType)}</b> — ${lectureCountLabel(filtered.length)}</p>`;
+    html += filtered.length ? renderLectureList(filtered) : `<div class="empty">لا توجد محاضرات بهذا النوع بعد.</div>`;
+    return html;
+  }
+
+  let html = '';
+  Object.keys(TOPICS).forEach(cat => {
+    const catCount = lectures.filter(l => l.category === cat).length;
+    const isOpen = state.selectedCategory === cat;
+    html += `<div class="category">
+      <button type="button" class="category-head${isOpen ? ' open' : ''}" data-action="toggle-category" data-category="${escapeHtml(cat)}">
+        <span class="head-left">${ICONS[CATEGORY_ICON[cat]]}<span class="name">${escapeHtml(cat)}</span></span>
+        <span class="meta"><span class="n">${catCount}</span>${ICONS.chevron}</span>
+      </button>`;
+    if (isOpen) {
+      html += `<div class="category-body"><div class="chip-grid">`;
+      TOPICS[cat].forEach(sub => {
+        const c = lectures.filter(l => l.category === cat && l.topic === sub).length;
+        html += `<button type="button" class="chip${c === 0 ? ' empty-count' : ''}" data-action="select-topic" data-topic="${escapeHtml(sub)}">${escapeHtml(sub)} <span class="n">${c}</span></button>`;
+      });
+      html += `</div></div>`;
+    }
+    html += `</div>`;
+  });
+  return html;
+}
+
+function renderLectureList(list) {
+  let html = `<div class="lecture-list">`;
+  list.forEach(l => {
+    const iconKey = TYPE_ICON[l.type] || 'bookmark';
+    const hasText = !!(l.text && l.text.trim());
+    html += `<div class="lecture">
+      <div class="icon">${ICONS[iconKey]}</div>
+      <div class="body${hasText ? ' clickable' : ''}"${hasText ? ` data-action="open-reader" data-id="${escapeHtml(l.id)}"` : ''}>
+        <p class="title">${escapeHtml(l.title)}</p>
+        <div class="meta-row">
+          <span>${escapeHtml(l.source || '')}</span>
+          <span>·</span>
+          <span>${escapeHtml(l.topic || '')}</span>
+          <span>·</span>
+          <span>${escapeHtml(l.type || '')}</span>
+        </div>
+        ${l.notes ? `<p class="notes">${escapeHtml(l.notes)}</p>` : ''}
+      </div>
+      <div class="actions">
+        ${hasText ? `<button type="button" class="read" data-action="open-reader" data-id="${escapeHtml(l.id)}" aria-label="قراءة المحاضرة">${ICONS.read}</button>` : ''}
+        ${l.link ? `<a href="${escapeHtml(l.link)}" target="_blank" rel="noopener noreferrer" aria-label="فتح الرابط">${ICONS.link}</a>` : ''}
+        ${canWrite ? `<button type="button" class="edit" data-action="edit-lecture" data-id="${escapeHtml(l.id)}" aria-label="تعديل المحاضرة">${ICONS.edit}</button>` : ''}
+        ${canWrite ? `<button type="button" class="del" data-action="delete-lecture" data-id="${escapeHtml(l.id)}" aria-label="حذف المحاضرة">${ICONS.trash}</button>` : ''}
+      </div>
+    </div>`;
+  });
+  html += `</div>`;
+  return html;
+}
+
+// ---------------- Events ----------------
+function wireStaticEvents() {
+  document.getElementById('searchInput').addEventListener('input', e => {
+    state.search = e.target.value;
+    render();
+  });
+
+  const toggle = document.getElementById('modeToggle');
+  toggle.addEventListener('click', e => {
+    const btn = e.target.closest('button[data-mode]');
+    if (!btn) return;
+    state.mode = btn.dataset.mode;
+    toggle.dataset.mode = state.mode;
+    toggle.querySelectorAll('button').forEach(b => b.classList.toggle('active', b.dataset.mode === state.mode));
+    render();
+  });
+
+  document.getElementById('content').addEventListener('click', onContentClick);
+
+  document.getElementById('openAddBtn').addEventListener('click', () => openModal());
+  document.getElementById('cancelBtn').addEventListener('click', closeModal);
+  document.getElementById('overlay').addEventListener('click', e => {
+    if (e.target.id === 'overlay') closeModal();
+  });
+
+  document.getElementById('readerCloseBtn').addEventListener('click', closeReader);
+  document.getElementById('readerOverlay').addEventListener('click', e => {
+    if (e.target.id === 'readerOverlay') closeReader();
+  });
+
+  document.addEventListener('keydown', e => {
+    if (e.key !== 'Escape') return;
+    if (document.getElementById('readerOverlay').classList.contains('open')) { closeReader(); return; }
+    if (document.getElementById('overlay').classList.contains('open')) closeModal();
+  });
+
+  document.getElementById('f_category').addEventListener('change', e => {
+    populateTopicSelect(e.target.value);
+  });
+
+  document.getElementById('lectureForm').addEventListener('submit', onSubmitLecture);
+}
+
+function onContentClick(e) {
+  const sourceChip = e.target.closest('[data-action="select-source"]');
+  if (sourceChip) { state.selectedSource = sourceChip.dataset.source; state.selectedSourceCategory = null; state.selectedSourceTopic = null; state.selectedSourceType = null; render(); return; }
+
+  const clearSource = e.target.closest('[data-action="clear-source"]');
+  if (clearSource) { state.selectedSource = null; state.selectedSourceCategory = null; state.selectedSourceTopic = null; state.selectedSourceType = null; render(); return; }
+
+  const sourceCategoryChip = e.target.closest('[data-action="select-source-category"]');
+  if (sourceCategoryChip) { state.selectedSourceCategory = sourceCategoryChip.dataset.category; state.selectedSourceTopic = null; state.selectedSourceType = null; render(); return; }
+
+  const clearSourceCategory = e.target.closest('[data-action="clear-source-category"]');
+  if (clearSourceCategory) { state.selectedSourceCategory = null; state.selectedSourceTopic = null; state.selectedSourceType = null; render(); return; }
+
+  const sourceTopicChip = e.target.closest('[data-action="select-source-topic"]');
+  if (sourceTopicChip) { state.selectedSourceTopic = sourceTopicChip.dataset.topic; state.selectedSourceType = null; render(); return; }
+
+  const clearSourceTopic = e.target.closest('[data-action="clear-source-topic"]');
+  if (clearSourceTopic) { state.selectedSourceTopic = null; state.selectedSourceType = null; render(); return; }
+
+  const sourceTypeChip = e.target.closest('[data-action="select-source-type"]');
+  if (sourceTypeChip) { state.selectedSourceType = sourceTypeChip.dataset.type; render(); return; }
+
+  const clearSourceType = e.target.closest('[data-action="clear-source-type"]');
+  if (clearSourceType) { state.selectedSourceType = null; render(); return; }
+
+  const catHeader = e.target.closest('[data-action="toggle-category"]');
+  if (catHeader) {
+    const cat = catHeader.dataset.category;
+    state.selectedCategory = (state.selectedCategory === cat) ? null : cat;
+    state.selectedTopic = null;
+    state.selectedType = null;
+    render();
+    return;
+  }
+
+  const topicChip = e.target.closest('[data-action="select-topic"]');
+  if (topicChip) { state.selectedTopic = topicChip.dataset.topic; state.selectedType = null; render(); return; }
+
+  const clearTopic = e.target.closest('[data-action="clear-topic"]');
+  if (clearTopic) { state.selectedTopic = null; state.selectedType = null; render(); return; }
+
+  const typeChip = e.target.closest('[data-action="select-type"]');
+  if (typeChip) { state.selectedType = typeChip.dataset.type; render(); return; }
+
+  const clearType = e.target.closest('[data-action="clear-type"]');
+  if (clearType) { state.selectedType = null; render(); return; }
+
+  const delBtn = e.target.closest('[data-action="delete-lecture"]');
+  if (delBtn) { deleteLecture(delBtn.dataset.id); return; }
+
+  const editBtn = e.target.closest('[data-action="edit-lecture"]');
+  if (editBtn) { openModal(editBtn.dataset.id); return; }
+
+  const readerTrigger = e.target.closest('[data-action="open-reader"]');
+  if (readerTrigger) { openReader(readerTrigger.dataset.id); return; }
+}
+
+// ---------------- Reader ----------------
+function openReader(id) {
+  const lec = lectures.find(l => l.id === id);
+  if (!lec) return;
+  document.getElementById('readerTitle').textContent = lec.title;
+  document.getElementById('readerMeta').textContent = [lec.source, lec.topic, lec.type].filter(Boolean).join(' · ');
+  document.getElementById('readerBody').innerHTML = renderLectureText(lec.text);
+  document.getElementById('readerOverlay').classList.add('open');
+}
+
+function closeReader() {
+  document.getElementById('readerOverlay').classList.remove('open');
+}
+
+// ---------------- Modal ----------------
+function populateCategorySelect() {
+  const sel = document.getElementById('f_category');
+  Object.keys(TOPICS).forEach(cat => {
+    const opt = document.createElement('option');
+    opt.value = cat;
+    opt.textContent = cat;
+    sel.appendChild(opt);
+  });
+}
+
+function populateTopicSelect(category) {
+  const sel = document.getElementById('f_topic');
+  sel.innerHTML = '';
+  if (!category || !TOPICS[category]) {
+    sel.disabled = true;
+    const opt = document.createElement('option');
+    opt.value = ''; opt.disabled = true; opt.selected = true;
+    opt.textContent = 'اختر التصنيف أولاً';
+    sel.appendChild(opt);
+    return;
+  }
+  sel.disabled = false;
+  const placeholder = document.createElement('option');
+  placeholder.value = ''; placeholder.disabled = true; placeholder.selected = true;
+  placeholder.textContent = 'اختر…';
+  sel.appendChild(placeholder);
+  TOPICS[category].forEach(sub => {
+    const opt = document.createElement('option');
+    opt.value = sub;
+    opt.textContent = sub;
+    sel.appendChild(opt);
+  });
+}
+
+function fillFormFromLecture(l) {
+  document.getElementById('f_title').value = l.title || '';
+  document.getElementById('f_source').value = l.source || '';
+  document.getElementById('f_category').value = l.category || '';
+  populateTopicSelect(l.category || '');
+  document.getElementById('f_topic').value = l.topic || '';
+  document.getElementById('f_type').value = l.type || 'محاضرة';
+  document.getElementById('f_link').value = l.link || '';
+  document.getElementById('f_text').value = l.text || '';
+  document.getElementById('f_notes').value = l.notes || '';
+}
+
+function openModal(id) {
+  if (!db) return;
+  editingId = id || null;
+  const lec = editingId ? lectures.find(l => l.id === editingId) : null;
+
+  const sourceList = document.getElementById('sourceList');
+  sourceList.innerHTML = '';
+  const seen = new Set();
+  lectures.forEach(l => {
+    if (l.source && !seen.has(l.source)) {
+      seen.add(l.source);
+      const opt = document.createElement('option');
+      opt.value = l.source;
+      sourceList.appendChild(opt);
+    }
+  });
+
+  document.getElementById('lectureForm').reset();
+  populateTopicSelect('');
+
+  if (lec) {
+    fillFormFromLecture(lec);
+    document.getElementById('modalTitle').textContent = 'تعديل المحاضرة';
+    document.getElementById('saveBtn').textContent = 'حفظ التعديلات';
+  } else {
+    document.getElementById('modalTitle').textContent = 'إضافة محاضرة';
+    document.getElementById('saveBtn').textContent = 'حفظ المحاضرة';
+  }
+
+  document.getElementById('overlay').classList.add('open');
+  document.getElementById('f_title').focus();
+}
+
+function closeModal() {
+  document.getElementById('overlay').classList.remove('open');
+  document.getElementById('lectureForm').reset();
+  populateTopicSelect('');
+  editingId = null;
+}
+
+async function onSubmitLecture(e) {
+  e.preventDefault();
+  if (!col) return;
+
+  const title = document.getElementById('f_title').value.trim();
+  const source = document.getElementById('f_source').value.trim();
+  const category = document.getElementById('f_category').value;
+  const topic = document.getElementById('f_topic').value;
+  const type = document.getElementById('f_type').value;
+  const link = document.getElementById('f_link').value.trim();
+  const text = document.getElementById('f_text').value.trim();
+  const notes = document.getElementById('f_notes').value.trim();
+
+  if (!title || !source || !category || !topic) return;
+
+  const isEdit = !!editingId;
+  const targetId = editingId;
+
+  const saveBtn = document.getElementById('saveBtn');
+  saveBtn.disabled = true;
+  saveBtn.textContent = 'جارٍ الحفظ…';
+
+  try {
+    const data = { title, source, category, topic, type, link, text, notes };
+    if (isEdit) {
+      await col.doc(targetId).update(data);
+    } else {
+      data.createdAt = Date.now();
+      await col.add(data);
+    }
+    closeModal();
+  } catch (err) {
+    console.error(err);
+    alert('تعذّر حفظ المحاضرة. جرّب مرة أخرى.');
+  } finally {
+    saveBtn.disabled = false;
+    saveBtn.textContent = isEdit ? 'حفظ التعديلات' : 'حفظ المحاضرة';
+  }
+}
+
+async function deleteLecture(id) {
+  if (!col || !id) return;
+  if (!confirm('حذف هذه المحاضرة؟')) return;
+  try {
+    await col.doc(id).delete();
+  } catch (err) {
+    console.error(err);
+    alert('تعذّر حذف المحاضرة.');
+  }
+}
+
+init();
+</script>
+</body>
+</html>
