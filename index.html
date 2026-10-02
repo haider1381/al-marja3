@@ -1662,6 +1662,32 @@
   .smart-option:hover, .smart-option[aria-selected="true"] { background:var(--accent-soft); color:var(--accent-strong); }
   :root[data-theme="dark"] .smart-search-form { background:var(--bg); border-color:var(--border); }
 
+
+  /* Muted pistachio accents for the search and filter icons. */
+  .search-submit, .search-filter-btn {
+    background:#EDF2E6;
+    color:#4D6340;
+  }
+  .search-submit:hover, .search-filter-btn:hover {
+    background:#DCE6D1;
+    color:#354C2A;
+  }
+  .search-submit svg, .search-filter-btn svg,
+  .mb-hero .search-box .search-submit svg { color:inherit; }
+  .search-submit:focus-visible, .search-filter-btn:focus-visible { outline-color:#6D8258; }
+  #filterActiveCount { background:#4D6340; color:#ffffff; }
+  :root[data-theme="dark"] .search-submit,
+  :root[data-theme="dark"] .search-filter-btn {
+    background:#29352D;
+    color:#BDD0A1;
+  }
+  :root[data-theme="dark"] .search-submit:hover,
+  :root[data-theme="dark"] .search-filter-btn:hover {
+    background:#354338;
+    color:#D5E3C0;
+  }
+  :root[data-theme="dark"] #filterActiveCount { background:#BDD0A1; color:#18231A; }
+
 </style>
 </head>
 <body>
