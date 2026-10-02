@@ -1607,6 +1607,61 @@
   :root[data-theme="dark"] .mb-about-dialog h2 { color:var(--accent-strong); }
   :root[data-theme="dark"] .mb-about-close { background:var(--accent-soft); color:var(--accent-strong); border-color:var(--border); }
 
+
+  /* Compact library search with available-content suggestions. */
+  .smart-search-form { position:relative; display:flex; align-items:center; gap:6px; border:1px solid var(--border); border-radius:12px; background:#ffffff; }
+  .smart-search-form input, .mb-hero .search-box input {
+    color:#172235; caret-color:#0B5FA5; -webkit-text-fill-color:#172235;
+  }
+  .smart-search-form input::placeholder, .mb-hero .search-box input::placeholder { color:#52677b; opacity:1; }
+  :root[data-theme="dark"] .smart-search-form input,
+  :root[data-theme="dark"] .mb-hero .search-box input { color:#e7edf7; caret-color:#8cc8ff; -webkit-text-fill-color:#e7edf7; }
+  :root[data-theme="dark"] .smart-search-form input::placeholder,
+  :root[data-theme="dark"] .mb-hero .search-box input::placeholder { color:#b0bed4; -webkit-text-fill-color:#b0bed4; }
+  .search-submit, .search-filter-btn {
+    position:relative; flex:0 0 36px; width:36px; height:36px;
+    border:0; border-radius:8px; background:var(--accent-soft); color:var(--accent-strong);
+    display:grid; place-items:center; margin:5px;
+  }
+  .search-submit svg, .search-filter-btn svg { position:static; transform:none; width:19px; height:19px; color:inherit; pointer-events:none; }
+  .mb-hero .search-box .search-submit { position:absolute; right:10px; z-index:2; margin:0; }
+  .mb-hero .search-box .search-submit svg { position:static; transform:none; width:20px; height:20px; color:inherit; }
+  .mb-hero .smart-search-form { border:0; }
+  .library-search-wrap { position:relative; margin:10px 0 6px; }
+  .library-search input { min-width:0; flex:1; width:100%; border:0; background:transparent; padding:11px 0; font-size:14px; }
+  .library-search:focus-within { border-color:var(--accent); box-shadow:0 0 0 2px var(--accent-soft); }
+  .search-filter-btn { margin-inline-start:0; }
+  #filterActiveCount { position:absolute; top:-3px; left:-3px; border-radius:50%; min-width:15px; padding:1px 3px; background:#0F6CBD; color:#ffffff; font-size:9px; }
+  .search-filter-popover { position:absolute; z-index:26; top:calc(100% + 6px); left:0; width:min(340px,100%); padding:14px; background:var(--surface); border:1px solid var(--border); border-radius:14px; box-shadow:var(--mb-shadow); color:var(--text); }
+  .filter-popover-head { display:flex; justify-content:space-between; align-items:center; font-size:14px; margin-bottom:10px; }
+  .filter-popover-head button { border:0; background:var(--surface-alt); color:var(--text); width:26px; height:26px; border-radius:7px; font-size:20px; }
+  .mb-library .library-filters { grid-template-columns:1fr 1fr; gap:8px; margin:0; }
+  .mb-library .library-filters label { font-size:11px; }
+  .mb-library .library-filters select { padding:7px; font-size:12px; margin-top:4px; border-radius:7px; }
+  .filter-popover-actions { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-top:12px; }
+  .filter-popover-actions button { font-size:12px; padding:7px 12px; }
+  #clearFilterChoices { border:0; background:transparent; color:var(--text-muted); }
+  .library-results-tools { display:flex; align-items:center; justify-content:space-between; gap:8px; margin:4px 0 8px; font-size:11px; color:var(--text-muted); }
+  .library-results-tools .back-chip { margin:0; font-size:11px; }
+  .mb-library .mb-page-toolbar { margin-bottom:8px; }
+  .mb-library .mb-page-title { font-size:21px; }
+  .mb-library .mb-page-subtitle { font-size:11px; }
+  .mb-library .mb-library-head { margin-bottom:4px; }
+  .mb-library .add-btn { font-size:12px; padding:7px 10px; }
+  #refreshLibraryBtn { font-size:11px; padding:3px 0; margin:0 0 8px; }
+  .mb-library .lecture { padding:10px 12px; gap:8px; }
+  .mb-library .lecture .title { font-size:14px; }
+  .smart-suggestions {
+    position:fixed; z-index:38; overflow-y:auto; overscroll-behavior:contain;
+    border:1px solid var(--border); border-radius:12px; background:var(--surface);
+    box-shadow:var(--mb-shadow); padding:5px; color:var(--text);
+  }
+  .smart-option { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:9px 10px; border-radius:8px; cursor:pointer; font-size:13px; }
+  .smart-option span { overflow-wrap:anywhere; }
+  .smart-option small { flex-shrink:0; color:var(--text-muted); font-size:10px; }
+  .smart-option:hover, .smart-option[aria-selected="true"] { background:var(--accent-soft); color:var(--accent-strong); }
+  :root[data-theme="dark"] .smart-search-form { background:var(--bg); border-color:var(--border); }
+
 </style>
 </head>
 <body>
@@ -1795,10 +1850,10 @@
 
       <h1 class="mb-welcome" dir="ltr">Welcome, <span id="welcomeName">Doctor</span>!</h1>
       <div class="mb-search-row">
-        <div class="search-box">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          <input type="text" id="searchInput" placeholder="ابحث عن محاضرة، موضوع، مصدر أو فيديو…" autocomplete="off">
-        </div>
+        <form class="search-box smart-search-form" id="homeSearchForm" role="search">
+          <button type="submit" class="search-submit" aria-label="بحث"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg></button>
+          <input type="search" id="searchInput" aria-label="البحث في المواد الطبية" placeholder="ابحث عن محاضرة، موضوع، مصدر أو فيديو…" autocomplete="off" role="combobox" aria-autocomplete="list" aria-controls="smartSuggestions" aria-expanded="false">
+        </form>
         <button class="mb-topics-btn" id="heroTopicsBtn" type="button">عرض كل المواضيع <span>⌄</span></button>
       </div>
       <div class="mb-tip"><span class="mb-tip-bulb">💡</span><i>Try: “Cardiology” &nbsp; • &nbsp; “Diabetes” &nbsp; • &nbsp; “Respiratory”...</i></div>
@@ -1877,14 +1932,31 @@
         </div>
       </div>
 
-      <div class="library-filters" aria-label="فلاتر المكتبة">
-        <label>المصدر<select id="filterSource"><option value="">كل المصادر</option></select></label>
-        <label>الموضوع<select id="filterTopic"><option value="">كل المواضيع</option></select></label>
-        <label>نوع المادة<select id="filterKind"><option value="">كل المواد</option><option value="lectures">محاضرات وملخصات وPDF</option><option value="videos">فيديوهات</option><option value="questions">أسئلة</option><option value="other">أخرى</option></select></label>
+      <div class="library-search-wrap">
+        <form class="smart-search-form library-search" id="librarySearchForm" role="search">
+          <button type="submit" class="search-submit" aria-label="بحث في المحاضرات"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg></button>
+          <input type="search" id="librarySearchInput" aria-label="البحث في المحاضرات والمواد" placeholder="ابحث باسم المحاضرة أو الموضوع…" autocomplete="off" role="combobox" aria-autocomplete="list" aria-controls="smartSuggestions" aria-expanded="false">
+          <button type="button" id="libraryFilterBtn" class="search-filter-btn" aria-label="فلاتر البحث" aria-expanded="false" aria-controls="libraryFilterPopover">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 6h7m4 0h7M3 12h12m4 0h2M3 18h3m4 0h11"/><circle cx="12" cy="6" r="2"/><circle cx="17" cy="12" r="2"/><circle cx="8" cy="18" r="2"/></svg>
+            <span id="filterActiveCount" hidden></span>
+          </button>
+        </form>
+        <section id="libraryFilterPopover" class="search-filter-popover" aria-label="فلاتر البحث" hidden>
+          <div class="filter-popover-head"><strong>فلاتر البحث</strong><button type="button" id="closeFiltersBtn" aria-label="إغلاق الفلاتر">×</button></div>
+          <div class="library-filters">
+            <label>التخصص<select id="filterCategory"><option value="">كل التخصصات</option></select></label>
+            <label>الموضوع<select id="filterTopic"><option value="">كل المواضيع</option></select></label>
+            <label>المصدر<select id="filterSource"><option value="">كل المصادر</option></select></label>
+            <label>نوع المادة<select id="filterKind"><option value="">كل المواد</option></select></label>
+          </div>
+          <div class="filter-popover-actions"><button type="button" id="applyFiltersBtn" class="mb-primary">عرض النتائج</button><button type="button" id="clearFilterChoices">مسح الفلاتر</button></div>
+        </section>
       </div>
-      <button type="button" class="back-chip filter-reset" id="resetFilters" hidden>مسح البحث والفلاتر</button>
-
-      <div class="segmented" id="modeToggle" data-mode="source">
+      <div class="library-results-tools">
+        <button type="button" class="back-chip filter-reset" id="resetFilters" hidden>مسح البحث والفلاتر</button>
+        <span id="librarySearchHint">المواد المتوفرة في المكتبة</span>
+      </div>
+      <div class="segmented" id="modeToggle" data-mode="source" hidden>
         <div class="highlight"></div>
         <button type="button" class="active" data-mode="source">حسب المصدر</button>
         <button type="button" data-mode="topic">حسب الموضوع</button>
@@ -2049,6 +2121,8 @@
     </div>
   </div>
 </div>
+
+<div id="smartSuggestions" class="smart-suggestions" role="listbox" aria-label="اقتراحات من المواد المتوفرة" hidden></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.js"></script>
 <script>
@@ -2427,7 +2501,7 @@ const state = {
   selectedCategory: null,
   selectedTopic: null,
   selectedType: null,
-  search: '', filterSource: '', filterTopic: '', filterKind: ''
+  search: '', filterSource: '', filterTopic: '', filterKind: '', filterCategory: ''
 };
 
 // ---------------- Icons ----------------
@@ -2543,7 +2617,7 @@ async function init() {
   if (error) document.getElementById('gateError').textContent = 'تعذّر استعادة جلسة الدخول.';
   await syncAccess(error ? null : data.session);
 }
-function showGate() { document.getElementById('gateOverlay').classList.add('open'); }
+function showGate() { closeSearchSuggestions(); setSearchFiltersOpen(false); document.getElementById('gateOverlay').classList.add('open'); }
 function hideGate() { document.getElementById('gateOverlay').classList.remove('open'); }
 
 async function syncAccess(session) {
@@ -2737,16 +2811,12 @@ function applyAccessUI() {
 function render() {
   document.getElementById('countLabel').textContent = lectureCountLabel(lectures.length);
   refreshFilterOptions();
-  const hasFilters = !!(state.search.trim() || state.filterSource || state.filterTopic || state.filterKind);
+  const hasFilters = !!(state.search.trim() || state.filterSource || state.filterTopic || state.filterKind || state.filterCategory);
   document.getElementById('resetFilters').hidden = !hasFilters;
   const content = document.getElementById('content');
-  if (hasFilters) {
-    const list = filterMaterials(lectures, state);
-    content.innerHTML = '<p class="section-label">نتائج البحث والفلاتر — <b>' + list.length + '</b></p>' +
-      (list.length ? renderLectureList(list) : '<div class="empty">لا توجد مواد مطابقة. جرّب تغيير الفلاتر.</div>');
-  } else {
-    content.innerHTML = state.mode === 'source' ? renderSourceMode() : renderTopicMode();
-  }
+  const list = filterMaterials(lectures, state);
+  content.innerHTML = '<p class="section-label">' + (state.search.trim() ? 'نتائج البحث — ' : 'المواد المتوفرة — ') + '<b>' + list.length + '</b></p>' +
+    (list.length ? renderLectureList(list) : '<div class="empty">لا توجد مواد مطابقة. جرّب تغيير البحث أو الفلاتر.</div>');
   renderMedbrainWidgets();
 }
 
@@ -2930,10 +3000,7 @@ function wireStaticEvents() {
   wireReaderTools();
   wireAuthoringEvents();
   wireMedbrainEvents();
-  document.getElementById('searchInput').addEventListener('input', e => {
-    state.search = e.target.value;
-    render();
-  });
+  wireSmartSearch();
 
   const toggle = document.getElementById('modeToggle');
   toggle.addEventListener('click', e => {
@@ -3051,6 +3118,7 @@ function showMbToast(message) {
 
 function goToLibraryKind(kind) {
   state.search = '';
+  state.filterCategory = '';
   state.filterSource = '';
   state.filterTopic = '';
   state.filterKind = kind || '';
@@ -3058,6 +3126,9 @@ function goToLibraryKind(kind) {
   state.selectedCategory = state.selectedTopic = state.selectedType = null;
   const search = document.getElementById('searchInput');
   if (search) search.value = '';
+  document.getElementById('librarySearchInput').value = '';
+  closeSearchSuggestions();
+  setSearchFiltersOpen(false);
   const filter = document.getElementById('filterKind');
   if (filter) filter.value = state.filterKind;
   render();
@@ -3076,9 +3147,9 @@ function openAccountPanel() {
 function renderTopicsModal() {
   const grid = document.getElementById('topicsGrid');
   if (!grid) return;
-  const cats = [...new Set([...Object.keys(TOPICS), ...lectures.map(l => l.category).filter(Boolean)])];
+  const cats = [...new Set(lectures.map(l => l.category).filter(Boolean))];
   grid.innerHTML = cats.map(cat => {
-    const topics = [...new Set([...(TOPICS[cat] || []), ...lectures.filter(l => l.category === cat).map(l => l.topic).filter(Boolean)])];
+    const topics = [...new Set(lectures.filter(l => l.category === cat).map(l => l.topic).filter(Boolean))];
     const count = lectures.filter(l => l.category === cat).length;
     return '<section class="mb-topic-col"><h3>' + escapeHtml(cat) + ' <small style="color:#7b8998">(' + count + ')</small></h3>' +
       topics.map(topic => {
@@ -3192,9 +3263,13 @@ function wireMedbrainEvents() {
     if (!btn) return;
     state.mode = 'topic';
     state.selectedCategory = btn.dataset.topicCategory;
-    state.selectedTopic = btn.dataset.topicName;
+    state.selectedTopic = null;
     state.selectedType = null;
-    state.search = state.filterSource = state.filterTopic = state.filterKind = '';
+    state.search = state.filterSource = state.filterKind = '';
+    state.filterCategory = btn.dataset.topicCategory;
+    state.filterTopic = btn.dataset.topicName;
+    document.getElementById('searchInput').value = '';
+    document.getElementById('librarySearchInput').value = '';
     const toggle = document.getElementById('modeToggle');
     toggle.dataset.mode = 'topic';
     toggle.querySelectorAll('button').forEach(b => b.classList.toggle('active', b.dataset.mode === 'topic'));
@@ -3313,9 +3388,7 @@ function wireMedbrainEvents() {
     }catch(err){console.error(err);status.textContent='تعذّر إضافة البطاقة.';}
   });
 
-  document.getElementById('searchInput').addEventListener('keydown', e => {
-    if(e.key==='Enter' && e.target.value.trim()) showMainView('library','');
-  });
+
 
   document.addEventListener('keydown', e => {
     if (e.key !== 'Escape') return;
@@ -3687,14 +3760,57 @@ function materialGroup(type) {
   if (['محاضرة', 'ملخص', 'ملف PDF', 'PDF'].includes(type)) return 'lectures';
   return 'other';
 }
+function normalizeSearch(value) {
+  return String(value || '').normalize('NFKD').replace(/[\u0300-\u036f\u064B-\u065F\u0670]/g,'')
+    .toLocaleLowerCase().replace(/[أإآٱ]/g,'ا').replace(/ى/g,'ي')
+    .replace(/[^\p{L}\p{N}]+/gu,' ').trim().replace(/\s+/g,' ');
+}
+function tokenSimilarity(a,b) {
+  if (a === b) return 1;
+  if (Math.abs(a.length-b.length)>2 || Math.min(a.length,b.length)<4) return 0;
+  let previous = Array.from({length:b.length+1},(_,i)=>i);
+  let beforePrevious = null;
+  for(let i=1;i<=a.length;i++){
+    const row=[i];
+    for(let j=1;j<=b.length;j++) {
+      row[j]=Math.min(row[j-1]+1,previous[j]+1,previous[j-1]+(a[i-1]===b[j-1]?0:1));
+      if(i>1&&j>1&&a[i-1]===b[j-2]&&a[i-2]===b[j-1]) row[j]=Math.min(row[j],beforePrevious[j-2]+1);
+    }
+    beforePrevious=previous;
+    previous=row;
+  }
+  return 1-previous[b.length]/Math.max(a.length,b.length);
+}
+function materialSearchScore(material, query) {
+  const q=normalizeSearch(query);
+  if(!q)return 1;
+  const title=normalizeSearch(material.title);
+  if(title===q)return 1000;
+  if(title.startsWith(q))return 900-Math.min(80,Math.abs(title.length-q.length));
+  if(title.includes(q))return 800-Math.min(80,Math.abs(title.length-q.length));
+  const tokens=q.split(' ');
+  const fields=[title,...[material.source,material.category,material.topic,material.type].map(normalizeSearch)];
+  const words=fields.join(' ').split(' ');
+  if(tokens.every(t=>title.includes(t)))return 700;
+  if(fields.slice(1).some(f=>f===q))return 600;
+  if(fields.slice(1).some(f=>f.includes(q)))return 500;
+  if(tokens.every(t=>fields.some(f=>f.includes(t))))return 400;
+  const titleWords=title.split(' ');
+  const similarity=tokens.map(t=>Math.max(0,...titleWords.map(w=>tokenSimilarity(t,w))));
+  if(similarity.every(score=>score>=.75))return 350+Math.round(similarity.reduce((a,b)=>a+b,0)/tokens.length*100)-Math.min(80,Math.abs(title.length-q.length));
+  if(tokens.every(t=>words.some(w=>w.includes(t)||tokenSimilarity(t,w)>=.75)))return 200;
+  return 0;
+}
 function filterMaterials(list, filters) {
-  const q = String(filters.search || '').trim().toLocaleLowerCase();
-  return list.filter(l =>
-    (!q || [l.title, l.source, l.category, l.topic, l.type].some(v => String(v || '').toLocaleLowerCase().includes(q))) &&
+  const filtered=list.map((material,index)=>({material,index,score:materialSearchScore(material,filters.search)})).filter(({material:l,score})=>
+    score>0 &&
+    (!filters.filterCategory || l.category===filters.filterCategory) &&
     (!filters.filterSource || (l.source || 'غير محدد') === filters.filterSource) &&
     (!filters.filterTopic || (l.topic || 'أخرى') === filters.filterTopic) &&
     (!filters.filterKind || materialGroup(l.type) === filters.filterKind)
   );
+  if(normalizeSearch(filters.search))filtered.sort((a,b)=>b.score-a.score || a.index-b.index);
+  return filtered.map(entry=>entry.material);
 }
 function replaceSelectOptions(id, values, selected, label) {
   const select = document.getElementById(id);
@@ -3705,10 +3821,142 @@ function replaceSelectOptions(id, values, selected, label) {
   select.value = selected;
 }
 function refreshFilterOptions() {
-  replaceSelectOptions('filterSource', lectures.map(l => l.source || 'غير محدد'), state.filterSource, 'كل المصادر');
-  const list = state.filterSource ? lectures.filter(l => (l.source || 'غير محدد') === state.filterSource) : lectures;
-  replaceSelectOptions('filterTopic', list.map(l => l.topic || 'أخرى'), state.filterTopic, 'كل المواضيع');
-  document.getElementById('filterKind').value = state.filterKind;
+  const withoutQuery={...state,search:''};
+  const scoped=key=>filterMaterials(lectures,{...withoutQuery,[key]:''});
+  replaceSelectOptions('filterCategory',scoped('filterCategory').map(l=>l.category).filter(Boolean),state.filterCategory,'كل التخصصات');
+  replaceSelectOptions('filterSource',scoped('filterSource').map(l=>l.source||'غير محدد'),state.filterSource,'كل المصادر');
+  replaceSelectOptions('filterTopic',scoped('filterTopic').map(l=>l.topic||'أخرى'),state.filterTopic,'كل المواضيع');
+  const select=document.getElementById('filterKind');
+  const kinds=[...new Set(scoped('filterKind').map(l=>materialGroup(l.type)))];
+  if(state.filterKind&&!kinds.includes(state.filterKind))kinds.push(state.filterKind);
+  select.innerHTML='<option value="">كل المواد</option>'+kinds.map(k=>'<option value="'+escapeHtml(k)+'">'+escapeHtml(GROUP_LABELS[k]||k)+'</option>').join('');
+  select.value=state.filterKind;
+  const count=[state.filterCategory,state.filterTopic,state.filterSource,state.filterKind].filter(Boolean).length;
+  const badge=document.getElementById('filterActiveCount');
+  badge.hidden=!count;badge.textContent=count;
+  document.getElementById('librarySearchHint').textContent=state.search.trim()?'النتائج مرتبة حسب الأقرب لعنوان البحث':'المواد المتوفرة في المكتبة';
+}
+let suggestionInput=null;
+let suggestionItems=[];
+let suggestionIndex=-1;
+function closeSearchSuggestions() {
+  document.getElementById('smartSuggestions').hidden=true;
+  ['searchInput','librarySearchInput'].forEach(id=>{
+    const input=document.getElementById(id);input.setAttribute('aria-expanded','false');input.removeAttribute('aria-activedescendant');
+  });
+  suggestionIndex=-1;
+}
+function setSearchFiltersOpen(open) {
+  document.getElementById('libraryFilterPopover').hidden=!open;
+  document.getElementById('libraryFilterBtn').setAttribute('aria-expanded',String(open));
+  if(open){closeSearchSuggestions();document.getElementById('filterCategory').focus();}
+}
+function positionSearchSuggestions() {
+  if(!suggestionInput)return;
+  const list=document.getElementById('smartSuggestions');
+  const rect=suggestionInput.closest('form').getBoundingClientRect();
+  list.style.left=Math.max(8,rect.left)+'px';
+  list.style.top=(rect.bottom+6)+'px';
+  list.style.width=Math.min(rect.width,window.innerWidth-16)+'px';
+  list.style.maxHeight=Math.max(100,Math.min(320,window.innerHeight-rect.bottom-18))+'px';
+}
+function renderSearchSuggestions(input) {
+  suggestionInput=input;suggestionIndex=-1;
+  const query=normalizeSearch(input.value);
+  const scope=input.id==='searchInput'?lectures:filterMaterials(lectures,{...state,search:''});
+  const groups=new Map();
+  const add=(kind,label)=>{
+    if(!label)return;
+    const key=kind+'|'+label;
+    if(!groups.has(key))groups.set(key,{kind,label,count:0});
+    groups.get(key).count++;
+  };
+  scope.forEach(l=>{add('title',l.title);add('topic',l.topic);add('category',l.category);add('source',l.source);});
+  suggestionItems=[...groups.values()].map(item=>{
+    const label=normalizeSearch(item.label);
+    const score=!query?1:label===query?100:label.startsWith(query)?90:label.includes(query)?80:materialSearchScore({title:item.label},query)>0?40:0;
+    return {...item,score};
+  }).filter(item=>item.score>0&& (query||item.kind==='category'||item.kind==='topic'))
+    .sort((a,b)=>b.score-a.score || ({title:0,topic:1,category:2,source:3}[a.kind]-{title:0,topic:1,category:2,source:3}[b.kind]) || a.label.localeCompare(b.label,'ar')).slice(0,8);
+  const list=document.getElementById('smartSuggestions');
+  const names={title:'مادة',topic:'موضوع',category:'تخصص',source:'مصدر'};
+  list.innerHTML=suggestionItems.map((item,i)=>'<div role="option" aria-selected="false" id="smart-option-'+i+'" data-suggestion="'+i+'" class="smart-option"><span dir="auto">'+escapeHtml(item.label)+'</span><small>'+names[item.kind]+' · '+item.count+'</small></div>').join('');
+  list.hidden=!suggestionItems.length;
+  input.setAttribute('aria-expanded',String(suggestionItems.length>0));
+  input.removeAttribute('aria-activedescendant');
+  positionSearchSuggestions();
+}
+function chooseSearchSuggestion(index) {
+  const item=suggestionItems[index];if(!item)return;
+  if(suggestionInput.id==='searchInput'){
+    state.search='';state.filterCategory=state.filterSource=state.filterTopic=state.filterKind='';
+  }
+  if(item.kind==='title')state.search=item.label;
+  else {
+    state.search='';
+    const key={category:'filterCategory',topic:'filterTopic',source:'filterSource'}[item.kind];
+    state[key]=item.label;
+  }
+  ['searchInput','librarySearchInput'].forEach(id=>{document.getElementById(id).value=state.search;});
+  closeSearchSuggestions();render();showMainView('library','');
+  document.getElementById('librarySearchInput').focus();
+  closeSearchSuggestions();
+}
+function wireSmartSearch() {
+  const submitSearch=()=>{
+    closeSearchSuggestions();setSearchFiltersOpen(false);
+    render();showMainView('library','');
+  };
+  ['searchInput','librarySearchInput'].forEach(id=>{
+    const input=document.getElementById(id);
+    input.addEventListener('input',()=>{
+      state.search=input.value;
+      document.getElementById(id==='searchInput'?'librarySearchInput':'searchInput').value=input.value;
+      if(id==='searchInput'){state.filterCategory=state.filterSource=state.filterTopic=state.filterKind='';}
+      render();renderSearchSuggestions(input);
+    });
+    input.addEventListener('focus',()=>renderSearchSuggestions(input));
+    input.addEventListener('keydown',e=>{
+      if(e.key==='Escape'){closeSearchSuggestions();return;}
+      if(e.key==='ArrowDown'||e.key==='ArrowUp'){
+        if(document.getElementById('smartSuggestions').hidden)renderSearchSuggestions(input);
+        if(!suggestionItems.length)return;
+        e.preventDefault();
+        suggestionIndex=suggestionIndex<0?(e.key==='ArrowDown'?0:suggestionItems.length-1):(suggestionIndex+(e.key==='ArrowDown'?1:-1)+suggestionItems.length)%suggestionItems.length;
+        document.querySelectorAll('#smartSuggestions [role=option]').forEach((option,i)=>{
+          option.setAttribute('aria-selected',String(i===suggestionIndex));
+          if(i===suggestionIndex){input.setAttribute('aria-activedescendant',option.id);option.scrollIntoView({block:'nearest'});}
+        });
+      }
+      if(e.key==='Enter'&&suggestionIndex>=0&&!document.getElementById('smartSuggestions').hidden){
+        e.preventDefault();chooseSearchSuggestion(suggestionIndex);
+      }
+    });
+  });
+  ['homeSearchForm','librarySearchForm'].forEach(id=>document.getElementById(id).addEventListener('submit',e=>{e.preventDefault();submitSearch();}));
+  document.getElementById('smartSuggestions').addEventListener('mousedown',e=>e.preventDefault());
+  document.getElementById('smartSuggestions').addEventListener('click',e=>{
+    const option=e.target.closest('[data-suggestion]');if(option)chooseSearchSuggestion(Number(option.dataset.suggestion));
+  });
+  document.getElementById('libraryFilterBtn').addEventListener('click',()=>{
+    const open=document.getElementById('libraryFilterPopover').hidden;
+    setSearchFiltersOpen(open);
+  });
+  document.getElementById('closeFiltersBtn').addEventListener('click',()=>{setSearchFiltersOpen(false);document.getElementById('libraryFilterBtn').focus();});
+  document.getElementById('applyFiltersBtn').addEventListener('click',submitSearch);
+  document.getElementById('clearFilterChoices').addEventListener('click',()=>{
+    state.filterCategory=state.filterSource=state.filterTopic=state.filterKind='';render();
+  });
+  document.addEventListener('click',e=>{
+    if(!e.target.closest('.smart-search-form')&&!e.target.closest('#smartSuggestions'))closeSearchSuggestions();
+    if(!e.target.closest('.library-search-wrap'))setSearchFiltersOpen(false);
+  });
+  document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeSearchSuggestions();setSearchFiltersOpen(false);}});
+  document.addEventListener('focusin',e=>{
+    if(!e.target.closest('.smart-search-form')&&!e.target.closest('#smartSuggestions'))closeSearchSuggestions();
+  });
+  window.addEventListener('resize',positionSearchSuggestions);
+  window.addEventListener('scroll',()=>closeSearchSuggestions(),{passive:true});
 }
 function updateMaterialFields() {
   const type = document.getElementById('f_type').value;
@@ -3774,16 +4022,18 @@ function wireAuthoringEvents() {
     try { await startApp(); }
     finally { button.disabled = false; button.textContent = 'تحديث المكتبة'; }
   });
-  [['filterSource','filterSource'], ['filterTopic','filterTopic'], ['filterKind','filterKind']].forEach(([id, key]) => {
+  [['filterSource','filterSource'], ['filterTopic','filterTopic'], ['filterKind','filterKind'], ['filterCategory','filterCategory']].forEach(([id, key]) => {
     document.getElementById(id).addEventListener('change', e => {
       state[key] = e.target.value;
-      if (key === 'filterSource') state.filterTopic = '';
+      if (key === 'filterSource' || key === 'filterCategory' || key === 'filterKind') state.filterTopic = '';
+      closeSearchSuggestions();
       render();
     });
   });
   document.getElementById('resetFilters').addEventListener('click', () => {
     state.search = state.filterSource = state.filterTopic = state.filterKind = '';
     document.getElementById('searchInput').value = '';
+    document.getElementById('librarySearchInput').value = '';
     render();
   });
   document.getElementById('f_type').addEventListener('change', updateMaterialFields);
