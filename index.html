@@ -6,7 +6,7 @@
 <title>Medbrain — Medical Learning</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&family=Aref+Ruqaa:wght@400;700&family=JetBrains+Mono:wght@500;600&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
 <style>
   :root {
     box-sizing: border-box;
@@ -716,17 +716,19 @@
   }
   .mb-about-dialog {
     position:relative;
-    padding:27px 28px 30px;
-    background:transparent url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20300%20240%22%20preserveAspectRatio%3D%22none%22%3E%3Cpath%20d%3D%22M46%2025%20C40%205%2077%202%2091%2017%20C107%200%20146%203%20156%2017%20C181%200%20214%209%20220%2025%20C248%209%20277%2024%20274%2047%20C303%2054%20303%2084%20287%2099%20C307%20118%20299%20143%20282%20150%20C298%20176%20280%20200%20253%20197%20C251%20223%20215%20233%20196%20219%20C177%20241%20142%20238%20126%20225%20C102%20241%2070%20232%2066%20215%20C37%20225%2012%20205%2020%20182%20C-2%20175%20-2%20147%2014%20134%20C-2%20117%202%2091%2018%2083%20C2%2062%2018%2036%2040%2039%20Z%22%20fill%3D%22white%22%20stroke%3D%22%23B9D8F4%22%20stroke-width%3D%221.5%22%2F%3E%3C%2Fsvg%3E") center/100% 100% no-repeat;
-    filter:drop-shadow(0 6px 12px rgba(15,108,189,.14));
+    padding:12px 14px;
+    border-radius:12px;
+    background:#ffffff;
+    border:1px solid var(--medical-blue-border);
+    box-shadow:0 6px 20px rgba(15,108,189,.14);
     color:#172235;
-    font-family:'Aref Ruqaa',serif;
+    font-family:var(--font-ui);
     line-height:1.65;
     max-height:calc(100dvh - 90px);
     overflow:auto;
   }
   .mb-about-dialog h2 { margin:0; color:var(--medical-blue-dark); font-family:'Nunito',sans-serif; font-size:17px; }
-  .mb-about-dialog p { margin:6px 0 0; font-size:17px; }
+  .mb-about-dialog p { margin:6px 0 0; font-size:12px; }
   .mb-about-head { display:flex; align-items:center; justify-content:space-between; gap:10px; }
   .mb-about-close {
     width:24px; height:24px; border:1px solid var(--medical-blue-border);
