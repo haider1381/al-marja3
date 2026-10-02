@@ -1470,6 +1470,7 @@
   <div class="email" id="profileMenuEmail"></div>
   <button type="button" data-profile="account">الملف الشخصي والحساب</button>
   <button type="button" data-profile="topics">استعراض المواضيع</button>
+  <button type="button" data-profile="logout" id="profileLogoutBtn">تسجيل الخروج</button>
 </div>
 
 <div class="mb-layer" id="topicsOverlay" aria-hidden="true">
@@ -2405,10 +2406,26 @@ function wireGateEvents() {
     }
   });
   document.getElementById('logoutBtn').addEventListener('click', async () => {
-    if (!client) return;
-    await syncAccess(null);
-    const { error } = await client.auth.signOut();
-    if (error) document.getElementById('gateError').textContent = 'تعذّر إنهاء الجلسة على الخادم. حاول تسجيل الخروج مرة أخرى بعد استعادة الاتصال.';
+    if (!client || document.getElementById('logoutBtn').disabled) return;
+    const buttons = ['logoutBtn', 'profileLogoutBtn', 'nameLogout'].map(id => document.getElementById(id));
+    buttons.forEach(button => { button.disabled = true; });
+    document.getElementById('navBackdrop').classList.remove('open');
+    document.getElementById('navBackdrop').setAttribute('aria-hidden', 'true');
+    document.getElementById('profileMenu').classList.remove('open');
+    document.getElementById('profileMenu').setAttribute('aria-hidden', 'true');
+    setLayerOpen('topicsOverlay', false);
+    setLayerOpen('accountOverlay', false);
+    try {
+      await syncAccess(null);
+      const { error } = await client.auth.signOut({ scope: 'local' });
+      if (error) throw error;
+      document.getElementById('gateError').textContent = '';
+      document.getElementById('gateEmail').focus();
+    } catch (_) {
+      document.getElementById('gateError').textContent = 'تعذّر إنهاء الجلسة على الخادم. حاول تسجيل الخروج مرة أخرى بعد استعادة الاتصال.';
+    } finally {
+      buttons.forEach(button => { button.disabled = false; });
+    }
   });
 }
 async function startApp(version = accessVersion) {
@@ -2892,6 +2909,7 @@ function wireMedbrainEvents() {
       profile.classList.remove('open');
       if (p.dataset.profile === 'account') openAccountPanel();
       if (p.dataset.profile === 'topics') openTopicsPanel();
+      if (p.dataset.profile === 'logout') document.getElementById('logoutBtn').click();
       return;
     }
     const flip=e.target.closest('[data-flashcard-id]');
