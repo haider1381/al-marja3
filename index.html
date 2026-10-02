@@ -571,6 +571,7 @@
       <p id="gateError" style="color:var(--accent2);font-size:12.5px;margin:0 0 10px;min-height:1em;"></p>
       <button type="submit" class="btn-save" id="gateSubmit" style="width:100%;">دخول</button>
     </form>
+    <button type="button" id="resetPasswordBtn" class="logout-link">تعيين أو استعادة كلمة المرور</button>
   </div>
 </div>
 
@@ -899,6 +900,11 @@ function lectureCountLabel(n) {
 
 // ---------------- Init ----------------
 async function init() {
+  const callbackType = new URLSearchParams(location.hash.slice(1)).get("type");
+  if (callbackType === "invite" || callbackType === "recovery") {
+    location.replace(new URL("./recovery.html", location.href).href + location.search + location.hash);
+    return;
+  }
   populateCategorySelect();
   wireStaticEvents();
   wireGateEvents();
@@ -961,6 +967,23 @@ async function syncAccess(session) {
   }
 }
 function wireGateEvents() {
+  document.getElementById("resetPasswordBtn").addEventListener("click", async () => {
+    if (!client) return;
+    const emailInput = document.getElementById("gateEmail");
+    if (!emailInput.value.trim() || !emailInput.reportValidity()) return;
+    const btn = document.getElementById("resetPasswordBtn");
+    const message = document.getElementById("gateError");
+    btn.disabled = true;
+    try {
+      const { error } = await client.auth.resetPasswordForEmail(emailInput.value.trim(), {
+        redirectTo: new URL("./recovery.html", location.href).href
+      });
+      if (error) throw error;
+      message.textContent = "إذا كان البريد مسجلاً، ستصلك رسالة لتعيين كلمة المرور. افحص البريد المزعج أيضًا.";
+    } catch (_) {
+      message.textContent = "تعذّر إرسال الرابط. تحقق من الاتصال وحاول لاحقًا.";
+    } finally { btn.disabled = false; }
+  });
   document.getElementById('gateForm').addEventListener('submit', async e => {
     e.preventDefault();
     if (!client) return;
