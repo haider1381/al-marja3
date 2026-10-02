@@ -1663,55 +1663,80 @@
   :root[data-theme="dark"] .smart-search-form { background:var(--bg); border-color:var(--border); }
 
 
-  /* Mint turquoise surfaces for search, lecture rows and library filters. */
-:root { --mint-bar:#A8E6D7; --mint-hover:#92DCCB; --mint-border:#63BBA7; --mint-ink:#123D35; }
-.smart-search-form,
-.mb-hero .search-box input,
-:root[data-theme="dark"] .smart-search-form,
-:root[data-theme="dark"] .mb-hero .search-box input {
- background:var(--mint-bar); border-color:var(--mint-border);
+  /* Dark indigo interface surfaces; the light theme keeps its original colors. */
+:root[data-theme="dark"] {
+ --interface-indigo:#24264D;
+ --interface-indigo-hover:#303361;
+ --interface-indigo-border:#555B89;
+ --interface-indigo-text:#F0F1FF;
 }
-.smart-search-form input, .mb-hero .search-box input,
+:root[data-theme="dark"] .smart-search-form,
+:root[data-theme="dark"] .mb-hero .search-box input,
+:root[data-theme="dark"] .mb-library .lecture,
+:root[data-theme="dark"] .mb-library .chip,
+:root[data-theme="dark"] .mb-library .category-head,
+:root[data-theme="dark"] .mb-library .category-head.open,
+:root[data-theme="dark"] .mb-library .segmented,
+:root[data-theme="dark"] .mb-library .library-filters select {
+ background:var(--interface-indigo); border-color:var(--interface-indigo-border);
+ color:var(--interface-indigo-text);
+}
 :root[data-theme="dark"] .smart-search-form input,
 :root[data-theme="dark"] .mb-hero .search-box input {
- color:var(--mint-ink); -webkit-text-fill-color:var(--mint-ink); caret-color:var(--mint-ink);
+ color:var(--interface-indigo-text); -webkit-text-fill-color:var(--interface-indigo-text);
+ caret-color:var(--interface-indigo-text);
 }
-.smart-search-form input::placeholder, .mb-hero .search-box input::placeholder,
 :root[data-theme="dark"] .smart-search-form input::placeholder,
 :root[data-theme="dark"] .mb-hero .search-box input::placeholder {
- color:#37675D; -webkit-text-fill-color:#37675D; opacity:1;
+ color:#C4C7E3; -webkit-text-fill-color:#C4C7E3; opacity:1;
 }
-.search-submit, .search-filter-btn {
- background:#D7F5EB; color:var(--mint-ink);
+:root[data-theme="dark"] .mb-library .lecture:hover,
+:root[data-theme="dark"] .mb-library .chip:hover,
+:root[data-theme="dark"] .mb-library .category-head:hover,
+:root[data-theme="dark"] .mb-library .category-head.open:hover,
+:root[data-theme="dark"] .mb-library .library-filters select:hover {
+ background:var(--interface-indigo-hover);
 }
-.search-submit:hover, .search-filter-btn:hover { background:var(--mint-hover); }
-.search-submit svg, .search-filter-btn svg,
-.mb-hero .search-box .search-submit svg { color:inherit; }
-#filterActiveCount { background:#206B5B; color:#ffffff; }
-.library-search:focus-within { border-color:#206B5B; box-shadow:0 0 0 2px #63BBA744; }
-.mb-library .lecture, .mb-library .chip, .mb-library .category-head,
-.mb-library .category-head.open, .mb-library .segmented,
-.mb-library .library-filters select {
- background:var(--mint-bar); color:var(--mint-ink); border-color:var(--mint-border);
+:root[data-theme="dark"] .mb-library .lecture .meta-row,
+:root[data-theme="dark"] .mb-library .lecture .notes,
+:root[data-theme="dark"] .mb-library .lecture .body.clickable:hover .title {
+ color:var(--interface-indigo-text);
 }
-.mb-library .lecture:hover, .mb-library .chip:hover,
-.mb-library .category-head:hover, .mb-library .category-head.open:hover,
-.mb-library .library-filters select:hover { background:var(--mint-hover); }
-.mb-library .lecture .title, .mb-library .lecture .meta-row,
-.mb-library .lecture .notes, .mb-library .lecture .body.clickable:hover .title,
-.mb-library .chip .n, .mb-library .category-head .n,
-.mb-library .category-head svg,
-.mb-library .segmented button, .mb-library .segmented button.active {
- color:var(--mint-ink);
+:root[data-theme="dark"] :is(.mb-icon-btn,.search-submit,.search-filter-btn,.mb-avatar,
+.mb-account-side .big-avatar,.mb-profile-photo-card .big-avatar,
+.mb-page-back,.mb-close,.mb-about-close,.filter-popover-head button),
+:root[data-theme="dark"] .mb-library .lecture .icon,
+:root[data-theme="dark"] .mb-library .lecture .actions button,
+:root[data-theme="dark"] .mb-library .lecture .actions a,
+:root[data-theme="dark"] .mb-library .chip .n,
+:root[data-theme="dark"] #siteThemeToggle,
+:root[data-theme="dark"] #readerOverlay .reader-close,
+:root[data-theme="dark"] #readerOverlay .reader-theme-toggle {
+ background:var(--interface-indigo); color:var(--interface-indigo-text);
+ border-color:var(--interface-indigo-border);
 }
-.mb-library .lecture .icon, .mb-library .lecture .actions button.read,
-.mb-library .chip .n, .mb-library .segmented .highlight {
- background:#D7F5EB; color:var(--mint-ink);
+:root[data-theme="dark"] :is(.mb-icon-btn,.search-submit,.search-filter-btn,
+.mb-avatar,.mb-page-back,.mb-close,.mb-about-close):hover,
+:root[data-theme="dark"] #siteThemeToggle:hover,
+:root[data-theme="dark"] .mb-library .lecture .actions button:hover,
+:root[data-theme="dark"] .mb-library .lecture .actions a:hover {
+ background:var(--interface-indigo-hover); color:var(--interface-indigo-text);
 }
-.mb-library .segmented button:hover { background:var(--mint-hover); }
-.mb-library .library-filters option,
-:root[data-theme="dark"] .mb-library .library-filters option {
- background:#ffffff; color:var(--mint-ink);
+:root[data-theme="dark"] .mb-nav button svg {
+ background:var(--interface-indigo); color:var(--interface-indigo-text); border-radius:5px;
+}
+:root[data-theme="dark"] .mb-icon-btn svg,
+:root[data-theme="dark"] .mb-library .category-head svg,
+:root[data-theme="dark"] .mb-hero .search-box .search-submit svg {
+ color:var(--interface-indigo-text);
+}
+:root[data-theme="dark"] .mb-library .segmented .highlight,
+:root[data-theme="dark"] .mb-library .segmented button:hover {
+ background:var(--interface-indigo-hover);
+}
+:root[data-theme="dark"] #filterActiveCount { background:#D1D4F5; color:#24264D; }
+:root[data-theme="dark"] .library-search:focus-within {
+ border-color:#979DCC; box-shadow:0 0 0 2px #979DCC33;
 }
 </style>
 </head>
