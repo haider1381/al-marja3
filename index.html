@@ -547,6 +547,11 @@
 
   /* ========== Medbrain dashboard skin ========== */
   :root {
+    --medical-blue: #0F6CBD;
+    --medical-blue-dark: #0B5FA5;
+    --medical-blue-hover: #1479CC;
+    --medical-blue-soft: #EAF4FF;
+    --medical-blue-border: #B9D8F4;
     --bg:#f5f7f9;
     --surface:#ffffff;
     --surface-alt:#f5f8fb;
@@ -890,6 +895,18 @@
   }
   .mb-primary:hover { background:var(--mb-blue-dark); }
   .mb-library {
+    /* Keep legacy dark-theme greens out of the white medical library. */
+    --bg:#ffffff;
+    --surface:#ffffff;
+    --surface-alt:var(--medical-blue-soft);
+    --border:var(--medical-blue-border);
+    --text:#172235;
+    --text-muted:#66758a;
+    --accent:var(--medical-blue);
+    --accent-strong:var(--medical-blue-dark);
+    --accent-soft:var(--medical-blue-soft);
+    color:var(--text);
+    color-scheme:light;
     margin-top:22px;
     padding:20px;
     border-radius:14px;
@@ -911,7 +928,57 @@
     grid-template-columns:repeat(3,minmax(0,1fr));
     gap:10px;
   }
-  .mb-library .segmented { max-width:440px; margin:12px 0; }
+  .mb-library .library-filters select {
+    background:linear-gradient(135deg,var(--medical-blue-dark),var(--medical-blue));
+    color:#ffffff;
+    border-color:var(--medical-blue-border);
+  }
+  .mb-library .library-filters select:hover {
+    background:linear-gradient(135deg,var(--medical-blue-dark),var(--medical-blue-hover));
+  }
+  .mb-library .library-filters option { background:#ffffff; color:#172235; }
+  .mb-library .segmented {
+    max-width:440px;
+    margin:12px 0;
+    background:var(--medical-blue-dark);
+    border-color:var(--medical-blue-border);
+  }
+  .mb-library .segmented .highlight { background:var(--medical-blue); }
+  .mb-library .segmented button,
+  .mb-library .segmented button.active { color:#ffffff; }
+  .mb-library .segmented button:hover { background:var(--medical-blue-hover); }
+  .mb-library .chip,
+  .mb-library .category-head,
+  .mb-library .lecture {
+    background:var(--medical-blue-dark);
+    color:#ffffff;
+    border-color:var(--medical-blue-border);
+  }
+  .mb-library .chip:hover,
+  .mb-library .category-head:hover,
+  .mb-library .lecture:hover { background:var(--medical-blue-hover); }
+  .mb-library .chip .n,
+  .mb-library .category-head .n,
+  .mb-library .category-head svg,
+  .mb-library .lecture .meta-row,
+  .mb-library .lecture .notes,
+  .mb-library .lecture .body.clickable:hover .title { color:#ffffff; }
+  .mb-library .chip .n { background:var(--medical-blue); }
+  .mb-library .category-head.open {
+    background:var(--medical-blue);
+    border-inline-end-color:var(--medical-blue-border);
+  }
+  .mb-library .category-head.open:hover { background:var(--medical-blue-hover); }
+  .mb-library .lecture .icon,
+  .mb-library .lecture .actions button.read {
+    background:var(--medical-blue-soft);
+    color:var(--medical-blue-dark);
+  }
+  .mb-library .lecture .actions a:hover,
+  .mb-library .lecture .actions button.edit:hover { color:var(--medical-blue-hover); }
+  .mb-library .add-btn { background:var(--medical-blue); }
+  .mb-library .add-btn:hover { background:var(--medical-blue-hover); }
+  .mb-library .add-btn:disabled { background:var(--border); color:var(--text-muted); }
   #refreshLibraryBtn { margin-inline-start:6px; }
   .add-btn {
     background:var(--mb-blue);
