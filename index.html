@@ -1161,23 +1161,24 @@
 
   /* User-provided Medbrain cartoon artwork */
   .mb-art-sprite{
-    display:block;
-    width:min(100%,245px);
+    display:block !important;
+    width:245px;
+    max-width:100%;
     height:160px;
     border-radius:10px;
-    background-image:url("assets/medbrain-sprite.webp");
-    background-repeat:no-repeat;
-    background-size:200% 300%;
+    background-repeat:no-repeat !important;
+    background-position:center !important;
+    background-size:contain !important;
     background-color:#fff;
   }
-  .mb-art-flashcards{background-position:0 0}
-  .mb-art-lectures{background-position:100% 0}
-  .mb-art-recommended{background-position:0 50%}
-  .mb-art-misc{background-position:100% 50%}
-  .mb-art-schedule{background-position:0 100%}
-  .mb-art-questions{background-position:100% 100%}
+  .mb-art-flashcards{background-image:url("./assets/medbrain/flashcards.webp?v=20261002-3") !important}
+  .mb-art-lectures{background-image:url("./assets/medbrain/lectures.webp?v=20261002-3") !important}
+  .mb-art-recommended{background-image:url("./assets/medbrain/recommended.webp?v=20261002-3") !important}
+  .mb-art-misc{background-image:url("./assets/medbrain/misc.webp?v=20261002-3") !important}
+  .mb-art-schedule{background-image:url("./assets/medbrain/schedule.webp?v=20261002-3") !important}
+  .mb-art-questions{background-image:url("./assets/medbrain/qbank.webp?v=20261002-3") !important}
   @media(max-width:720px){
-    .mb-art-sprite{width:min(100%,220px);height:140px}
+    .mb-art-sprite{width:220px;max-width:100%;height:145px}
   }
 
 
