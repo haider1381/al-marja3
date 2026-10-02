@@ -1313,6 +1313,26 @@
 </head>
 <body>
 
+<div class="overlay" id="nameOverlay">
+  <div class="modal gate-modal" role="dialog" aria-modal="true" aria-labelledby="nameTitle" aria-describedby="nameDescription">
+    <h2 id="nameTitle">أكمل اسمك</h2>
+    <p class="sub" id="nameDescription">اكتب اسمك الأول واسم العائلة ليظهرا في حسابك.</p>
+    <form id="nameForm">
+      <div class="field">
+        <label for="nameFirst">الاسم الأول</label>
+        <input type="text" id="nameFirst" autocomplete="given-name" maxlength="40" dir="auto" required>
+      </div>
+      <div class="field">
+        <label for="nameLast">اسم العائلة</label>
+        <input type="text" id="nameLast" autocomplete="family-name" maxlength="40" dir="auto" required>
+      </div>
+      <p id="nameError" class="save-status" role="status"></p>
+      <button type="submit" class="mb-primary" id="nameSubmit">حفظ ومتابعة</button>
+      <button type="button" class="logout-link" id="nameLogout">تسجيل الخروج</button>
+    </form>
+  </div>
+</div>
+
 <div class="overlay gate open" id="gateOverlay">
   <div class="modal gate-modal">
     <div class="logomark" aria-hidden="true" style="margin:0 auto 14px;">
@@ -1403,8 +1423,11 @@
         <small style="color:#8291a1;text-align:center">JPG / PNG / WebP — حتى 2MB بعد الضغط</small>
       </div>
       <form class="mb-profile-fields" id="profileForm">
-        <label>الاسم الظاهر
-          <input type="text" id="profileDisplayName" maxlength="80" required placeholder="اكتب اسمك">
+        <label>الاسم الأول
+          <input type="text" id="profileFirstName" maxlength="40" autocomplete="given-name" dir="auto" required>
+        </label>
+        <label>اسم العائلة
+          <input type="text" id="profileLastName" maxlength="40" autocomplete="family-name" dir="auto" required>
         </label>
         <label>البريد الإلكتروني
           <input type="email" id="profileEmailField" readonly>
@@ -1712,9 +1735,41 @@ let currentMainView = 'home';
 let contentRequest = 0;
 
 
+function namePartsFromUser(user) {
+  const meta = user && user.user_metadata || {};
+  return {
+    first: typeof meta.first_name === 'string' ? meta.first_name.trim() : '',
+    last: typeof meta.last_name === 'string' ? meta.last_name.trim() : ''
+  };
+}
+function needsAccountName(user) {
+  const { first, last } = namePartsFromUser(user);
+  return !!user && (!first || !last);
+}
+function syncNamePrompt() {
+  const overlay = document.getElementById('nameOverlay');
+  if (!activeUserId || !needsAccountName(activeUser)) {
+    overlay.classList.remove('open');
+    delete overlay.dataset.userId;
+    return;
+  }
+  // Preserve typed input during token refresh or retries.
+  if (overlay.dataset.userId !== activeUserId) {
+    overlay.dataset.userId = activeUserId;
+    const parts = namePartsFromUser(activeUser);
+    document.getElementById('nameFirst').value = parts.first;
+    document.getElementById('nameLast').value = parts.last;
+    document.getElementById('nameError').textContent = '';
+  }
+  const wasOpen = overlay.classList.contains('open');
+  overlay.classList.add('open');
+  if (!wasOpen) document.getElementById('nameFirst').focus();
+}
 function displayNameFromUser(user) {
   if (!user) return 'Doctor';
   const meta = user.user_metadata || {};
+  const parts = namePartsFromUser(user);
+  if (parts.first && parts.last) return parts.first + ' ' + parts.last;
   const raw = meta.display_name || meta.full_name || meta.name || (user.email ? user.email.split('@')[0] : '') || 'Doctor';
   return String(raw).replace(/[._-]+/g, ' ').trim().replace(/\b\w/g, c => c.toUpperCase()) || 'Doctor';
 }
@@ -1741,7 +1796,8 @@ function applyIdentityUI() {
     profileMenuEmail: activeUserEmail,
     accountName: activeUserName,
     accountEmail: activeUserEmail,
-    profileDisplayName: activeUserName,
+    profileFirstName: namePartsFromUser(activeUser).first,
+    profileLastName: namePartsFromUser(activeUser).last,
     profileEmailField: activeUserEmail
   };
   Object.keys(textMap).forEach(id => {
@@ -1781,17 +1837,31 @@ async function loadProfile() {
   activeAvatarUrl = profile.avatar_url || activeAvatarUrl || '';
   applyIdentityUI();
 }
-async function saveProfileName(name) {
-  const clean = String(name || '').trim();
-  if (!clean) throw new Error('اكتب اسمًا صالحًا.');
+async function saveProfileName(firstName, lastName) {
+  const first = String(firstName || '').trim();
+  const last = String(lastName || '').trim();
+  if (!first || !last) throw new Error('اكتب الاسم الأول واسم العائلة.');
+  if (first.length > 40 || last.length > 40 || (first + ' ' + last).length > 80)
+    throw new Error('يجب ألا يتجاوز الاسم الكامل 80 حرفًا.');
+  if (!client || !activeUserId || !activeUser) throw new Error('سجّل الدخول أولًا.');
+  const userId = activeUserId;
+  const version = accessVersion;
+  const clean = first + ' ' + last;
   const now = new Date().toISOString();
   const saved = await client.from('profiles').upsert({
     id: activeUserId, display_name: clean, avatar_url: activeAvatarUrl || null, updated_at: now
   });
   if (saved.error) throw saved.error;
-  const authSaved = await client.auth.updateUser({ data: { display_name: clean, full_name: clean, avatar_url: activeAvatarUrl || null } });
+  if (version !== accessVersion || userId !== activeUserId) throw new Error('تغيّرت جلسة الدخول. حاول مجددًا.');
+  const authSaved = await client.auth.updateUser({ data: {
+    first_name: first, last_name: last,
+    display_name: clean, full_name: clean, avatar_url: activeAvatarUrl || null
+  } });
   if (authSaved.error) throw authSaved.error;
-  activeUser = authSaved.data.user || activeUser;
+  if (version !== accessVersion || userId !== activeUserId) throw new Error('تغيّرت جلسة الدخول. حاول مجددًا.');
+  if (!authSaved.data.user || authSaved.data.user.id !== userId)
+    throw new Error('تعذّر تأكيد حفظ الاسم. حاول مجددًا.');
+  activeUser = authSaved.data.user;
   activeUserName = clean;
   applyIdentityUI();
 }
@@ -2128,6 +2198,7 @@ function hideGate() { document.getElementById('gateOverlay').classList.remove('o
 async function syncAccess(session) {
   const userId = session && session.user ? session.user.id : null;
   updateUserIdentity(session && session.user ? session.user : null);
+  if (!userId) syncNamePrompt();
   if (userId && userId === activeUserId) {
     // Refocus/token refresh must not erase an editor's unsaved form or a student's quiz.
     const version = accessVersion;
@@ -2136,6 +2207,7 @@ async function syncAccess(session) {
     canWrite = !error && data === true;
     applyAccessUI();
     if (!canWrite) closeModal();
+    syncNamePrompt();
     return;
   }
   activeUserId = userId;
@@ -2154,6 +2226,7 @@ async function syncAccess(session) {
   render();
   if (!session) { showGate(); return; }
   hideGate();
+  syncNamePrompt();
   try {
     const { data, error } = await client.rpc('is_editor');
     if (version !== accessVersion) return;
@@ -2170,6 +2243,37 @@ async function syncAccess(session) {
   }
 }
 function wireGateEvents() {
+  document.getElementById('nameForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    const button = document.getElementById('nameSubmit');
+    const error = document.getElementById('nameError');
+    const controls = Array.from(e.currentTarget.elements);
+    if (button.disabled) return;
+    const first = document.getElementById('nameFirst').value;
+    const last = document.getElementById('nameLast').value;
+    controls.forEach(el => { el.disabled = true; });
+    error.textContent = '';
+    button.textContent = 'جارٍ الحفظ…';
+    try {
+      await saveProfileName(first, last);
+      syncNamePrompt();
+      document.getElementById('profileBtn').focus();
+    } catch (err) {
+      error.textContent = err.message || 'تعذّر حفظ الاسم. حاول مجددًا.';
+    } finally {
+      controls.forEach(el => { el.disabled = false; });
+      button.textContent = 'حفظ ومتابعة';
+    }
+  });
+  document.getElementById('nameLogout').addEventListener('click', () => document.getElementById('logoutBtn').click());
+  document.getElementById('nameOverlay').addEventListener('keydown', e => {
+    if (e.key !== 'Tab') return;
+    const controls = Array.from(e.currentTarget.querySelectorAll('input,button')).filter(el => !el.disabled);
+    if (!controls.length) { e.preventDefault(); return; }
+    const first = controls[0], last = controls[controls.length - 1];
+    if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+  });
   document.getElementById("resetPasswordBtn").addEventListener("click", async () => {
     if (!client) return;
     const emailInput = document.getElementById("gateEmail");
@@ -2731,7 +2835,7 @@ function wireMedbrainEvents() {
     const btn=document.getElementById('profileSaveBtn');
     btn.disabled=true; status.textContent='جارٍ الحفظ…';
     try{
-      await saveProfileName(document.getElementById('profileDisplayName').value);
+      await saveProfileName(document.getElementById('profileFirstName').value, document.getElementById('profileLastName').value);
       status.textContent='تم حفظ الاسم.';
       showMbToast('تم تحديث الملف الشخصي.');
     }catch(err){console.error(err);status.textContent=err.message||'تعذّر حفظ الملف الشخصي.';}
