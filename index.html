@@ -464,22 +464,42 @@
   /* ---------- Full-screen medical reader ---------- */
   #readerOverlay {
     --bg:#ffffff; --surface:#ffffff; --surface-alt:#EAF4FF;
+    --reader-panel:#f8fbff; --reader-line:#e2edf7; --reader-disabled:#7b8fa1;
     --border:#B9D8F4; --text:#233448; --text-muted:#52677b;
     --accent:#0F6CBD; --accent-strong:#0B5FA5; --accent-soft:#EAF4FF;
     --accent2:#b42318; --accent2-soft:#fff1f1;
-    padding:0; overflow:hidden; background:#ffffff; color:var(--text);
+    padding:0; overflow:hidden; background:var(--surface); color:var(--text);
     color-scheme:light; z-index:60;
+  }
+  #readerOverlay[data-reader-theme="dark"] {
+    --bg:#10162b; --surface:#10162b; --surface-alt:#19233f;
+    --reader-panel:#171f39; --reader-line:#2b3b59; --reader-disabled:#8e9db5;
+    --border:#344b70; --text:#e7edf7; --text-muted:#b0bed4;
+    --accent:#8cc8ff; --accent-strong:#aed8ff; --accent-soft:#223455;
+    --accent2:#ffadb2; --accent2-soft:#432637;
+    color-scheme:dark;
+  }
+  .reader-head-actions { display:flex; align-items:center; gap:8px; flex-shrink:0; }
+  .reader-theme-toggle {
+    min-height:40px; padding:6px 12px; border:1px solid var(--border);
+    border-radius:12px; background:var(--accent-soft); color:var(--accent-strong);
+    font-size:12px; font-weight:700; white-space:nowrap;
+  }
+  .reader-theme-toggle:hover { background:var(--accent); color:var(--bg); }
+  @media(max-width:480px) {
+    .reader-head-actions { gap:5px; }
+    .reader-theme-toggle { padding:6px 8px; font-size:11px; }
   }
   #readerOverlay.open { align-items:stretch; justify-content:stretch; }
   #readerOverlay .reader-modal {
-    background:#ffffff; border-radius:0; width:100%; max-width:none;
+    background:var(--surface); border-radius:0; width:100%; max-width:none;
     height:100vh; height:100dvh; max-height:none;
     display:flex; flex-direction:column; overflow:hidden;
   }
   .reader-head {
     display:flex; align-items:flex-start; justify-content:space-between; gap:18px;
     padding:calc(16px + env(safe-area-inset-top,0px)) max(24px,env(safe-area-inset-right,0px)) 16px;
-    border-bottom:1px solid #e2edf7; flex-shrink:0; background:#ffffff;
+    border-bottom:1px solid var(--reader-line); flex-shrink:0; background:var(--surface);
   }
   .reader-brand { font-family:'Nunito',sans-serif; font-size:12px; font-weight:800; color:var(--accent); margin:0 0 5px; letter-spacing:.06em; }
   .reader-head h2 { margin:0; font-size:clamp(19px,2.3vw,27px); line-height:1.5; font-weight:800; color:var(--accent-strong); overflow-wrap:anywhere; }
@@ -488,28 +508,28 @@
     flex-shrink:0; width:40px; height:40px; border:1px solid var(--border);
     background:var(--accent-soft); border-radius:12px; display:grid; place-items:center; color:var(--accent-strong);
   }
-  .reader-close:hover { background:var(--accent); color:#ffffff; }
+  .reader-close:hover { background:var(--accent); color:var(--bg); }
   .reader-close svg { width:18px; height:18px; }
   .reader-toolbar {
     display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;
-    padding:10px 24px; border-bottom:1px solid #e2edf7; background:#f8fbff; flex-shrink:0;
+    padding:10px 24px; border-bottom:1px solid var(--reader-line); background:var(--reader-panel); flex-shrink:0;
   }
   .reader-stats { display:flex; align-items:center; gap:14px; color:var(--text-muted); font-size:12px; }
   .reader-font-tools { display:flex; align-items:center; gap:6px; font-size:12px; color:var(--text-muted); }
   .reader-font-tools button, .reader-to-top {
     border:1px solid var(--border); border-radius:8px; padding:6px 10px;
-    background:#ffffff; color:var(--accent-strong); font-size:13px; font-weight:700;
+    background:var(--surface); color:var(--accent-strong); font-size:13px; font-weight:700;
   }
   .reader-font-tools button:hover, .reader-to-top:hover { background:var(--accent-soft); }
-  .reader-font-tools button:disabled { color:#7b8fa1; cursor:default; }
-  .reader-progress { display:block; width:100%; height:3px; flex-shrink:0; border:0; appearance:none; background:#eaf4ff; }
-  .reader-progress::-webkit-progress-bar { background:#eaf4ff; }
-  .reader-progress::-webkit-progress-value { background:#0F6CBD; }
-  .reader-progress::-moz-progress-bar { background:#0F6CBD; }
+  .reader-font-tools button:disabled { color:var(--reader-disabled); cursor:default; }
+  .reader-progress { display:block; width:100%; height:3px; flex-shrink:0; border:0; appearance:none; background:var(--accent-soft); }
+  .reader-progress::-webkit-progress-bar { background:var(--accent-soft); }
+  .reader-progress::-webkit-progress-value { background:var(--accent); }
+  .reader-progress::-moz-progress-bar { background:var(--accent); }
   .reader-workspace { flex:1; min-height:0; overflow-y:auto; overscroll-behavior:contain; scroll-behavior:smooth; }
   .reader-layout { display:grid; grid-template-columns:220px minmax(0,760px); justify-content:center; align-items:start; gap:44px; padding:36px 28px 80px; }
   .reader-layout.no-outline { grid-template-columns:minmax(0,760px); }
-  .reader-outline { position:sticky; top:20px; padding:14px; border:1px solid #e1edf7; border-radius:14px; background:#f8fbff; max-height:calc(100dvh - 260px); overflow:auto; }
+  .reader-outline { position:sticky; top:20px; padding:14px; border:1px solid var(--reader-line); border-radius:14px; background:var(--reader-panel); max-height:calc(100dvh - 260px); overflow:auto; }
   .reader-outline summary { font-size:13px; font-weight:800; color:var(--accent-strong); cursor:pointer; }
   .reader-outline nav { display:flex; flex-direction:column; gap:4px; margin-top:10px; }
   .reader-outline button { border:0; background:transparent; color:var(--text-muted); text-align:start; border-radius:7px; padding:7px 8px; font-size:12px; line-height:1.6; overflow-wrap:anywhere; }
@@ -524,7 +544,7 @@
   .r-b1::before { content:""; position:absolute; inset-inline-start:3px; top:.85em; width:6px; height:6px; border-radius:50%; background:var(--accent); }
   .r-b2 { margin:0 0 10px; padding-inline-start:40px; position:relative; color:var(--text); }
   .r-b2::before { content:"–"; position:absolute; inset-inline-start:22px; color:var(--accent); }
-  .r-note { margin:16px 0; padding:12px 16px; background:#f8fbff; border:1px solid #e1edf7; border-radius:10px; color:var(--text-muted); font-size:.95em; }
+  .r-note { margin:16px 0; padding:12px 16px; background:var(--reader-panel); border:1px solid var(--reader-line); border-radius:10px; color:var(--text-muted); font-size:.95em; }
   .r-p { margin:0 0 18px; }
   .arrow { color:var(--accent); font-weight:700; margin:0 4px; }
   #readerOverlay :focus-visible { outline-color:var(--accent); }
@@ -1952,9 +1972,12 @@
         <h2 id="readerTitle"></h2>
         <p class="reader-meta" id="readerMeta"></p>
       </div>
+      <div class="reader-head-actions">
+      <button type="button" class="reader-theme-toggle" id="readerThemeToggle" aria-pressed="false">الوضع الداكن ☾</button>
       <button type="button" class="reader-close" id="readerCloseBtn" aria-label="إغلاق">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>
+      </div>
     </div>
     <div class="reader-toolbar" aria-label="أدوات القراءة">
       <div class="reader-stats"><span id="readerTime"></span><span id="readerPercent">0٪</span></div>
@@ -3258,6 +3281,17 @@ function wireMedbrainEvents() {
 let readerReturnFocus = null;
 let readerBodyOverflow = '';
 let readerFontSize = 18;
+let readerTheme = 'light';
+try {
+  const savedTheme = localStorage.getItem('medbrain_reader_theme');
+  if (savedTheme === 'dark' || savedTheme === 'light') readerTheme = savedTheme;
+} catch (_) {}
+function applyReaderTheme() {
+  document.getElementById('readerOverlay').dataset.readerTheme = readerTheme;
+  const toggle = document.getElementById('readerThemeToggle');
+  toggle.textContent = readerTheme === 'dark' ? 'الوضع الفاتح ☀' : 'الوضع الداكن ☾';
+  toggle.setAttribute('aria-pressed', String(readerTheme === 'dark'));
+}
 try {
   const stored = Number(localStorage.getItem('medbrain_reader_font'));
   if (stored >= 16 && stored <= 26) readerFontSize = stored;
@@ -3279,6 +3313,7 @@ function openReaderSurface(isQuiz = false) {
   document.body.style.overflow = 'hidden';
   document.getElementById('readerWorkspace').scrollTop = 0;
   applyReaderFont();
+  applyReaderTheme();
   document.getElementById('readerCloseBtn').focus();
   requestAnimationFrame(updateReaderProgress);
 }
@@ -3343,6 +3378,11 @@ function closeReader() {
   readerReturnFocus = null;
 }
 function wireReaderTools() {
+  document.getElementById('readerThemeToggle').addEventListener('click', () => {
+    readerTheme = readerTheme === 'dark' ? 'light' : 'dark';
+    applyReaderTheme();
+    try { localStorage.setItem('medbrain_reader_theme', readerTheme); } catch (_) {}
+  });
   document.getElementById('readerWorkspace').addEventListener('scroll', updateReaderProgress, { passive:true });
   window.addEventListener('resize', () => {
     if (document.getElementById('readerOverlay').classList.contains('open')) updateReaderProgress();
