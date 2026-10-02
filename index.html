@@ -151,6 +151,46 @@
   }
   .logout-link:hover { color: var(--accent2); }
   .gate-modal { max-width: 380px; }
+  /* Auth dialogs stay readable regardless of the device color scheme. */
+  #gateOverlay, #nameOverlay {
+    --bg:#ffffff;
+    --surface:#ffffff;
+    --surface-alt:var(--medical-blue-soft);
+    --border:var(--medical-blue-border);
+    --text:#172235;
+    --text-muted:#516174;
+    --accent:var(--medical-blue);
+    --accent-strong:var(--medical-blue-dark);
+    --accent-soft:var(--medical-blue-soft);
+    --accent2:#b42318;
+    color:var(--text);
+    color-scheme:light;
+  }
+  #gateOverlay .gate-modal, #nameOverlay .gate-modal {
+    background:linear-gradient(135deg,var(--medical-blue-dark),var(--medical-blue));
+    color:#ffffff;
+  }
+  #gateOverlay .sub, #nameOverlay .sub,
+  #gateOverlay .logout-link, #nameOverlay .logout-link,
+  #gateOverlay #gateError, #nameOverlay #nameError { color:#ffffff; }
+  #gateOverlay .gate-modal h2 { color:#ffffff !important; }
+  #gateOverlay .logomark { background:var(--medical-blue-soft); color:var(--medical-blue-dark); }
+  #gateOverlay .field input, #nameOverlay .field input {
+    background:#ffffff;
+    color:#172235;
+    border-color:var(--medical-blue-border);
+    caret-color:var(--medical-blue-dark);
+  }
+  #gateOverlay .field input:focus, #nameOverlay .field input:focus { border-color:var(--medical-blue-hover); }
+  #gateOverlay :focus-visible, #nameOverlay :focus-visible { outline-color:var(--medical-blue-border); }
+  #gateOverlay .btn-save, #nameOverlay .mb-primary {
+    background:var(--medical-blue-dark);
+    color:#ffffff;
+    border:1px solid var(--medical-blue-border);
+  }
+  #gateOverlay .btn-save:hover, #nameOverlay .mb-primary:hover { background:var(--medical-blue-hover); }
+  #gateOverlay .btn-save:disabled, #nameOverlay .mb-primary:disabled { background:var(--medical-blue-dark); color:#ffffff; }
+  #gateOverlay .logout-link:hover, #nameOverlay .logout-link:hover { color:#ffffff; }
   .add-btn {
     flex-shrink: 0;
     display: flex;
