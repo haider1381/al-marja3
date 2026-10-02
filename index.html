@@ -1305,6 +1305,7 @@
       <button type="button" data-nav-kind="questions"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.7 2.7 0 1 1 4.7 1.8c-1.2 1-2.2 1.3-2.2 3.2"/><path d="M12 17h.01"/></svg><span>بنك الأسئلة</span></button>
       <button type="button" data-tool-view="schedule"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M8 3v4m8-4v4M4 10h16"/><path d="m9 15 2 2 4-4"/></svg><span>جدول الدراسة</span></button>
       <button type="button" data-nav="topics"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h10"/></svg><span>كل المواضيع</span></button>
+      <button type="button" data-nav-kind="" id="libraryManagerNav" style="display:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M8 9h8M8 13h8M8 17h5"/></svg><span>إدارة كل المواد</span></button>
       <div class="mb-nav-sep"></div>
       <div class="mb-nav-label">الحساب</div>
       <button type="button" data-nav="account"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg><span>الملف الشخصي</span></button>
@@ -1338,7 +1339,7 @@
         <span id="accountEmail" style="font-size:11px;color:#718096;direction:ltr;word-break:break-all"></span>
         <label class="mb-file-btn" for="profileAvatarInput">تغيير الصورة</label>
         <input type="file" id="profileAvatarInput" accept="image/jpeg,image/png,image/webp" hidden>
-        <small style="color:#8291a1;text-align:center">JPG / PNG / WebP — حتى 2MB بعد الضغط</small>
+        <small style="color:#8291a1;text-align:center">JPG / PNG / WebP — يتم قص الصورة وضغطها تلقائيًا</small>
       </div>
       <form class="mb-profile-fields" id="profileForm">
         <label>الاسم الظاهر
@@ -1426,7 +1427,7 @@
       <button type="button" class="mb-feature" data-tool-view="flashcards">
         <div class="mb-feature-top"><div><h3 class="mb-feature-title">البطاقات التعليمية</h3><span class="mb-feature-en">Flashcards</span></div><span class="mb-feature-count" id="cardFlashcards">0</span></div>
         <div class="mb-art"><span class="mb-art-sprite mb-art-flashcards" aria-hidden="true"></span></div>
-        <p class="mb-feature-note">واجهة البطاقات جاهزة بصريًا، وسنربطها بالبيانات لاحقًا.</p>
+        <p class="mb-feature-note">أنشئ بطاقاتك الشخصية وراجعها واقلبها لرؤية الإجابة.</p>
       </button>
 
       <button type="button" class="mb-feature" data-dashboard-kind="other">
@@ -1438,7 +1439,7 @@
       <button type="button" class="mb-feature" data-tool-view="schedule">
         <div class="mb-feature-top"><div><h3 class="mb-feature-title">جدول الدراسة</h3><span class="mb-feature-en">Study Schedule</span></div><span class="mb-feature-count" id="cardSchedule">0</span></div>
         <div class="mb-art"><span class="mb-art-sprite mb-art-schedule" aria-hidden="true"></span></div>
-        <p class="mb-feature-note">خطة مذاكرة شخصية ومتابعة الإنجاز في مرحلة لاحقة.</p>
+        <p class="mb-feature-note">أنشئ جدولك الأسبوعي وحدّد أوقات الدراسة وتابع إنجازك.</p>
       </button>
     </section>
 
@@ -2178,6 +2179,8 @@ function applyAccessUI() {
   document.getElementById('openAddBtn').style.display = canWrite ? '' : 'none';
   document.getElementById('readOnlyBadge').style.display = canWrite ? 'none' : '';
   document.getElementById('logoutBtn').style.display = '';
+  const libraryManagerNav=document.getElementById('libraryManagerNav');
+  if(libraryManagerNav) libraryManagerNav.style.display=canWrite?'':'none';
 }
 
 // ---------------- Rendering ----------------
