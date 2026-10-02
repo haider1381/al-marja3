@@ -697,7 +697,7 @@
     position:fixed;
     z-index:35;
     display:none;
-    width:min(270px,calc(100vw - 24px));
+    width:min(320px,calc(100vw - 24px));
     padding:0;
     background:transparent;
   }
@@ -711,27 +711,27 @@
     height:14px;
     transform:rotate(45deg);
     background:#ffffff;
-    border-top:1px solid var(--medical-blue-border);
-    border-left:1px solid var(--medical-blue-border);
+    border-top:1px solid var(--medical-blue);
+    border-left:1px solid var(--medical-blue);
   }
   .mb-about-dialog {
     position:relative;
-    padding:12px 14px;
-    border-radius:12px;
+    padding:14px 16px;
+    border-radius:8px;
     background:#ffffff;
-    border:1px solid var(--medical-blue-border);
+    border:1px solid var(--medical-blue);
     box-shadow:0 6px 20px rgba(15,108,189,.14);
     color:#172235;
     font-family:var(--font-ui);
-    line-height:1.65;
-    max-height:calc(100dvh - 90px);
+    line-height:1.8;
+    max-height:var(--about-max-height,calc(100dvh - 90px));
     overflow:auto;
   }
   .mb-about-dialog h2 { margin:0; color:var(--medical-blue-dark); font-family:'Nunito',sans-serif; font-size:17px; }
-  .mb-about-dialog p { margin:6px 0 0; font-size:12px; }
+  .mb-about-dialog p { margin:8px 0 0; font-size:15px; font-weight:400; }
   .mb-about-head { display:flex; align-items:center; justify-content:space-between; gap:10px; }
   .mb-about-close {
-    width:24px; height:24px; border:1px solid var(--medical-blue-border);
+    flex-shrink:0; width:32px; height:32px; border:1px solid var(--medical-blue);
     border-radius:50%; background:var(--medical-blue-soft);
     color:var(--medical-blue-dark); font-size:18px;
   }
@@ -2911,7 +2911,9 @@ function wireMedbrainEvents() {
     const center = anchor.left + anchor.width / 2;
     const left = Math.max(12, Math.min(center - width / 2, window.innerWidth - width - 12));
     about.style.left = left + 'px';
-    about.style.top = anchor.bottom + 12 + 'px';
+    const top = anchor.bottom + 12;
+    about.style.top = top + 'px';
+    about.style.setProperty('--about-max-height', Math.max(0, window.innerHeight - top - 12) + 'px');
     about.style.setProperty('--about-arrow', (center - left) + 'px');
   };
   const closeAbout = (restoreFocus = true) => {
