@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar" dir="rtl" data-theme="light">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -1561,6 +1561,52 @@
     .mb-page-title{font-size:21px}
   }
 
+
+  /* Site-wide indigo theme: preserve the artwork's original colors. */
+  #siteThemeToggle { border:1px solid var(--mb-line); background:var(--surface-alt); color:var(--mb-blue-dark); font-size:21px; }
+  :root[data-theme="dark"] {
+    color-scheme:dark;
+    --bg:#10162b; --surface:#171f39; --surface-alt:#223455;
+    --border:#344b70; --text:#e7edf7; --text-muted:#b0bed4;
+    --accent:#8cc8ff; --accent-strong:#aed8ff; --accent-soft:#223455;
+    --accent2:#ffadb2; --accent2-soft:#432637;
+    --mb-blue:#8cc8ff; --mb-blue-dark:#aed8ff; --mb-blue-soft:#223455;
+    --mb-navy:#e7edf7; --mb-line:#344b70; --mb-card:#171f39;
+    --mb-shadow:0 10px 30px rgba(0,0,0,.22);
+  }
+  :root[data-theme="dark"] body { background:var(--bg); color:var(--text); }
+  :root[data-theme="dark"] :is(.mb-topbar,.mb-hero,.mb-feature,.mb-practice,.mb-library,.mb-drawer,.mb-profile-pop,.mb-dialog,.mb-tool-page) {
+    background:var(--surface); border-color:var(--border); color:var(--text);
+  }
+  :root[data-theme="dark"] :is(.mb-brand-mark,.mb-topics-btn,.mb-coming,.mb-profile-photo-card,.mb-account-stat,.mb-schedule-form,.mb-flash-form,.mb-day-column,.mb-empty-tool) {
+    background:var(--surface-alt); border-color:var(--border); color:var(--text);
+  }
+  :root[data-theme="dark"] :is(.mb-top-search-btn,.mb-nav button,.mb-profile-pop button,.mb-close,.mb-page-back,.mb-file-btn,.mb-profile-fields input,.mb-schedule-form input,.mb-schedule-form select,.mb-flash-form input,.mb-flash-form textarea,.mb-task,.mb-mini-btn,.mb-study-card) {
+    background:var(--bg); border-color:var(--border); color:var(--text);
+  }
+  :root[data-theme="dark"] :is(.mb-icon-btn,.mb-topics-btn,.mb-tip,.mb-dashboard-head h2,.mb-nav-label,.mb-topic-col button,.mb-task-title,.mb-study-card .front,.mb-study-card .back,.mb-page-title,.mb-close) { color:var(--text); }
+  :root[data-theme="dark"] :is(.mb-welcome,.mb-feature-count,.mb-topic-col h3,.mb-account-stat b,.mb-task-time,.mb-study-card .topic,.mb-status) { color:var(--accent-strong); }
+  :root[data-theme="dark"] :is(.mb-feature-en,.mb-feature-note,.mb-practice-copy p,.mb-user-email,.mb-profile-pop .email,.mb-account-side p,.mb-account-stat span,.mb-page-subtitle,.mb-profile-fields label,.mb-schedule-form label,.mb-flash-form label,.mb-day-column h4,.mb-task-note,.mb-mini-btn,.mb-study-card .side-label,.mb-empty-tool) { color:var(--text-muted); }
+  :root[data-theme="dark"] :is(.mb-nav button:hover,.mb-nav button.active,.mb-profile-pop button:hover,.mb-icon-btn:hover,.mb-topics-btn:hover,.mb-page-back:hover,.mb-file-btn:hover,.mb-mini-btn:hover) { background:var(--accent-soft); color:var(--accent-strong); border-color:var(--border); }
+  :root[data-theme="dark"] :is(.mb-avatar,.mb-primary,.add-btn,.mb-account-side .big-avatar) { background:#0F6CBD; color:#ffffff; }
+  :root[data-theme="dark"] :is(.mb-avatar:hover,.mb-primary:hover,.add-btn:hover) { background:#1479CC; }
+  :root[data-theme="dark"] .mb-hero .search-box input { background:var(--bg); color:var(--text); border-color:var(--border); }
+  :root[data-theme="dark"] .mb-profile-fields input[readonly] { background:var(--surface-alt); color:var(--text-muted); }
+  :root[data-theme="dark"] .mb-task.done { background:#203a37; }
+  :root[data-theme="dark"] .mb-study-card .delete-card { background:var(--accent2-soft); color:var(--accent2); }
+  :root[data-theme="dark"] :is(.mb-drawer-head,.mb-nav-sep,.mb-dialog-head,.mb-account-side) { border-color:var(--border); }
+  :root[data-theme="dark"] .mb-library {
+    --bg:#10162b; --surface:#171f39; --surface-alt:#223455;
+    --border:#344b70; --text:#e7edf7; --text-muted:#b0bed4;
+    --accent:#8cc8ff; --accent-strong:#aed8ff; --accent-soft:#223455;
+    color:var(--text); color-scheme:dark;
+  }
+  :root[data-theme="dark"] .mb-library .library-filters option { background:#171f39; color:#e7edf7; }
+  :root[data-theme="dark"] .mb-about-dialog { background:var(--surface); color:var(--text); border-color:var(--border); }
+  :root[data-theme="dark"] #aboutOverlay::before { background:var(--surface); border-color:var(--border); }
+  :root[data-theme="dark"] .mb-about-dialog h2 { color:var(--accent-strong); }
+  :root[data-theme="dark"] .mb-about-close { background:var(--accent-soft); color:var(--accent-strong); border-color:var(--border); }
+
 </style>
 </head>
 <body>
@@ -1729,6 +1775,7 @@
       </div>
       <button class="mb-top-search-btn" id="topTopicsBtn" type="button"><span>المواضيع</span><span>⌄</span></button>
       <div class="mb-top-actions">
+        <button class="mb-icon-btn keep-mobile" id="siteThemeToggle" type="button" aria-label="تفعيل الوضع الداكن" aria-pressed="false" title="الوضع الداكن">☾</button>
         <button class="mb-icon-btn" type="button" data-top-kind="lectures" aria-label="المحاضرات"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 4h14v16H5z"/><path d="M8 8h8M8 12h8M8 16h5"/></svg></button>
         <button class="mb-icon-btn" type="button" data-top-kind="questions" aria-label="الأسئلة"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M10 9a2.4 2.4 0 1 1 4 1.8c-1.1.9-2 1.3-2 3.2"/><path d="M12 17h.01"/></svg></button>
         <button class="mb-icon-btn" type="button" data-tool-view="schedule" aria-label="جدول الدراسة"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M8 3v4m8-4v4M4 10h16"/></svg></button>
@@ -2468,6 +2515,7 @@ function lectureCountLabel(n) {
 
 // ---------------- Init ----------------
 async function init() {
+  applySiteTheme();
   const callbackType = new URLSearchParams(location.hash.slice(1)).get("type");
   if (callbackType === "invite" || callbackType === "recovery") {
     location.replace(new URL("./recovery.html", location.href).href + location.search + location.hash);
@@ -3069,6 +3117,7 @@ function renderMedbrainWidgets() {
 }
 
 function wireMedbrainEvents() {
+  document.getElementById('siteThemeToggle').addEventListener('click', toggleSiteTheme);
   const about = document.getElementById('aboutOverlay');
   const aboutButton = document.getElementById('aboutAppBtn');
   const positionAbout = () => {
@@ -3283,9 +3332,27 @@ let readerBodyOverflow = '';
 let readerFontSize = 18;
 let readerTheme = 'light';
 try {
-  const savedTheme = localStorage.getItem('medbrain_reader_theme');
+  const savedTheme = localStorage.getItem('medbrain_theme') || localStorage.getItem('medbrain_reader_theme');
   if (savedTheme === 'dark' || savedTheme === 'light') readerTheme = savedTheme;
 } catch (_) {}
+function applySiteTheme() {
+  document.documentElement.dataset.theme = readerTheme;
+  const button = document.getElementById('siteThemeToggle');
+  const dark = readerTheme === 'dark';
+  button.textContent = dark ? '☀' : '☾';
+  button.setAttribute('aria-pressed', String(dark));
+  button.setAttribute('aria-label', dark ? 'تفعيل الوضع الفاتح' : 'تفعيل الوضع الداكن');
+  button.title = dark ? 'الوضع الفاتح' : 'الوضع الداكن';
+  applyReaderTheme();
+}
+function toggleSiteTheme() {
+  readerTheme = readerTheme === 'dark' ? 'light' : 'dark';
+  applySiteTheme();
+  try {
+    localStorage.setItem('medbrain_theme', readerTheme);
+    localStorage.setItem('medbrain_reader_theme', readerTheme);
+  } catch (_) {}
+}
 function applyReaderTheme() {
   document.getElementById('readerOverlay').dataset.readerTheme = readerTheme;
   const toggle = document.getElementById('readerThemeToggle');
@@ -3379,9 +3446,7 @@ function closeReader() {
 }
 function wireReaderTools() {
   document.getElementById('readerThemeToggle').addEventListener('click', () => {
-    readerTheme = readerTheme === 'dark' ? 'light' : 'dark';
-    applyReaderTheme();
-    try { localStorage.setItem('medbrain_reader_theme', readerTheme); } catch (_) {}
+    toggleSiteTheme();
   });
   document.getElementById('readerWorkspace').addEventListener('scroll', updateReaderProgress, { passive:true });
   window.addEventListener('resize', () => {
