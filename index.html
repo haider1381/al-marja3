@@ -523,6 +523,27 @@
     clip: rect(0,0,0,0); white-space: nowrap;
   }
 
+
+  /* Authoring and interactive questions: reuse existing colors and shapes. */
+  [hidden] { display: none !important; }
+  .library-filters { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; margin-bottom:12px; }
+  .library-filters label { font-size:12px; color:var(--text-muted); }
+  .library-filters select { width:100%; padding:8px; border:1px solid var(--border); border-radius:8px; background:var(--surface); }
+  .filter-reset { margin-bottom:12px; }
+  .question-editor { border:1px solid var(--border); border-radius:var(--radius); padding:12px; margin-bottom:12px; }
+  .question-editor legend { font-weight:700; padding:0 5px; }
+  .question-editor .option-row { margin:10px 0; padding:8px; background:var(--surface-alt); border-radius:8px; }
+  .question-editor input[type=radio] { width:auto; }
+  .question-tools { display:flex; gap:8px; margin:12px 0; flex-wrap:wrap; }
+  .question-tools button, .quiz-choice, .quiz-next { border:1px solid var(--border); border-radius:8px; background:var(--surface-alt); padding:10px 12px; font-size:14px; }
+  .quiz-choice { display:block; width:100%; margin:8px 0; text-align:start; }
+  .quiz-choice.correct { border-color:var(--accent); background:var(--accent-soft); }
+  .quiz-choice.wrong { border-color:var(--accent2); background:var(--accent2-soft); }
+  .quiz-feedback { padding:12px; background:var(--surface-alt); border-radius:8px; margin:14px 0; }
+  .quiz-feedback p { margin:8px 0; }
+  .quiz-body { direction:rtl; text-align:start; }
+  .save-status { color:var(--accent2); font-size:13px; }
+  @media(max-width:480px) { .library-filters { grid-template-columns:1fr; } }
 </style>
 </head>
 <body>
@@ -574,7 +595,7 @@
     </div>
     <button class="add-btn" id="openAddBtn" type="button">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-      إضافة محاضرة
+      إضافة مادة
     </button>
   </header>
 
@@ -582,16 +603,23 @@
 
   <div class="search-box">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-    <input type="text" id="searchInput" placeholder="ابحث عن محاضرة، مصدر، أو موضوع…" autocomplete="off">
+    <input type="text" id="searchInput" placeholder="ابحث باسم المادة، المصدر، الموضوع، أو النوع…" autocomplete="off">
   </div>
 
+  <div class="library-filters" aria-label="فلاتر المكتبة">
+    <label>المصدر<select id="filterSource"><option value="">كل المصادر</option></select></label>
+    <label>الموضوع<select id="filterTopic"><option value="">كل المواضيع</option></select></label>
+    <label>نوع المادة<select id="filterKind"><option value="">كل المواد</option><option value="lectures">محاضرات وملخصات وPDF</option><option value="videos">فيديوهات</option><option value="questions">أسئلة</option><option value="other">أخرى</option></select></label>
+  </div>
+  <button type="button" class="back-chip filter-reset" id="resetFilters" hidden>مسح البحث والفلاتر</button>
   <div class="segmented" id="modeToggle" data-mode="source">
     <div class="highlight"></div>
     <button type="button" class="active" data-mode="source">حسب المصدر</button>
     <button type="button" data-mode="topic">حسب الموضوع</button>
   </div>
 
-  <div id="content"></div>
+  <button type="button" class="back-chip" id="refreshLibraryBtn">تحديث المكتبة</button>
+  <div id="content" aria-live="polite"></div>
 
 </div>
 
@@ -602,7 +630,7 @@
     <p class="sub">حدّد المصدر والموضوع ليتم ترتيبها تلقائيًا في مكانها المناسب.</p>
     <form id="lectureForm">
       <div class="field">
-        <label for="f_title">عنوان المحاضرة</label>
+        <label for="f_title">عنوان المادة</label>
         <input type="text" id="f_title" required placeholder="مثال: Heart Failure — Pathophysiology">
       </div>
       <div class="field">
@@ -639,7 +667,18 @@
         <label for="f_link">الرابط <span class="hint">(اختياري — فيديو أو ملف)</span></label>
         <input type="url" id="f_link" dir="ltr" placeholder="https://…">
       </div>
-      <div class="field">
+      <div class="field" id="pdfField">
+        <label for="f_pdf">رفع PDF من جهازك <span class="hint">(اختياري — حتى 25 MB)</span></label>
+        <input type="file" id="f_pdf" accept=".pdf,application/pdf">
+        <p class="sub" id="currentPdf"></p>
+        <label><input type="checkbox" id="removePdf" style="width:auto"> إزالة الملف المرتبط من هذه المادة</label>
+      </div>
+      <section id="questionsField" hidden aria-label="محرر الأسئلة">
+        <p class="sub">لكل سؤال أربعة خيارات وإجابة صحيحة واحدة. أضف تفسير كل خيار ليظهر بعد الإجابة.</p>
+        <div id="questionEditors"></div>
+        <div class="question-tools"><button type="button" id="addQuestionBtn">إضافة سؤال</button></div>
+      </section>
+      <div class="field" id="textField">
         <label for="f_text">نص المحاضرة <span class="hint">(اختياري — للقراءة داخل التطبيق)</span></label>
         <textarea id="f_text" style="min-height:140px" placeholder="الصق نص المحاضرة هنا. استخدم 🔴 للعنوان الرئيسي، 🔹🔶🔸 للعناوين الفرعية، 📍 أو ▪︎ للنقاط، ليظهر منسّقًا بشكل جميل."></textarea>
       </div>
@@ -647,9 +686,10 @@
         <label for="f_notes">ملاحظات <span class="hint">(اختياري)</span></label>
         <textarea id="f_notes" placeholder="أي تفاصيل إضافية تريد تذكّرها…"></textarea>
       </div>
+      <p class="save-status" id="saveStatus" role="status" aria-live="polite"></p>
       <div class="modal-actions">
         <button type="button" class="btn-cancel" id="cancelBtn">إلغاء</button>
-        <button type="submit" class="btn-save" id="saveBtn">حفظ المحاضرة</button>
+        <button type="submit" class="btn-save" id="saveBtn">حفظ المادة</button>
       </div>
     </form>
   </div>
@@ -694,19 +734,23 @@ const SUPABASE_URL = 'https://wuvzteosknrzddsaexez.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_xp2-QPjUpKMxskVfVksY7A_taxJXsPD';
 let client = null;
 let accessVersion = 0;
+let activeUserId = null;
+let contentRequest = 0;
 
 function rowToLecture(r) {
   return {
     id: String(r.id), title: r.title, source: r.source, category: r.category,
     topic: r.topic, type: r.type, link: r.link, text: r.lecture_text,
-    notes: r.notes, createdAt: r.created_at
+    notes: r.notes, createdAt: r.created_at,
+    filePath: r.file_path || null, questions: Array.isArray(r.questions) ? r.questions : []
   };
 }
 function lectureToRow(data) {
   return {
     title: data.title, source: data.source, category: data.category,
     topic: data.topic, type: data.type, link: data.link || null,
-    lecture_text: data.text || null, notes: data.notes || null
+    lecture_text: data.text || null, notes: data.notes || null,
+    file_path: data.filePath || null, questions: data.questions || []
   };
 }
 function assertEditor() {
@@ -717,7 +761,7 @@ async function loadLecturesFromSupabase() {
   const pageSize = 500;
   for (let offset = 0; ; offset += pageSize) {
     const result = await client.from('lectures')
-      .select('id,title,source,category,topic,type,link,lecture_text,notes,created_at')
+      .select('id,title,source,category,topic,type,link,lecture_text,notes,created_at,file_path,questions')
       .order('created_at', { ascending: false }).order('id', { ascending: false })
       .range(offset, offset + pageSize - 1);
     if (result.error) throw result.error;
@@ -767,7 +811,7 @@ const state = {
   selectedCategory: null,
   selectedTopic: null,
   selectedType: null,
-  search: ''
+  search: '', filterSource: '', filterTopic: '', filterKind: ''
 };
 
 // ---------------- Icons ----------------
@@ -880,6 +924,18 @@ function showGate() { document.getElementById('gateOverlay').classList.add('open
 function hideGate() { document.getElementById('gateOverlay').classList.remove('open'); }
 
 async function syncAccess(session) {
+  const userId = session && session.user ? session.user.id : null;
+  if (userId && userId === activeUserId) {
+    // Refocus/token refresh must not erase an editor's unsaved form or a student's quiz.
+    const version = accessVersion;
+    const { data, error } = await client.rpc('is_editor');
+    if (version !== accessVersion) return;
+    canWrite = !error && data === true;
+    applyAccessUI();
+    if (!canWrite) closeModal();
+    return;
+  }
+  activeUserId = userId;
   const version = ++accessVersion;
   canWrite = false;
   closeModal();
@@ -935,20 +991,22 @@ function wireGateEvents() {
   });
 }
 async function startApp(version = accessVersion) {
+  const request = ++contentRequest;
   const banner = document.getElementById('storageBanner');
   try {
     const loaded = await loadLecturesFromSupabase();
-    if (version !== accessVersion) return;
+    if (version !== accessVersion || request !== contentRequest) return;
     lectures = loaded;
     banner.classList.remove('show');
   } catch (_) {
-    if (version !== accessVersion) return;
+    if (version !== accessVersion || request !== contentRequest) return;
     banner.textContent = 'تعذّر تحميل المحاضرات. تحقق من الاتصال وصلاحيات Supabase ثم أعد تحميل الصفحة.';
     banner.classList.add('show');
   }
-  if (version === accessVersion) render();
+  if (version === accessVersion && request === contentRequest) render();
 }
 function applyAccessUI() {
+  document.getElementById('refreshLibraryBtn').hidden = !activeUserId;
   document.getElementById('openAddBtn').style.display = canWrite ? '' : 'none';
   document.getElementById('readOnlyBadge').style.display = canWrite ? 'none' : '';
   document.getElementById('logoutBtn').style.display = '';
@@ -957,19 +1015,16 @@ function applyAccessUI() {
 // ---------------- Rendering ----------------
 function render() {
   document.getElementById('countLabel').textContent = lectureCountLabel(lectures.length);
-
+  refreshFilterOptions();
+  const hasFilters = !!(state.search.trim() || state.filterSource || state.filterTopic || state.filterKind);
+  document.getElementById('resetFilters').hidden = !hasFilters;
   const content = document.getElementById('content');
-  const q = state.search.trim().toLowerCase();
-
-  if (q) {
-    content.innerHTML = renderSearchResults(q);
-    return;
-  }
-
-  if (state.mode === 'source') {
-    content.innerHTML = renderSourceMode();
+  if (hasFilters) {
+    const list = filterMaterials(lectures, state);
+    content.innerHTML = '<p class="section-label">نتائج البحث والفلاتر — <b>' + list.length + '</b></p>' +
+      (list.length ? renderLectureList(list) : '<div class="empty">لا توجد مواد مطابقة. جرّب تغيير الفلاتر.</div>');
   } else {
-    content.innerHTML = renderTopicMode();
+    content.innerHTML = state.mode === 'source' ? renderSourceMode() : renderTopicMode();
   }
 }
 
@@ -1053,24 +1108,23 @@ function renderSourceMode() {
     });
   }
 
-  const filtered = list.filter(l => (l.type || 'أخرى') === state.selectedSourceType);
+  const filtered = list.filter(l => materialGroup(l.type) === state.selectedSourceType);
   let html = `<button type="button" class="back-chip" data-action="clear-source-type">${ICONS.back} ${escapeHtml(state.selectedSourceTopic)}</button>`;
-  html += `<p class="section-label"><b>${escapeHtml(state.selectedSourceType)}</b> — ${lectureCountLabel(filtered.length)}</p>`;
+  html += `<p class="section-label"><b>${escapeHtml(GROUP_LABELS[state.selectedSourceType] || state.selectedSourceType)}</b> — ${lectureCountLabel(filtered.length)}</p>`;
   html += filtered.length ? renderLectureList(filtered) : `<div class="empty">لا توجد محاضرات بهذا النوع من هذا المصدر بعد.</div>`;
   return html;
 }
 
 function renderTypeLevel(list, opts) {
-  const byType = Object.create(null);
-  list.forEach(l => { const t = l.type || 'أخرى'; byType[t] = (byType[t]||0) + 1; });
-  let html = `<button type="button" class="back-chip" data-action="${opts.backAction}">${ICONS.back} ${escapeHtml(opts.backLabel)}</button>`;
-  html += `<p class="section-label"><b>${escapeHtml(opts.headingLabel)}</b> — ${lectureCountLabel(list.length)}</p>`;
-  html += `<p class="section-label">اختر نوع المادة</p><div class="chip-grid">`;
-  Object.keys(byType).forEach(t => {
-    html += `<button type="button" class="chip" data-action="${opts.selectAction}" data-type="${escapeHtml(t)}">${escapeHtml(t)} <span class="n">${byType[t]}</span></button>`;
+  let html = '<button type="button" class="back-chip" data-action="' + opts.backAction + '">' + ICONS.back + escapeHtml(opts.backLabel) + '</button>';
+  html += '<p class="section-label"><b>' + escapeHtml(opts.headingLabel) + '</b> — ' + lectureCountLabel(list.length) + '</p><div class="chip-grid">';
+  Object.keys(GROUP_LABELS).forEach(group => {
+    const count = list.filter(l => materialGroup(l.type) === group).length;
+    if (group === 'other' && !count) return;
+    html += '<button type="button" class="chip' + (!count ? ' empty-count' : '') + '" data-action="' + opts.selectAction + '" data-type="' + group + '">' +
+      escapeHtml(GROUP_LABELS[group]) + ' <span class="n">' + count + '</span></button>';
   });
-  html += `</div>`;
-  return html;
+  return html + '</div>';
 }
 
 function renderTopicMode() {
@@ -1086,9 +1140,9 @@ function renderTopicMode() {
       });
     }
 
-    const filtered = list.filter(l => (l.type || 'أخرى') === state.selectedType);
+    const filtered = list.filter(l => materialGroup(l.type) === state.selectedType);
     let html = `<button type="button" class="back-chip" data-action="clear-type">${ICONS.back} ${escapeHtml(state.selectedTopic)}</button>`;
-    html += `<p class="section-label"><b>${escapeHtml(state.selectedType)}</b> — ${lectureCountLabel(filtered.length)}</p>`;
+    html += `<p class="section-label"><b>${escapeHtml(GROUP_LABELS[state.selectedType] || state.selectedType)}</b> — ${lectureCountLabel(filtered.length)}</p>`;
     html += filtered.length ? renderLectureList(filtered) : `<div class="empty">لا توجد محاضرات بهذا النوع بعد.</div>`;
     return html;
   }
@@ -1121,6 +1175,7 @@ function renderLectureList(list) {
     const iconKey = TYPE_ICON[l.type] || 'bookmark';
     const hasText = !!(l.text && l.text.trim());
     const externalLink = safeExternalLink(l.link);
+    const hasQuiz = l.type === 'أسئلة' && Array.isArray(l.questions) && l.questions.length > 0;
     html += `<div class="lecture">
       <div class="icon">${ICONS[iconKey]}</div>
       <div class="body${hasText ? ' clickable' : ''}"${hasText ? ` data-action="open-reader" data-id="${escapeHtml(l.id)}"` : ''}>
@@ -1136,8 +1191,10 @@ function renderLectureList(list) {
       </div>
       <div class="actions">
         ${hasText ? `<button type="button" class="read" data-action="open-reader" data-id="${escapeHtml(l.id)}" aria-label="قراءة المحاضرة">${ICONS.read}</button>` : ''}
+        ${hasQuiz ? `<button type="button" class="read" data-action="open-quiz" data-id="${escapeHtml(l.id)}" aria-label="بدء الأسئلة">${ICONS.help}</button>` : ''}
+        ${l.filePath ? `<button type="button" class="read" data-action="open-pdf" data-id="${escapeHtml(l.id)}" aria-label="فتح PDF">${ICONS.download}</button>` : ''}
         ${externalLink ? `<a href="${escapeHtml(externalLink)}" target="_blank" rel="noopener noreferrer" aria-label="فتح الرابط">${ICONS.link}</a>` : ''}
-        ${canWrite ? `<button type="button" class="edit" data-action="edit-lecture" data-id="${escapeHtml(l.id)}" aria-label="تعديل المحاضرة">${ICONS.edit}</button>` : ''}
+        ${canWrite ? `<button type="button" class="edit" data-action="edit-lecture" data-id="${escapeHtml(l.id)}" aria-label="تعديل المادة">${ICONS.edit}</button>` : ''}
         ${canWrite ? `<button type="button" class="del" data-action="delete-lecture" data-id="${escapeHtml(l.id)}" aria-label="حذف المحاضرة">${ICONS.trash}</button>` : ''}
       </div>
     </div>`;
@@ -1148,6 +1205,7 @@ function renderLectureList(list) {
 
 // ---------------- Events ----------------
 function wireStaticEvents() {
+  wireAuthoringEvents();
   document.getElementById('searchInput').addEventListener('input', e => {
     state.search = e.target.value;
     render();
@@ -1190,6 +1248,10 @@ function wireStaticEvents() {
 }
 
 function onContentClick(e) {
+  const quizBtn = e.target.closest('[data-action="open-quiz"]');
+  if (quizBtn) { openQuiz(quizBtn.dataset.id); return; }
+  const pdfBtn = e.target.closest('[data-action="open-pdf"]');
+  if (pdfBtn) { openStoredPdf(pdfBtn.dataset.id, pdfBtn); return; }
   const sourceChip = e.target.closest('[data-action="select-source"]');
   if (sourceChip) { state.selectedSource = sourceChip.dataset.source; state.selectedSourceCategory = null; state.selectedSourceTopic = null; state.selectedSourceType = null; render(); return; }
 
@@ -1248,6 +1310,8 @@ function onContentClick(e) {
 
 // ---------------- Reader ----------------
 function openReader(id) {
+  quizState = null;
+  document.getElementById('readerBody').classList.remove('quiz-body');
   const lec = lectures.find(l => l.id === id);
   if (!lec) return;
   document.getElementById('readerTitle').textContent = lec.title;
@@ -1257,6 +1321,7 @@ function openReader(id) {
 }
 
 function closeReader() {
+  quizState = null;
   document.getElementById('readerOverlay').classList.remove('open');
 }
 
@@ -1356,67 +1421,320 @@ function openModal(id) {
     document.getElementById('saveBtn').textContent = 'حفظ المحاضرة';
   }
 
+  document.getElementById('saveStatus').textContent = '';
+  document.getElementById('currentPdf').textContent = lec && lec.filePath ? 'يوجد PDF محفوظ؛ يمكنك استبداله أو إزالة ارتباطه.' : '';
+  renderQuestionEditors(lec && Array.isArray(lec.questions) ? lec.questions : []);
+  updateMaterialFields();
   document.getElementById('overlay').classList.add('open');
   document.getElementById('f_title').focus();
 }
 
 function closeModal() {
+  if (savingMaterial) return;
   document.getElementById('overlay').classList.remove('open');
   document.getElementById('lectureForm').reset();
   populateTopicSelect('');
   editingId = null;
+  document.getElementById('questionEditors').innerHTML = '';
 }
 
 async function onSubmitLecture(e) {
   e.preventDefault();
-  if (!col) return;
-
-  const title = document.getElementById('f_title').value.trim();
-  const source = document.getElementById('f_source').value.trim();
-  const category = document.getElementById('f_category').value;
-  const topic = document.getElementById('f_topic').value;
-  const type = document.getElementById('f_type').value;
-  const link = document.getElementById('f_link').value.trim();
-  const text = document.getElementById('f_text').value.trim();
-  const notes = document.getElementById('f_notes').value.trim();
-
-  if (!title || !source || !category || !topic) return;
-  if (link && !safeExternalLink(link)) { alert("استخدم رابطًا يبدأ بـ https:// أو http://"); return; }
-
-  const isEdit = !!editingId;
+  if (!col || !canWrite || savingMaterial) return;
+  const value = id => document.getElementById(id).value.trim();
+  const status = document.getElementById('saveStatus');
+  status.textContent = '';
+  const data = {
+    title: value('f_title'), source: value('f_source'), category: value('f_category'),
+    topic: value('f_topic'), type: value('f_type'), link: value('f_link'),
+    text: value('f_text'), notes: value('f_notes'), questions: []
+  };
+  if (!data.title || !data.source || !data.category || !data.topic) return;
+  if (data.link && !safeExternalLink(data.link)) {
+    status.textContent = 'استخدم رابطًا يبدأ بـ https:// أو http://'; return;
+  }
   const targetId = editingId;
-
-  const saveBtn = document.getElementById('saveBtn');
-  saveBtn.disabled = true;
-  saveBtn.textContent = 'جارٍ الحفظ…';
-
+  const previous = lectures.find(l => l.id === targetId);
+  data.filePath = previous ? previous.filePath : null;
+  if (document.getElementById('removePdf').checked) data.filePath = null;
+  const file = document.getElementById('f_pdf').files[0];
   try {
-    const data = { title, source, category, topic, type, link, text, notes };
-    if (isEdit) {
-      await col.doc(targetId).update(data);
-    } else {
-      data.createdAt = Date.now();
-      await col.add(data);
+    if (data.type === 'أسئلة') {
+      data.questions = readQuestionEditors();
+      // Existing question-file links remain supported.
+      if (data.questions.length) validateQuestions(data.questions);
     }
+    if (file) validatePdf(file);
+    if (!data.text && !data.link && !file && !data.filePath && !data.questions.length) {
+      throw new Error('أضف نصًا أو رابطًا أو PDF أو أسئلة قبل الحفظ.');
+    }
+  } catch (err) { status.textContent = err.message; return; }
+
+  const version = accessVersion;
+  const btn = document.getElementById('saveBtn');
+  const form = document.getElementById('lectureForm');
+  const controls = Array.from(form.elements).map(el => [el, el.disabled]);
+  savingMaterial = true;
+  controls.forEach(([el]) => { el.disabled = true; });
+  btn.textContent = file ? 'جارٍ رفع PDF وحفظ المادة…' : 'جارٍ الحفظ…';
+  let uploadedPath = null;
+  try {
+    if (file) {
+      const path = 'pdf/' + crypto.randomUUID() + '.pdf';
+      const result = await client.storage.from('lecture-files').upload(path, file, {
+        contentType: 'application/pdf', upsert: false
+      });
+      if (result.error) throw result.error;
+      uploadedPath = path;
+      data.filePath = path;
+    }
+    if (version !== accessVersion || !canWrite) throw new Error('تغيّرت جلسة الدخول؛ سجل الدخول ثم حاول مجددًا.');
+    if (targetId) await col.doc(targetId).update(data);
+    else await col.add(data);
+    savingMaterial = false;
     closeModal();
   } catch (err) {
-    console.error(err);
-    alert('تعذّر حفظ المحاضرة. جرّب مرة أخرى.');
+    // Keep uploaded files after ambiguous network failures: a row may have been committed.
+    // Owner can audit unreferenced files later; never risk deleting a committed PDF here.
+    status.textContent = 'تعذّر تأكيد الحفظ. بقيت المدخلات في النموذج؛ تحقق من الاتصال والإعدادات وأعد المحاولة.';
+    if (uploadedPath) status.textContent += ' تم رفع الملف؛ تحقق من المكتبة قبل تكرار الحفظ.';
   } finally {
-    saveBtn.disabled = false;
-    saveBtn.textContent = isEdit ? 'حفظ التعديلات' : 'حفظ المحاضرة';
+    savingMaterial = false;
+    controls.forEach(([el, disabled]) => { el.disabled = disabled; });
+    btn.textContent = targetId ? 'حفظ التعديلات' : 'حفظ المادة';
+    if (version !== accessVersion) closeModal();
   }
 }
 
 async function deleteLecture(id) {
-  if (!col || !canWrite || !id) return;
-  if (!confirm('حذف هذه المحاضرة؟')) return;
+  if (!col || !canWrite || !id || savingMaterial) return;
+  if (!confirm('حذف هذه المادة؟')) return;
   try {
     await col.doc(id).delete();
   } catch (err) {
     console.error(err);
     alert('تعذّر حذف المحاضرة.');
   }
+}
+
+const GROUP_LABELS = { lectures: 'محاضرات وملخصات وPDF', videos: 'فيديوهات', questions: 'أسئلة', other: 'أخرى' };
+let savingMaterial = false;
+let quizState = null;
+function materialGroup(type) {
+  if (type === 'فيديو') return 'videos';
+  if (type === 'أسئلة') return 'questions';
+  if (['محاضرة', 'ملخص', 'ملف PDF', 'PDF'].includes(type)) return 'lectures';
+  return 'other';
+}
+function filterMaterials(list, filters) {
+  const q = String(filters.search || '').trim().toLocaleLowerCase();
+  return list.filter(l =>
+    (!q || [l.title, l.source, l.category, l.topic, l.type].some(v => String(v || '').toLocaleLowerCase().includes(q))) &&
+    (!filters.filterSource || (l.source || 'غير محدد') === filters.filterSource) &&
+    (!filters.filterTopic || (l.topic || 'أخرى') === filters.filterTopic) &&
+    (!filters.filterKind || materialGroup(l.type) === filters.filterKind)
+  );
+}
+function replaceSelectOptions(id, values, selected, label) {
+  const select = document.getElementById(id);
+  const unique = [...new Set(values)].sort((a,b) => a.localeCompare(b, 'ar'));
+  if (selected && !unique.includes(selected)) unique.push(selected);
+  select.innerHTML = '<option value="">' + escapeHtml(label) + '</option>' +
+    unique.map(v => '<option value="' + escapeHtml(v) + '">' + escapeHtml(v) + '</option>').join('');
+  select.value = selected;
+}
+function refreshFilterOptions() {
+  replaceSelectOptions('filterSource', lectures.map(l => l.source || 'غير محدد'), state.filterSource, 'كل المصادر');
+  const list = state.filterSource ? lectures.filter(l => (l.source || 'غير محدد') === state.filterSource) : lectures;
+  replaceSelectOptions('filterTopic', list.map(l => l.topic || 'أخرى'), state.filterTopic, 'كل المواضيع');
+  document.getElementById('filterKind').value = state.filterKind;
+}
+function updateMaterialFields() {
+  const type = document.getElementById('f_type').value;
+  const isQuiz = type === 'أسئلة';
+  document.getElementById('questionsField').hidden = !isQuiz;
+  // Text and PDF remain available alongside every material type, preserving old content.
+  document.getElementById('addQuestionBtn').disabled = !isQuiz;
+}
+function emptyQuestion() {
+  return { prompt: '', options: Array.from({length:4}, () => ({ text: '', explanation: '' })), correctIndex: 0 };
+}
+function validateQuestions(questions) {
+  if (!Array.isArray(questions) || !questions.length || questions.length > 100)
+    throw new Error('أضف من سؤال واحد إلى 100 سؤال في المجموعة.');
+  questions.forEach((q, i) => {
+    if (!q || typeof q.prompt !== 'string' || !q.prompt.trim() || q.prompt.length > 10000)
+      throw new Error('أكمل نص السؤال ' + (i + 1) + ' (حتى 10000 حرف).');
+    if (!Array.isArray(q.options) || q.options.length !== 4 || !Number.isInteger(q.correctIndex) || q.correctIndex < 0 || q.correctIndex > 3)
+      throw new Error('اختر جوابًا صحيحًا واحدًا وأربعة خيارات للسؤال ' + (i + 1));
+    q.options.forEach(o => {
+      if (!o || typeof o.text !== 'string' || !o.text.trim() || o.text.length > 5000 ||
+        typeof o.explanation !== 'string' || !o.explanation.trim() || o.explanation.length > 10000)
+        throw new Error('أكمل نص وتفسير كل خيار للسؤال ' + (i + 1));
+    });
+  });
+  return questions;
+}
+function readQuestionEditors() {
+  return Array.from(document.querySelectorAll('#questionEditors .question-editor')).map(box => ({
+    prompt: box.querySelector('[data-field="prompt"]').value.trim(),
+    correctIndex: Number(box.querySelector('input[type="radio"]:checked').value),
+    options: Array.from(box.querySelectorAll('.option-row')).map(row => ({
+      text: row.querySelector('[data-field="option"]').value.trim(),
+      explanation: row.querySelector('[data-field="explanation"]').value.trim()
+    }))
+  }));
+}
+function questionEditorHtml(q, index) {
+  const n = index + 1;
+  let html = '<fieldset class="question-editor"><legend>السؤال ' + n + '</legend>' +
+    '<div class="field"><label for="q-' + index + '">نص السؤال</label>' +
+    '<textarea id="q-' + index + '" data-field="prompt" maxlength="10000" dir="auto">' + escapeHtml(q.prompt) + '</textarea></div>';
+  q.options.forEach((o, j) => {
+    const prefix = 'q-' + index + '-' + j;
+    html += '<div class="option-row"><label><input type="radio" name="correct-' + index + '" value="' + j + '"' +
+      (q.correctIndex === j ? ' checked' : '') + '> هذا هو الجواب الصحيح</label>' +
+      '<div class="field"><label for="' + prefix + '-text">الخيار ' + (j + 1) + '</label>' +
+      '<input id="' + prefix + '-text" data-field="option" maxlength="5000" dir="auto" value="' + escapeHtml(o.text) + '"></div>' +
+      '<div class="field"><label for="' + prefix + '-why">لماذا هذا الخيار صحيح أو خطأ؟</label>' +
+      '<textarea id="' + prefix + '-why" data-field="explanation" maxlength="10000" dir="auto">' + escapeHtml(o.explanation) + '</textarea></div></div>';
+  });
+  return html + '<button type="button" class="back-chip" data-remove-question="' + index + '">حذف هذا السؤال</button></fieldset>';
+}
+function renderQuestionEditors(questions) {
+  document.getElementById('questionEditors').innerHTML = questions.map(questionEditorHtml).join('');
+}
+function wireAuthoringEvents() {
+  document.getElementById('refreshLibraryBtn').addEventListener('click', async e => {
+    if (!client || !activeUserId) return;
+    const button = e.currentTarget;
+    button.disabled = true;
+    button.textContent = 'جارٍ تحديث المكتبة…';
+    try { await startApp(); }
+    finally { button.disabled = false; button.textContent = 'تحديث المكتبة'; }
+  });
+  [['filterSource','filterSource'], ['filterTopic','filterTopic'], ['filterKind','filterKind']].forEach(([id, key]) => {
+    document.getElementById(id).addEventListener('change', e => {
+      state[key] = e.target.value;
+      if (key === 'filterSource') state.filterTopic = '';
+      render();
+    });
+  });
+  document.getElementById('resetFilters').addEventListener('click', () => {
+    state.search = state.filterSource = state.filterTopic = state.filterKind = '';
+    document.getElementById('searchInput').value = '';
+    render();
+  });
+  document.getElementById('f_type').addEventListener('change', updateMaterialFields);
+  document.getElementById('addQuestionBtn').addEventListener('click', () => {
+    const questions = readQuestionEditors();
+    if (questions.length >= 100) { document.getElementById('saveStatus').textContent = 'الحد الأقصى 100 سؤال للمجموعة.'; return; }
+    questions.push(emptyQuestion());
+    renderQuestionEditors(questions);
+    const boxes = document.querySelectorAll('#questionEditors .question-editor');
+    boxes[boxes.length - 1].querySelector('textarea').focus();
+  });
+  document.getElementById('questionEditors').addEventListener('click', e => {
+    const button = e.target.closest('[data-remove-question]');
+    if (!button || savingMaterial) return;
+    const questions = readQuestionEditors();
+    questions.splice(Number(button.dataset.removeQuestion), 1);
+    renderQuestionEditors(questions);
+  });
+  document.getElementById('readerBody').addEventListener('click', e => {
+    const choice = e.target.closest('[data-quiz-choice]');
+    if (choice && quizState && quizState.answers[quizState.index] == null) {
+      quizState.answers[quizState.index] = Number(choice.dataset.quizChoice);
+      renderQuiz();
+      document.getElementById('quizFeedback').focus();
+      return;
+    }
+    const nav = e.target.closest('[data-quiz-nav]');
+    if (!nav || !quizState) return;
+    if (nav.dataset.quizNav === 'restart') {
+      quizState.index = 0; quizState.answers = [];
+    } else if (nav.dataset.quizNav === 'next' && quizState.answers[quizState.index] != null) {
+      quizState.index++;
+    } else if (nav.dataset.quizNav === 'previous') {
+      quizState.index = Math.max(0, quizState.index - 1);
+    }
+    renderQuiz();
+  });
+}
+function validatePdf(file) {
+  if (!file || !/\.pdf$/i.test(file.name) || (file.type && file.type !== 'application/pdf'))
+    throw new Error('اختر ملف PDF صالحًا.');
+  if (file.size <= 0 || file.size > 25 * 1024 * 1024)
+    throw new Error('حجم PDF يجب أن يكون أكبر من صفر وأقل من أو يساوي 25 MB.');
+}
+async function openStoredPdf(id, button) {
+  const material = lectures.find(l => l.id === id);
+  if (!client || !material || !material.filePath) return;
+  // Open during the click so mobile popup blockers do not block the later signed URL.
+  const tab = window.open('about:blank', '_blank');
+  if (tab) { tab.opener = null; tab.document.title = 'جارٍ فتح PDF…'; }
+  button.disabled = true;
+  try {
+    const { data, error } = await client.storage.from('lecture-files').createSignedUrl(material.filePath, 300);
+    if (error || !data || !safeExternalLink(data.signedUrl)) throw error || new Error('pdf_failed');
+    if (tab) tab.location.replace(data.signedUrl);
+    else window.location.assign(data.signedUrl);
+  } catch (_) {
+    if (tab) tab.close();
+    alert('تعذّر فتح PDF. تحقق من الاتصال وصلاحيات الملف.');
+  } finally { button.disabled = false; }
+}
+function openQuiz(id) {
+  const material = lectures.find(l => l.id === id);
+  if (!material) return;
+  try { validateQuestions(material.questions); } catch (_) { alert('هذه المجموعة تحتاج مراجعة الأسئلة من المحرر.'); return; }
+  quizState = { material, index: 0, answers: [] };
+  document.getElementById('readerTitle').textContent = material.title;
+  document.getElementById('readerMeta').textContent = [material.source, material.topic, 'أسئلة تفاعلية'].filter(Boolean).join(' · ');
+  document.getElementById('readerBody').classList.add('quiz-body');
+  document.getElementById('readerOverlay').classList.add('open');
+  renderQuiz();
+}
+function quizScore(questions, answers) {
+  return questions.reduce((score, q, i) => score + (answers[i] === q.correctIndex ? 1 : 0), 0);
+}
+function renderQuiz() {
+  if (!quizState) return;
+  const { material, index, answers } = quizState;
+  const questions = material.questions;
+  const body = document.getElementById('readerBody');
+  if (index >= questions.length) {
+    body.innerHTML = '<h3>اكتملت المجموعة</h3><p>نتيجتك: ' + quizScore(questions, answers) + ' من ' + questions.length +
+      '</p><button type="button" class="quiz-next" data-quiz-nav="restart">إعادة المحاولة</button>';
+    body.scrollTop = 0;
+    return;
+  }
+  const q = questions[index];
+  const selected = answers[index];
+  const answered = selected != null;
+  let html = '<p class="section-label">السؤال ' + (index + 1) + ' من ' + questions.length + '</p>' +
+    '<h3 dir="auto">' + escapeHtml(q.prompt) + '</h3>';
+  q.options.forEach((o, i) => {
+    const cls = answered ? (i === q.correctIndex ? ' correct' : (i === selected ? ' wrong' : '')) : '';
+    html += '<button type="button" class="quiz-choice' + cls + '" data-quiz-choice="' + i + '"' +
+      (answered ? ' disabled' : '') + ' dir="auto">' + (i + 1) + '. ' + escapeHtml(o.text) + '</button>';
+  });
+  if (answered) {
+    html += '<div class="quiz-feedback" id="quizFeedback" tabindex="-1" aria-live="polite"><strong>' +
+      (selected === q.correctIndex ? 'إجابة صحيحة' : 'إجابة غير صحيحة') + '</strong><p>الجواب الصحيح: ' +
+      escapeHtml(q.options[q.correctIndex].text) + '</p>';
+    q.options.forEach((o, i) => {
+      html += '<p dir="auto"><b>' + escapeHtml(o.text) + (i === q.correctIndex ? ' — صحيح' : ' — خطأ') +
+        '</b><br>' + escapeHtml(o.explanation) + '</p>';
+    });
+    html += '</div>';
+  }
+  html += '<div class="question-tools">';
+  if (index > 0) html += '<button type="button" data-quiz-nav="previous">السابق</button>';
+  html += '<button type="button" data-quiz-nav="next"' + (!answered ? ' disabled' : '') + '>' +
+    (index === questions.length - 1 ? 'عرض النتيجة' : 'السؤال التالي') + '</button></div>';
+  body.innerHTML = html;
+  body.scrollTop = 0;
 }
 
 init();
