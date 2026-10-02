@@ -461,75 +461,89 @@
   .lecture .actions button.del:hover { color: var(--accent2); }
   .lecture .actions svg { width: 15px; height: 15px; }
 
-  /* ---------- Reader ---------- */
-  .reader-modal {
-    background: var(--surface);
-    border-radius: 16px;
-    width: 100%;
-    max-width: 680px;
-    max-height: 92vh;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
+  /* ---------- Full-screen medical reader ---------- */
+  #readerOverlay {
+    --bg:#ffffff; --surface:#ffffff; --surface-alt:#EAF4FF;
+    --border:#B9D8F4; --text:#233448; --text-muted:#52677b;
+    --accent:#0F6CBD; --accent-strong:#0B5FA5; --accent-soft:#EAF4FF;
+    --accent2:#b42318; --accent2-soft:#fff1f1;
+    padding:0; overflow:hidden; background:#ffffff; color:var(--text);
+    color-scheme:light; z-index:60;
   }
-  @media (max-width: 480px) {
-    .overlay.reader.open { align-items: stretch; padding: 0; }
-    .reader-modal { max-height: 100%; height: 100%; border-radius: 0; }
+  #readerOverlay.open { align-items:stretch; justify-content:stretch; }
+  #readerOverlay .reader-modal {
+    background:#ffffff; border-radius:0; width:100%; max-width:none;
+    height:100vh; height:100dvh; max-height:none;
+    display:flex; flex-direction:column; overflow:hidden;
   }
   .reader-head {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 12px;
-    padding: 16px 20px;
-    border-bottom: 1px solid var(--border);
-    flex-shrink: 0;
+    display:flex; align-items:flex-start; justify-content:space-between; gap:18px;
+    padding:calc(16px + env(safe-area-inset-top,0px)) max(24px,env(safe-area-inset-right,0px)) 16px;
+    border-bottom:1px solid #e2edf7; flex-shrink:0; background:#ffffff;
   }
-  .reader-head h2 { margin: 0; font-size: 17px; font-weight: 800; }
-  .reader-meta { margin: 5px 0 0; font-size: 12px; color: var(--text-muted); }
+  .reader-brand { font-family:'Nunito',sans-serif; font-size:12px; font-weight:800; color:var(--accent); margin:0 0 5px; letter-spacing:.06em; }
+  .reader-head h2 { margin:0; font-size:clamp(19px,2.3vw,27px); line-height:1.5; font-weight:800; color:var(--accent-strong); overflow-wrap:anywhere; }
+  .reader-meta { margin:5px 0 0; font-size:12px; color:var(--text-muted); }
   .reader-close {
-    flex-shrink: 0; width: 32px; height: 32px; border: none;
-    background: var(--surface-alt); border-radius: 8px;
-    display: flex; align-items: center; justify-content: center; color: var(--text-muted);
+    flex-shrink:0; width:40px; height:40px; border:1px solid var(--border);
+    background:var(--accent-soft); border-radius:12px; display:grid; place-items:center; color:var(--accent-strong);
   }
-  .reader-close:hover { color: var(--accent2); }
-  .reader-close svg { width: 16px; height: 16px; }
-  .reader-body {
-    flex: 1; overflow-y: auto; padding: 22px 22px 44px;
-    direction: ltr; text-align: left;
-    font-size: 14.5px; line-height: 1.8; color: var(--text);
+  .reader-close:hover { background:var(--accent); color:#ffffff; }
+  .reader-close svg { width:18px; height:18px; }
+  .reader-toolbar {
+    display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;
+    padding:10px 24px; border-bottom:1px solid #e2edf7; background:#f8fbff; flex-shrink:0;
   }
-  .reader-body > *:first-child { margin-top: 0 !important; }
-  .r-title {
-    font-size: 20px; font-weight: 800; color: var(--accent2);
-    margin: 0 0 16px; padding-bottom: 10px; border-bottom: 1px solid var(--border);
+  .reader-stats { display:flex; align-items:center; gap:14px; color:var(--text-muted); font-size:12px; }
+  .reader-font-tools { display:flex; align-items:center; gap:6px; font-size:12px; color:var(--text-muted); }
+  .reader-font-tools button, .reader-to-top {
+    border:1px solid var(--border); border-radius:8px; padding:6px 10px;
+    background:#ffffff; color:var(--accent-strong); font-size:13px; font-weight:700;
   }
-  .r-section {
-    font-size: 16px; font-weight: 800; color: var(--accent-strong);
-    margin: 24px 0 10px; padding-inline-start: 11px; border-inline-start: 3px solid var(--accent);
+  .reader-font-tools button:hover, .reader-to-top:hover { background:var(--accent-soft); }
+  .reader-font-tools button:disabled { color:#7b8fa1; cursor:default; }
+  .reader-progress { display:block; width:100%; height:3px; flex-shrink:0; border:0; appearance:none; background:#eaf4ff; }
+  .reader-progress::-webkit-progress-bar { background:#eaf4ff; }
+  .reader-progress::-webkit-progress-value { background:#0F6CBD; }
+  .reader-progress::-moz-progress-bar { background:#0F6CBD; }
+  .reader-workspace { flex:1; min-height:0; overflow-y:auto; overscroll-behavior:contain; scroll-behavior:smooth; }
+  .reader-layout { display:grid; grid-template-columns:220px minmax(0,760px); justify-content:center; align-items:start; gap:44px; padding:36px 28px 80px; }
+  .reader-layout.no-outline { grid-template-columns:minmax(0,760px); }
+  .reader-outline { position:sticky; top:20px; padding:14px; border:1px solid #e1edf7; border-radius:14px; background:#f8fbff; max-height:calc(100dvh - 260px); overflow:auto; }
+  .reader-outline summary { font-size:13px; font-weight:800; color:var(--accent-strong); cursor:pointer; }
+  .reader-outline nav { display:flex; flex-direction:column; gap:4px; margin-top:10px; }
+  .reader-outline button { border:0; background:transparent; color:var(--text-muted); text-align:start; border-radius:7px; padding:7px 8px; font-size:12px; line-height:1.6; overflow-wrap:anywhere; }
+  .reader-outline button:hover, .reader-outline button.active { background:var(--accent-soft); color:var(--accent-strong); }
+  .reader-body { min-width:0; width:100%; padding:0; font-size:var(--reader-font-size,18px); line-height:1.95; color:var(--text); text-align:start; overflow-wrap:anywhere; }
+  .reader-body > *:first-child { margin-top:0 !important; }
+  .reader-body [role="heading"] { scroll-margin-top:24px; }
+  .r-title { font-size:1.55em; font-weight:800; color:var(--accent-strong); margin:0 0 24px; padding-bottom:14px; border-bottom:2px solid var(--border); line-height:1.6; }
+  .r-section { font-size:1.2em; font-weight:800; color:var(--accent-strong); margin:34px 0 16px; padding:10px 14px; border-inline-start:4px solid var(--accent); border-radius:8px; background:var(--accent-soft); line-height:1.7; }
+  .r-sub { font-size:1.05em; font-weight:700; color:var(--accent); margin:24px 0 12px; }
+  .r-b1 { margin:0 0 12px; padding-inline-start:22px; position:relative; }
+  .r-b1::before { content:""; position:absolute; inset-inline-start:3px; top:.85em; width:6px; height:6px; border-radius:50%; background:var(--accent); }
+  .r-b2 { margin:0 0 10px; padding-inline-start:40px; position:relative; color:var(--text); }
+  .r-b2::before { content:"–"; position:absolute; inset-inline-start:22px; color:var(--accent); }
+  .r-note { margin:16px 0; padding:12px 16px; background:#f8fbff; border:1px solid #e1edf7; border-radius:10px; color:var(--text-muted); font-size:.95em; }
+  .r-p { margin:0 0 18px; }
+  .arrow { color:var(--accent); font-weight:700; margin:0 4px; }
+  #readerOverlay :focus-visible { outline-color:var(--accent); }
+  #readerOverlay.reader-quiz .reader-toolbar, #readerOverlay.reader-quiz .reader-progress { display:none; }
+  #readerOverlay.reader-quiz .reader-layout { grid-template-columns:minmax(0,760px); }
+  #readerOverlay.reader-quiz .reader-outline { display:none; }
+  @media(max-width:850px) {
+    .reader-layout { grid-template-columns:minmax(0,760px); gap:20px; padding:24px 20px 64px; }
+    .reader-outline { position:static; max-height:none; padding:10px 14px; }
+    .reader-outline nav { max-height:180px; overflow:auto; }
   }
-  .r-section:first-child { margin-top: 0; }
-  .r-sub {
-    font-size: 14.5px; font-weight: 700; color: var(--accent);
-    margin: 16px 0 8px; padding-inline-start: 14px; position: relative;
+  @media(max-width:480px) {
+    .reader-head { padding:calc(12px + env(safe-area-inset-top,0px)) 16px 12px; gap:10px; }
+    .reader-head h2 { font-size:19px; }
+    .reader-toolbar { padding:8px 16px; gap:8px; }
+    .reader-stats { font-size:11px; gap:10px; }
+    .reader-layout { padding:20px 18px calc(60px + env(safe-area-inset-bottom,0px)); }
   }
-  .r-sub::before {
-    content: ""; position: absolute; inset-inline-start: 0; top: 0.6em;
-    width: 6px; height: 6px; border-radius: 50%; background: var(--accent);
-  }
-  .r-b1 { margin: 0 0 8px; padding-inline-start: 20px; position: relative; }
-  .r-b1::before {
-    content: ""; position: absolute; inset-inline-start: 3px; top: 0.68em;
-    width: 5px; height: 5px; border-radius: 50%; background: var(--accent);
-  }
-  .r-b2 {
-    margin: 0 0 6px; padding-inline-start: 38px; position: relative;
-    color: var(--text-muted); font-size: 13.5px;
-  }
-  .r-b2::before { content: "–"; position: absolute; inset-inline-start: 20px; }
-  .r-note { margin: 2px 0 8px 20px; font-size: 12.5px; font-style: italic; color: var(--text-muted); }
-  .r-p { margin: 0 0 10px; }
-  .arrow { color: var(--accent); font-weight: 700; margin: 0 4px; }
+  @media(prefers-reduced-motion:reduce) { .reader-workspace { scroll-behavior:auto; } }
 
   /* ---------- Modal ---------- */
   .overlay {
@@ -1934,6 +1948,7 @@
   <div class="reader-modal" role="dialog" aria-modal="true" aria-labelledby="readerTitle">
     <div class="reader-head">
       <div>
+        <p class="reader-brand" dir="ltr">MEDBRAIN · READER</p>
         <h2 id="readerTitle"></h2>
         <p class="reader-meta" id="readerMeta"></p>
       </div>
@@ -1941,7 +1956,27 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>
     </div>
-    <div class="reader-body" id="readerBody"></div>
+    <div class="reader-toolbar" aria-label="أدوات القراءة">
+      <div class="reader-stats"><span id="readerTime"></span><span id="readerPercent">0٪</span></div>
+      <div class="reader-font-tools" aria-label="حجم خط القراءة">
+        <span>حجم الخط</span>
+        <button type="button" id="readerFontMinus" aria-label="تصغير الخط">−</button>
+        <output id="readerFontValue" aria-live="polite">18</output>
+        <button type="button" id="readerFontPlus" aria-label="تكبير الخط">+</button>
+        <button type="button" id="readerFontReset" aria-label="إعادة حجم الخط الافتراضي">إعادة</button>
+      </div>
+      <button type="button" id="readerToTop" class="reader-to-top">بداية النص ↑</button>
+    </div>
+    <progress class="reader-progress" id="readerProgress" max="100" value="0" aria-label="تقدم القراءة"></progress>
+    <div class="reader-workspace" id="readerWorkspace">
+      <div class="reader-layout no-outline" id="readerLayout">
+        <details class="reader-outline" id="readerOutline" hidden>
+          <summary>في هذه المحاضرة</summary>
+          <nav id="readerContents" aria-label="فهرس المحاضرة"></nav>
+        </details>
+        <div class="reader-body" id="readerBody" dir="auto"></div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -2821,6 +2856,7 @@ function renderLectureList(list) {
 
 // ---------------- Events ----------------
 function wireStaticEvents() {
+  wireReaderTools();
   wireAuthoringEvents();
   wireMedbrainEvents();
   document.getElementById('searchInput').addEventListener('input', e => {
@@ -3219,20 +3255,130 @@ function wireMedbrainEvents() {
 }
 
 // ---------------- Reader ----------------
+let readerReturnFocus = null;
+let readerBodyOverflow = '';
+let readerFontSize = 18;
+try {
+  const stored = Number(localStorage.getItem('medbrain_reader_font'));
+  if (stored >= 16 && stored <= 26) readerFontSize = stored;
+} catch (_) {}
+function applyReaderFont() {
+  document.getElementById('readerBody').style.setProperty('--reader-font-size', readerFontSize + 'px');
+  document.getElementById('readerFontValue').value = readerFontSize;
+  document.getElementById('readerFontMinus').disabled = readerFontSize <= 16;
+  document.getElementById('readerFontPlus').disabled = readerFontSize >= 26;
+}
+function openReaderSurface(isQuiz = false) {
+  const overlay = document.getElementById('readerOverlay');
+  if (!overlay.classList.contains('open')) {
+    readerReturnFocus = document.activeElement;
+    readerBodyOverflow = document.body.style.overflow;
+  }
+  overlay.classList.toggle('reader-quiz', isQuiz);
+  overlay.classList.add('open');
+  document.body.style.overflow = 'hidden';
+  document.getElementById('readerWorkspace').scrollTop = 0;
+  applyReaderFont();
+  document.getElementById('readerCloseBtn').focus();
+  requestAnimationFrame(updateReaderProgress);
+}
+function updateReaderProgress() {
+  const workspace = document.getElementById('readerWorkspace');
+  const distance = workspace.scrollHeight - workspace.clientHeight;
+  const percent = distance > 0 ? Math.min(100, Math.max(0, Math.round(workspace.scrollTop / distance * 100))) : 100;
+  document.getElementById('readerProgress').value = percent;
+  document.getElementById('readerPercent').textContent = percent + '٪';
+  const headings = Array.from(document.querySelectorAll('#readerBody [role="heading"]'));
+  let current = headings[0];
+  const top = workspace.getBoundingClientRect().top;
+  headings.forEach(heading => { if (heading.getBoundingClientRect().top <= top + 80) current = heading; });
+  document.querySelectorAll('#readerContents button').forEach(button => {
+    const active = current && button.dataset.readerHeading === current.id;
+    button.classList.toggle('active', !!active);
+    if (active) button.setAttribute('aria-current', 'location');
+    else button.removeAttribute('aria-current');
+  });
+}
+function buildReaderContents() {
+  const body = document.getElementById('readerBody');
+  const nav = document.getElementById('readerContents');
+  nav.replaceChildren();
+  const headings = Array.from(body.querySelectorAll('.r-title,.r-section,.r-sub'));
+  body.querySelectorAll(':scope > *').forEach(node => { node.dir = 'auto'; });
+  headings.forEach((heading, index) => {
+    heading.id = 'reader-heading-' + index;
+    heading.setAttribute('role', 'heading');
+    heading.setAttribute('aria-level', heading.classList.contains('r-title') ? '2' : heading.classList.contains('r-section') ? '3' : '4');
+    heading.tabIndex = -1;
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.dataset.readerHeading = heading.id;
+    button.textContent = heading.textContent;
+    nav.appendChild(button);
+  });
+  document.getElementById('readerOutline').hidden = !headings.length;
+  document.getElementById('readerOutline').open = window.innerWidth > 850;
+  document.getElementById('readerLayout').classList.toggle('no-outline', !headings.length);
+}
 function openReader(id) {
-  quizState = null;
-  document.getElementById('readerBody').classList.remove('quiz-body');
   const lec = lectures.find(l => l.id === id);
   if (!lec) return;
+  quizState = null;
+  document.getElementById('readerBody').classList.remove('quiz-body');
   document.getElementById('readerTitle').textContent = lec.title;
-  document.getElementById('readerMeta').textContent = [lec.source, lec.topic, lec.type].filter(Boolean).join(' · ');
+  document.getElementById('readerMeta').textContent = [lec.source, lec.category, lec.topic, lec.type].filter(Boolean).join(' · ');
   document.getElementById('readerBody').innerHTML = renderLectureText(lec.text);
-  document.getElementById('readerOverlay').classList.add('open');
+  const words = String(lec.text || '').trim().split(/\s+/).filter(Boolean).length;
+  document.getElementById('readerTime').textContent = 'قراءة تقديرية: ' + Math.max(1, Math.ceil(words / 180)) + ' دقيقة';
+  buildReaderContents();
+  openReaderSurface();
 }
-
 function closeReader() {
   quizState = null;
-  document.getElementById('readerOverlay').classList.remove('open');
+  const overlay = document.getElementById('readerOverlay');
+  if (!overlay.classList.contains('open')) return;
+  overlay.classList.remove('open');
+  document.body.style.overflow = readerBodyOverflow;
+  if (readerReturnFocus && readerReturnFocus.isConnected) readerReturnFocus.focus();
+  readerReturnFocus = null;
+}
+function wireReaderTools() {
+  document.getElementById('readerWorkspace').addEventListener('scroll', updateReaderProgress, { passive:true });
+  window.addEventListener('resize', () => {
+    if (document.getElementById('readerOverlay').classList.contains('open')) updateReaderProgress();
+  });
+  [['readerFontMinus', -1], ['readerFontPlus', 1], ['readerFontReset', 0]].forEach(([id, delta]) => {
+    document.getElementById(id).addEventListener('click', () => {
+      readerFontSize = delta ? Math.max(16, Math.min(26, readerFontSize + delta)) : 18;
+      applyReaderFont();
+      try { localStorage.setItem('medbrain_reader_font', readerFontSize); } catch (_) {}
+      updateReaderProgress();
+    });
+  });
+  document.getElementById('readerToTop').addEventListener('click', () => {
+    document.getElementById('readerWorkspace').scrollTo({ top:0 });
+  });
+  document.getElementById('readerContents').addEventListener('click', e => {
+    const button = e.target.closest('[data-reader-heading]');
+    if (!button) return;
+    const heading = document.getElementById(button.dataset.readerHeading);
+    if (!heading) return;
+    const workspace = document.getElementById('readerWorkspace');
+    if (window.innerWidth <= 850) document.getElementById('readerOutline').open = false;
+    const top = heading.getBoundingClientRect().top - workspace.getBoundingClientRect().top + workspace.scrollTop - 24;
+    workspace.scrollTo({ top });
+    heading.focus({ preventScroll:true });
+  });
+  document.getElementById('readerOverlay').addEventListener('keydown', e => {
+    if (e.key !== 'Tab') return;
+    const controls = Array.from(e.currentTarget.querySelectorAll('button:not(:disabled),a[href],summary')).filter(el => el.getClientRects().length);
+    const first = controls[0], last = controls[controls.length - 1];
+    if (e.shiftKey && (document.activeElement === first || !controls.includes(document.activeElement))) {
+      e.preventDefault(); last.focus();
+    } else if (!e.shiftKey && (document.activeElement === last || !controls.includes(document.activeElement))) {
+      e.preventDefault(); first.focus();
+    }
+  });
 }
 
 // ---------------- Modal ----------------
@@ -3602,8 +3748,10 @@ function openQuiz(id) {
   document.getElementById('readerTitle').textContent = material.title;
   document.getElementById('readerMeta').textContent = [material.source, material.topic, 'أسئلة تفاعلية'].filter(Boolean).join(' · ');
   document.getElementById('readerBody').classList.add('quiz-body');
-  document.getElementById('readerOverlay').classList.add('open');
+  document.getElementById('readerOutline').hidden = true;
+  document.getElementById('readerLayout').classList.add('no-outline');
   renderQuiz();
+  openReaderSurface(true);
 }
 function quizScore(questions, answers) {
   return questions.reduce((score, q, i) => score + (answers[i] === q.correctIndex ? 1 : 0), 0);
@@ -3616,7 +3764,7 @@ function renderQuiz() {
   if (index >= questions.length) {
     body.innerHTML = '<h3>اكتملت المجموعة</h3><p>نتيجتك: ' + quizScore(questions, answers) + ' من ' + questions.length +
       '</p><button type="button" class="quiz-next" data-quiz-nav="restart">إعادة المحاولة</button>';
-    body.scrollTop = 0;
+    document.getElementById('readerWorkspace').scrollTop = 0;
     return;
   }
   const q = questions[index];
@@ -3644,7 +3792,7 @@ function renderQuiz() {
   html += '<button type="button" data-quiz-nav="next"' + (!answered ? ' disabled' : '') + '>' +
     (index === questions.length - 1 ? 'عرض النتيجة' : 'السؤال التالي') + '</button></div>';
   body.innerHTML = html;
-  body.scrollTop = 0;
+  document.getElementById('readerWorkspace').scrollTop = 0;
 }
 
 init();
