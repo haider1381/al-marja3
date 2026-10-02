@@ -1663,79 +1663,56 @@
   :root[data-theme="dark"] .smart-search-form { background:var(--bg); border-color:var(--border); }
 
 
-  /* Muted pistachio accents for the search and filter icons. */
-  .search-submit, .search-filter-btn {
-    background:#EDF2E6;
-    color:#4D6340;
-  }
-  .search-submit:hover, .search-filter-btn:hover {
-    background:#DCE6D1;
-    color:#354C2A;
-  }
-  .search-submit svg, .search-filter-btn svg,
-  .mb-hero .search-box .search-submit svg { color:inherit; }
-  .search-submit:focus-visible, .search-filter-btn:focus-visible { outline-color:#6D8258; }
-  #filterActiveCount { background:#4D6340; color:#ffffff; }
-  :root[data-theme="dark"] .search-submit,
-  :root[data-theme="dark"] .search-filter-btn {
-    background:#29352D;
-    color:#BDD0A1;
-  }
-  :root[data-theme="dark"] .search-submit:hover,
-  :root[data-theme="dark"] .search-filter-btn:hover {
-    background:#354338;
-    color:#D5E3C0;
-  }
-  :root[data-theme="dark"] #filterActiveCount { background:#BDD0A1; color:#18231A; }
-
-
-/* Shared muted pistachio color for interface icons in both site themes. */
-:root { --ui-icon:#4D6340; --ui-icon-hover:#354C2A; --ui-icon-on-solid:#E4EED8; }
-:root[data-theme="dark"] { --ui-icon:#BDD0A1; --ui-icon-hover:#D5E3C0; }
-.mb-icon-btn svg, .mb-nav button svg, .mb-page-back,
-.mb-close, .mb-about-close, .filter-popover-head button,
-.back-chip svg, .category-head svg,
-.mb-library .category-head svg, .mb-library .category-head.open svg,
-.mb-library .lecture .icon, .lecture .icon,
-.mb-avatar, .big-avatar,
-#siteThemeToggle, .reader-theme-toggle, .reader-close,
-.search-submit svg, .search-filter-btn svg {
-  color:var(--ui-icon);
+  /* Mint turquoise surfaces for search, lecture rows and library filters. */
+:root { --mint-bar:#A8E6D7; --mint-hover:#92DCCB; --mint-border:#63BBA7; --mint-ink:#123D35; }
+.smart-search-form,
+.mb-hero .search-box input,
+:root[data-theme="dark"] .smart-search-form,
+:root[data-theme="dark"] .mb-hero .search-box input {
+ background:var(--mint-bar); border-color:var(--mint-border);
 }
-.mb-icon-btn:hover svg, .mb-nav button:hover svg,
-.mb-page-back:hover, .mb-close:hover, .mb-about-close:hover,
-.filter-popover-head button:hover, #siteThemeToggle:hover,
-.reader-theme-toggle:hover, .reader-close:hover {
-  color:var(--ui-icon-hover);
+.smart-search-form input, .mb-hero .search-box input,
+:root[data-theme="dark"] .smart-search-form input,
+:root[data-theme="dark"] .mb-hero .search-box input {
+ color:var(--mint-ink); -webkit-text-fill-color:var(--mint-ink); caret-color:var(--mint-ink);
 }
-:root[data-theme="dark"] .mb-icon-btn svg,
-:root[data-theme="dark"] .mb-nav button svg,
-:root[data-theme="dark"] .mb-avatar,
-:root[data-theme="dark"] .big-avatar,
-:root[data-theme="dark"] .mb-library .lecture .icon,
-:root[data-theme="dark"] #siteThemeToggle,
-:root[data-theme="dark"] .mb-page-back,
-:root[data-theme="dark"] .mb-close,
-:root[data-theme="dark"] .mb-about-close {
-  color:var(--ui-icon);
+.smart-search-form input::placeholder, .mb-hero .search-box input::placeholder,
+:root[data-theme="dark"] .smart-search-form input::placeholder,
+:root[data-theme="dark"] .mb-hero .search-box input::placeholder {
+ color:#37675D; -webkit-text-fill-color:#37675D; opacity:1;
 }
-.lecture .actions svg, .mb-library .lecture .actions svg,
-.add-btn svg, .back-chip.active svg {
-  color:var(--ui-icon-on-solid);
+.search-submit, .search-filter-btn {
+ background:#D7F5EB; color:var(--mint-ink);
 }
-#readerOverlay .reader-close, #readerOverlay .reader-theme-toggle {
-  color:var(--ui-icon);
+.search-submit:hover, .search-filter-btn:hover { background:var(--mint-hover); }
+.search-submit svg, .search-filter-btn svg,
+.mb-hero .search-box .search-submit svg { color:inherit; }
+#filterActiveCount { background:#206B5B; color:#ffffff; }
+.library-search:focus-within { border-color:#206B5B; box-shadow:0 0 0 2px #63BBA744; }
+.mb-library .lecture, .mb-library .chip, .mb-library .category-head,
+.mb-library .category-head.open, .mb-library .segmented,
+.mb-library .library-filters select {
+ background:var(--mint-bar); color:var(--mint-ink); border-color:var(--mint-border);
 }
-
-
-.mb-avatar, .mb-account-side .big-avatar, .mb-profile-photo-card .big-avatar {
- background:#EDF2E6; color:#4D6340;
+.mb-library .lecture:hover, .mb-library .chip:hover,
+.mb-library .category-head:hover, .mb-library .category-head.open:hover,
+.mb-library .library-filters select:hover { background:var(--mint-hover); }
+.mb-library .lecture .title, .mb-library .lecture .meta-row,
+.mb-library .lecture .notes, .mb-library .lecture .body.clickable:hover .title,
+.mb-library .chip .n, .mb-library .category-head .n,
+.mb-library .category-head svg,
+.mb-library .segmented button, .mb-library .segmented button.active {
+ color:var(--mint-ink);
 }
-.mb-avatar:hover { background:#DCE6D1; }
-:root[data-theme="dark"] :is(.mb-avatar,.mb-account-side .big-avatar,.mb-profile-photo-card .big-avatar) {
- background:#29352D; color:#BDD0A1;
+.mb-library .lecture .icon, .mb-library .lecture .actions button.read,
+.mb-library .chip .n, .mb-library .segmented .highlight {
+ background:#D7F5EB; color:var(--mint-ink);
 }
-:root[data-theme="dark"] .mb-avatar:hover { background:#354338; }
+.mb-library .segmented button:hover { background:var(--mint-hover); }
+.mb-library .library-filters option,
+:root[data-theme="dark"] .mb-library .library-filters option {
+ background:#ffffff; color:var(--mint-ink);
+}
 </style>
 </head>
 <body>
