@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="referrer" content="no-referrer"><title>تعيين كلمة المرور — المرجع</title>
+<style>body{font-family:system-ui;background:#f5f5f5;color:#222;margin:0;padding:24px}main{max-width:420px;margin:40px auto;background:white;padding:24px;border-radius:16px}label,input,button{display:block;box-sizing:border-box;width:100%;margin:12px 0}input,button{padding:12px;font:inherit}#status{white-space:pre-wrap}@media(prefers-color-scheme:dark){body{background:#151515;color:#eee}main{background:#252525}input{background:#333;color:#eee}}</style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script></head>
+<body><main><h1>تعيين كلمة المرور</h1><p>افتح هذه الصفحة من رابط الدعوة أو استعادة كلمة المرور في بريدك.</p>
+<form id="passwordForm" hidden><label for="password">كلمة المرور الجديدة</label><input id="password" type="password" minlength="8" autocomplete="new-password" required>
+<label for="confirmPassword">تأكيد كلمة المرور</label><input id="confirmPassword" type="password" minlength="8" autocomplete="new-password" required><button id="save" type="submit">حفظ كلمة المرور</button></form>
+<p id="status" role="status" aria-live="polite">جارٍ التحقق من رابط الدخول…</p><a href="./index.html">العودة لتسجيل الدخول</a></main>
+<script>
+let authClient;
+let savingPassword = false;
+const statusEl = document.getElementById('status');
+const form = document.getElementById('passwordForm');
+async function initPasswordPage() {
+ try {
+  if (!window.supabase) throw new Error('client unavailable');
+  authClient = window.supabase.createClient('https://wuvzteosknrzddsaexez.supabase.co', 'sb_publishable_xp2-QPjUpKMxskVfVksY7A_taxJXsPD');
+  const { data, error } = await authClient.auth.getSession();
+  history.replaceState(null, '', location.pathname);
+  if (error || !data.session) {
+   statusEl.textContent = 'الرابط غير صالح أو انتهت صلاحيته. ارجع للدخول واطلب رابط استعادة جديدًا.';
+   return;
+  }
+  form.hidden = false;
+  statusEl.textContent = '';
+ } catch (_) {
+  statusEl.textContent = 'تعذّر التحقق من الرابط. تحقق من الاتصال ثم أعد فتح رابط البريد.';
+ }
+}
+form.addEventListener('submit', async event => {
+ event.preventDefault();
+ if (!authClient || savingPassword) return;
+ const password = document.getElementById('password').value;
+ if (password.length < 8 || password !== document.getElementById('confirmPassword').value) {
+  statusEl.textContent = 'اكتب كلمة مرور من 8 أحرف على الأقل، وتأكد من تطابقها.';
+  return;
+ }
+ savingPassword = true;
+ document.getElementById('save').disabled = true;
+ try {
+  const { error } = await authClient.auth.updateUser({ password });
+  if (error) throw error;
+  form.reset();
+  form.hidden = true;
+  statusEl.textContent = 'تم حفظ كلمة المرور. يمكنك العودة لتسجيل الدخول.';
+  await authClient.auth.signOut({ scope: 'local' });
+ } catch (_) {
+  statusEl.textContent = 'تعذّر حفظ كلمة المرور. قد يكون الرابط منتهيًا أو كلمة المرور لا تطابق متطلبات الأمان.';
+ } finally {
+  savingPassword = false;
+  document.getElementById('save').disabled = false;
+ }
+});
+initPasswordPage();
+</script></body></html>
