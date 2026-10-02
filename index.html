@@ -1160,25 +1160,19 @@
 
 
   /* User-provided Medbrain cartoon artwork */
-  .mb-art-sprite{
-    display:block !important;
+  .mb-art-image{
+    display:block;
     width:245px;
     max-width:100%;
     height:160px;
+    object-fit:contain;
+    object-position:center;
+    margin:0 auto;
     border-radius:10px;
-    background-repeat:no-repeat !important;
-    background-position:center !important;
-    background-size:contain !important;
-    background-color:#fff;
+    background:#fff;
   }
-  .mb-art-flashcards{background-image:url("./assets/medbrain/flashcards.webp?v=20261002-3") !important}
-  .mb-art-lectures{background-image:url("./assets/medbrain/lectures.webp?v=20261002-3") !important}
-  .mb-art-recommended{background-image:url("./assets/medbrain/recommended.webp?v=20261002-3") !important}
-  .mb-art-misc{background-image:url("./assets/medbrain/misc.webp?v=20261002-3") !important}
-  .mb-art-schedule{background-image:url("./assets/medbrain/schedule.webp?v=20261002-3") !important}
-  .mb-art-questions{background-image:url("./assets/medbrain/qbank.webp?v=20261002-3") !important}
   @media(max-width:720px){
-    .mb-art-sprite{width:220px;max-width:100%;height:145px}
+    .mb-art-image{width:220px;max-width:100%;height:140px}
   }
 
 
@@ -1408,37 +1402,37 @@
     <section class="mb-feature-grid" aria-label="أقسام Medbrain">
       <button type="button" class="mb-feature" data-dashboard-kind="lectures">
         <div class="mb-feature-top"><div><h3 class="mb-feature-title">المحاضرات</h3><span class="mb-feature-en">Lectures</span></div><span class="mb-feature-count" id="cardLectures">0</span></div>
-        <div class="mb-art"><span class="mb-art-sprite mb-art-lectures" aria-hidden="true"></span></div>
+        <div class="mb-art"><img class="mb-art-image" src="assets/medbrain/lectures.webp?v=3" alt="" loading="eager"></div>
         <p class="mb-feature-note">كل النصوص وملفات PDF والملخصات في مكان واحد.</p>
       </button>
 
       <button type="button" class="mb-feature" data-dashboard-kind="questions">
         <div class="mb-feature-top"><div><h3 class="mb-feature-title">بنك الأسئلة</h3><span class="mb-feature-en">QBank</span></div><span class="mb-feature-count" id="cardQuestions">0</span></div>
-        <div class="mb-art"><span class="mb-art-sprite mb-art-questions" aria-hidden="true"></span></div>
+        <div class="mb-art"><img class="mb-art-image" src="assets/medbrain/qbank.webp?v=3" alt="" loading="eager"></div>
         <p class="mb-feature-note">اختبارات تفاعلية مع التصحيح والتفسيرات.</p>
       </button>
 
       <button type="button" class="mb-feature" data-dashboard-kind="videos">
         <div class="mb-feature-top"><div><h3 class="mb-feature-title">فيديوهات مقترحة</h3><span class="mb-feature-en">Recommended Videos</span></div><span class="mb-feature-count" id="cardVideos">0</span></div>
-        <div class="mb-art"><span class="mb-art-sprite mb-art-recommended" aria-hidden="true"></span></div>
+        <div class="mb-art"><img class="mb-art-image" src="assets/medbrain/recommended.webp?v=3" alt="" loading="eager"></div>
         <p class="mb-feature-note">افتح الفيديوهات المحفوظة حسب تخصصك وموضوعك.</p>
       </button>
 
       <button type="button" class="mb-feature" data-tool-view="flashcards">
         <div class="mb-feature-top"><div><h3 class="mb-feature-title">البطاقات التعليمية</h3><span class="mb-feature-en">Flashcards</span></div><span class="mb-feature-count" id="cardFlashcards">0</span></div>
-        <div class="mb-art"><span class="mb-art-sprite mb-art-flashcards" aria-hidden="true"></span></div>
+        <div class="mb-art"><img class="mb-art-image" src="assets/medbrain/flashcards.webp?v=3" alt="" loading="eager"></div>
         <p class="mb-feature-note">أنشئ بطاقاتك الشخصية وراجعها واقلبها لرؤية الإجابة.</p>
       </button>
 
       <button type="button" class="mb-feature" data-dashboard-kind="other">
         <div class="mb-feature-top"><div><h3 class="mb-feature-title">متنوعات</h3><span class="mb-feature-en">Miscellaneous</span></div><span class="mb-feature-count" id="cardOther">0</span></div>
-        <div class="mb-art"><span class="mb-art-sprite mb-art-misc" aria-hidden="true"></span></div>
+        <div class="mb-art"><img class="mb-art-image" src="assets/medbrain/misc.webp?v=3" alt="" loading="eager"></div>
         <p class="mb-feature-note">كل المواد التي لا تندرج ضمن الأقسام الرئيسية.</p>
       </button>
 
       <button type="button" class="mb-feature" data-tool-view="schedule">
         <div class="mb-feature-top"><div><h3 class="mb-feature-title">جدول الدراسة</h3><span class="mb-feature-en">Study Schedule</span></div><span class="mb-feature-count" id="cardSchedule">0</span></div>
-        <div class="mb-art"><span class="mb-art-sprite mb-art-schedule" aria-hidden="true"></span></div>
+        <div class="mb-art"><img class="mb-art-image" src="assets/medbrain/schedule.webp?v=3" alt="" loading="eager"></div>
         <p class="mb-feature-note">أنشئ جدولك الأسبوعي وحدّد أوقات الدراسة وتابع إنجازك.</p>
       </button>
     </section>
