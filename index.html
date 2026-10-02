@@ -1170,14 +1170,81 @@
     background-size:200% 300%;
     background-color:#fff;
   }
-  .mb-art-schedule{background-position:0 0}
-  .mb-art-questions{background-position:100% 0}
-  .mb-art-flashcards{background-position:0 50%}
-  .mb-art-lectures{background-position:100% 50%}
-  .mb-art-recommended{background-position:0 100%}
-  .mb-art-misc{background-position:100% 100%}
+  .mb-art-flashcards{background-position:0 0}
+  .mb-art-lectures{background-position:100% 0}
+  .mb-art-recommended{background-position:0 50%}
+  .mb-art-misc{background-position:100% 50%}
+  .mb-art-schedule{background-position:0 100%}
+  .mb-art-questions{background-position:100% 100%}
   @media(max-width:720px){
     .mb-art-sprite{width:min(100%,220px);height:140px}
+  }
+
+
+  /* Functional Medbrain pages */
+  .mb-page-view{display:none}
+  .mb-page-view.active{display:block}
+  .mb-page-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px}
+  .mb-page-title-wrap{display:flex;align-items:center;gap:10px}
+  .mb-page-back{width:38px;height:38px;border:1px solid #d6e0e8;background:#fff;border-radius:10px;display:grid;place-items:center;font-size:20px;color:#496076}
+  .mb-page-back:hover{border-color:#8ebfe3;color:#0876cf;background:#f7fbff}
+  .mb-page-title{margin:0;font-size:26px;color:#172235}
+  .mb-page-subtitle{margin:3px 0 0;color:#718096;font-size:12px}
+  .mb-tool-page{background:#fff;border:1px solid #e0e6ec;border-radius:14px;padding:20px;min-height:520px}
+  .mb-avatar img,.big-avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%;display:block}
+  .big-avatar{overflow:hidden}
+  .mb-profile-editor{display:grid;grid-template-columns:190px 1fr;gap:26px;align-items:start}
+  .mb-profile-photo-card{display:flex;flex-direction:column;align-items:center;gap:12px;padding:18px;border:1px solid #e1e7ed;border-radius:12px;background:#fbfdff}
+  .mb-profile-photo-card .big-avatar{width:112px;height:112px;font-size:32px}
+  .mb-file-btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;border:1px solid #b8c9d8;background:#fff;border-radius:9px;padding:9px 13px;font-weight:800;color:#36516c;cursor:pointer}
+  .mb-file-btn:hover{border-color:#0876cf;color:#0876cf;background:#f3f9ff}
+  .mb-profile-fields{display:grid;gap:14px}
+  .mb-profile-fields label{font-size:12px;font-weight:800;color:#516174}
+  .mb-profile-fields input{width:100%;margin-top:6px;border:1px solid #cfd9e3;border-radius:9px;padding:11px 12px;font:inherit;background:#fff}
+  .mb-profile-fields input[readonly]{background:#f4f6f8;color:#708091}
+  .mb-status{min-height:20px;font-size:12px;color:#0876cf}
+  .mb-schedule-form,.mb-flash-form{display:grid;grid-template-columns:1.3fr .8fr .8fr 1.6fr auto;gap:10px;align-items:end;margin:8px 0 20px;padding:14px;border:1px solid #dde5ec;border-radius:12px;background:#f9fbfd}
+  .mb-schedule-form label,.mb-flash-form label{font-size:11px;font-weight:800;color:#5d6c7c}
+  .mb-schedule-form input,.mb-schedule-form select,.mb-flash-form input,.mb-flash-form textarea{width:100%;margin-top:5px;border:1px solid #cad6e0;border-radius:8px;padding:9px;font:inherit;background:#fff}
+  .mb-flash-form{grid-template-columns:1fr 1fr .7fr auto}
+  .mb-flash-form textarea{min-height:72px;resize:vertical}
+  .mb-week-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:9px}
+  .mb-day-column{border:1px solid #dce4eb;border-radius:11px;background:#fbfdff;min-height:250px;padding:10px}
+  .mb-day-column h4{margin:0 0 9px;text-align:center;color:#37546f;font-size:13px}
+  .mb-task{border:1px solid #d7e1e9;background:#fff;border-radius:9px;padding:9px;margin-bottom:8px}
+  .mb-task.done{opacity:.62;background:#f0f6f2}
+  .mb-task-title{font-size:12px;font-weight:800;color:#172235}
+  .mb-task-time{font-size:10px;color:#0876cf;font-weight:800;margin-top:3px}
+  .mb-task-note{font-size:10px;color:#718096;margin-top:5px;line-height:1.5}
+  .mb-task-actions{display:flex;gap:5px;margin-top:7px}
+  .mb-mini-btn{border:1px solid #d4dee7;background:#fff;border-radius:7px;padding:5px 7px;font-size:10px;font-weight:800;color:#53667a}
+  .mb-mini-btn:hover{border-color:#0876cf;color:#0876cf}
+  .mb-mini-btn.danger:hover{border-color:#e36b6b;color:#c84f4f}
+  .mb-flash-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+  .mb-study-card{position:relative;min-height:190px;border:1px solid #cfdae4;border-radius:12px;background:#fff;box-shadow:0 5px 18px rgba(35,61,84,.05);padding:18px;cursor:pointer;display:flex;flex-direction:column;justify-content:center;text-align:center}
+  .mb-study-card:hover{border-color:#8ab9df;box-shadow:0 9px 25px rgba(35,61,84,.09)}
+  .mb-study-card .side-label{position:absolute;top:10px;right:12px;font-size:10px;color:#7a8997;font-weight:800}
+  .mb-study-card .front{font-weight:800;font-size:16px;color:#1d2b3b}
+  .mb-study-card .back{display:none;font-size:14px;line-height:1.7;color:#3c5063}
+  .mb-study-card.flipped .front{display:none}
+  .mb-study-card.flipped .back{display:block}
+  .mb-study-card .topic{position:absolute;bottom:10px;right:12px;font-size:10px;color:#0876cf}
+  .mb-study-card .delete-card{position:absolute;bottom:8px;left:9px;border:0;background:#fff0f0;color:#bd4d4d;border-radius:7px;padding:5px 8px;font-size:10px;font-weight:800}
+  .mb-empty-tool{border:1px dashed #c8d7e3;border-radius:12px;padding:30px;text-align:center;color:#718096;background:#fbfdff}
+  .mb-library.mb-page-view{margin-top:0}
+  .mb-library.active{display:block}
+  @media(max-width:1050px){
+    .mb-week-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .mb-schedule-form,.mb-flash-form{grid-template-columns:1fr 1fr}
+    .mb-flash-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  }
+  @media(max-width:720px){
+    .mb-tool-page{padding:14px 10px}
+    .mb-profile-editor{grid-template-columns:1fr}
+    .mb-schedule-form,.mb-flash-form{grid-template-columns:1fr}
+    .mb-week-grid{grid-template-columns:1fr}
+    .mb-flash-grid{grid-template-columns:1fr}
+    .mb-page-title{font-size:21px}
   }
 
 </style>
@@ -1234,9 +1301,9 @@
       <div class="mb-nav-label">أدواتي</div>
       <button type="button" data-nav-kind="lectures"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5h16v14H4z"/><path d="m10 9 5 3-5 3z"/></svg><span>المحاضرات</span></button>
       <button type="button" data-nav-kind="videos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m10 9 5 3-5 3z"/></svg><span>الفيديوهات</span></button>
-      <button type="button" data-coming="flashcards"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 4h12v16H6z"/><path d="M9 8h6M9 12h6"/></svg><span>البطاقات التعليمية</span></button>
+      <button type="button" data-tool-view="flashcards"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 4h12v16H6z"/><path d="M9 8h6M9 12h6"/></svg><span>البطاقات التعليمية</span></button>
       <button type="button" data-nav-kind="questions"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.7 2.7 0 1 1 4.7 1.8c-1.2 1-2.2 1.3-2.2 3.2"/><path d="M12 17h.01"/></svg><span>بنك الأسئلة</span></button>
-      <button type="button" data-coming="schedule"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M8 3v4m8-4v4M4 10h16"/><path d="m9 15 2 2 4-4"/></svg><span>جدول الدراسة</span></button>
+      <button type="button" data-tool-view="schedule"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M8 3v4m8-4v4M4 10h16"/><path d="m9 15 2 2 4-4"/></svg><span>جدول الدراسة</span></button>
       <button type="button" data-nav="topics"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h10"/></svg><span>كل المواضيع</span></button>
       <div class="mb-nav-sep"></div>
       <div class="mb-nav-label">الحساب</div>
@@ -1260,27 +1327,32 @@
   </section>
 </div>
 
+
 <div class="mb-layer" id="accountOverlay" aria-hidden="true">
   <section class="mb-dialog" role="dialog" aria-modal="true" aria-labelledby="accountTitle">
-    <div class="mb-dialog-head"><h2 id="accountTitle">الحساب الشخصي</h2><button class="mb-close" id="accountClose" type="button" aria-label="إغلاق">×</button></div>
-    <div class="mb-account-grid">
-      <aside class="mb-account-side">
+    <div class="mb-dialog-head"><h2 id="accountTitle">الملف الشخصي</h2><button class="mb-close" id="accountClose" type="button" aria-label="إغلاق">×</button></div>
+    <div class="mb-profile-editor">
+      <div class="mb-profile-photo-card">
         <div class="big-avatar" id="accountAvatar">MB</div>
-        <h3 id="accountName">Medbrain User</h3>
-        <p id="accountEmail"></p>
-        <div class="read-only-badge" id="readOnlyBadge" style="display:none;margin-top:12px">وضع القراءة فقط</div>
-      </aside>
-      <div>
-        <h3 style="margin-top:0">إحصاءات المكتبة</h3>
-        <div class="mb-account-stat-grid">
-          <div class="mb-account-stat"><b id="statMaterials">0</b><span>إجمالي المواد</span></div>
-          <div class="mb-account-stat"><b id="statLectures">0</b><span>محاضرات وPDF</span></div>
-          <div class="mb-account-stat"><b id="statQuestions">0</b><span>مجموعات أسئلة</span></div>
-          <div class="mb-account-stat"><b id="statVideos">0</b><span>فيديوهات</span></div>
-          <div class="mb-account-stat"><b id="statSources">0</b><span>مصادر</span></div>
-          <div class="mb-account-stat"><b id="statTopics">0</b><span>مواضيع</span></div>
-        </div>
+        <strong id="accountName">Medbrain User</strong>
+        <span id="accountEmail" style="font-size:11px;color:#718096;direction:ltr;word-break:break-all"></span>
+        <label class="mb-file-btn" for="profileAvatarInput">تغيير الصورة</label>
+        <input type="file" id="profileAvatarInput" accept="image/jpeg,image/png,image/webp" hidden>
+        <small style="color:#8291a1;text-align:center">JPG / PNG / WebP — حتى 2MB بعد الضغط</small>
       </div>
+      <form class="mb-profile-fields" id="profileForm">
+        <label>الاسم الظاهر
+          <input type="text" id="profileDisplayName" maxlength="80" required placeholder="اكتب اسمك">
+        </label>
+        <label>البريد الإلكتروني
+          <input type="email" id="profileEmailField" readonly>
+        </label>
+        <div>
+          <button class="mb-primary" id="profileSaveBtn" type="submit">حفظ التغييرات</button>
+        </div>
+        <div class="mb-status" id="profileStatus"></div>
+        <div class="read-only-badge" id="readOnlyBadge" style="display:none;margin-top:4px">حساب طالب — القراءة وإدارة أدواتك الشخصية</div>
+      </form>
     </div>
   </section>
 </div>
@@ -1301,7 +1373,7 @@
       <div class="mb-top-actions">
         <button class="mb-icon-btn" type="button" data-top-kind="lectures" aria-label="المحاضرات"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 4h14v16H5z"/><path d="M8 8h8M8 12h8M8 16h5"/></svg></button>
         <button class="mb-icon-btn" type="button" data-top-kind="questions" aria-label="الأسئلة"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M10 9a2.4 2.4 0 1 1 4 1.8c-1.1.9-2 1.3-2 3.2"/><path d="M12 17h.01"/></svg></button>
-        <button class="mb-icon-btn" type="button" data-coming="schedule" aria-label="جدول الدراسة"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M8 3v4m8-4v4M4 10h16"/></svg></button>
+        <button class="mb-icon-btn" type="button" data-tool-view="schedule" aria-label="جدول الدراسة"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M8 3v4m8-4v4M4 10h16"/></svg></button>
         <button class="mb-avatar" id="profileBtn" type="button" aria-label="الحساب"><span id="avatarInitials">MB</span></button>
       </div>
     </div>
@@ -1310,6 +1382,7 @@
   <main class="mb-main" id="homeSection">
     <div class="banner" id="storageBanner">تعذّر الاتصال بالتخزين. جرّب إعادة تحميل الصفحة.</div>
 
+    <section class="mb-page-view active" id="dashboardView">
     <section class="mb-hero">
       <span class="mb-watermark mb-wm-brain" aria-hidden="true"><svg viewBox="0 0 100 80" fill="none" stroke="currentColor" stroke-width="4"><path d="M47 67c-7 7-20 4-22-6-12 1-18-13-10-21-7-8-1-22 10-21 2-11 17-14 23-5 8-10 24-5 25 7 12-1 18 14 10 22 9 7 4 23-8 23-3 10-17 12-24 5-2 3-4 5-8 6Z"/><path d="M48 17v48M35 23c10 4 7 12 2 16m25-16c-10 4-7 12-2 16M29 48c8-4 14 0 18 6m25-6c-8-4-14 0-18 6"/></svg></span>
       <span class="mb-watermark mb-wm-heart" aria-hidden="true"><svg viewBox="0 0 80 100" fill="none" stroke="currentColor" stroke-width="4"><path d="M39 88C22 73 7 57 9 38c1-13 13-20 24-13 4 2 6 6 7 10 2-9 9-17 19-15 12 2 17 16 12 27-6 15-19 29-32 41Z"/><path d="M37 33c4 15 2 29-4 42m9-27c8 2 14 7 18 14"/></svg></span>
@@ -1350,8 +1423,8 @@
         <p class="mb-feature-note">افتح الفيديوهات المحفوظة حسب تخصصك وموضوعك.</p>
       </button>
 
-      <button type="button" class="mb-feature" data-coming="flashcards">
-        <div class="mb-feature-top"><div><h3 class="mb-feature-title">البطاقات التعليمية</h3><span class="mb-feature-en">Flashcards</span></div><span class="mb-coming">قريبًا</span></div>
+      <button type="button" class="mb-feature" data-tool-view="flashcards">
+        <div class="mb-feature-top"><div><h3 class="mb-feature-title">البطاقات التعليمية</h3><span class="mb-feature-en">Flashcards</span></div><span class="mb-feature-count" id="cardFlashcards">0</span></div>
         <div class="mb-art"><span class="mb-art-sprite mb-art-flashcards" aria-hidden="true"></span></div>
         <p class="mb-feature-note">واجهة البطاقات جاهزة بصريًا، وسنربطها بالبيانات لاحقًا.</p>
       </button>
@@ -1362,8 +1435,8 @@
         <p class="mb-feature-note">كل المواد التي لا تندرج ضمن الأقسام الرئيسية.</p>
       </button>
 
-      <button type="button" class="mb-feature" data-coming="schedule">
-        <div class="mb-feature-top"><div><h3 class="mb-feature-title">جدول الدراسة</h3><span class="mb-feature-en">Study Schedule</span></div><span class="mb-coming">قريبًا</span></div>
+      <button type="button" class="mb-feature" data-tool-view="schedule">
+        <div class="mb-feature-top"><div><h3 class="mb-feature-title">جدول الدراسة</h3><span class="mb-feature-en">Study Schedule</span></div><span class="mb-feature-count" id="cardSchedule">0</span></div>
         <div class="mb-art"><span class="mb-art-sprite mb-art-schedule" aria-hidden="true"></span></div>
         <p class="mb-feature-note">خطة مذاكرة شخصية ومتابعة الإنجاز في مرحلة لاحقة.</p>
       </button>
@@ -1380,9 +1453,17 @@
       </div>
     </section>
 
-    <section class="mb-library" id="librarySection">
+    </section>
+
+    <section class="mb-library mb-page-view" id="librarySection">
+      <div class="mb-page-toolbar">
+        <div class="mb-page-title-wrap">
+          <button class="mb-page-back" type="button" data-tool-view="home" aria-label="رجوع">‹</button>
+          <div><h2 class="mb-page-title" id="libraryTitle">المحاضرات</h2><p class="mb-page-subtitle" id="librarySubtitle">مكتبتك الطبية مرتبة حسب المصدر والموضوع.</p></div>
+        </div>
+      </div>
       <div class="mb-library-head">
-        <div><h2>المكتبة</h2><div style="color:#77879a;font-size:12px;margin-top:2px">ابحث وصنّف وافتح محاضراتك وملفاتك.</div></div>
+        <div><div style="color:#77879a;font-size:12px;margin-top:2px">ابحث وصنّف وافتح المواد داخل هذا القسم.</div></div>
         <div class="mb-library-actions">
           <button class="add-btn" id="openAddBtn" type="button">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -1406,6 +1487,41 @@
 
       <button type="button" class="back-chip" id="refreshLibraryBtn">تحديث المكتبة</button>
       <div id="content" aria-live="polite"></div>
+    </section>
+
+    <section class="mb-tool-page mb-page-view" id="scheduleSection">
+      <div class="mb-page-toolbar">
+        <div class="mb-page-title-wrap">
+          <button class="mb-page-back" type="button" data-tool-view="home" aria-label="رجوع">‹</button>
+          <div><h2 class="mb-page-title">جدول الدراسة</h2><p class="mb-page-subtitle">خطة أسبوعية محفوظة في حسابك وتظهر على أي جهاز تسجّل منه.</p></div>
+        </div>
+      </div>
+      <form class="mb-schedule-form" id="scheduleForm">
+        <label>المهمة<input id="scheduleTitle" maxlength="160" required placeholder="مثال: مراجعة Heart Failure"></label>
+        <label>اليوم<select id="scheduleDay"><option value="0">الأحد</option><option value="1">الاثنين</option><option value="2">الثلاثاء</option><option value="3">الأربعاء</option><option value="4">الخميس</option><option value="5">الجمعة</option><option value="6">السبت</option></select></label>
+        <label>الوقت<input id="scheduleTime" type="time"></label>
+        <label>ملاحظة<input id="scheduleNotes" maxlength="500" placeholder="اختياري"></label>
+        <button class="mb-primary" type="submit">إضافة</button>
+      </form>
+      <div class="mb-status" id="scheduleStatus"></div>
+      <div class="mb-week-grid" id="scheduleGrid"></div>
+    </section>
+
+    <section class="mb-tool-page mb-page-view" id="flashcardsSection">
+      <div class="mb-page-toolbar">
+        <div class="mb-page-title-wrap">
+          <button class="mb-page-back" type="button" data-tool-view="home" aria-label="رجوع">‹</button>
+          <div><h2 class="mb-page-title">Flashcards</h2><p class="mb-page-subtitle">اصنع بطاقاتك الشخصية واضغط البطاقة لقلبها ورؤية الإجابة.</p></div>
+        </div>
+      </div>
+      <form class="mb-flash-form" id="flashcardForm">
+        <label>السؤال / الوجه الأمامي<textarea id="flashFront" maxlength="1000" required placeholder="مثال: What are the causes of HFrEF?"></textarea></label>
+        <label>الإجابة / الوجه الخلفي<textarea id="flashBack" maxlength="4000" required placeholder="اكتب الإجابة المختصرة"></textarea></label>
+        <label>الموضوع<input id="flashTopic" maxlength="120" placeholder="Cardiology"></label>
+        <button class="mb-primary" type="submit">إضافة بطاقة</button>
+      </form>
+      <div class="mb-status" id="flashStatus"></div>
+      <div class="mb-flash-grid" id="flashcardGrid"></div>
     </section>
   </main>
 </div>
@@ -1524,30 +1640,236 @@ const SUPABASE_KEY = 'sb_publishable_xp2-QPjUpKMxskVfVksY7A_taxJXsPD';
 let client = null;
 let accessVersion = 0;
 let activeUserId = null;
+let activeUser = null;
 let activeUserName = 'Doctor';
 let activeUserEmail = '';
+let activeAvatarUrl = '';
+let scheduleItems = [];
+let flashcards = [];
+let currentMainView = 'home';
 let contentRequest = 0;
+
 
 function displayNameFromUser(user) {
   if (!user) return 'Doctor';
   const meta = user.user_metadata || {};
-  const raw = meta.full_name || meta.name || meta.display_name || (user.email ? user.email.split('@')[0] : '') || 'Doctor';
+  const raw = meta.display_name || meta.full_name || meta.name || (user.email ? user.email.split('@')[0] : '') || 'Doctor';
   return String(raw).replace(/[._-]+/g, ' ').trim().replace(/\b\w/g, c => c.toUpperCase()) || 'Doctor';
 }
 function initialsForName(name) {
   const parts = String(name || 'MB').trim().split(/\s+/).filter(Boolean);
   return ((parts[0] || 'M')[0] + (parts[1] ? parts[1][0] : (parts[0] || 'B')[1] || 'B')).toUpperCase();
 }
+function paintAvatar(id, initials, url) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  if (url) {
+    el.innerHTML = '<img src="' + escapeHtml(url) + '" alt="الصورة الشخصية">';
+  } else {
+    el.textContent = initials;
+  }
+}
+function applyIdentityUI() {
+  const initials = initialsForName(activeUserName);
+  const textMap = {
+    welcomeName: activeUserName,
+    drawerUserName: activeUserName,
+    drawerUserEmail: activeUserEmail,
+    profileMenuName: activeUserName,
+    profileMenuEmail: activeUserEmail,
+    accountName: activeUserName,
+    accountEmail: activeUserEmail,
+    profileDisplayName: activeUserName,
+    profileEmailField: activeUserEmail
+  };
+  Object.keys(textMap).forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (el.tagName === 'INPUT') el.value = textMap[id] || '';
+    else el.textContent = textMap[id] || '';
+  });
+  paintAvatar('profileBtn', initials, activeAvatarUrl);
+  paintAvatar('drawerAvatar', initials, activeAvatarUrl);
+  paintAvatar('accountAvatar', initials, activeAvatarUrl);
+}
 function updateUserIdentity(user) {
+  activeUser = user || null;
   activeUserName = displayNameFromUser(user);
   activeUserEmail = user && user.email ? user.email : '';
-  const initials = initialsForName(activeUserName);
-  const map = {
-    welcomeName: activeUserName, avatarInitials: initials, drawerAvatar: initials, drawerUserName: activeUserName,
-    drawerUserEmail: activeUserEmail, profileMenuName: activeUserName, profileMenuEmail: activeUserEmail,
-    accountAvatar: initials, accountName: activeUserName, accountEmail: activeUserEmail
-  };
-  Object.keys(map).forEach(id => { const el = document.getElementById(id); if (el) el.textContent = map[id]; });
+  activeAvatarUrl = user && user.user_metadata && user.user_metadata.avatar_url ? user.user_metadata.avatar_url : '';
+  applyIdentityUI();
+}
+async function loadProfile() {
+  if (!client || !activeUserId || !activeUser) return;
+  const result = await client.from('profiles').select('id,display_name,avatar_url').eq('id', activeUserId).maybeSingle();
+  if (result.error) throw result.error;
+  let profile = result.data;
+  if (!profile) {
+    const seed = {
+      id: activeUserId,
+      display_name: displayNameFromUser(activeUser),
+      avatar_url: activeAvatarUrl || null,
+      updated_at: new Date().toISOString()
+    };
+    const created = await client.from('profiles').upsert(seed).select('id,display_name,avatar_url').single();
+    if (created.error) throw created.error;
+    profile = created.data;
+  }
+  activeUserName = (profile.display_name || '').trim() || displayNameFromUser(activeUser);
+  activeAvatarUrl = profile.avatar_url || activeAvatarUrl || '';
+  applyIdentityUI();
+}
+async function saveProfileName(name) {
+  const clean = String(name || '').trim();
+  if (!clean) throw new Error('اكتب اسمًا صالحًا.');
+  const now = new Date().toISOString();
+  const saved = await client.from('profiles').upsert({
+    id: activeUserId, display_name: clean, avatar_url: activeAvatarUrl || null, updated_at: now
+  });
+  if (saved.error) throw saved.error;
+  const authSaved = await client.auth.updateUser({ data: { display_name: clean, full_name: clean, avatar_url: activeAvatarUrl || null } });
+  if (authSaved.error) throw authSaved.error;
+  activeUser = authSaved.data.user || activeUser;
+  activeUserName = clean;
+  applyIdentityUI();
+}
+async function compressAvatar(file) {
+  if (!file || !file.type.startsWith('image/')) throw new Error('اختر صورة صالحة.');
+  const url = URL.createObjectURL(file);
+  try {
+    const img = new Image();
+    await new Promise((resolve, reject) => { img.onload = resolve; img.onerror = reject; img.src = url; });
+    const size = Math.min(img.naturalWidth, img.naturalHeight);
+    const sx = Math.max(0, (img.naturalWidth - size) / 2);
+    const sy = Math.max(0, (img.naturalHeight - size) / 2);
+    const canvas = document.createElement('canvas');
+    canvas.width = 512; canvas.height = 512;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(img, sx, sy, size, size, 0, 0, 512, 512);
+    const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.84));
+    if (!blob) throw new Error('تعذّر تجهيز الصورة.');
+    return blob;
+  } finally { URL.revokeObjectURL(url); }
+}
+async function uploadAvatar(file) {
+  const blob = await compressAvatar(file);
+  if (blob.size > 2097152) throw new Error('الصورة كبيرة جدًا بعد الضغط.');
+  const path = activeUserId + '/avatar.jpg';
+  const upload = await client.storage.from('avatars').upload(path, blob, {
+    contentType:'image/jpeg', cacheControl:'3600', upsert:true
+  });
+  if (upload.error) throw upload.error;
+  const pub = client.storage.from('avatars').getPublicUrl(path);
+  const url = pub.data.publicUrl + '?v=' + Date.now();
+  const saved = await client.from('profiles').upsert({
+    id:activeUserId, display_name:activeUserName, avatar_url:url, updated_at:new Date().toISOString()
+  });
+  if (saved.error) throw saved.error;
+  const authSaved = await client.auth.updateUser({ data:{ display_name:activeUserName, full_name:activeUserName, avatar_url:url } });
+  if (authSaved.error) throw authSaved.error;
+  activeUser = authSaved.data.user || activeUser;
+  activeAvatarUrl = url;
+  applyIdentityUI();
+}
+async function loadScheduleItems() {
+  if (!client || !activeUserId) { scheduleItems=[]; return; }
+  const result = await client.from('study_schedule')
+    .select('id,day_of_week,start_time,title,notes,completed')
+    .order('day_of_week',{ascending:true}).order('start_time',{ascending:true,nullsFirst:false});
+  if (result.error) throw result.error;
+  scheduleItems = result.data || [];
+  renderSchedule();
+}
+async function addScheduleItem(data) {
+  const result = await client.from('study_schedule').insert({
+    user_id:activeUserId,
+    day_of_week:Number(data.day),
+    start_time:data.time || null,
+    title:data.title,
+    notes:data.notes || null
+  });
+  if (result.error) throw result.error;
+  await loadScheduleItems();
+}
+async function toggleScheduleItem(id, completed) {
+  const result = await client.from('study_schedule').update({completed:!!completed,updated_at:new Date().toISOString()}).eq('id',id);
+  if (result.error) throw result.error;
+  const item=scheduleItems.find(x=>x.id===id); if(item)item.completed=!!completed;
+  renderSchedule();
+}
+async function deleteScheduleItem(id) {
+  const result = await client.from('study_schedule').delete().eq('id',id);
+  if (result.error) throw result.error;
+  scheduleItems=scheduleItems.filter(x=>x.id!==id);
+  renderSchedule();
+}
+async function loadFlashcards() {
+  if (!client || !activeUserId) { flashcards=[]; return; }
+  const result = await client.from('flashcards').select('id,front,back,topic,created_at').order('created_at',{ascending:false});
+  if (result.error) throw result.error;
+  flashcards=result.data||[];
+  renderFlashcards();
+}
+async function addFlashcard(data) {
+  const result=await client.from('flashcards').insert({
+    user_id:activeUserId,front:data.front,back:data.back,topic:data.topic||null
+  });
+  if(result.error)throw result.error;
+  await loadFlashcards();
+}
+async function deleteFlashcard(id) {
+  const result=await client.from('flashcards').delete().eq('id',id);
+  if(result.error)throw result.error;
+  flashcards=flashcards.filter(x=>x.id!==id);
+  renderFlashcards();
+}
+const STUDY_DAYS=['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
+function renderSchedule(){
+  const grid=document.getElementById('scheduleGrid'); if(!grid)return;
+  grid.innerHTML=STUDY_DAYS.map((day,idx)=>{
+    const items=scheduleItems.filter(x=>Number(x.day_of_week)===idx);
+    return '<section class="mb-day-column"><h4>'+day+'</h4>'+(items.length?items.map(item=>
+      '<article class="mb-task'+(item.completed?' done':'')+'">'+
+      '<div class="mb-task-title">'+escapeHtml(item.title)+'</div>'+
+      (item.start_time?'<div class="mb-task-time">'+escapeHtml(String(item.start_time).slice(0,5))+'</div>':'')+
+      (item.notes?'<div class="mb-task-note">'+escapeHtml(item.notes)+'</div>':'')+
+      '<div class="mb-task-actions"><button class="mb-mini-btn" type="button" data-schedule-toggle="'+escapeHtml(item.id)+'" data-completed="'+(item.completed?'1':'0')+'">'+(item.completed?'إلغاء الإنجاز':'تم الإنجاز')+'</button>'+
+      '<button class="mb-mini-btn danger" type="button" data-schedule-delete="'+escapeHtml(item.id)+'">حذف</button></div></article>'
+    ).join(''):'<div style="text-align:center;color:#9aa7b5;font-size:11px;padding:20px 5px">لا توجد مهام</div>')+'</section>';
+  }).join('');
+}
+function renderFlashcards(){
+  const grid=document.getElementById('flashcardGrid'); if(!grid)return;
+  if(!flashcards.length){grid.innerHTML='<div class="mb-empty-tool" style="grid-column:1/-1">لا توجد بطاقات بعد. أضف أول Flashcard من الأعلى.</div>';return;}
+  grid.innerHTML=flashcards.map(c=>
+    '<article class="mb-study-card" data-flashcard-id="'+escapeHtml(c.id)+'">'+
+    '<span class="side-label">اضغط للقلب</span>'+
+    '<div class="front">'+escapeHtml(c.front)+'</div>'+
+    '<div class="back">'+escapeHtml(c.back).replace(/\n/g,'<br>')+'</div>'+
+    (c.topic?'<span class="topic">'+escapeHtml(c.topic)+'</span>':'')+
+    '<button type="button" class="delete-card" data-flash-delete="'+escapeHtml(c.id)+'">حذف</button></article>'
+  ).join('');
+}
+function showMainView(view, kind='') {
+  currentMainView=view;
+  ['dashboardView','librarySection','scheduleSection','flashcardsSection'].forEach(id=>{
+    const el=document.getElementById(id); if(el)el.classList.remove('active');
+  });
+  const target=view==='library'?'librarySection':view==='schedule'?'scheduleSection':view==='flashcards'?'flashcardsSection':'dashboardView';
+  const el=document.getElementById(target); if(el)el.classList.add('active');
+  if(view==='library'){
+    const labels={
+      lectures:['المحاضرات','النصوص وملفات PDF والملخصات الطبية.'],
+      videos:['الفيديوهات','الفيديوهات الطبية المحفوظة حسب الموضوع والمصدر.'],
+      questions:['بنك الأسئلة','مجموعات MCQ والأسئلة التفاعلية.'],
+      other:['متنوعات','المواد الطبية الأخرى.'],
+      '':['المكتبة','كل مواد Medbrain في مكان واحد.']
+    };
+    const meta=labels[kind]||labels[''];
+    document.getElementById('libraryTitle').textContent=meta[0];
+    document.getElementById('librarySubtitle').textContent=meta[1];
+  }
+  window.scrollTo({top:0,behavior:'smooth'});
 }
 
 function rowToLecture(r) {
@@ -1755,6 +2077,12 @@ async function syncAccess(session) {
     return;
   }
   activeUserId = userId;
+  if (!userId) {
+    scheduleItems = [];
+    flashcards = [];
+    activeAvatarUrl = '';
+    showMainView('home');
+  }
   const version = ++accessVersion;
   canWrite = false;
   closeModal();
@@ -1839,7 +2167,11 @@ async function startApp(version = accessVersion) {
     banner.textContent = 'تعذّر تحميل المحاضرات. تحقق من الاتصال وصلاحيات Supabase ثم أعد تحميل الصفحة.';
     banner.classList.add('show');
   }
-  if (version === accessVersion && request === contentRequest) render();
+  if (version === accessVersion && request === contentRequest) {
+    const personal = await Promise.allSettled([loadProfile(), loadScheduleItems(), loadFlashcards()]);
+    personal.forEach(r => { if (r.status === 'rejected') console.error(r.reason); });
+    render();
+  }
 }
 function applyAccessUI() {
   document.getElementById('refreshLibraryBtn').hidden = !activeUserId;
@@ -2161,17 +2493,20 @@ function showMbToast(message) {
   clearTimeout(showMbToast.timer);
   showMbToast.timer = setTimeout(() => el.classList.remove('show'), 2200);
 }
+
 function goToLibraryKind(kind) {
   state.search = '';
   state.filterSource = '';
   state.filterTopic = '';
   state.filterKind = kind || '';
+  state.selectedSource = state.selectedSourceCategory = state.selectedSourceTopic = state.selectedSourceType = null;
+  state.selectedCategory = state.selectedTopic = state.selectedType = null;
   const search = document.getElementById('searchInput');
   if (search) search.value = '';
   const filter = document.getElementById('filterKind');
   if (filter) filter.value = state.filterKind;
   render();
-  document.getElementById('librarySection').scrollIntoView({behavior:'smooth',block:'start'});
+  showMainView('library',kind);
 }
 function openTopicsPanel() {
   renderTopicsModal();
@@ -2179,6 +2514,8 @@ function openTopicsPanel() {
 }
 function openAccountPanel() {
   renderMedbrainWidgets();
+  applyIdentityUI();
+  document.getElementById('profileStatus').textContent='';
   setLayerOpen('accountOverlay', true);
 }
 function renderTopicsModal() {
@@ -2208,6 +2545,8 @@ function renderMedbrainWidgets() {
     cardVideos: counts.videos,
     cardQuestions: counts.questions,
     cardOther: counts.other,
+    cardFlashcards: flashcards.length,
+    cardSchedule: scheduleItems.length,
     dailyPracticeCount: counts.questions,
     statMaterials: lectures.length,
     statLectures: counts.lectures,
@@ -2218,7 +2557,10 @@ function renderMedbrainWidgets() {
   };
   Object.keys(values).forEach(id => { const el = document.getElementById(id); if (el) el.textContent = values[id]; });
   renderTopicsModal();
+  renderSchedule();
+  renderFlashcards();
 }
+
 function wireMedbrainEvents() {
   const backdrop = document.getElementById('navBackdrop');
   const profile = document.getElementById('profileMenu');
@@ -2234,7 +2576,7 @@ function wireMedbrainEvents() {
     profile.setAttribute('aria-hidden', profile.classList.contains('open') ? 'false' : 'true');
   });
   document.addEventListener('click', e => {
-    if (!profile.contains(e.target) && e.target.id !== 'profileBtn') profile.classList.remove('open');
+    if (!profile.contains(e.target) && !e.target.closest('#profileBtn')) profile.classList.remove('open');
   });
 
   [document.getElementById('heroTopicsBtn'), document.getElementById('topTopicsBtn')].forEach(btn => {
@@ -2258,27 +2600,32 @@ function wireMedbrainEvents() {
     toggle.querySelectorAll('button').forEach(b => b.classList.toggle('active', b.dataset.mode === 'topic'));
     setLayerOpen('topicsOverlay', false);
     render();
-    document.getElementById('librarySection').scrollIntoView({behavior:'smooth',block:'start'});
+    showMainView('library','');
   });
 
-  document.body.addEventListener('click', e => {
+  document.body.addEventListener('click', async e => {
     const kind = e.target.closest('[data-dashboard-kind],[data-nav-kind],[data-top-kind]');
     if (kind) {
+      e.preventDefault();
       const value = kind.dataset.dashboardKind || kind.dataset.navKind || kind.dataset.topKind;
       closeDrawer();
       goToLibraryKind(value);
       return;
     }
-    const coming = e.target.closest('[data-coming]');
-    if (coming) {
+    const tool = e.target.closest('[data-tool-view]');
+    if (tool) {
+      e.preventDefault();
       closeDrawer();
-      showMbToast(coming.dataset.coming === 'schedule' ? 'جدول الدراسة سيُربط في المرحلة التالية.' : 'Flashcards ستُربط بالبيانات في المرحلة التالية.');
+      const view=tool.dataset.toolView;
+      if(view==='home') showMainView('home');
+      if(view==='schedule'){showMainView('schedule');renderSchedule();}
+      if(view==='flashcards'){showMainView('flashcards');renderFlashcards();}
       return;
     }
     const nav = e.target.closest('[data-nav]');
     if (nav) {
       closeDrawer();
-      if (nav.dataset.nav === 'home') document.getElementById('homeSection').scrollIntoView({behavior:'smooth'});
+      if (nav.dataset.nav === 'home') showMainView('home');
       if (nav.dataset.nav === 'topics') openTopicsPanel();
       if (nav.dataset.nav === 'account') openAccountPanel();
       return;
@@ -2288,7 +2635,85 @@ function wireMedbrainEvents() {
       profile.classList.remove('open');
       if (p.dataset.profile === 'account') openAccountPanel();
       if (p.dataset.profile === 'topics') openTopicsPanel();
+      return;
     }
+    const flip=e.target.closest('[data-flashcard-id]');
+    if(flip && !e.target.closest('[data-flash-delete]')) flip.classList.toggle('flipped');
+    const delFlash=e.target.closest('[data-flash-delete]');
+    if(delFlash){
+      e.stopPropagation();
+      if(confirm('حذف هذه البطاقة؟')) {
+        try{await deleteFlashcard(delFlash.dataset.flashDelete);}
+        catch(err){console.error(err);showMbToast('تعذّر حذف البطاقة.');}
+      }
+      return;
+    }
+    const toggle=e.target.closest('[data-schedule-toggle]');
+    if(toggle){
+      try{await toggleScheduleItem(toggle.dataset.scheduleToggle,toggle.dataset.completed!=='1');}
+      catch(err){console.error(err);showMbToast('تعذّر تحديث المهمة.');}
+      return;
+    }
+    const delTask=e.target.closest('[data-schedule-delete]');
+    if(delTask){
+      if(confirm('حذف هذه المهمة من الجدول؟')){
+        try{await deleteScheduleItem(delTask.dataset.scheduleDelete);}
+        catch(err){console.error(err);showMbToast('تعذّر حذف المهمة.');}
+      }
+    }
+  });
+
+  document.getElementById('profileForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    const status=document.getElementById('profileStatus');
+    const btn=document.getElementById('profileSaveBtn');
+    btn.disabled=true; status.textContent='جارٍ الحفظ…';
+    try{
+      await saveProfileName(document.getElementById('profileDisplayName').value);
+      status.textContent='تم حفظ الاسم.';
+      showMbToast('تم تحديث الملف الشخصي.');
+    }catch(err){console.error(err);status.textContent=err.message||'تعذّر حفظ الملف الشخصي.';}
+    finally{btn.disabled=false;}
+  });
+  document.getElementById('profileAvatarInput').addEventListener('change', async e => {
+    const file=e.target.files && e.target.files[0]; if(!file)return;
+    const status=document.getElementById('profileStatus'); status.textContent='جارٍ رفع الصورة…';
+    try{await uploadAvatar(file);status.textContent='تم تحديث الصورة.';showMbToast('تم تحديث الصورة الشخصية.');}
+    catch(err){console.error(err);status.textContent=err.message||'تعذّر رفع الصورة.';}
+    finally{e.target.value='';}
+  });
+
+  document.getElementById('scheduleForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    const status=document.getElementById('scheduleStatus');
+    const title=document.getElementById('scheduleTitle').value.trim();
+    if(!title)return;
+    status.textContent='جارٍ الإضافة…';
+    try{
+      await addScheduleItem({
+        title,day:document.getElementById('scheduleDay').value,
+        time:document.getElementById('scheduleTime').value,
+        notes:document.getElementById('scheduleNotes').value.trim()
+      });
+      e.target.reset(); status.textContent='تمت إضافة المهمة.';
+    }catch(err){console.error(err);status.textContent='تعذّر إضافة المهمة.';}
+  });
+
+  document.getElementById('flashcardForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    const status=document.getElementById('flashStatus');
+    const front=document.getElementById('flashFront').value.trim();
+    const back=document.getElementById('flashBack').value.trim();
+    if(!front||!back)return;
+    status.textContent='جارٍ الحفظ…';
+    try{
+      await addFlashcard({front,back,topic:document.getElementById('flashTopic').value.trim()});
+      e.target.reset(); status.textContent='تمت إضافة البطاقة.';
+    }catch(err){console.error(err);status.textContent='تعذّر إضافة البطاقة.';}
+  });
+
+  document.getElementById('searchInput').addEventListener('keydown', e => {
+    if(e.key==='Enter' && e.target.value.trim()) showMainView('library','');
   });
 
   document.addEventListener('keydown', e => {
