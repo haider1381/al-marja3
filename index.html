@@ -537,10 +537,15 @@
       </svg>
     </div>
     <h2 style="text-align:center;">المرجع</h2>
-    <p class="sub" style="text-align:center;">أدخل كود الوصول اللي أعطاك إياه حيدر للدخول للمكتبة.</p>
+    <p class="sub" style="text-align:center;">سجّل الدخول بحسابك للوصول إلى المكتبة.</p>
     <form id="gateForm">
       <div class="field">
-        <input type="text" id="gateCode" placeholder="أدخل الكود هنا" autocomplete="off" required>
+        <label for="gateEmail">البريد الإلكتروني</label>
+        <input type="email" id="gateEmail" dir="ltr" autocomplete="username" required>
+      </div>
+      <div class="field">
+        <label for="gatePassword">كلمة المرور</label>
+        <input type="password" id="gatePassword" autocomplete="current-password" required>
       </div>
       <p id="gateError" style="color:var(--accent2);font-size:12.5px;margin:0 0 10px;min-height:1em;"></p>
       <button type="submit" class="btn-save" id="gateSubmit" style="width:100%;">دخول</button>
@@ -564,7 +569,7 @@
         <p>مكتبة محاضراتك ومصادرك الدراسية</p>
         <div class="count" id="countLabel"></div>
         <div class="read-only-badge" id="readOnlyBadge" style="display:none">وضع القراءة فقط</div>
-        <button type="button" id="logoutBtn" class="logout-link" style="display:none">تغيير الكود</button>
+        <button type="button" id="logoutBtn" class="logout-link" style="display:none">تسجيل الخروج</button>
       </div>
     </div>
     <button class="add-btn" id="openAddBtn" type="button">
@@ -666,6 +671,7 @@
   </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.js"></script>
 <script>
 // ---------------- Topic taxonomy ----------------
 const TOPICS = {
@@ -680,107 +686,77 @@ const TOPICS = {
 let col = null;
 let lectures = [];
 let editingId = null;
-let canWrite = true;
+let canWrite = false;
 
 // ---------------- Supabase data layer ----------------
 const SUPABASE_URL = 'https://wuvzteosknrzddsaexez.supabase.co';
+// Public browser key. Permissions must be enforced by database RLS.
 const SUPABASE_KEY = 'sb_publishable_xp2-QPjUpKMxskVfVksY7A_taxJXsPD';
-const REST = SUPABASE_URL + '/rest/v1';
-const GATE_KEY = 'marja3_access_v1';
-
-function supaHeaders(extra) {
-  return Object.assign({
-    'apikey': SUPABASE_KEY,
-    'Authorization': 'Bearer ' + SUPABASE_KEY,
-    'Content-Type': 'application/json'
-  }, extra || {});
-}
+let client = null;
+let accessVersion = 0;
 
 function rowToLecture(r) {
   return {
-    id: r.id, title: r.title, source: r.source, category: r.category,
+    id: String(r.id), title: r.title, source: r.source, category: r.category,
     topic: r.topic, type: r.type, link: r.link, text: r.lecture_text,
     notes: r.notes, createdAt: r.created_at
   };
 }
-
+function lectureToRow(data) {
+  return {
+    title: data.title, source: data.source, category: data.category,
+    topic: data.topic, type: data.type, link: data.link || null,
+    lecture_text: data.text || null, notes: data.notes || null
+  };
+}
+function assertEditor() {
+  if (!client || !canWrite) throw new Error('editor_required');
+}
 async function loadLecturesFromSupabase() {
-  const res = await fetch(`${REST}/lectures?select=*&order=created_at.desc`, { headers: supaHeaders() });
-  if (!res.ok) throw new Error('load_failed');
-  const rows = await res.json();
+  const rows = [];
+  const pageSize = 500;
+  for (let offset = 0; ; offset += pageSize) {
+    const result = await client.from('lectures')
+      .select('id,title,source,category,topic,type,link,lecture_text,notes,created_at')
+      .order('created_at', { ascending: false }).order('id', { ascending: false })
+      .range(offset, offset + pageSize - 1);
+    if (result.error) throw result.error;
+    rows.push(...result.data);
+    if (result.data.length < pageSize) break;
+  }
   return rows.map(rowToLecture);
 }
-
 const supaCol = {
   async add(data) {
-    const body = {
-      title: data.title, source: data.source, category: data.category,
-      topic: data.topic, type: data.type, link: data.link || null,
-      lecture_text: data.text || null, notes: data.notes || null
-    };
-    const res = await fetch(`${REST}/lectures`, {
-      method: 'POST',
-      headers: supaHeaders({ 'Prefer': 'return=representation' }),
-      body: JSON.stringify(body)
-    });
-    if (!res.ok) throw new Error('add_failed');
-    const rows = await res.json();
-    lectures.unshift(rowToLecture(rows[0]));
-    render();
+    assertEditor();
+    const result = await client.from('lectures').insert(lectureToRow(data)).select().single();
+    if (result.error) throw result.error;
+    await startApp();
   },
   doc(id) {
     return {
       async update(data) {
-        const body = {};
-        if ('title' in data) body.title = data.title;
-        if ('source' in data) body.source = data.source;
-        if ('category' in data) body.category = data.category;
-        if ('topic' in data) body.topic = data.topic;
-        if ('type' in data) body.type = data.type;
-        if ('link' in data) body.link = data.link || null;
-        if ('text' in data) body.lecture_text = data.text || null;
-        if ('notes' in data) body.notes = data.notes || null;
-        const res = await fetch(`${REST}/lectures?id=eq.${id}`, {
-          method: 'PATCH',
-          headers: supaHeaders({ 'Prefer': 'return=representation' }),
-          body: JSON.stringify(body)
-        });
-        if (!res.ok) throw new Error('update_failed');
-        const rows = await res.json();
-        const idx = lectures.findIndex(l => l.id === id);
-        if (idx !== -1 && rows[0]) lectures[idx] = rowToLecture(rows[0]);
-        render();
+        assertEditor();
+        const result = await client.from('lectures').update(lectureToRow(data))
+          .eq('id', id).select().single();
+        if (result.error) throw result.error;
+        await startApp();
       },
       async delete() {
-        const res = await fetch(`${REST}/lectures?id=eq.${id}`, { method: 'DELETE', headers: supaHeaders() });
-        if (!res.ok) throw new Error('delete_failed');
-        lectures = lectures.filter(l => l.id !== id);
-        render();
+        assertEditor();
+        const result = await client.from('lectures').delete().eq('id', id).select('id').single();
+        if (result.error) throw result.error;
+        await startApp();
       }
     };
   }
 };
-col = supaCol;
 
-async function checkAccessCode(code) {
-  const res = await fetch(`${REST}/access_codes?code=eq.${encodeURIComponent(code)}&select=role`, { headers: supaHeaders() });
-  if (!res.ok) throw new Error('check_failed');
-  const rows = await res.json();
-  return rows.length ? rows[0].role : null;
-}
-
-function getSavedAccess() {
+function safeExternalLink(value) {
   try {
-    const raw = localStorage.getItem(GATE_KEY);
-    return raw ? JSON.parse(raw) : null;
-  } catch (e) { return null; }
-}
-function saveAccess(code, role) {
-  try { localStorage.setItem(GATE_KEY, JSON.stringify({ code, role })); } catch (e) {}
-}
-function clearAccess() {
-  try { localStorage.removeItem(GATE_KEY); } catch (e) {}
-  location.reload();
+    const url = new URL(value);
+    return ['http:', 'https:'].includes(url.protocol) ? url.href : '';
+  } catch (_) { return ''; }
 }
 const state = {
   mode: 'source',
@@ -882,69 +858,100 @@ async function init() {
   populateCategorySelect();
   wireStaticEvents();
   wireGateEvents();
-
-  const saved = getSavedAccess();
-  if (saved) {
-    canWrite = saved.role === 'editor';
-    hideGate();
-    await startApp();
+  applyAccessUI();
+  // Remove legacy cached codes and browser-assigned roles.
+  try { localStorage.removeItem('marja3_access_v1'); } catch (_) {}
+  if (!window.supabase) {
+    document.getElementById('gateError').textContent = 'تعذّر تحميل خدمة الدخول. أعد تحميل الصفحة.';
+    document.getElementById('gateSubmit').disabled = true;
+    return;
   }
+  client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  col = supaCol;
+  client.auth.onAuthStateChange((event, session) => {
+    // Run outside the Auth callback to avoid awaiting requests under its lock.
+    if (event !== 'INITIAL_SESSION') setTimeout(() => syncAccess(session), 0);
+  });
+  const { data, error } = await client.auth.getSession();
+  if (error) document.getElementById('gateError').textContent = 'تعذّر استعادة جلسة الدخول.';
+  await syncAccess(error ? null : data.session);
 }
-
 function showGate() { document.getElementById('gateOverlay').classList.add('open'); }
 function hideGate() { document.getElementById('gateOverlay').classList.remove('open'); }
 
+async function syncAccess(session) {
+  const version = ++accessVersion;
+  canWrite = false;
+  closeModal();
+  closeReader();
+  lectures = [];
+  applyAccessUI();
+  render();
+  if (!session) { showGate(); return; }
+  hideGate();
+  try {
+    const { data, error } = await client.rpc('is_editor');
+    if (version !== accessVersion) return;
+    if (error) throw error;
+    canWrite = data === true;
+    applyAccessUI();
+    await startApp(version);
+  } catch (_) {
+    if (version !== accessVersion) return;
+    canWrite = false;
+    applyAccessUI();
+    document.getElementById('storageBanner').classList.add('show');
+    document.getElementById('storageBanner').textContent = 'تعذّر التحقق من صلاحيات الحساب. تأكد من تطبيق إعدادات Supabase ثم أعد تحميل الصفحة.';
+  }
+}
 function wireGateEvents() {
-  document.getElementById('gateForm').addEventListener('submit', async (e) => {
+  document.getElementById('gateForm').addEventListener('submit', async e => {
     e.preventDefault();
-    const input = document.getElementById('gateCode');
-    const code = input.value.trim();
+    if (!client) return;
     const errEl = document.getElementById('gateError');
     const btn = document.getElementById('gateSubmit');
     errEl.textContent = '';
-    if (!code) return;
     btn.disabled = true;
     btn.textContent = 'جارٍ التحقق…';
     try {
-      const role = await checkAccessCode(code);
-      if (!role) {
-        errEl.textContent = 'الكود غير صحيح.';
-        return;
-      }
-      saveAccess(code, role);
-      canWrite = role === 'editor';
-      hideGate();
-      await startApp();
-    } catch (err) {
-      console.error(err);
-      errEl.textContent = 'تعذّر التحقق من الكود، تأكد من الاتصال بالإنترنت وحاول مرة أخرى.';
+      const { error } = await client.auth.signInWithPassword({
+        email: document.getElementById('gateEmail').value.trim(),
+        password: document.getElementById('gatePassword').value
+      });
+      if (error) throw error;
+      document.getElementById('gatePassword').value = '';
+    } catch (_) {
+      errEl.textContent = 'تعذّر تسجيل الدخول. تحقق من بيانات الحساب والاتصال بالإنترنت.';
     } finally {
       btn.disabled = false;
       btn.textContent = 'دخول';
     }
   });
-
-  document.getElementById('logoutBtn').addEventListener('click', clearAccess);
+  document.getElementById('logoutBtn').addEventListener('click', async () => {
+    if (!client) return;
+    await syncAccess(null);
+    const { error } = await client.auth.signOut();
+    if (error) document.getElementById('gateError').textContent = 'تعذّر إنهاء الجلسة على الخادم. حاول تسجيل الخروج مرة أخرى بعد استعادة الاتصال.';
+  });
 }
-
-async function startApp() {
-  applyAccessUI();
-  render();
+async function startApp(version = accessVersion) {
+  const banner = document.getElementById('storageBanner');
   try {
-    lectures = await loadLecturesFromSupabase();
-  } catch (e) {
-    console.error(e);
-    document.getElementById('storageBanner').classList.add('show');
+    const loaded = await loadLecturesFromSupabase();
+    if (version !== accessVersion) return;
+    lectures = loaded;
+    banner.classList.remove('show');
+  } catch (_) {
+    if (version !== accessVersion) return;
+    banner.textContent = 'تعذّر تحميل المحاضرات. تحقق من الاتصال وصلاحيات Supabase ثم أعد تحميل الصفحة.';
+    banner.classList.add('show');
   }
-  render();
+  if (version === accessVersion) render();
 }
-
 function applyAccessUI() {
   document.getElementById('openAddBtn').style.display = canWrite ? '' : 'none';
-  const badge = document.getElementById('readOnlyBadge');
-  if (badge) badge.style.display = canWrite ? 'none' : '';
-  const logoutBtn = document.getElementById('logoutBtn');
-  if (logoutBtn) logoutBtn.style.display = '';
+  document.getElementById('readOnlyBadge').style.display = canWrite ? 'none' : '';
+  document.getElementById('logoutBtn').style.display = '';
 }
 
 // ---------------- Rendering ----------------
@@ -984,7 +991,7 @@ function renderSearchResults(q) {
 
 function renderSourceMode() {
   if (!state.selectedSource) {
-    const bySource = {};
+    const bySource = Object.create(null);
     lectures.forEach(l => { const s = l.source || 'غير محدد'; bySource[s] = (bySource[s]||0) + 1; });
     const sources = Object.keys(bySource).sort((a,b) => a.localeCompare(b, 'ar'));
 
@@ -1002,13 +1009,13 @@ function renderSourceMode() {
   const sourceLectures = lectures.filter(l => (l.source || 'غير محدد') === state.selectedSource);
 
   if (!state.selectedSourceCategory) {
-    const byCat = {};
+    const byCat = Object.create(null);
     sourceLectures.forEach(l => { const c = l.category || 'أخرى'; byCat[c] = (byCat[c]||0) + 1; });
 
     let html = `<button type="button" class="back-chip" data-action="clear-source">${ICONS.back} كل المصادر</button>`;
     html += `<p class="section-label"><b>${escapeHtml(state.selectedSource)}</b> — ${lectureCountLabel(sourceLectures.length)}</p>`;
     html += `<p class="section-label">اختر موضوعًا لعرض محاضرات هذا المصدر فيه</p><div class="chip-grid">`;
-    Object.keys(TOPICS).forEach(cat => {
+    Object.keys(byCat).forEach(cat => {
       if (byCat[cat]) {
         html += `<button type="button" class="chip" data-action="select-source-category" data-category="${escapeHtml(cat)}">${escapeHtml(cat)} <span class="n">${byCat[cat]}</span></button>`;
       }
@@ -1020,13 +1027,13 @@ function renderSourceMode() {
   const catLectures = sourceLectures.filter(l => l.category === state.selectedSourceCategory);
 
   if (!state.selectedSourceTopic) {
-    const byTopic = {};
+    const byTopic = Object.create(null);
     catLectures.forEach(l => { const t = l.topic || 'أخرى'; byTopic[t] = (byTopic[t]||0) + 1; });
 
     let html = `<button type="button" class="back-chip" data-action="clear-source-category">${ICONS.back} ${escapeHtml(state.selectedSource)}</button>`;
     html += `<p class="section-label"><b>${escapeHtml(state.selectedSourceCategory)}</b> — ${lectureCountLabel(catLectures.length)}</p>`;
     html += `<p class="section-label">اختر الموضوع الفرعي</p><div class="chip-grid">`;
-    (TOPICS[state.selectedSourceCategory] || []).forEach(sub => {
+    Object.keys(byTopic).forEach(sub => {
       if (byTopic[sub]) {
         html += `<button type="button" class="chip" data-action="select-source-topic" data-topic="${escapeHtml(sub)}">${escapeHtml(sub)} <span class="n">${byTopic[sub]}</span></button>`;
       }
@@ -1054,7 +1061,7 @@ function renderSourceMode() {
 }
 
 function renderTypeLevel(list, opts) {
-  const byType = {};
+  const byType = Object.create(null);
   list.forEach(l => { const t = l.type || 'أخرى'; byType[t] = (byType[t]||0) + 1; });
   let html = `<button type="button" class="back-chip" data-action="${opts.backAction}">${ICONS.back} ${escapeHtml(opts.backLabel)}</button>`;
   html += `<p class="section-label"><b>${escapeHtml(opts.headingLabel)}</b> — ${lectureCountLabel(list.length)}</p>`;
@@ -1087,17 +1094,17 @@ function renderTopicMode() {
   }
 
   let html = '';
-  Object.keys(TOPICS).forEach(cat => {
+  [...new Set([...Object.keys(TOPICS), ...lectures.map(l => l.category).filter(Boolean)])].forEach(cat => {
     const catCount = lectures.filter(l => l.category === cat).length;
     const isOpen = state.selectedCategory === cat;
     html += `<div class="category">
       <button type="button" class="category-head${isOpen ? ' open' : ''}" data-action="toggle-category" data-category="${escapeHtml(cat)}">
-        <span class="head-left">${ICONS[CATEGORY_ICON[cat]]}<span class="name">${escapeHtml(cat)}</span></span>
+        <span class="head-left">${ICONS[CATEGORY_ICON[cat]] || ICONS.book}<span class="name">${escapeHtml(cat)}</span></span>
         <span class="meta"><span class="n">${catCount}</span>${ICONS.chevron}</span>
       </button>`;
     if (isOpen) {
       html += `<div class="category-body"><div class="chip-grid">`;
-      TOPICS[cat].forEach(sub => {
+      [...new Set([...(TOPICS[cat] || []), ...lectures.filter(l => l.category === cat).map(l => l.topic).filter(Boolean)])].forEach(sub => {
         const c = lectures.filter(l => l.category === cat && l.topic === sub).length;
         html += `<button type="button" class="chip${c === 0 ? ' empty-count' : ''}" data-action="select-topic" data-topic="${escapeHtml(sub)}">${escapeHtml(sub)} <span class="n">${c}</span></button>`;
       });
@@ -1113,6 +1120,7 @@ function renderLectureList(list) {
   list.forEach(l => {
     const iconKey = TYPE_ICON[l.type] || 'bookmark';
     const hasText = !!(l.text && l.text.trim());
+    const externalLink = safeExternalLink(l.link);
     html += `<div class="lecture">
       <div class="icon">${ICONS[iconKey]}</div>
       <div class="body${hasText ? ' clickable' : ''}"${hasText ? ` data-action="open-reader" data-id="${escapeHtml(l.id)}"` : ''}>
@@ -1128,7 +1136,7 @@ function renderLectureList(list) {
       </div>
       <div class="actions">
         ${hasText ? `<button type="button" class="read" data-action="open-reader" data-id="${escapeHtml(l.id)}" aria-label="قراءة المحاضرة">${ICONS.read}</button>` : ''}
-        ${l.link ? `<a href="${escapeHtml(l.link)}" target="_blank" rel="noopener noreferrer" aria-label="فتح الرابط">${ICONS.link}</a>` : ''}
+        ${externalLink ? `<a href="${escapeHtml(externalLink)}" target="_blank" rel="noopener noreferrer" aria-label="فتح الرابط">${ICONS.link}</a>` : ''}
         ${canWrite ? `<button type="button" class="edit" data-action="edit-lecture" data-id="${escapeHtml(l.id)}" aria-label="تعديل المحاضرة">${ICONS.edit}</button>` : ''}
         ${canWrite ? `<button type="button" class="del" data-action="delete-lecture" data-id="${escapeHtml(l.id)}" aria-label="حذف المحاضرة">${ICONS.trash}</button>` : ''}
       </div>
@@ -1288,10 +1296,30 @@ function populateTopicSelect(category) {
 }
 
 function fillFormFromLecture(l) {
+  // Preserve older/custom taxonomy values when editing existing data.
+  const categorySelect = document.getElementById('f_category');
+  if (l.category && !Array.from(categorySelect.options).some(o => o.value === l.category)) {
+    const option = document.createElement('option');
+    option.value = option.textContent = l.category;
+    categorySelect.appendChild(option);
+  }
   document.getElementById('f_title').value = l.title || '';
   document.getElementById('f_source').value = l.source || '';
   document.getElementById('f_category').value = l.category || '';
   populateTopicSelect(l.category || '');
+  const topicSelect = document.getElementById('f_topic');
+  if (l.topic && !Array.from(topicSelect.options).some(o => o.value === l.topic)) {
+    topicSelect.disabled = false;
+    const option = document.createElement('option');
+    option.value = option.textContent = l.topic;
+    topicSelect.appendChild(option);
+  }
+  const typeSelect = document.getElementById('f_type');
+  if (l.type && !Array.from(typeSelect.options).some(o => o.value === l.type)) {
+    const option = document.createElement('option');
+    option.value = option.textContent = l.type;
+    typeSelect.appendChild(option);
+  }
   document.getElementById('f_topic').value = l.topic || '';
   document.getElementById('f_type').value = l.type || 'محاضرة';
   document.getElementById('f_link').value = l.link || '';
@@ -1300,7 +1328,7 @@ function fillFormFromLecture(l) {
 }
 
 function openModal(id) {
-  if (!col) return;
+  if (!col || !canWrite) return;
   editingId = id || null;
   const lec = editingId ? lectures.find(l => l.id === editingId) : null;
 
@@ -1353,6 +1381,7 @@ async function onSubmitLecture(e) {
   const notes = document.getElementById('f_notes').value.trim();
 
   if (!title || !source || !category || !topic) return;
+  if (link && !safeExternalLink(link)) { alert("استخدم رابطًا يبدأ بـ https:// أو http://"); return; }
 
   const isEdit = !!editingId;
   const targetId = editingId;
@@ -1380,7 +1409,7 @@ async function onSubmitLecture(e) {
 }
 
 async function deleteLecture(id) {
-  if (!col || !id) return;
+  if (!col || !canWrite || !id) return;
   if (!confirm('حذف هذه المحاضرة؟')) return;
   try {
     await col.doc(id).delete();
