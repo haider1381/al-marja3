@@ -1158,6 +1158,28 @@
     .mb-brand { gap:5px; }
   }
 
+
+  /* User-provided Medbrain cartoon artwork */
+  .mb-art-sprite{
+    display:block;
+    width:min(100%,245px);
+    height:160px;
+    border-radius:10px;
+    background-image:url("assets/medbrain-sprite.webp");
+    background-repeat:no-repeat;
+    background-size:200% 300%;
+    background-color:#fff;
+  }
+  .mb-art-schedule{background-position:0 0}
+  .mb-art-questions{background-position:100% 0}
+  .mb-art-flashcards{background-position:0 50%}
+  .mb-art-lectures{background-position:100% 50%}
+  .mb-art-recommended{background-position:0 100%}
+  .mb-art-misc{background-position:100% 100%}
+  @media(max-width:720px){
+    .mb-art-sprite{width:min(100%,220px);height:140px}
+  }
+
 </style>
 </head>
 <body>
@@ -1312,48 +1334,19 @@
     <section class="mb-feature-grid" aria-label="أقسام Medbrain">
       <button type="button" class="mb-feature" data-dashboard-kind="lectures">
         <div class="mb-feature-top"><div><h3 class="mb-feature-title">المحاضرات</h3><span class="mb-feature-en">Lectures</span></div><span class="mb-feature-count" id="cardLectures">0</span></div>
-        <div class="mb-art">
-          <svg viewBox="0 0 250 170" aria-hidden="true">
-            <rect x="122" y="16" width="112" height="90" rx="5" fill="#f8fbff" stroke="#526679" stroke-width="3"/>
-            <text x="135" y="36" font-size="10" fill="#405469" font-family="Nunito">RESPIRATORY 101</text>
-            <path d="M172 54v34M171 65c-16-17-27-6-27 5 0 15 9 22 27 20m2-25c16-17 27-6 27 5 0 15-9 22-27 20" fill="#f6a29b" stroke="#814d4b" stroke-width="2"/>
-            <circle cx="70" cy="48" r="24" fill="#f7cfba" stroke="#684b43" stroke-width="3"/>
-            <path d="M49 43c4-19 41-22 45 2-12-5-26-5-45-2Z" fill="#d9d0c9"/>
-            <circle cx="61" cy="49" r="6" fill="none" stroke="#57443f" stroke-width="2"/><circle cx="79" cy="49" r="6" fill="none" stroke="#57443f" stroke-width="2"/><path d="M67 49h6M65 62c4 3 8 3 12 0" stroke="#57443f" stroke-width="2" fill="none"/>
-            <path d="M45 78c-15 11-18 38-18 68h87c0-30-4-57-19-68l-25 15-25-15Z" fill="#fff" stroke="#604d49" stroke-width="3"/><path d="M70 90v55" stroke="#83b9d6" stroke-width="7"/>
-            <path d="M96 91 127 68" stroke="#604d49" stroke-width="4" stroke-linecap="round"/><circle cx="128" cy="67" r="4" fill="#604d49"/>
-          </svg>
-        </div>
+        <div class="mb-art"><span class="mb-art-sprite mb-art-schedule" aria-hidden="true"></span></div>
         <p class="mb-feature-note">كل النصوص وملفات PDF والملخصات في مكان واحد.</p>
       </button>
 
       <button type="button" class="mb-feature" data-dashboard-kind="questions">
         <div class="mb-feature-top"><div><h3 class="mb-feature-title">بنك الأسئلة</h3><span class="mb-feature-en">QBank</span></div><span class="mb-feature-count" id="cardQuestions">0</span></div>
-        <div class="mb-art">
-          <svg viewBox="0 0 250 170" aria-hidden="true">
-            <circle cx="105" cy="53" r="26" fill="#f5cdb8" stroke="#654a44" stroke-width="3"/>
-            <path d="M82 49c3-23 45-25 49 0-12-10-34-10-49 0Z" fill="#705248"/>
-            <circle cx="96" cy="55" r="2.5" fill="#56443f"/><circle cx="115" cy="55" r="2.5" fill="#56443f"/><path d="M99 66c5 4 10 4 15 0" stroke="#b35e62" stroke-width="2" fill="none"/>
-            <path d="M75 85c-17 12-22 36-22 60h104c0-25-5-49-24-61l-28 17-30-16Z" fill="#fff" stroke="#654a44" stroke-width="3"/><path d="M106 100v44" stroke="#63acd0" stroke-width="8"/>
-            <rect x="55" y="88" width="40" height="52" rx="4" fill="#7e9a84" stroke="#506457" stroke-width="2"/>
-            <path d="M145 80c19-20 46-17 53 2 7 18-7 31-21 31h-17l-12 11 3-15c-16-7-18-20-6-29Z" fill="#fff" stroke="#65717c" stroke-width="2"/>
-            <text x="161" y="101" font-size="32" font-family="Nunito" font-weight="900" fill="#e88c75">?</text>
-          </svg>
-        </div>
+        <div class="mb-art"><span class="mb-art-sprite mb-art-questions" aria-hidden="true"></span></div>
         <p class="mb-feature-note">اختبارات تفاعلية مع التصحيح والتفسيرات.</p>
       </button>
 
       <button type="button" class="mb-feature" data-dashboard-kind="videos">
         <div class="mb-feature-top"><div><h3 class="mb-feature-title">فيديوهات مقترحة</h3><span class="mb-feature-en">Recommended Videos</span></div><span class="mb-feature-count" id="cardVideos">0</span></div>
-        <div class="mb-art">
-          <svg viewBox="0 0 250 170" aria-hidden="true">
-            <path d="M40 33h169a9 9 0 0 1 9 9v88a9 9 0 0 1-9 9H40a9 9 0 0 1-9-9V42a9 9 0 0 1 9-9Z" fill="#596a7a" stroke="#514747" stroke-width="3"/>
-            <rect x="43" y="44" width="163" height="78" rx="3" fill="#daf2df"/>
-            <circle cx="101" cy="82" r="24" fill="#7d6f67" opacity=".9"/><path d="m95 69 19 13-19 13Z" fill="#fff"/>
-            <circle cx="164" cy="76" r="17" fill="#f3cbb8"/><path d="M149 73c4-17 28-17 32 0-10-7-22-8-32 0Z" fill="#6f4f47"/><path d="M143 111c4-20 12-26 22-26 13 0 21 10 24 27" fill="#fff" stroke="#6a4c47" stroke-width="2"/>
-            <rect x="51" y="128" width="137" height="4" rx="2" fill="#edf2f5"/><rect x="51" y="128" width="72" height="4" rx="2" fill="#ef806d"/>
-          </svg>
-        </div>
+        <div class="mb-art"><span class="mb-art-sprite mb-art-recommended" aria-hidden="true"></span></div>
         <p class="mb-feature-note">افتح الفيديوهات المحفوظة حسب تخصصك وموضوعك.</p>
       </button>
 
@@ -1373,16 +1366,7 @@
 
       <button type="button" class="mb-feature" data-dashboard-kind="other">
         <div class="mb-feature-top"><div><h3 class="mb-feature-title">متنوعات</h3><span class="mb-feature-en">Miscellaneous</span></div><span class="mb-feature-count" id="cardOther">0</span></div>
-        <div class="mb-art">
-          <svg viewBox="0 0 250 170" aria-hidden="true">
-            <path d="M67 83h116l-10 62H78L67 83Z" fill="#f1d5a8" stroke="#6c5549" stroke-width="3"/><path d="M101 82c0-26 48-26 48 0" fill="none" stroke="#6c5549" stroke-width="4"/>
-            <path d="M105 73c-18-17-15-36-3-45 13-10 29 0 25 14-4 15-26 14-31 1" fill="none" stroke="#607180" stroke-width="4"/>
-            <path d="M128 71c4-31 26-47 42-38 18 10 10 37-8 31-11-4-9-17 2-19" fill="none" stroke="#607180" stroke-width="4"/>
-            <path d="M132 82c10-26 25-34 37-39" stroke="#55a7c6" stroke-width="3"/><path d="M122 82c-5-19-3-35 2-52m0 12-9 9m9 3 10 9m-10 4-9 9" stroke="#e4776c" stroke-width="3"/>
-            <rect x="168" y="31" width="18" height="36" rx="5" fill="#8ed1c7" stroke="#58666f" stroke-width="2" transform="rotate(36 168 31)"/>
-            <path d="M199 80c7-11 21-10 26 0 4 9-4 18-13 16-7 12-22 6-20-6-9-4-7-17 7-10Z" fill="#f4a89f" stroke="#754f4e" stroke-width="2"/>
-          </svg>
-        </div>
+        <div class="mb-art"><span class="mb-art-sprite mb-art-misc" aria-hidden="true"></span></div>
         <p class="mb-feature-note">كل المواد التي لا تندرج ضمن الأقسام الرئيسية.</p>
       </button>
 
