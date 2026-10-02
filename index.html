@@ -579,6 +579,107 @@
   .btn-save { background: var(--accent); color: #fff; }
   .btn-save:disabled { background: var(--border); color: var(--text-muted); }
 
+
+  /* Full-screen material editor, independent of the device theme. */
+  #overlay {
+    --bg:#ffffff;
+    --surface:#ffffff;
+    --surface-alt:var(--medical-blue-soft);
+    --border:var(--medical-blue-border);
+    --text:#172235;
+    --text-muted:#516174;
+    --accent:var(--medical-blue);
+    --accent-strong:var(--medical-blue-dark);
+    --accent-soft:var(--medical-blue-soft);
+    --accent2:#b42318;
+    padding:0;
+    background:#ffffff;
+    color:var(--text);
+    color-scheme:light;
+    overflow:hidden;
+  }
+  #overlay.open { align-items:stretch; justify-content:stretch; }
+  body:has(#overlay.open) { overflow:hidden; }
+  #overlay > .modal {
+    width:100%;
+    height:100%;
+    max-width:none;
+    max-height:none;
+    border-radius:0;
+    padding:0;
+    overflow-y:auto;
+    overscroll-behavior:contain;
+    scrollbar-gutter:stable;
+  }
+  #overlay .material-editor-head {
+    position:sticky;
+    top:0;
+    z-index:2;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:16px;
+    padding:calc(16px + env(safe-area-inset-top,0px)) max(20px,calc((100% - 900px)/2)) 16px;
+    background:var(--medical-blue-soft);
+    border-bottom:1px solid var(--medical-blue-border);
+  }
+  #overlay .material-editor-head h2 { color:var(--medical-blue-dark); font-size:22px; }
+  #overlay .material-editor-head .sub { margin:4px 0 0; }
+  #overlay .material-editor-back {
+    flex-shrink:0;
+    padding:10px 16px;
+    border:1px solid var(--medical-blue);
+    border-radius:8px;
+    background:#ffffff;
+    color:var(--medical-blue-dark);
+    font-size:14px;
+    font-weight:700;
+  }
+  #overlay #lectureForm { width:100%; max-width:940px; margin:0 auto; padding:24px 20px 0; }
+  #overlay .field input, #overlay .field select, #overlay .field textarea {
+    background:#ffffff;
+    border-color:var(--medical-blue-border);
+    color:#172235;
+    font-size:16px;
+    accent-color:var(--medical-blue);
+  }
+  #overlay .field input::placeholder, #overlay .field textarea::placeholder { color:#64748b; }
+  #overlay .field input:focus, #overlay .field select:focus, #overlay .field textarea:focus { border-color:var(--medical-blue); }
+  #overlay :focus-visible { outline-color:var(--medical-blue); }
+  #overlay .field input[type=file]::file-selector-button {
+    margin-inline-end:12px;
+    padding:8px 12px;
+    border:1px solid var(--medical-blue-border);
+    border-radius:6px;
+    background:var(--medical-blue-soft);
+    color:var(--medical-blue-dark);
+    font-family:inherit;
+    cursor:pointer;
+  }
+  #overlay .question-editor legend { color:var(--medical-blue-dark); }
+  #overlay .question-tools button, #overlay .back-chip { color:var(--medical-blue-dark); }
+  #overlay .modal-actions {
+    position:sticky;
+    bottom:0;
+    z-index:1;
+    margin-top:24px;
+    padding:14px 0 calc(14px + env(safe-area-inset-bottom,0px));
+    background:#ffffff;
+    border-top:1px solid var(--medical-blue-border);
+  }
+  #overlay .btn-cancel { background:var(--medical-blue-soft); color:var(--medical-blue-dark); border:1px solid var(--medical-blue-border); }
+  #overlay .btn-save { background:var(--medical-blue); color:#ffffff; }
+  #overlay .btn-save:hover:not(:disabled) { background:var(--medical-blue-dark); }
+  #overlay .btn-save:disabled { background:var(--medical-blue-border); color:#516174; }
+  @media(max-width:560px) {
+    #overlay .material-editor-head { gap:10px; padding-right:16px; padding-left:16px; }
+    #overlay .material-editor-head h2 { font-size:19px; }
+    #overlay .material-editor-head .sub { font-size:12px; }
+    #overlay .material-editor-back { padding:9px 12px; }
+    #overlay #lectureForm { padding:20px 16px 0; }
+    #overlay .two-col { grid-template-columns:1fr; gap:0; }
+  }
+
   .visually-hidden {
     position: absolute; width: 1px; height: 1px; overflow: hidden;
     clip: rect(0,0,0,0); white-space: nowrap;
@@ -1751,11 +1852,16 @@
 <div class="mb-toast" id="mbToast" role="status" aria-live="polite"></div>
 
 
-<!-- Add Lecture Modal -->
+<!-- Full-screen material editor -->
 <div class="overlay" id="overlay">
   <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
-    <h2 id="modalTitle">إضافة محاضرة</h2>
-    <p class="sub">حدّد المصدر والموضوع ليتم ترتيبها تلقائيًا في مكانها المناسب.</p>
+    <div class="material-editor-head">
+      <div>
+        <h2 id="modalTitle">إضافة مادة</h2>
+        <p class="sub">حدّد المصدر والموضوع ليتم ترتيبها تلقائيًا في مكانها المناسب.</p>
+      </div>
+      <button type="button" id="materialBackBtn" class="material-editor-back">رجوع</button>
+    </div>
     <form id="lectureForm">
       <div class="field">
         <label for="f_title">عنوان المادة</label>
@@ -2736,6 +2842,7 @@ function wireStaticEvents() {
 
   document.getElementById('openAddBtn').addEventListener('click', () => openModal());
   document.getElementById('cancelBtn').addEventListener('click', closeModal);
+  document.getElementById('materialBackBtn').addEventListener('click', closeModal);
   document.getElementById('overlay').addEventListener('click', e => {
     if (e.target.id === 'overlay') closeModal();
   });
@@ -3217,11 +3324,11 @@ function openModal(id) {
 
   if (lec) {
     fillFormFromLecture(lec);
-    document.getElementById('modalTitle').textContent = 'تعديل المحاضرة';
+    document.getElementById('modalTitle').textContent = 'تعديل المادة';
     document.getElementById('saveBtn').textContent = 'حفظ التعديلات';
   } else {
-    document.getElementById('modalTitle').textContent = 'إضافة محاضرة';
-    document.getElementById('saveBtn').textContent = 'حفظ المحاضرة';
+    document.getElementById('modalTitle').textContent = 'إضافة مادة';
+    document.getElementById('saveBtn').textContent = 'حفظ المادة';
   }
 
   document.getElementById('saveStatus').textContent = '';
