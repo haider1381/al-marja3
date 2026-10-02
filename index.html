@@ -1663,12 +1663,12 @@
   :root[data-theme="dark"] .smart-search-form { background:var(--bg); border-color:var(--border); }
 
 
-  /* Dark indigo interface surfaces; the light theme keeps its original colors. */
+  /* Black interface surfaces in dark mode; preserve original light theme colors. */
 :root[data-theme="dark"] {
- --interface-indigo:#24264D;
- --interface-indigo-hover:#303361;
- --interface-indigo-border:#555B89;
- --interface-indigo-text:#F0F1FF;
+ --interface-indigo:#000000;
+ --interface-indigo-hover:#171717;
+ --interface-indigo-border:#424242;
+ --interface-indigo-text:#F5F5F5;
 }
 :root[data-theme="dark"] .smart-search-form,
 :root[data-theme="dark"] .mb-hero .search-box input,
@@ -1734,7 +1734,7 @@
 :root[data-theme="dark"] .mb-library .segmented button:hover {
  background:var(--interface-indigo-hover);
 }
-:root[data-theme="dark"] #filterActiveCount { background:#D1D4F5; color:#24264D; }
+:root[data-theme="dark"] #filterActiveCount { background:#E0E0E0; color:#000000; }
 :root[data-theme="dark"] .library-search:focus-within {
  border-color:#979DCC; box-shadow:0 0 0 2px #979DCC33;
 }
