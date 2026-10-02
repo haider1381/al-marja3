@@ -1688,6 +1688,54 @@
   }
   :root[data-theme="dark"] #filterActiveCount { background:#BDD0A1; color:#18231A; }
 
+
+/* Shared muted pistachio color for interface icons in both site themes. */
+:root { --ui-icon:#4D6340; --ui-icon-hover:#354C2A; --ui-icon-on-solid:#E4EED8; }
+:root[data-theme="dark"] { --ui-icon:#BDD0A1; --ui-icon-hover:#D5E3C0; }
+.mb-icon-btn svg, .mb-nav button svg, .mb-page-back,
+.mb-close, .mb-about-close, .filter-popover-head button,
+.back-chip svg, .category-head svg,
+.mb-library .category-head svg, .mb-library .category-head.open svg,
+.mb-library .lecture .icon, .lecture .icon,
+.mb-avatar, .big-avatar,
+#siteThemeToggle, .reader-theme-toggle, .reader-close,
+.search-submit svg, .search-filter-btn svg {
+  color:var(--ui-icon);
+}
+.mb-icon-btn:hover svg, .mb-nav button:hover svg,
+.mb-page-back:hover, .mb-close:hover, .mb-about-close:hover,
+.filter-popover-head button:hover, #siteThemeToggle:hover,
+.reader-theme-toggle:hover, .reader-close:hover {
+  color:var(--ui-icon-hover);
+}
+:root[data-theme="dark"] .mb-icon-btn svg,
+:root[data-theme="dark"] .mb-nav button svg,
+:root[data-theme="dark"] .mb-avatar,
+:root[data-theme="dark"] .big-avatar,
+:root[data-theme="dark"] .mb-library .lecture .icon,
+:root[data-theme="dark"] #siteThemeToggle,
+:root[data-theme="dark"] .mb-page-back,
+:root[data-theme="dark"] .mb-close,
+:root[data-theme="dark"] .mb-about-close {
+  color:var(--ui-icon);
+}
+.lecture .actions svg, .mb-library .lecture .actions svg,
+.add-btn svg, .back-chip.active svg {
+  color:var(--ui-icon-on-solid);
+}
+#readerOverlay .reader-close, #readerOverlay .reader-theme-toggle {
+  color:var(--ui-icon);
+}
+
+
+.mb-avatar, .mb-account-side .big-avatar, .mb-profile-photo-card .big-avatar {
+ background:#EDF2E6; color:#4D6340;
+}
+.mb-avatar:hover { background:#DCE6D1; }
+:root[data-theme="dark"] :is(.mb-avatar,.mb-account-side .big-avatar,.mb-profile-photo-card .big-avatar) {
+ background:#29352D; color:#BDD0A1;
+}
+:root[data-theme="dark"] .mb-avatar:hover { background:#354338; }
 </style>
 </head>
 <body>
