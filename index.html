@@ -1161,23 +1161,28 @@
 
   /* User-provided Medbrain cartoon artwork */
   .mb-art-sprite{
-    display:block;
-    width:min(100%,245px);
-    height:160px;
+    display:block !important;
+    width:245px;
+    max-width:100%;
+    aspect-ratio:3/2;
+    height:auto;
+    min-height:150px;
     border-radius:10px;
-    background-image:url("assets/medbrain-sprite.webp");
-    background-repeat:no-repeat;
-    background-size:200% 300%;
+    background-image:url("./assets/medbrain-sprite.webp?v=20261002-2") !important;
+    background-repeat:no-repeat !important;
+    background-size:200% 300% !important;
     background-color:#fff;
+    background-origin:border-box;
+    background-clip:border-box;
   }
-  .mb-art-flashcards{background-position:0 0}
-  .mb-art-lectures{background-position:100% 0}
-  .mb-art-recommended{background-position:0 50%}
-  .mb-art-misc{background-position:100% 50%}
-  .mb-art-schedule{background-position:0 100%}
-  .mb-art-questions{background-position:100% 100%}
+  .mb-art-flashcards{background-position:0% 0% !important}
+  .mb-art-lectures{background-position:100% 0% !important}
+  .mb-art-recommended{background-position:0% 50% !important}
+  .mb-art-misc{background-position:100% 50% !important}
+  .mb-art-schedule{background-position:0% 100% !important}
+  .mb-art-questions{background-position:100% 100% !important}
   @media(max-width:720px){
-    .mb-art-sprite{width:min(100%,220px);height:140px}
+    .mb-art-sprite{width:220px;max-width:100%;min-height:138px}
   }
 
 
