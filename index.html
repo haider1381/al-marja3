@@ -1108,6 +1108,17 @@
     align-items:center;
     margin-top:18px;
   }
+  button.mb-drawer-user {
+    width:100%;
+    padding:0;
+    border:0;
+    background:transparent;
+    color:inherit;
+    font:inherit;
+    text-align:start;
+    cursor:pointer;
+  }
+  button.mb-drawer-user:hover .mb-user-name { color:var(--mb-blue); text-decoration:underline; }
   .mb-drawer-user .mb-avatar { margin:0; }
   .mb-user-name { font-weight:800; font-size:15px; }
   .mb-user-email { color:#718096; font-size:11px; direction:ltr; text-align:right; word-break:break-all; }
@@ -1465,10 +1476,10 @@
         </div>
         <button class="mb-close" id="drawerClose" type="button" aria-label="إغلاق">×</button>
       </div>
-      <div class="mb-drawer-user">
-        <div class="mb-avatar" id="drawerAvatar">MB</div>
-        <div><div class="mb-user-name" id="drawerUserName">Medbrain User</div><div class="mb-user-email" id="drawerUserEmail"></div></div>
-      </div>
+      <button type="button" class="mb-drawer-user" id="drawerProfileBtn" aria-label="تعديل معلومات الملف الشخصي" aria-haspopup="dialog">
+        <span class="mb-avatar" id="drawerAvatar">MB</span>
+        <span><span class="mb-user-name" id="drawerUserName" style="display:block">Medbrain User</span><span class="mb-user-email" id="drawerUserEmail" style="display:block"></span></span>
+      </button>
     </div>
     <nav class="mb-nav">
       <button type="button" data-nav="home" class="active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11 12 3l9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg><span>الرئيسية</span></button>
@@ -2892,6 +2903,11 @@ function wireMedbrainEvents() {
   const closeDrawer = () => { backdrop.classList.remove('open'); backdrop.setAttribute('aria-hidden','true'); };
   document.getElementById('menuBtn').addEventListener('click', openDrawer);
   document.getElementById('drawerClose').addEventListener('click', closeDrawer);
+  document.getElementById('drawerProfileBtn').addEventListener('click', () => {
+    closeDrawer();
+    openAccountPanel();
+    document.getElementById('profileFirstName').focus();
+  });
   backdrop.addEventListener('click', e => { if (e.target === backdrop) closeDrawer(); });
 
   document.getElementById('profileBtn').addEventListener('click', e => {
