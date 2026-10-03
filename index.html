@@ -1816,6 +1816,34 @@
 :root[data-theme="dark"] .mb-ai-dialog h2{color:#aed8ff;}
 :root[data-theme="dark"] .mb-ai-dialog-head button{background:#23263B;color:#F5F5F5;border-color:#383C55;}
 .mb-global-ai-trigger:focus-visible{outline:3px solid #1479CC;outline-offset:3px;}
+/* Shared study chat, with theme-scoped colors and native dialog focus management. */
+.mb-ai-dialog{--ai-bg:#fff;--ai-panel:#EAF4FF;--ai-text:#233448;--ai-muted:#52677b;--ai-accent:#0B5FA5;--ai-border:#B9D8F4;width:min(620px,calc(100vw - 24px));max-height:calc(100dvh - 24px);padding:20px;background:var(--ai-bg);color:var(--ai-text);}
+:root[data-theme="dark"] .mb-ai-dialog{--ai-bg:#181A2B;--ai-panel:#23263B;--ai-text:#F5F5F5;--ai-muted:#b0bed4;--ai-accent:#aed8ff;--ai-border:#383C55;background:var(--ai-bg);color:var(--ai-text);}
+.mb-ai-dialog .mb-ai-intro{margin:8px 0 14px;font-size:14px;color:var(--ai-muted);}
+.mb-ai-dialog .mb-ai-context-label,.mb-ai-form label{display:block;font-size:12px;font-weight:700;margin-bottom:6px;}
+.mb-ai-dialog #aiLectureContext,.mb-ai-dialog #aiQuestion{width:100%;box-sizing:border-box;border:1px solid var(--ai-border);border-radius:12px;background:var(--ai-bg);color:var(--ai-text);padding:10px 12px;font-family:inherit;font-size:14px;}
+.mb-ai-dialog #aiLectureContext option{background:var(--ai-bg);color:var(--ai-text);}
+.mb-ai-dialog #aiQuestion{resize:vertical;min-height:74px;max-height:140px;line-height:1.7;}
+.mb-ai-dialog #aiQuestion::placeholder{color:var(--ai-muted);opacity:1;}
+.mb-ai-messages{height:clamp(180px,32dvh,340px);overflow:auto;overscroll-behavior:contain;border-block:1px solid var(--ai-border);margin:14px 0;padding:12px 2px;scrollbar-width:thin;}
+.mb-ai-message{background:var(--ai-panel);border:1px solid var(--ai-border);border-radius:14px;padding:12px;margin:0 0 12px;}
+.mb-ai-message[data-role="user"]{margin-inline-start:24px;background:var(--ai-bg);}
+.mb-ai-message-title{font-size:11px;font-weight:800;color:var(--ai-accent);margin-bottom:5px;}
+.mb-ai-message-text{font-size:14px;line-height:1.9;white-space:pre-wrap;overflow-wrap:anywhere;}
+.mb-ai-message-note{font-size:11px;line-height:1.7;color:var(--ai-muted);margin-top:8px;}
+.mb-ai-welcome{color:var(--ai-muted);text-align:center;padding:24px 8px;font-size:14px;line-height:1.9;}
+.mb-ai-prompts{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;}
+.mb-ai-prompts button,.mb-ai-form-actions button{font-family:inherit;cursor:pointer;border:1px solid var(--ai-border);border-radius:10px;padding:8px 12px;background:var(--ai-panel);color:var(--ai-accent);font-size:12px;}
+.mb-ai-form-actions{display:flex;justify-content:space-between;gap:8px;margin-top:8px;}
+.mb-ai-form-actions #aiSend{background:#0B5FA5;color:#fff;border-color:#0F6CBD;font-weight:700;}
+.mb-ai-form-actions #aiSend:hover{background:#1479CC;}
+.mb-ai-dialog button:disabled{opacity:.6;cursor:wait;}
+.mb-ai-dialog :is(button,textarea,select):focus-visible{outline:3px solid #1479CC;outline-offset:2px;}
+.mb-ai-dialog .mb-ai-status{font-size:12px;margin:8px 0;color:var(--ai-accent);line-height:1.7;min-height:1.7em;}
+.mb-ai-dialog .mb-ai-footnote{font-size:10px;color:var(--ai-muted);line-height:1.7;margin:5px 0;}
+@media(max-width:480px){.mb-ai-dialog{padding:15px;}.mb-ai-dialog h2{font-size:18px;}.mb-ai-messages{height:26dvh;min-height:140px;}.mb-ai-form-actions button{min-height:40px;}}
+@media(max-width:360px){.mb-topbar-inner{padding-inline:8px;gap:4px;}.mb-topbar-inner .mb-brand-name{font-size:18px;}.mb-topbar-inner .mb-icon-btn{width:36px;}.mb-topbar-inner .mb-avatar{width:38px;height:38px;margin-inline-start:2px;}.mb-topbar-inner .mb-top-actions{gap:2px;}}
+
 </style>
 </head>
 <body>
@@ -2298,18 +2326,13 @@
         <button type="button" id="readerFontPlus" aria-label="تكبير الخط">+</button>
         <button type="button" id="readerFontReset" aria-label="إعادة حجم الخط الافتراضي">إعادة</button>
       </div>
-      <button type="button" id="readerAIButton" class="reader-ai-button" aria-expanded="false" aria-controls="readerAIPanel" dir="ltr">
+      <button type="button" id="readerAIButton" class="reader-ai-button" aria-haspopup="dialog" aria-controls="globalAIDialog" dir="ltr">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 3l2.2 6.8L19 12l-6.8 2.2L10 21l-2.2-6.8L1 12l6.8-2.2L10 3z"/><path d="M20 2v6M17 5h6M21 17v4M19 19h4"/></svg>
         <span>Ask Midbrain AI</span><span aria-hidden="true">✦</span>
       </button>
       <button type="button" id="readerToTop" class="reader-to-top">بداية النص ↑</button>
     </div>
-    <section id="readerAIPanel" class="reader-ai-panel" aria-labelledby="readerAIHeading" hidden>
-      <h3 id="readerAIHeading" dir="ltr">Ask Midbrain AI ✨</h3>
-      <p>مساعدك لفهم المحاضرة: شرح المفاهيم، تلخيص النقاط، وأسئلة للمراجعة.</p>
-      <p><strong>الإجابات غير مفعّلة بعد.</strong> تحتاج هذه الميزة إلى ربط خدمة ذكاء اصطناعي آمنة قبل بدء المحادثة.</p>
-      <button type="button" id="readerAIClose">إغلاق</button>
-    </section>
+
     <progress class="reader-progress" id="readerProgress" max="100" value="0" aria-label="تقدم القراءة"></progress>
     <div class="reader-workspace" id="readerWorkspace">
       <div class="reader-layout no-outline" id="readerLayout">
@@ -2325,8 +2348,23 @@
 
 <dialog id="globalAIDialog" class="mb-ai-dialog" aria-labelledby="globalAIHeading">
   <div class="mb-ai-dialog-head"><h2 id="globalAIHeading" dir="ltr">Ask Midbrain AI ✨</h2><button type="button" id="globalAIClose" aria-label="إغلاق مساعد الذكاء الاصطناعي">×</button></div>
-  <p>مساعدك لفهم المحاضرات وشرح المفاهيم الطبية وتلخيص النقاط وإنشاء أسئلة للمراجعة.</p>
-  <p><strong>الإجابات غير مفعّلة بعد.</strong> تحتاج الميزة إلى ربط خدمة ذكاء اصطناعي آمنة قبل بدء المحادثة.</p>
+  <p class="mb-ai-intro">اسأل، افهم، وراجع — مساعدك للدراسة الطبية.</p>
+  <label class="mb-ai-context-label" for="aiLectureContext">المحاضرة المرتبطة بالسؤال</label>
+  <select id="aiLectureContext"><option value="">سؤال عام — دون محاضرة</option></select>
+  <div id="aiMessages" class="mb-ai-messages" role="log" aria-label="المحادثة مع المساعد" aria-live="polite" aria-relevant="additions text"></div>
+  <div class="mb-ai-prompts" aria-label="اقتراحات للأسئلة">
+    <button type="button" data-ai-prompt="اشرح الفكرة الأساسية في هذه المحاضرة بأسلوب واضح.">اشرح لي ✦</button>
+    <button type="button" data-ai-prompt="لخص أهم النقاط في مقتطفات المحاضرة المتاحة.">لخّص النقاط</button>
+    <button type="button" data-ai-prompt="أنشئ ثلاثة أسئلة مراجعة من مقتطفات المحاضرة، ثم اذكر الإجابات مع شرح قصير.">اختبرني</button>
+  </div>
+  <form id="aiQuestionForm" class="mb-ai-form">
+    <label for="aiQuestion">سؤالك</label>
+    <textarea id="aiQuestion" rows="3" maxlength="1200" required placeholder="اكتب سؤالك الطبي أو الدراسي…" dir="auto"></textarea>
+    <div class="mb-ai-form-actions"><button type="button" id="aiNewChat">محادثة جديدة</button><button type="submit" id="aiSend">إرسال ✨</button></div>
+  </form>
+  <p id="aiStatus" class="mb-ai-status" role="status"></p>
+  <p class="mb-ai-footnote">يُرسل السؤال والمحادثة ومقتطف من المحاضرة المحددة إلى Groq. المحادثة مؤقتة وغير محفوظة في حسابك. لا تُدخل بيانات مرضى. تحقّق من الإجابات؛ المساعد للدراسة وقد يخطئ.</p>
+  <p class="mb-ai-footnote">حصة مجانية محدودة: حتى 15 طلبًا يوميًا للحساب، و40 طلبًا للموقع ككل. قد تُطبّق Groq حدودًا إضافية.</p>
 </dialog>
 <div id="smartSuggestions" class="smart-suggestions" role="listbox" aria-label="اقتراحات من المواد المتوفرة" hidden></div>
 
@@ -2842,6 +2880,8 @@ async function syncAccess(session) {
     syncNamePrompt();
     return;
   }
+  resetAIConversation(true);
+  if(document.getElementById('globalAIDialog').open)document.getElementById('globalAIDialog').close();
   activeUserId = userId;
   favoriteRecords = new Map();
   favoritesError = '';
@@ -2922,7 +2962,7 @@ function wireGateEvents() {
   });
   document.getElementById('nameLogout').addEventListener('click', () => document.getElementById('logoutBtn').click());
   document.getElementById('nameOverlay').addEventListener('keydown', e => {
-    if (e.key !== 'Tab') return;
+    if (document.getElementById('globalAIDialog').open || e.key !== 'Tab') return;
     const controls = Array.from(e.currentTarget.querySelectorAll('input,button')).filter(el => !el.disabled);
     if (!controls.length) { e.preventDefault(); return; }
     const first = controls[0], last = controls[controls.length - 1];
@@ -3210,6 +3250,7 @@ function renderLectureList(list) {
 
 // ---------------- Events ----------------
 function wireStaticEvents() {
+  wireAIChat();
   wireReaderTools();
   wireAuthoringEvents();
   wireMedbrainEvents();
@@ -3241,7 +3282,7 @@ function wireStaticEvents() {
   });
 
   document.addEventListener('keydown', e => {
-    if (e.key !== 'Escape') return;
+    if (document.getElementById('globalAIDialog').open || e.key !== 'Escape') return;
     if (document.getElementById('readerOverlay').classList.contains('open')) { closeReader(); return; }
     if (document.getElementById('overlay').classList.contains('open')) closeModal();
   });
@@ -3406,7 +3447,7 @@ function wireMedbrainEvents() {
   document.body.addEventListener('click', e => {
     if (!e.target.closest('[data-open-ai]')) return;
     closeDrawer();
-    if (!aiDialog.open) aiDialog.showModal();
+    openAIChat();
   });
   document.getElementById('globalAIClose').addEventListener('click', () => aiDialog.close());
   aiDialog.addEventListener('click', e => {
@@ -3627,7 +3668,7 @@ function wireMedbrainEvents() {
 
 
   document.addEventListener('keydown', e => {
-    if (e.key !== 'Escape') return;
+    if (document.getElementById('globalAIDialog').open || e.key !== 'Escape') return;
     closeDrawer();
     profile.classList.remove('open');
     setLayerOpen('topicsOverlay', false);
@@ -3733,14 +3774,123 @@ function buildReaderContents() {
   document.getElementById('readerOutline').open = window.innerWidth > 850;
   document.getElementById('readerLayout').classList.toggle('no-outline', !headings.length);
 }
-function setReaderAIOpen(open) {
-  document.getElementById('readerAIPanel').hidden = !open;
-  document.getElementById('readerAIButton').setAttribute('aria-expanded', String(open));
+// AI conversations are memory-only; account changes discard all messages.
+let aiConversation = [], aiBusy = false, aiAbort = null, aiGeneration = 0, aiRetryAt = 0;
+let aiLectureId = '', readerLectureId = null;
+function renderAIConversation(pendingQuestion = '') {
+  const log = document.getElementById('aiMessages');
+  log.replaceChildren();
+  const items = [...aiConversation];
+  if (pendingQuestion) items.push({role:'user',content:pendingQuestion},{role:'assistant',content:'جارٍ التفكير…'});
+  if (!items.length) {
+    const welcome = document.createElement('div'); welcome.className='mb-ai-welcome';
+    welcome.textContent=aiLectureId ? 'اسأل عن المحاضرة المحددة، أو اختر اقتراحًا للبدء.' : 'كيف أساعدك في دراستك اليوم؟ اكتب سؤالًا للبدء.';
+    log.append(welcome);
+  }
+  items.forEach(item => {
+    const box=document.createElement('div');box.className='mb-ai-message';box.dataset.role=item.role;
+    const title=document.createElement('div');title.className='mb-ai-message-title';title.textContent=item.role==='user'?'أنت':'Midbrain AI ✨';
+    const text=document.createElement('div');text.className='mb-ai-message-text';text.dir='auto';text.textContent=item.content;
+    box.append(title,text);
+    if(item.note){const note=document.createElement('div');note.className='mb-ai-message-note';note.textContent=item.note;box.append(note);}
+    log.append(box);
+  });
+  log.scrollTop=log.scrollHeight;
+  log.setAttribute('aria-busy',String(aiBusy));
 }
+function setAIBusy(busy) {
+  aiBusy=busy;
+  document.getElementById('aiSend').disabled=busy;
+  document.getElementById('aiSend').textContent=busy?'جارٍ الإرسال…':'إرسال ✨';
+  document.getElementById('aiLectureContext').disabled=busy;
+  document.querySelectorAll('[data-ai-prompt]').forEach(el=>el.disabled=busy);
+}
+function resetAIConversation(clearContext = false) {
+  aiGeneration++; if(aiAbort)aiAbort.abort(); aiAbort=null;
+  aiConversation=[];setAIBusy(false);
+  if(clearContext){aiLectureId='';aiRetryAt=0;}
+  document.getElementById('aiQuestion').value='';
+  document.getElementById('aiStatus').textContent='';
+  renderAIConversation();
+}
+function refreshAILectures() {
+  const select=document.getElementById('aiLectureContext'); select.replaceChildren();
+  const general=document.createElement('option');general.value='';general.textContent='سؤال عام — دون محاضرة';select.append(general);
+  lectures.filter(l=>l.text&&l.text.trim()).forEach(l=>{
+    const option=document.createElement('option');option.value=l.id;option.textContent=l.title;select.append(option);
+  });
+  if(aiLectureId&&!lectures.some(l=>l.id===aiLectureId&&l.text?.trim())){aiLectureId='';resetAIConversation();}
+  select.value=aiLectureId;
+}
+function openAIChat(lectureId = null) {
+  document.getElementById('navBackdrop').classList.remove('open');
+  document.getElementById('navBackdrop').setAttribute('aria-hidden','true');
+  const selected=lectureId&&lectures.some(l=>l.id===lectureId&&l.text?.trim())?lectureId:'';
+  if(selected!==aiLectureId){aiLectureId=selected;resetAIConversation();}
+  refreshAILectures();renderAIConversation();
+  const dialog=document.getElementById('globalAIDialog');
+  if(!dialog.open)dialog.showModal();
+  document.getElementById('aiQuestion').focus();
+}
+async function sendAIQuestion(e) {
+  e.preventDefault(); if(aiBusy)return;
+  const question=document.getElementById('aiQuestion').value.trim();
+  const status=document.getElementById('aiStatus');
+  if(!question)return;
+  if(!client||!activeUserId){status.textContent='سجّل الدخول لاستخدام المساعد.';return;}
+  if(Date.now()<aiRetryAt){status.textContent='انتظر '+Math.ceil((aiRetryAt-Date.now())/1000)+' ثانية ثم حاول مجددًا.';return;}
+  const generation=++aiGeneration,userId=activeUserId;
+  const controller=new AbortController();aiAbort=controller;
+  const timeout=setTimeout(()=>controller.abort(),55000);
+  setAIBusy(true);status.textContent='';renderAIConversation(question);
+  try {
+    const {data,error}=await client.auth.getSession();
+    if(generation!==aiGeneration||activeUserId!==userId)return;
+    if(error||!data.session?.access_token||data.session.user.id!==userId)throw new Error('انتهت الجلسة. سجّل الدخول مجددًا.');
+    const response=await fetch(SUPABASE_URL+'/functions/v1/medbrain-ai',{
+      method:'POST',headers:{'Content-Type':'application/json',apikey:SUPABASE_KEY,Authorization:'Bearer '+data.session.access_token},
+      body:JSON.stringify({question,lecture_id:aiLectureId||null,history:aiConversation.slice(-6).map(x=>({role:x.role,content:x.content.slice(0,6000)}))}),
+      signal:controller.signal
+    });
+    const result=await response.json().catch(()=>null);
+    if(generation!==aiGeneration||activeUserId!==userId)return;
+    if(!response.ok){
+      if(response.status===429&&result?.retry_seconds)aiRetryAt=Date.now()+Math.min(86400,Number(result.retry_seconds))*1000;
+      throw new Error(result?.message||(response.status===401?'انتهت الجلسة. سجّل الدخول مجددًا.':'تعذّر الاتصال بالمساعد. حاول مجددًا.'));
+    }
+    if(!result||typeof result.answer!=='string'||!result.answer.trim())throw new Error('لم تصل إجابة. حاول مجددًا.');
+    let note=result.context?'استند الرد إلى '+(result.context.partial?'مقتطفات من: ':'نص: ')+result.context.title:'';
+    if(result.incomplete)note+=(note?' · ':'')+'قد تكون الإجابة غير مكتملة؛ اطلب توضيح نقطة محددة.';
+    aiConversation.push({role:'user',content:question},{role:'assistant',content:result.answer,note});
+    aiConversation=aiConversation.slice(-20);
+    document.getElementById('aiQuestion').value='';
+    status.textContent=typeof result.remaining==='number'?'متبقي للحساب اليوم: '+result.remaining+' طلبًا.':'';
+  } catch(error) {
+    if(generation!==aiGeneration||activeUserId!==userId)return;
+    status.textContent=error.name==='AbortError'?'استغرق الرد وقتًا طويلًا. جرّب مجددًا.':error instanceof TypeError?'تعذّر الاتصال بالمساعد. تحقق من الإنترنت وحاول مجددًا.':error.message;
+  } finally {
+    clearTimeout(timeout);
+    if(generation===aiGeneration&&activeUserId===userId){aiAbort=null;setAIBusy(false);renderAIConversation();}
+  }
+}
+function wireAIChat() {
+  document.getElementById('aiQuestionForm').addEventListener('submit',sendAIQuestion);
+  document.getElementById('aiNewChat').addEventListener('click',()=>{resetAIConversation();document.getElementById('aiQuestion').focus();});
+  document.getElementById('aiLectureContext').addEventListener('change',e=>{aiLectureId=e.target.value;resetAIConversation();});
+  document.querySelectorAll('[data-ai-prompt]').forEach(button=>button.addEventListener('click',()=>{
+    document.getElementById('aiQuestion').value=aiLectureId?button.dataset.aiPrompt:'اشرح مفهومًا طبيًا مهمًا للمراجعة مع مثال قصير.';
+    document.getElementById('aiQuestion').focus();
+  }));
+  document.getElementById('aiQuestion').addEventListener('keydown',e=>{
+    if(e.key==='Enter'&&(e.ctrlKey||e.metaKey)){e.preventDefault();document.getElementById('aiQuestionForm').requestSubmit();}
+  });
+}
+
 function openReader(id) {
-  setReaderAIOpen(false);
+
   const lec = lectures.find(l => l.id === id);
   if (!lec) return;
+  readerLectureId = lec.id;
   quizState = null;
   document.getElementById('readerBody').classList.remove('quiz-body');
   document.getElementById('readerTitle').textContent = lec.title;
@@ -3752,7 +3902,8 @@ function openReader(id) {
   openReaderSurface();
 }
 function closeReader() {
-  setReaderAIOpen(false);
+  readerLectureId=null;
+
   quizState = null;
   const overlay = document.getElementById('readerOverlay');
   if (!overlay.classList.contains('open')) return;
@@ -3762,15 +3913,7 @@ function closeReader() {
   readerReturnFocus = null;
 }
 function wireReaderTools() {
-  document.getElementById('readerAIButton').addEventListener('click', () => {
-    const open = document.getElementById('readerAIPanel').hidden;
-    setReaderAIOpen(open);
-    if (open) document.getElementById('readerAIClose').focus();
-  });
-  document.getElementById('readerAIClose').addEventListener('click', () => {
-    setReaderAIOpen(false);
-    document.getElementById('readerAIButton').focus();
-  });
+  document.getElementById('readerAIButton').addEventListener('click', () => openAIChat(readerLectureId));
   document.getElementById('readerThemeToggle').addEventListener('click', () => {
     toggleSiteTheme();
   });
@@ -4592,6 +4735,7 @@ init();
 </script>
 </body>
 </html>
+
 
 
 
