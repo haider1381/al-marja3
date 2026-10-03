@@ -1740,6 +1740,60 @@
 :root[data-theme="dark"] .library-search:focus-within {
  border-color:#979DCC; box-shadow:0 0 0 2px #979DCC33;
 }
+
+/* Personal drawer and account pages. */
+.mb-drawer { display:flex; flex-direction:column; }
+.mb-drawer-head { flex-shrink:0; }
+.mb-drawer .mb-nav { display:flex; flex-direction:column; flex:1; gap:5px; padding:14px 10px max(14px,env(safe-area-inset-bottom)); min-height:350px; }
+.mb-drawer .mb-nav button { border-radius:10px; padding:12px; min-height:54px; }
+.mb-drawer .mb-nav button span { display:grid; gap:4px; }
+.mb-drawer .mb-nav button small { font-size:10px; font-weight:400; color:var(--text-muted); }
+.mb-drawer .mb-nav .mb-settings-nav { margin-top:auto; border-top:1px solid var(--border); border-radius:0; }
+.mb-profile-hint { display:block; margin-top:5px; font-size:11px; color:var(--mb-blue); }
+.mb-personal-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; margin-top:20px; }
+.mb-personal-card { background:var(--surface); color:var(--text); border:1px solid var(--border); border-radius:14px; padding:20px; min-width:0; }
+.mb-personal-card h3 { margin:0 0 12px; font-size:17px; }
+.mb-personal-card p,.mb-personal-card li { font-size:13px; line-height:1.9; color:var(--text-muted); }
+.mb-personal-card ul { padding-inline-start:20px; }
+.mb-personal-pill { display:inline-block; padding:5px 11px; border-radius:20px; background:var(--accent-soft); color:var(--accent-strong); font-size:12px; }
+.mb-setting-row { display:flex; align-items:center; justify-content:space-between; gap:18px; padding:16px 0; border-bottom:1px solid var(--border); }
+.mb-setting-row:last-child { border-bottom:0; }
+.mb-setting-row label { font-size:13px; font-weight:700; }
+.mb-setting-row small { display:block; margin-top:5px; color:var(--text-muted); font-weight:400; line-height:1.7; }
+.mb-personal-input,.mb-setting-row select { border:1px solid var(--border); background:var(--bg); color:var(--text); border-radius:9px; padding:10px; font:inherit; font-size:13px; min-width:0; }
+.mb-personal-input { width:100%; }
+.mb-setting-row input[type=checkbox],.mb-share-options input { accent-color:var(--accent); }
+.mb-personal-actions { display:flex; flex-wrap:wrap; gap:10px; margin-top:16px; }
+.mb-personal-actions button { min-height:40px; }
+.mb-share-options { display:grid; gap:14px; font-size:13px; }
+.mb-share-days { display:flex; flex-wrap:wrap; gap:8px; }
+.mb-share-days label { display:flex; align-items:center; gap:6px; padding:8px; background:var(--surface-alt); border-radius:8px; }
+.mb-share-preview { white-space:pre-wrap; word-break:break-word; font:inherit; font-size:13px; line-height:1.9; margin:0; max-height:500px; overflow:auto; }
+.mb-personal-status { min-height:22px; color:var(--text-muted); font-size:12px; margin-top:10px; }
+.mb-favorite-tools { display:flex; align-items:center; gap:10px; margin:20px 0 12px; }
+.mb-favorite-tools input { flex:1; }
+.mb-favorite-tools select { width:auto; }
+.mb-favorite-content .lecture { margin-bottom:10px; background:var(--surface); color:var(--text); }
+.lecture .actions button.favorite-saved { color:var(--accent-strong); background:var(--accent-soft); }
+.lecture .actions button.favorite-saved svg { fill:currentColor; }
+:root[data-theme="dark"] .mb-favorite-content .lecture { background:var(--interface-indigo); border-color:var(--interface-indigo-border); }
+:root[data-theme="dark"] .mb-favorite-content .lecture .icon,
+:root[data-theme="dark"] .mb-favorite-content .lecture .actions button,
+:root[data-theme="dark"] .mb-favorite-content .lecture .actions a { background:var(--interface-indigo); color:var(--interface-indigo-text); }
+:root[data-theme="dark"] .lecture .actions button.favorite-saved { color:#B8BFF1; }
+:root[data-motion="reduce"] *, :root[data-motion="reduce"] *::before, :root[data-motion="reduce"] *::after { animation:none!important; transition:none!important; scroll-behavior:auto!important; }
+@media(max-width:700px) {
+ .mb-personal-grid { grid-template-columns:1fr; gap:12px; }
+ .mb-personal-card { padding:16px; }
+ .mb-favorite-tools { flex-wrap:wrap; }
+ .mb-favorite-tools input { flex-basis:100%; }
+ .mb-setting-row { gap:10px; }
+}
+
+
+.mb-personal-page { --accent:#0F6CBD; --accent-strong:#0B5FA5; --accent-soft:#EAF4FF; --surface-alt:#EAF4FF; --text:#172235; --text-muted:#52677b; --border:#dbe5ef; }
++:root[data-theme="dark"] .mb-personal-page { --bg:#10162b; --surface:#171f39; --surface-alt:#223455; --text:#e7edf7; --text-muted:#b0bed4; --border:#344b70; --accent:#8cc8ff; --accent-strong:#aed8ff; --accent-soft:#223455; }
++
 </style>
 </head>
 <body>
@@ -1816,23 +1870,17 @@
       </div>
       <button type="button" class="mb-drawer-user" id="drawerProfileBtn" aria-label="تعديل معلومات الملف الشخصي" aria-haspopup="dialog">
         <span class="mb-avatar" id="drawerAvatar">MB</span>
-        <span><span class="mb-user-name" id="drawerUserName" style="display:block">Medbrain User</span><span class="mb-user-email" id="drawerUserEmail" style="display:block"></span></span>
+        <span><span class="mb-user-name" id="drawerUserName" style="display:block">Medbrain User</span><span class="mb-user-email" id="drawerUserEmail" style="display:block"></span><span class="mb-profile-hint">الملف الشخصي</span></span>
       </button>
     </div>
-    <nav class="mb-nav">
-      <button type="button" data-nav="home" class="active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11 12 3l9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg><span>الرئيسية</span></button>
-      <div class="mb-nav-label">أدواتي</div>
-      <button type="button" data-nav-kind="lectures"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5h16v14H4z"/><path d="m10 9 5 3-5 3z"/></svg><span>المحاضرات</span></button>
-      <button type="button" data-nav-kind="videos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m10 9 5 3-5 3z"/></svg><span>الفيديوهات</span></button>
-      <button type="button" data-tool-view="flashcards"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 4h12v16H6z"/><path d="M9 8h6M9 12h6"/></svg><span>البطاقات التعليمية</span></button>
-      <button type="button" data-nav-kind="questions"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.7 2.7 0 1 1 4.7 1.8c-1.2 1-2.2 1.3-2.2 3.2"/><path d="M12 17h.01"/></svg><span>بنك الأسئلة</span></button>
-      <button type="button" data-tool-view="schedule"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M8 3v4m8-4v4M4 10h16"/><path d="m9 15 2 2 4-4"/></svg><span>جدول الدراسة</span></button>
-      <button type="button" data-nav="topics"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h10"/></svg><span>كل المواضيع</span></button>
-      <div class="mb-nav-sep"></div>
-      <div class="mb-nav-label">الحساب</div>
-      <button type="button" data-nav="account"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg><span>الملف الشخصي</span></button>
-      <button type="button" id="logoutBtn" style="display:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 17l5-5-5-5M15 12H3"/><path d="M14 3h6a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1h-6"/></svg><span>تسجيل الخروج</span></button>
-    </nav>
+<nav class="mb-nav" aria-label="صفحاتي">
+<button type="button" data-tool-view="subscription"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M3 10h18M7 15h4"/></svg><span>اشتراكي<small>الوصول والخدمات المتاحة</small></span></button>
+<button type="button" data-tool-view="shareSchedule"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 10.5 6.8-4m-6.8 7 6.8 4"/></svg><span>مشاركة جدولي الخاص<small>معاينة الجدول ثم مشاركته</small></span></button>
+<button type="button" data-tool-view="schedule"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="5" width="16" height="15" rx="3"/><path d="M8 3v4m8-4v4M4 10h16m-7 5 2 2 4-4"/></svg><span>جدولي الدراسي<small>مهامي وخطتي الأسبوعية</small></span></button>
+<button type="button" data-tool-view="favorites"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m19 21-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg><span>المفضلات<small>المواد التي حفظتها للرجوع إليها</small></span></button>
+<button type="button" class="mb-settings-nav" data-tool-view="settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="m9 3-1 3-3 1-2 3 2 2-1 3 3 2 3-1 2 2 3-1 1-3 3-1 2-3-2-2 1-3-3-2-3 1-2-2z"/></svg><span>الإعدادات<small>المظهر والقراءة والحساب</small></span></button>
+</nav>
+
   </aside>
 </div>
 
@@ -2043,6 +2091,47 @@
       <button type="button" class="back-chip" id="refreshLibraryBtn">تحديث المكتبة</button>
       <div id="content" aria-live="polite"></div>
     </section>
+
+
+<section class="mb-tool-page mb-page-view mb-personal-page" id="subscriptionSection">
+<div class="mb-page-toolbar"><div class="mb-page-title-wrap"><button class="mb-page-back" type="button" data-tool-view="home" aria-label="العودة للرئيسية">‹</button><div><h2 class="mb-page-title">اشتراكي</h2><p class="mb-page-subtitle">حسابك والخدمات المتاحة لك في Medbrain.</p></div></div></div>
+<div class="mb-personal-grid">
+ <article class="mb-personal-card"><span class="mb-personal-pill">الوصول الحالي</span><h3 style="margin-top:16px">حساب Medbrain</h3><p id="subscriptionIdentity" dir="auto"></p><ul><li>قراءة المحاضرات والملخصات وفتح ملفات PDF</li><li>جدول دراسي شخصي محفوظ في حسابك</li><li>حفظ المواد في المفضلات</li><li>مشاركة نسخة من جدولك الدراسي</li></ul><button type="button" class="mb-primary" data-nav="account">إدارة ملفي الشخصي</button></article>
+ <article class="mb-personal-card"><h3>الاشتراكات المدفوعة</h3><p>لا تتوفر خطط مدفوعة أو عمليات دفع داخل المنصة حاليًا. يمكنك استخدام الخدمات المتاحة من حسابك.</p><p>ستظهر تفاصيل الخطط والتجديد هنا عند إتاحتها.</p></article>
+</div>
+</section>
+<section class="mb-tool-page mb-page-view mb-personal-page" id="shareScheduleSection">
+<div class="mb-page-toolbar"><div class="mb-page-title-wrap"><button class="mb-page-back" type="button" data-tool-view="home" aria-label="العودة للرئيسية">‹</button><div><h2 class="mb-page-title">مشاركة جدولي الخاص</h2><p class="mb-page-subtitle">اختر ما تريد مشاركته، وراجع المعاينة قبل الإرسال.</p></div></div></div>
+<div class="mb-personal-grid">
+ <div class="mb-personal-card"><h3>خيارات المشاركة</h3><div class="mb-share-options">
+  <fieldset style="border:0;padding:0;margin:0"><legend style="margin-bottom:10px">الأيام</legend><div id="shareDays" class="mb-share-days"></div></fieldset>
+  <label><input type="checkbox" id="shareIncludeCompleted" checked> تضمين المهام المنجزة</label>
+  <label><input type="checkbox" id="shareIncludeNotes"> تضمين ملاحظات المهام</label>
+  <label><input type="checkbox" id="shareIncludeName"> إظهار اسمي في الجدول</label>
+ </div><div class="mb-personal-actions"><button type="button" class="mb-primary" id="shareScheduleBtn">مشاركة الجدول</button><button type="button" class="mb-file-btn" id="copyScheduleBtn">نسخ النص</button><button type="button" class="mb-file-btn" id="downloadScheduleBtn">تنزيل نسخة</button></div>
+ <div class="mb-personal-status" id="shareScheduleStatus" role="status"></div><p>المشاركة ترسل نسخة نصية فقط. تغييراتك اللاحقة لا تُرسل تلقائيًا.</p>
+ <button type="button" class="mb-file-btn" data-tool-view="schedule">تعديل جدولي الدراسي</button></div>
+ <div class="mb-personal-card"><h3>معاينة الجدول</h3><pre class="mb-share-preview" id="shareSchedulePreview"></pre></div>
+</div>
+</section>
+<section class="mb-tool-page mb-page-view mb-personal-page" id="favoritesSection">
+<div class="mb-page-toolbar"><div class="mb-page-title-wrap"><button class="mb-page-back" type="button" data-tool-view="home" aria-label="العودة للرئيسية">‹</button><div><h2 class="mb-page-title">المفضلات</h2><p class="mb-page-subtitle">موادك المحفوظة في حسابك، لتعود إليها من أي جهاز.</p></div></div></div>
+<div class="mb-favorite-tools"><input class="mb-personal-input" id="favoritesSearch" type="search" placeholder="ابحث داخل المفضلات…" aria-label="البحث داخل المفضلات"><select class="mb-personal-input" id="favoritesSort" aria-label="ترتيب المفضلات"><option value="latest">الأحدث حفظًا</option><option value="title">حسب العنوان</option></select><button type="button" class="mb-file-btn" id="refreshFavoritesBtn">تحديث</button></div>
+<div class="mb-personal-status" id="favoritesStatus" role="status"></div><div id="favoritesContent" class="mb-favorite-content"></div>
+</section>
+<section class="mb-tool-page mb-page-view mb-personal-page" id="settingsSection">
+<div class="mb-page-toolbar"><div class="mb-page-title-wrap"><button class="mb-page-back" type="button" data-tool-view="home" aria-label="العودة للرئيسية">‹</button><div><h2 class="mb-page-title">الإعدادات</h2><p class="mb-page-subtitle">اضبط تجربة Medbrain بما يناسبك.</p></div></div></div>
+<div class="mb-personal-grid">
+ <div class="mb-personal-card"><h3>المظهر والقراءة</h3>
+  <div class="mb-setting-row"><label for="settingsTheme">مظهر التطبيق<small>يسري على الموقع وواجهة القراءة.</small></label><select id="settingsTheme"><option value="light">فاتح</option><option value="dark">داكن</option></select></div>
+  <div class="mb-setting-row"><label for="settingsFont">حجم خط القراءة<small>يُحفظ لاستخدامه عند فتح المحاضرات.</small></label><select id="settingsFont"><option value="16">16</option><option value="18">18</option><option value="20">20</option><option value="22">22</option><option value="24">24</option><option value="26">26</option></select></div>
+  <div class="mb-setting-row"><label for="settingsMotion">تقليل الحركة<small>تخفيف الانتقالات والحركات في الواجهة.</small></label><input id="settingsMotion" type="checkbox"></div>
+  <div class="mb-personal-status" id="settingsStatus" role="status"></div>
+ </div>
+ <div class="mb-personal-card"><h3>الحساب</h3><p id="settingsIdentity" dir="auto"></p><div class="mb-personal-actions"><button type="button" class="mb-primary" data-nav="account">تعديل الملف الشخصي</button><button type="button" class="mb-file-btn" id="logoutBtn">تسجيل الخروج</button></div><p>تفضيلات المظهر والقراءة تُحفظ على هذا الجهاز.</p></div>
+</div>
+</section>
+
 
     <section class="mb-tool-page mb-page-view" id="scheduleSection">
       <div class="mb-page-toolbar">
@@ -2412,6 +2501,7 @@ async function loadScheduleItems() {
   if (result.error) throw result.error;
   scheduleItems = result.data || [];
   renderSchedule();
+  if(currentMainView==='shareSchedule')renderShareSchedule();
 }
 async function addScheduleItem(data) {
   const result = await client.from('study_schedule').insert({
@@ -2485,10 +2575,10 @@ function renderFlashcards(){
 }
 function showMainView(view, kind='', scrollBehavior='smooth') {
   currentMainView=view;
-  ['dashboardView','librarySection','scheduleSection','flashcardsSection'].forEach(id=>{
+  ['dashboardView','librarySection','scheduleSection','flashcardsSection','subscriptionSection','shareScheduleSection','favoritesSection','settingsSection'].forEach(id=>{
     const el=document.getElementById(id); if(el)el.classList.remove('active');
   });
-  const target=view==='library'?'librarySection':view==='schedule'?'scheduleSection':view==='flashcards'?'flashcardsSection':'dashboardView';
+  const target=({library:'librarySection',schedule:'scheduleSection',flashcards:'flashcardsSection',subscription:'subscriptionSection',shareSchedule:'shareScheduleSection',favorites:'favoritesSection',settings:'settingsSection'})[view] || 'dashboardView';
   const el=document.getElementById(target); if(el)el.classList.add('active');
   if(view==='library'){
     const labels={
@@ -2502,7 +2592,7 @@ function showMainView(view, kind='', scrollBehavior='smooth') {
     document.getElementById('libraryTitle').textContent=meta[0];
     document.getElementById('librarySubtitle').textContent=meta[1];
   }
-  window.scrollTo({top:0,behavior:scrollBehavior});
+  window.scrollTo({top:0,behavior:document.documentElement.dataset.motion==='reduce'?'instant':scrollBehavior});
 }
 
 function rowToLecture(r) {
@@ -2714,6 +2804,9 @@ async function syncAccess(session) {
     return;
   }
   activeUserId = userId;
+  favoriteRecords = new Map();
+  favoritesError = '';
+  favoritePending.clear();
   if (!userId) {
     scheduleItems = [];
     flashcards = [];
@@ -2873,7 +2966,7 @@ async function startApp(version = accessVersion) {
     banner.classList.add('show');
   }
   if (version === accessVersion && request === contentRequest) {
-    const personal = await Promise.allSettled([loadProfile(), loadScheduleItems(), loadFlashcards()]);
+    const personal = await Promise.allSettled([loadProfile(), loadScheduleItems(), loadFlashcards(), loadFavorites()]);
     personal.forEach(r => { if (r.status === 'rejected') console.error(r.reason); });
     render();
   }
@@ -2896,6 +2989,8 @@ function render() {
   content.innerHTML = '<p class="section-label">' + (state.search.trim() ? 'نتائج البحث — ' : 'المواد المتوفرة — ') + '<b>' + list.length + '</b></p>' +
     (list.length ? renderLectureList(list) : '<div class="empty">لا توجد مواد مطابقة. جرّب تغيير البحث أو الفلاتر.</div>');
   renderMedbrainWidgets();
+  updateFavoriteButtons();
+  if(['subscription','shareSchedule','favorites','settings'].includes(currentMainView))renderPersonalPage(currentMainView);
 }
 
 function renderSearchResults(q) {
@@ -3060,6 +3155,7 @@ function renderLectureList(list) {
         ${l.notes ? `<p class="notes">${escapeHtml(l.notes)}</p>` : ''}
       </div>
       <div class="actions">
+        <button type="button" class="${favoriteRecords.has(l.id) ? 'favorite-saved' : ''}" data-action="toggle-favorite" data-id="${escapeHtml(l.id)}" aria-label="${favoriteRecords.has(l.id) ? 'إزالة من المفضلات' : 'إضافة إلى المفضلات'}" aria-pressed="${favoriteRecords.has(l.id)}" ${favoritePending.has(l.id) ? 'disabled' : ''}>${ICONS.bookmark}</button>
         ${hasText ? `<button type="button" class="read" data-action="open-reader" data-id="${escapeHtml(l.id)}" aria-label="قراءة المحاضرة">${ICONS.read}</button>` : ''}
         ${hasQuiz ? `<button type="button" class="read" data-action="open-quiz" data-id="${escapeHtml(l.id)}" aria-label="بدء الأسئلة">${ICONS.help}</button>` : ''}
         ${l.filePath ? `<button type="button" class="read" data-action="open-pdf" data-id="${escapeHtml(l.id)}" aria-label="فتح PDF">${ICONS.download}</button>` : ''}
@@ -3079,6 +3175,7 @@ function wireStaticEvents() {
   wireAuthoringEvents();
   wireMedbrainEvents();
   wireSmartSearch();
+  wirePersonalPages();
 
   const toggle = document.getElementById('modeToggle');
   toggle.addEventListener('click', e => {
@@ -3382,6 +3479,7 @@ function wireMedbrainEvents() {
       if(view==='home') showMainView('home');
       if(view==='schedule'){showMainView('schedule');renderSchedule();}
       if(view==='flashcards'){showMainView('flashcards');renderFlashcards();}
+      if(['subscription','shareSchedule','favorites','settings'].includes(view)){showMainView(view);renderPersonalPage(view);}
       return;
     }
     const nav = e.target.closest('[data-nav]');
@@ -3504,6 +3602,7 @@ function applySiteTheme() {
   button.setAttribute('aria-label', dark ? 'تفعيل الوضع الفاتح' : 'تفعيل الوضع الداكن');
   button.title = dark ? 'الوضع الفاتح' : 'الوضع الداكن';
   applyReaderTheme();
+  syncSettingsControls();
 }
 function toggleSiteTheme() {
   readerTheme = readerTheme === 'dark' ? 'light' : 'dark';
@@ -3528,6 +3627,7 @@ function applyReaderFont() {
   document.getElementById('readerFontValue').value = readerFontSize;
   document.getElementById('readerFontMinus').disabled = readerFontSize <= 16;
   document.getElementById('readerFontPlus').disabled = readerFontSize >= 26;
+  syncSettingsControls();
 }
 function openReaderSurface(isQuiz = false) {
   const overlay = document.getElementById('readerOverlay');
@@ -4237,7 +4337,193 @@ function renderQuiz() {
   document.getElementById('readerWorkspace').scrollTop = 0;
 }
 
+
+// ---------------- Personal pages ----------------
+let favoriteRecords = new Map();
+let favoritesError = '';
+const favoritePending = new Set();
+
+async function loadFavorites() {
+  const userId = activeUserId, version = accessVersion;
+  if (!client || !userId) { favoriteRecords = new Map(); return; }
+  const { data, error } = await client.from('lecture_favorites')
+    .select('lecture_id,created_at').eq('user_id', userId).order('created_at', {ascending:false});
+  if (userId !== activeUserId || version !== accessVersion) return;
+  if (error) {
+    favoritesError = 'تعذّر تحميل المفضلات. تحقق من الاتصال واضغط تحديث.';
+    renderFavorites();
+    throw error;
+  }
+  favoriteRecords = new Map((data || []).map(row => [String(row.lecture_id), row.created_at]));
+  favoritesError = '';
+  renderFavorites();
+}
+async function toggleFavorite(id) {
+  if (!client || !activeUserId) { showMbToast('سجّل الدخول لحفظ المفضلات.'); return; }
+  if (favoritePending.has(id) || !lectures.some(l => l.id === id)) return;
+  const userId = activeUserId, version = accessVersion, wasSaved = favoriteRecords.has(id);
+  favoritePending.add(id);
+  updateFavoriteButtons();
+  try {
+    const result = wasSaved
+      ? await client.from('lecture_favorites').delete().eq('user_id',userId).eq('lecture_id',id)
+      : await client.from('lecture_favorites').insert({user_id:userId,lecture_id:id});
+    if (result.error) throw result.error;
+    if (userId !== activeUserId || version !== accessVersion) return;
+    if (wasSaved) favoriteRecords.delete(id);
+    else favoriteRecords.set(id,new Date().toISOString());
+    favoritesError = '';
+    updateFavoriteButtons();
+    renderFavorites();
+    showMbToast(wasSaved ? 'أُزيلت المادة من المفضلات.' : 'حُفظت المادة في المفضلات.');
+  } catch (_) {
+    if (userId === activeUserId && version === accessVersion)
+      showMbToast('تعذّر حفظ التغيير. تحقق من الاتصال وحاول مجددًا.');
+  } finally {
+    if (version === accessVersion) favoritePending.delete(id);
+    updateFavoriteButtons();
+  }
+}
+function updateFavoriteButtons() {
+  document.querySelectorAll('[data-action="toggle-favorite"]').forEach(button => {
+    const id = button.dataset.id, saved = favoriteRecords.has(id);
+    button.disabled = favoritePending.has(id);
+    button.classList.toggle('favorite-saved',saved);
+    button.setAttribute('aria-pressed',String(saved));
+    button.setAttribute('aria-label',saved ? 'إزالة من المفضلات' : 'إضافة إلى المفضلات');
+    button.title = saved ? 'إزالة من المفضلات' : 'إضافة إلى المفضلات';
+  });
+}
+function renderFavorites() {
+  const content = document.getElementById('favoritesContent');
+  if (!content || currentMainView !== 'favorites') return;
+  const query = document.getElementById('favoritesSearch').value;
+  const sort = document.getElementById('favoritesSort').value;
+  let items = lectures.filter(l => favoriteRecords.has(l.id));
+  if (query.trim()) items = filterMaterials(items,{search:query});
+  if (sort === 'title') items.sort((a,b)=>a.title.localeCompare(b.title,'ar',{sensitivity:'base'}));
+  else items.sort((a,b)=>String(favoriteRecords.get(b.id)).localeCompare(String(favoriteRecords.get(a.id))));
+  document.getElementById('favoritesStatus').textContent = favoritesError || (items.length + ' مادة محفوظة');
+  content.innerHTML = items.length ? renderLectureList(items) : '<div class="mb-empty-tool"><h3>' +
+    (query.trim() ? 'لا توجد نتائج مطابقة' : 'مفضلاتك تنتظر أول مادة') +
+    '</h3><p>اضغط علامة الحفظ بجانب أي محاضرة أو مادة لتظهر هنا.</p><button type="button" class="mb-primary" data-nav-kind="lectures">استعراض المحاضرات</button></div>';
+  updateFavoriteButtons();
+}
+function selectedScheduleShare() {
+  const selected = new Set(Array.from(document.querySelectorAll('#shareDays input:checked')).map(el=>Number(el.value)));
+  const completed = document.getElementById('shareIncludeCompleted').checked;
+  return scheduleItems.filter(item=>selected.has(Number(item.day_of_week)) && (completed || !item.completed))
+    .slice().sort((a,b)=>Number(a.day_of_week)-Number(b.day_of_week) || String(a.start_time || '99').localeCompare(String(b.start_time || '99')));
+}
+function buildScheduleShareText(items) {
+  const lines = ['جدولي الدراسي — Medbrain'];
+  if (document.getElementById('shareIncludeName').checked && activeUserName) lines.push(activeUserName);
+  const includeNotes = document.getElementById('shareIncludeNotes').checked;
+  for (let day=0;day<7;day++) {
+    const tasks = items.filter(item=>Number(item.day_of_week)===day);
+    if (!tasks.length) continue;
+    lines.push('',STUDY_DAYS[day]);
+    tasks.forEach(item=>{
+      lines.push((item.completed ? '✓ ' : '• ') + (item.start_time ? String(item.start_time).slice(0,5) + ' — ' : '') + item.title);
+      if (includeNotes && item.notes) lines.push('  ' + item.notes);
+    });
+  }
+  return lines.join('\n');
+}
+function renderShareSchedule() {
+  if (!document.getElementById('shareSchedulePreview')) return;
+  const items = selectedScheduleShare();
+  document.getElementById('shareSchedulePreview').textContent = items.length
+    ? buildScheduleShareText(items) : 'لا توجد مهام ضمن الخيارات المحددة. أضف مهامًا إلى جدولك أو اختر أيامًا أخرى.';
+  ['shareScheduleBtn','copyScheduleBtn','downloadScheduleBtn'].forEach(id=>document.getElementById(id).disabled=!items.length);
+}
+function scheduleShareText() {
+  const items = selectedScheduleShare();
+  return items.length ? buildScheduleShareText(items) : '';
+}
+async function copyScheduleText() {
+  const text = scheduleShareText();
+  if (!text) return;
+  const status = document.getElementById('shareScheduleStatus');
+  try {
+    await navigator.clipboard.writeText(text);
+    status.textContent = 'نُسخ الجدول. يمكنك لصقه في المحادثة التي تختارها.';
+  } catch (_) {
+    status.textContent = 'تعذّر النسخ التلقائي. يمكنك تحديد النص ونسخه من المعاينة.';
+  }
+}
+function syncSettingsControls() {
+  const theme = document.getElementById('settingsTheme');
+  if (!theme) return;
+  theme.value = readerTheme;
+  document.getElementById('settingsFont').value = String(readerFontSize);
+  document.getElementById('settingsMotion').checked = document.documentElement.dataset.motion === 'reduce';
+}
+function renderPersonalPage(view) {
+  if (view === 'favorites') { renderFavorites(); return; }
+  if (view === 'shareSchedule') { renderShareSchedule(); return; }
+  if (view === 'settings') {
+    syncSettingsControls();
+    document.getElementById('settingsIdentity').textContent = [activeUserName,activeUserEmail].filter(Boolean).join(' — ');
+  }
+  if (view === 'subscription')
+    document.getElementById('subscriptionIdentity').textContent = [activeUserName,activeUserEmail].filter(Boolean).join(' — ');
+}
+function wirePersonalPages() {
+  const days = document.getElementById('shareDays');
+  days.innerHTML = STUDY_DAYS.map((day,index)=>'<label><input type="checkbox" value="' + index + '" checked>' + day + '</label>').join('');
+  days.addEventListener('change',()=>{renderShareSchedule();document.getElementById('shareScheduleStatus').textContent='';});
+  ['shareIncludeCompleted','shareIncludeNotes','shareIncludeName'].forEach(id=>document.getElementById(id).addEventListener('change',renderShareSchedule));
+  document.getElementById('copyScheduleBtn').addEventListener('click',copyScheduleText);
+  document.getElementById('shareScheduleBtn').addEventListener('click',async()=>{
+    const text = scheduleShareText();
+    if (!text) return;
+    if (!navigator.share) { await copyScheduleText(); return; }
+    const status = document.getElementById('shareScheduleStatus');
+    try { await navigator.share({title:'جدولي الدراسي — Medbrain',text}); status.textContent='أُرسلت نسخة الجدول للمشاركة.'; }
+    catch (error) { if(error.name!=='AbortError') status.textContent='تعذّرت المشاركة. استخدم نسخ النص أو تنزيل نسخة.'; }
+  });
+  document.getElementById('downloadScheduleBtn').addEventListener('click',()=>{
+    const text = scheduleShareText(); if(!text)return;
+    const url = URL.createObjectURL(new Blob(['\uFEFF'+text],{type:'text/plain;charset=utf-8'}));
+    const a=document.createElement('a');a.href=url;a.download='Medbrain-study-schedule.txt';document.body.appendChild(a);a.click();a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url),1000);
+    document.getElementById('shareScheduleStatus').textContent='تم تنزيل نسخة من الجدول.';
+  });
+  document.getElementById('favoritesContent').addEventListener('click',onContentClick);
+  document.getElementById('favoritesSearch').addEventListener('input',renderFavorites);
+  document.getElementById('favoritesSort').addEventListener('change',renderFavorites);
+  document.getElementById('refreshFavoritesBtn').addEventListener('click',async e=>{
+    e.currentTarget.disabled=true;
+    try {await loadFavorites();updateFavoriteButtons();} catch (_) {}
+    finally {document.getElementById('refreshFavoritesBtn').disabled=false;}
+  });
+  document.body.addEventListener('click',e=>{
+    const button=e.target.closest('[data-action="toggle-favorite"]');
+    if(button)toggleFavorite(button.dataset.id);
+  });
+  let reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  try {const saved=localStorage.getItem('medbrain_reduce_motion');if(saved!==null)reduce=saved==='true';} catch (_) {}
+  document.documentElement.dataset.motion = reduce ? 'reduce' : 'normal';
+  document.getElementById('settingsTheme').addEventListener('change',e=>{
+    if(readerTheme!==e.target.value)toggleSiteTheme();
+    document.getElementById('settingsStatus').textContent='تم حفظ المظهر.';
+  });
+  document.getElementById('settingsFont').addEventListener('change',e=>{
+    readerFontSize=Number(e.target.value);applyReaderFont();buildReaderContents();
+    try {localStorage.setItem('medbrain_reader_font',String(readerFontSize));} catch (_) {}
+    document.getElementById('settingsStatus').textContent='تم حفظ حجم خط القراءة.';
+  });
+  document.getElementById('settingsMotion').addEventListener('change',e=>{
+    document.documentElement.dataset.motion=e.target.checked?'reduce':'normal';
+    try {localStorage.setItem('medbrain_reduce_motion',String(e.target.checked));} catch (_) {}
+    document.getElementById('settingsStatus').textContent='تم حفظ تفضيل الحركة.';
+  });
+}
+
+
 init();
 </script>
 </body>
 </html>
+
