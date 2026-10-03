@@ -1794,6 +1794,18 @@
 .mb-personal-page { --accent:#0F6CBD; --accent-strong:#0B5FA5; --accent-soft:#EAF4FF; --surface-alt:#EAF4FF; --text:#172235; --text-muted:#52677b; --border:#dbe5ef; }
 +:root[data-theme="dark"] .mb-personal-page { --bg:#10162b; --surface:#171f39; --surface-alt:#223455; --text:#e7edf7; --text-muted:#b0bed4; --border:#344b70; --accent:#8cc8ff; --accent-strong:#aed8ff; --accent-soft:#223455; }
 +
+/* Lecture AI entry point: answers require a configured server integration. */
+.reader-ai-button {display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:42px;padding:8px 14px;border:1px solid var(--border);border-radius:14px;background:var(--accent-soft);color:var(--accent-strong);font-family:inherit;font-weight:700;font-size:13px;cursor:pointer;}
+.reader-ai-button svg {width:22px;height:22px;flex-shrink:0;}
+.reader-ai-button:hover {background:var(--reader-panel);}
+.reader-ai-button:focus-visible {outline:3px solid var(--accent);outline-offset:3px;}
+.reader-ai-panel {padding:16px 24px;border-bottom:1px solid var(--reader-line);background:var(--reader-panel);color:var(--text);flex-shrink:0;}
+.reader-ai-panel[hidden] {display:none;}
+.reader-ai-panel h3 {margin:0 0 8px;color:var(--accent-strong);font-size:17px;}
+.reader-ai-panel p {margin:6px 0;font-size:14px;line-height:1.8;}
+.reader-ai-panel button {margin-top:8px;padding:6px 12px;border:1px solid var(--border);border-radius:10px;background:var(--surface);color:var(--text);}
+@media(max-width:480px){.reader-ai-panel{padding:12px 16px;}.reader-ai-button{padding:8px 10px;font-size:12px;}}
+
 </style>
 </head>
 <body>
@@ -2274,8 +2286,18 @@
         <button type="button" id="readerFontPlus" aria-label="تكبير الخط">+</button>
         <button type="button" id="readerFontReset" aria-label="إعادة حجم الخط الافتراضي">إعادة</button>
       </div>
+      <button type="button" id="readerAIButton" class="reader-ai-button" aria-expanded="false" aria-controls="readerAIPanel" dir="ltr">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 3l2.2 6.8L19 12l-6.8 2.2L10 21l-2.2-6.8L1 12l6.8-2.2L10 3z"/><path d="M20 2v6M17 5h6M21 17v4M19 19h4"/></svg>
+        <span>Ask Midbrain AI</span><span aria-hidden="true">✦</span>
+      </button>
       <button type="button" id="readerToTop" class="reader-to-top">بداية النص ↑</button>
     </div>
+    <section id="readerAIPanel" class="reader-ai-panel" aria-labelledby="readerAIHeading" hidden>
+      <h3 id="readerAIHeading" dir="ltr">Ask Midbrain AI ✨</h3>
+      <p>مساعدك لفهم المحاضرة: شرح المفاهيم، تلخيص النقاط، وأسئلة للمراجعة.</p>
+      <p><strong>الإجابات غير مفعّلة بعد.</strong> تحتاج هذه الميزة إلى ربط خدمة ذكاء اصطناعي آمنة قبل بدء المحادثة.</p>
+      <button type="button" id="readerAIClose">إغلاق</button>
+    </section>
     <progress class="reader-progress" id="readerProgress" max="100" value="0" aria-label="تقدم القراءة"></progress>
     <div class="reader-workspace" id="readerWorkspace">
       <div class="reader-layout no-outline" id="readerLayout">
@@ -3682,7 +3704,12 @@ function buildReaderContents() {
   document.getElementById('readerOutline').open = window.innerWidth > 850;
   document.getElementById('readerLayout').classList.toggle('no-outline', !headings.length);
 }
+function setReaderAIOpen(open) {
+  document.getElementById('readerAIPanel').hidden = !open;
+  document.getElementById('readerAIButton').setAttribute('aria-expanded', String(open));
+}
 function openReader(id) {
+  setReaderAIOpen(false);
   const lec = lectures.find(l => l.id === id);
   if (!lec) return;
   quizState = null;
@@ -3696,6 +3723,7 @@ function openReader(id) {
   openReaderSurface();
 }
 function closeReader() {
+  setReaderAIOpen(false);
   quizState = null;
   const overlay = document.getElementById('readerOverlay');
   if (!overlay.classList.contains('open')) return;
@@ -3705,6 +3733,15 @@ function closeReader() {
   readerReturnFocus = null;
 }
 function wireReaderTools() {
+  document.getElementById('readerAIButton').addEventListener('click', () => {
+    const open = document.getElementById('readerAIPanel').hidden;
+    setReaderAIOpen(open);
+    if (open) document.getElementById('readerAIClose').focus();
+  });
+  document.getElementById('readerAIClose').addEventListener('click', () => {
+    setReaderAIOpen(false);
+    document.getElementById('readerAIButton').focus();
+  });
   document.getElementById('readerThemeToggle').addEventListener('click', () => {
     toggleSiteTheme();
   });
@@ -4526,4 +4563,5 @@ init();
 </script>
 </body>
 </html>
+
 
