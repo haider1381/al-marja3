@@ -1806,6 +1806,16 @@
 .reader-ai-panel button {margin-top:8px;padding:6px 12px;border:1px solid var(--border);border-radius:10px;background:var(--surface);color:var(--text);}
 @media(max-width:480px){.reader-ai-panel{padding:12px 16px;}.reader-ai-button{padding:8px 10px;font-size:12px;}}
 
+.mb-ai-dialog{width:min(440px,calc(100vw - 32px));max-height:calc(100dvh - 40px);overflow:auto;box-sizing:border-box;border:1px solid #B9D8F4;border-radius:20px;padding:22px;background:#fff;color:#233448;box-shadow:0 20px 80px #0003;font-family:inherit;}
+.mb-ai-dialog::backdrop{background:#10162b80;}
+.mb-ai-dialog-head{display:flex;align-items:center;justify-content:space-between;gap:12px;}
+.mb-ai-dialog h2{font-size:20px;color:#0B5FA5;margin:0;}
+.mb-ai-dialog p{line-height:1.9;font-size:14px;}
+.mb-ai-dialog-head button{width:36px;height:36px;border:1px solid #B9D8F4;border-radius:10px;background:#EAF4FF;color:#0B5FA5;font-size:24px;cursor:pointer;}
+:root[data-theme="dark"] .mb-ai-dialog{background:#181A2B;color:#F5F5F5;border-color:#383C55;}
+:root[data-theme="dark"] .mb-ai-dialog h2{color:#aed8ff;}
+:root[data-theme="dark"] .mb-ai-dialog-head button{background:#23263B;color:#F5F5F5;border-color:#383C55;}
+.mb-global-ai-trigger:focus-visible{outline:3px solid #1479CC;outline-offset:3px;}
 </style>
 </head>
 <body>
@@ -1886,6 +1896,7 @@
       </button>
     </div>
 <nav class="mb-nav" aria-label="صفحاتي">
+<button type="button" data-open-ai><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 3l2.2 6.8L19 12l-6.8 2.2L10 21l-2.2-6.8L1 12l6.8-2.2L10 3z"/><path d="M20 2v6M17 5h6M21 17v4M19 19h4"/></svg><span dir="ltr">Ask Midbrain AI ✨<small dir="rtl">مساعدك للدراسة وفهم المحاضرات</small></span></button>
 <button type="button" data-tool-view="subscription"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M3 10h18M7 15h4"/></svg><span>اشتراكي<small>الوصول والخدمات المتاحة</small></span></button>
 <button type="button" data-tool-view="shareSchedule"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 10.5 6.8-4m-6.8 7 6.8 4"/></svg><span>مشاركة جدولي الخاص<small>معاينة الجدول ثم مشاركته</small></span></button>
 <button type="button" data-tool-view="schedule"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="5" width="16" height="15" rx="3"/><path d="M8 3v4m8-4v4M4 10h16m-7 5 2 2 4-4"/></svg><span>جدولي الدراسي<small>مهامي وخطتي الأسبوعية</small></span></button>
@@ -1968,6 +1979,7 @@
       </div>
       <button class="mb-top-search-btn" id="topTopicsBtn" type="button"><span>المواضيع</span><span>⌄</span></button>
       <div class="mb-top-actions">
+        <button class="mb-icon-btn keep-mobile mb-global-ai-trigger" id="topAIButton" type="button" data-open-ai aria-label="Ask Midbrain AI" title="Ask Midbrain AI ✨"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 3l2.2 6.8L19 12l-6.8 2.2L10 21l-2.2-6.8L1 12l6.8-2.2L10 3z"/><path d="M20 2v6M17 5h6M21 17v4M19 19h4"/></svg></button>
         <button class="mb-icon-btn keep-mobile" id="siteThemeToggle" type="button" aria-label="تفعيل الوضع الداكن" aria-pressed="false" title="الوضع الداكن">☾</button>
         <button class="mb-icon-btn" type="button" data-top-kind="lectures" aria-label="المحاضرات"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 4h14v16H5z"/><path d="M8 8h8M8 12h8M8 16h5"/></svg></button>
         <button class="mb-icon-btn" type="button" data-top-kind="questions" aria-label="الأسئلة"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M10 9a2.4 2.4 0 1 1 4 1.8c-1.1.9-2 1.3-2 3.2"/><path d="M12 17h.01"/></svg></button>
@@ -2311,6 +2323,11 @@
   </div>
 </div>
 
+<dialog id="globalAIDialog" class="mb-ai-dialog" aria-labelledby="globalAIHeading">
+  <div class="mb-ai-dialog-head"><h2 id="globalAIHeading" dir="ltr">Ask Midbrain AI ✨</h2><button type="button" id="globalAIClose" aria-label="إغلاق مساعد الذكاء الاصطناعي">×</button></div>
+  <p>مساعدك لفهم المحاضرات وشرح المفاهيم الطبية وتلخيص النقاط وإنشاء أسئلة للمراجعة.</p>
+  <p><strong>الإجابات غير مفعّلة بعد.</strong> تحتاج الميزة إلى ربط خدمة ذكاء اصطناعي آمنة قبل بدء المحادثة.</p>
+</dialog>
 <div id="smartSuggestions" class="smart-suggestions" role="listbox" aria-label="اقتراحات من المواد المتوفرة" hidden></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.js"></script>
@@ -3385,6 +3402,18 @@ function renderMedbrainWidgets() {
 }
 
 function wireMedbrainEvents() {
+  const aiDialog = document.getElementById('globalAIDialog');
+  document.body.addEventListener('click', e => {
+    if (!e.target.closest('[data-open-ai]')) return;
+    closeDrawer();
+    if (!aiDialog.open) aiDialog.showModal();
+  });
+  document.getElementById('globalAIClose').addEventListener('click', () => aiDialog.close());
+  aiDialog.addEventListener('click', e => {
+    if (e.target !== aiDialog) return;
+    const box=aiDialog.getBoundingClientRect();
+    if(e.clientX<box.left||e.clientX>box.right||e.clientY<box.top||e.clientY>box.bottom) aiDialog.close();
+  });
   document.getElementById('siteThemeToggle').addEventListener('click', toggleSiteTheme);
   const about = document.getElementById('aboutOverlay');
   const aboutButton = document.getElementById('aboutAppBtn');
@@ -4563,5 +4592,6 @@ init();
 </script>
 </body>
 </html>
+
 
 
