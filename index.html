@@ -1913,6 +1913,35 @@ body.ai-site-open .mb-main{margin-left:var(--ai-site-width);margin-right:0;max-w
  #readerOverlay.ai-reader-open .reader-body{height:100%;box-sizing:border-box;}
 }
 
+#scheduleSection{--sp-panel:#f6faff;--sp-focus:#0B5FA5;}
+:root[data-theme="dark"] #scheduleSection{--sp-panel:#181A2B;--sp-focus:#aed8ff;}
+#scheduleSection .sp-selectors{display:grid;grid-template-columns:repeat(4,minmax(0,1fr)) auto;gap:14px;align-items:end;}
+#scheduleSection label{display:block;color:var(--text);font-size:12px;font-weight:700;line-height:1.7;}
+#scheduleSection :is(input:not([type="checkbox"]),select){display:block;width:100%;min-width:0;box-sizing:border-box;min-height:42px;margin-top:5px;padding:9px 12px;border:1px solid var(--border);border-radius:11px;background:var(--surface);color:var(--text);font-family:inherit;font-size:14px;}
+#scheduleSection option{background:var(--surface);color:var(--text);}
+#scheduleSection input::placeholder{color:var(--text-muted);opacity:1;}
+#scheduleSection :is(input,select,button,summary):focus-visible{outline:3px solid #1479CC;outline-offset:3px;}
+.sp-layout{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:20px;align-items:start;}
+.sp-card-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;}
+.sp-card-head h3{margin:0;}.sp-card-head strong{font-size:24px;color:var(--sp-focus);}
+#chapterProgress{display:block;width:100%;height:9px;margin:14px 0;accent-color:#0F6CBD;}
+.sp-muted{color:var(--text-muted);font-size:12px;line-height:1.8;}
+.sp-topics{max-height:520px;overflow:auto;padding:2px;}
+.sp-topic{display:flex;align-items:center;gap:10px;padding:12px 10px;border:1px solid var(--border);border-radius:12px;margin-bottom:8px;background:var(--sp-panel);}
+.sp-topic input[type="checkbox"],.sp-session input[type="checkbox"]{width:19px;height:19px;accent-color:#0F6CBD;flex-shrink:0;cursor:pointer;}
+.sp-topic-body{min-width:0;flex:1;}.sp-topic-title{font-size:14px;color:var(--text);overflow-wrap:anywhere;}
+.sp-topic.done .sp-topic-title{text-decoration:line-through;color:var(--text-muted);}
+.sp-topic small{display:block;font-size:11px;color:var(--text-muted);margin-top:4px;}
+.sp-topic :is(button,a){font-size:11px;white-space:nowrap;}.sp-custom-topic{display:flex;align-items:end;gap:8px;margin-top:16px;}.sp-custom-topic label{flex:1;min-width:0;}
+#studySessionForm>label,#studySessionForm>.sp-field-pair{margin-bottom:12px;}.sp-field-pair{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.sp-weekdays{border:1px solid var(--border);border-radius:12px;padding:10px;margin:12px 0;}.sp-weekdays legend{font-size:12px;color:var(--text);padding:0 5px;}.sp-weekdays>div{display:flex;gap:8px;flex-wrap:wrap;}#scheduleSection .sp-weekdays label{display:inline-flex;align-items:center;gap:4px;font-size:11px;}
+.sp-preview{padding:12px;background:var(--sp-panel);border:1px solid var(--border);border-radius:12px;max-height:320px;overflow:auto;}.sp-preview-summary{font-size:13px;line-height:1.9;color:var(--sp-focus);margin:0 0 12px;}.sp-session{display:flex;align-items:center;gap:9px;padding:10px;border:1px solid var(--border);border-radius:10px;margin:6px 0;background:var(--surface);}.sp-session.break{background:var(--sp-panel);border-style:dashed;}.sp-session-content{flex:1;min-width:0;font-size:13px;line-height:1.7;color:var(--text);}.sp-session-content small{display:block;color:var(--text-muted);font-size:11px;}.sp-session.done .sp-session-content{opacity:.65;text-decoration:line-through;}
+.sp-chapter-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;}.sp-chapter-item{padding:12px;background:var(--sp-panel);border:1px solid var(--border);border-radius:12px;}.sp-chapter-item button{border:0;background:transparent;color:var(--sp-focus);padding:0;font:inherit;font-size:12px;font-weight:700;cursor:pointer;}.sp-chapter-item p{font-size:11px;color:var(--text-muted);margin:6px 0;}.sp-chapter-item progress{width:100%;accent-color:#0F6CBD;height:7px;}
+.sp-overview,.sp-saved,.sp-legacy{margin-top:20px;}.sp-group{border:1px solid var(--border);border-radius:14px;padding:14px;margin:12px 0;background:var(--sp-panel);}.sp-group summary{cursor:pointer;font-size:14px;line-height:1.8;color:var(--text);}.sp-group .sp-group-meta{font-size:11px;line-height:1.8;color:var(--text-muted);}.sp-group progress{width:100%;height:7px;accent-color:#0F6CBD;margin:8px 0;}.sp-day-heading{font-size:12px;color:var(--sp-focus);margin:14px 0 6px;}.sp-legacy>summary{font-size:14px;color:var(--sp-focus);cursor:pointer;margin-bottom:12px;}.sp-loading{color:var(--text-muted);font-size:13px;padding:16px;}.sp-card-head label{min-width:140px;}
+@media(max-width:1000px){#scheduleSection .sp-selectors{grid-template-columns:repeat(2,minmax(0,1fr));}.sp-layout{grid-template-columns:1fr;}.sp-chapter-grid{grid-template-columns:repeat(2,minmax(0,1fr));}}
+@media(max-width:480px){#scheduleSection .sp-selectors{gap:10px;}#scheduleSection .sp-selectors button{grid-column:1/-1;}.sp-chapter-grid{grid-template-columns:1fr 1fr;}.sp-custom-topic{flex-wrap:wrap;}.sp-topic{padding:10px 8px;gap:7px;}.sp-field-pair{gap:8px;}.sp-topic-title{font-size:13px;}.sp-group{padding:10px;}}
+#scheduleSection .sp-session{display:flex;}#scheduleSection .sp-session>span{display:block;min-width:0;}#scheduleSection .sp-session small{display:block;font-size:11px;color:var(--text-muted);}.sp-session.done strong{text-decoration:line-through;opacity:.65;}.sp-topic>div{min-width:0;flex:1;overflow-wrap:anywhere;}.sp-topic.done strong{text-decoration:line-through;}.sp-chapter-card{min-width:0;text-align:start;padding:12px;border:1px solid var(--border);border-radius:12px;background:var(--sp-panel);color:var(--text);}.sp-chapter-card strong,.sp-chapter-card span{display:block;overflow-wrap:anywhere;}.sp-chapter-card span{font-size:11px;margin:6px 0;color:var(--text-muted);}.sp-chapter-card progress{width:100%;height:7px;accent-color:#0F6CBD;}.sp-date{font-size:12px;color:var(--sp-focus);}.sp-group summary span{display:block;font-size:12px;color:var(--text-muted);}
+
 </style>
 </head>
 <body>
@@ -2254,23 +2283,47 @@ body.ai-site-open .mb-main{margin-left:var(--ai-site-width);margin-right:0;max-w
 </section>
 
 
-    <section class="mb-tool-page mb-page-view" id="scheduleSection">
-      <div class="mb-page-toolbar">
-        <div class="mb-page-title-wrap">
-          <button class="mb-page-back" type="button" data-tool-view="home" aria-label="رجوع">‹</button>
-          <div><h2 class="mb-page-title">جدول الدراسة</h2><p class="mb-page-subtitle">خطة أسبوعية محفوظة في حسابك وتظهر على أي جهاز تسجّل منه.</p></div>
-        </div>
-      </div>
-      <form class="mb-schedule-form" id="scheduleForm">
-        <label>المهمة<input id="scheduleTitle" maxlength="160" required placeholder="مثال: مراجعة Heart Failure"></label>
-        <label>اليوم<select id="scheduleDay"><option value="0">الأحد</option><option value="1">الاثنين</option><option value="2">الثلاثاء</option><option value="3">الأربعاء</option><option value="4">الخميس</option><option value="5">الجمعة</option><option value="6">السبت</option></select></label>
-        <label>الوقت<input id="scheduleTime" type="time"></label>
-        <label>ملاحظة<input id="scheduleNotes" maxlength="500" placeholder="اختياري"></label>
-        <button class="mb-primary" type="submit">إضافة</button>
-      </form>
-      <div class="mb-status" id="scheduleStatus"></div>
-      <div class="mb-week-grid" id="scheduleGrid"></div>
-    </section>
+    <section class="mb-tool-page mb-page-view mb-personal-page" id="scheduleSection">
+ <div class="mb-page-toolbar"><div class="mb-page-title-wrap"><button class="mb-page-back" type="button" data-tool-view="home" aria-label="رجوع">‹</button><div><h2 class="mb-page-title">جدول الدراسة</h2><p class="mb-page-subtitle">مادتك، فصولك، وجلساتك — خطة محفوظة في حسابك.</p></div></div></div>
+ <div class="sp-selectors mb-personal-card">
+  <label for="studySubject">المادة الأساسية<select id="studySubject"><option value="Medicine">Medicine</option><option value="Surgery">Surgery</option><option value="Pediatrics">Paediatric</option><option value="OB/GYN">OB/GYN</option></select></label>
+  <label for="studyChapter">الفصل<select id="studyChapter"></select></label>
+  <label for="chapterDays">الأيام المخططة للفصل<input id="chapterDays" type="number" min="1" max="365" value="7"></label>
+  <label for="chapterStart">بداية خطة الفصل<input id="chapterStart" type="date"></label>
+  <button type="button" class="mb-primary" id="saveChapterPlan">حفظ خطة الفصل</button>
+ </div>
+ <p id="studyPlannerStatus" class="mb-personal-status" role="status"></p>
+ <div class="sp-layout">
+  <div class="mb-personal-card"><div class="sp-card-head"><h3 id="chapterHeading">محاضرات الفصل</h3><strong id="chapterPercent">0٪</strong></div><progress id="chapterProgress" max="100" value="0" aria-label="إنجاز الفصل"></progress><p class="sp-muted" id="chapterCount"></p>
+   <div id="chapterTopics" class="sp-topics"></div>
+   <form id="customStudyTopicForm" class="sp-custom-topic"><label for="customStudyTopic">موضوع تدرسه خارج المكتبة<input id="customStudyTopic" maxlength="200" placeholder="مثال: Myocardial infarction" required></label><button type="submit" class="mb-file-btn">إضافة عنوان</button></form>
+  </div>
+  <div class="mb-personal-card"><h3>قسّم وقت الدراسة</h3>
+   <form id="studySessionForm">
+    <label for="sessionTopic">المحاضرة أو الفصل<select id="sessionTopic"><option value="">الفصل كاملًا</option></select></label>
+    <label for="sessionPlanTitle">عنوان الخطة<input id="sessionPlanTitle" maxlength="160" required placeholder="مثال: مراجعة Heart Failure"></label>
+    <div class="sp-field-pair"><label for="sessionTotal">إجمالي المدة<input id="sessionTotal" type="number" min="1" max="720" value="2" required></label><label for="sessionTotalUnit">الوحدة<select id="sessionTotalUnit"><option value="60">ساعة</option><option value="1">دقيقة</option></select></label></div>
+    <label for="sessionDurationMode">طريقة احتساب المدة<select id="sessionDurationMode"><option value="focus">وقت الدراسة فقط — تضاف الاستراحات</option><option value="elapsed">وقت الجلسات شامل الاستراحات</option></select></label>
+    <div class="sp-field-pair"><label for="sessionWork">دراسة في كل جلسة (دقيقة)<input id="sessionWork" type="number" min="1" max="240" value="30" required></label><label for="sessionRest">راحة بين الجلسات (دقيقة)<input id="sessionRest" type="number" min="0" max="120" value="5" required></label></div>
+    <div class="sp-field-pair"><label for="sessionStartDate">تاريخ البداية<input id="sessionStartDate" type="date" required></label><label for="sessionStartTime">وقت البداية يوميًا<input id="sessionStartTime" type="time" value="09:00" required></label></div>
+    <div class="sp-field-pair"><label for="sessionHorizon">وزّعها خلال<input id="sessionHorizon" type="number" min="1" max="365" value="1" required></label><label for="sessionHorizonUnit">الفترة<select id="sessionHorizonUnit"><option value="1">يوم / أيام</option><option value="7">أسبوع / أسابيع</option></select></label></div>
+    <label for="sessionDailyMinutes">الوقت المتاح يوميًا، مع الراحة (دقيقة)<input id="sessionDailyMinutes" type="number" min="1" max="1440" value="180" required></label>
+    <fieldset class="sp-weekdays"><legend>أيام الدراسة</legend><div id="sessionWeekdays"></div></fieldset>
+    <p class="sp-muted">تظهر الراحة بين جلستين في اليوم نفسه، ولا تضاف راحة بعد آخر جلسة.</p>
+    <div class="mb-personal-actions"><button type="button" class="mb-file-btn" id="previewStudySessions">معاينة التقسيم</button><button type="submit" class="mb-primary" id="saveStudySessions" disabled>حفظ الجلسات</button></div>
+   </form>
+   <p id="studySessionStatus" class="mb-personal-status" role="status"></p>
+   <div id="studySessionPreview" class="sp-preview" hidden></div>
+  </div>
+ </div>
+ <div class="mb-personal-card sp-overview"><h3>نسبة إنجاز كل فصل في المادة</h3><div id="subjectChapterProgress" class="sp-chapter-grid"></div></div>
+ <div class="mb-personal-card sp-saved"><div class="sp-card-head"><h3>جلساتي المخططة</h3><label for="studyGroupsScope">عرض<select id="studyGroupsScope"><option value="chapter">الفصل الحالي</option><option value="all">كل خططي</option></select></label></div><p class="sp-muted">علّم كل جلسة عند إتمامها. إنجاز المحاضرة يُحدد من مربعها في قائمة الفصل.</p><div id="savedStudyGroups"></div></div>
+ <details class="mb-personal-card sp-legacy"><summary>مهامي الحرة والجدول الأسبوعي</summary>
+  <form class="mb-schedule-form" id="scheduleForm"><label>المهمة<input id="scheduleTitle" maxlength="160" required placeholder="مهمة أخرى"></label><label>اليوم<select id="scheduleDay"><option value="0">الأحد</option><option value="1">الاثنين</option><option value="2">الثلاثاء</option><option value="3">الأربعاء</option><option value="4">الخميس</option><option value="5">الجمعة</option><option value="6">السبت</option></select></label><label>الوقت<input id="scheduleTime" type="time"></label><label>ملاحظة<input id="scheduleNotes" maxlength="500" placeholder="اختياري"></label><button class="mb-primary" type="submit">إضافة</button></form>
+  <div class="mb-status" id="scheduleStatus"></div><div class="mb-week-grid" id="scheduleGrid"></div>
+ </details>
+</section>
+
 
     <section class="mb-tool-page mb-page-view" id="flashcardsSection">
       <div class="mb-page-toolbar">
@@ -2641,10 +2694,12 @@ async function uploadAvatar(file) {
 }
 async function loadScheduleItems() {
   if (!client || !activeUserId) { scheduleItems=[]; return; }
+  const uid=activeUserId, version=accessVersion;
   const result = await client.from('study_schedule')
-    .select('id,day_of_week,start_time,title,notes,completed')
+    .select('id,day_of_week,start_time,title,notes,completed,session_group_id,session_order,kind,duration_minutes,scheduled_date').eq('user_id',uid)
     .order('day_of_week',{ascending:true}).order('start_time',{ascending:true,nullsFirst:false});
   if (result.error) throw result.error;
+  if(uid!==activeUserId||version!==accessVersion)return;
   scheduleItems = result.data || [];
   renderSchedule();
   if(currentMainView==='shareSchedule')renderShareSchedule();
@@ -2661,8 +2716,10 @@ async function addScheduleItem(data) {
   await loadScheduleItems();
 }
 async function toggleScheduleItem(id, completed) {
-  const result = await client.from('study_schedule').update({completed:!!completed,updated_at:new Date().toISOString()}).eq('id',id);
+  const uid=activeUserId;
+  const result = await client.from('study_schedule').update({completed:!!completed,updated_at:new Date().toISOString()}).eq('id',id).eq('user_id',uid).select('id').single();
   if (result.error) throw result.error;
+  if(uid!==activeUserId)return;
   const item=scheduleItems.find(x=>x.id===id); if(item)item.completed=!!completed;
   renderSchedule();
 }
@@ -2692,11 +2749,138 @@ async function deleteFlashcard(id) {
   flashcards=flashcards.filter(x=>x.id!==id);
   renderFlashcards();
 }
+// STUDY_ENGINE_START
+function studyDate(value){
+ if(typeof value!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(value))throw new Error('اختر تاريخ بداية صحيحًا.');
+ const date=new Date(value+'T12:00:00Z');if(!Number.isFinite(date.getTime())||date.toISOString().slice(0,10)!==value)throw new Error('تاريخ البداية غير صحيح.');return date;
+}
+function studyDatePlus(value,days){const date=studyDate(value);date.setUTCDate(date.getUTCDate()+days);return date.toISOString().slice(0,10);}
+function studyClock(minutes){return String(Math.floor(minutes/60)).padStart(2,'0')+':'+String(minutes%60).padStart(2,'0');}
+function generateStudySessions(config){
+ const c={...config};
+ ['targetMinutes','workMinutes','restMinutes','dailyMinutes','horizonDays'].forEach(key=>{if(!Number.isInteger(c[key]))throw new Error('أدخل مددًا بأعداد صحيحة.');});
+ if(c.targetMinutes<1||c.targetMinutes>43200||c.workMinutes<1||c.workMinutes>240||c.restMinutes<0||c.restMinutes>120||c.dailyMinutes<1||c.dailyMinutes>1440||c.horizonDays<1||c.horizonDays>365)throw new Error('راجع المدد: الجلسة حتى 240 دقيقة، والراحة حتى 120 دقيقة، والفترة حتى 365 يومًا.');
+ if(!['focus','elapsed'].includes(c.mode))throw new Error('اختر طريقة احتساب المدة.');
+ if(!Array.isArray(c.weekdays)||!c.weekdays.length||c.weekdays.some(x=>!Number.isInteger(x)||x<0||x>6))throw new Error('اختر يوم دراسة واحدًا على الأقل.');
+ studyDate(c.startDate);
+ if(typeof c.startTime!=='string'||!/^\d{2}:\d{2}$/.test(c.startTime))throw new Error('اختر وقت بداية صحيحًا.');
+ const [hour,minute]=c.startTime.split(':').map(Number);if(hour>23||minute>59)throw new Error('وقت البداية غير صحيح.');
+ const start=hour*60+minute;
+ if(start+c.dailyMinutes>1440)throw new Error('وقت الدراسة اليومي يتجاوز منتصف الليل؛ قدّم وقت البداية أو قلّل الوقت اليومي.');
+ if(c.workMinutes>c.dailyMinutes)throw new Error('مدة الجلسة أطول من الوقت المتاح يوميًا.');
+ const allowed=new Set(c.weekdays),sessions=[];
+ let remaining=c.targetMinutes,focus=0,rest=0,finished=false;
+ const add=(kind,length,date,day,offset)=>{if(sessions.length>=400)throw new Error('الخطة تتجاوز 400 فترة؛ زد طول الجلسة أو قلّل إجمالي الوقت.');sessions.push({session_order:sessions.length,scheduled_date:date,day_of_week:day,start_time:studyClock(start+offset),kind,duration_minutes:length});};
+ for(let dayIndex=0;dayIndex<c.horizonDays&&remaining>0&&!finished;dayIndex++){
+  const date=studyDatePlus(c.startDate,dayIndex),day=studyDate(date).getUTCDay();if(!allowed.has(day))continue;
+  let offset=0;
+  while(remaining>0&&offset<c.dailyMinutes){
+   const length=Math.min(c.workMinutes,remaining);
+   if(offset+length>c.dailyMinutes)break;
+   add('study',length,date,day,offset);focus+=length;remaining-=length;offset+=length;
+   if(!remaining)break;
+   if(c.mode==='elapsed'&&remaining<=c.restMinutes){finished=true;break;}
+   const next=Math.min(c.workMinutes,c.mode==='elapsed'?remaining-c.restMinutes:remaining);
+   if(offset+c.restMinutes+next>c.dailyMinutes)break;
+   if(c.restMinutes){add('break',c.restMinutes,date,day,offset);rest+=c.restMinutes;offset+=c.restMinutes;if(c.mode==='elapsed')remaining-=c.restMinutes;}
+  }
+ }
+ if(remaining>0&&!finished)throw new Error('الفترة المحددة لا تكفي. زد عدد الأيام أو الوقت المتاح يوميًا، أو اختر أيام دراسة إضافية.');
+ return {sessions,focusMinutes:focus,restMinutes:rest,totalMinutes:focus+rest,unusedMinutes:c.mode==='elapsed'?c.targetMinutes-focus-rest:0,studyDays:new Set(sessions.map(x=>x.scheduled_date)).size};
+}
+// STUDY_ENGINE_END
+
+let chapterPlans=[],studyTopics=[],studyGroups=[],studyPlannerReady=false,studyPreview=null,studyBusy=false;
+const spEl=id=>document.getElementById(id);
+function spToday(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function spSelection(){return {category:spEl('studySubject').value,chapter:spEl('studyChapter').value};}
+function spPlan(category,chapter){return chapterPlans.find(p=>p.category===category&&p.chapter===chapter);}
+function spChapters(category){return [...new Set([...(TOPICS[category]||[]),...lectures.filter(l=>l.category===category).map(l=>l.topic).filter(Boolean),...chapterPlans.filter(p=>p.category===category).map(p=>p.chapter)])];}
+function spEntries(category,chapter){
+ const plan=spPlan(category,chapter),saved=studyTopics.filter(t=>t.plan_id===plan?.id),library=lectures.filter(l=>l.category===category&&l.topic===chapter);
+ const rows=library.map(l=>({key:'lecture:'+l.id,title:l.title,lecture:l,record:saved.find(t=>t.lecture_id===l.id)}));
+ for(const t of saved)if(!t.lecture_id||!library.some(l=>l.id===t.lecture_id))rows.push({key:'topic:'+t.id,title:t.title,record:t});
+ return rows;
+}
+function spStatus(id,message){spEl(id).textContent=message;}
+function spInvalidate(){studyPreview=null;spEl('saveStudySessions').disabled=true;spEl('studySessionPreview').hidden=true;}
+function spReset(){chapterPlans=[];studyTopics=[];studyGroups=[];studyPlannerReady=false;studyPreview=null;studyBusy=false;scheduleItems=[];if(spEl('studySubject')){spEl('studySubject').value='Medicine';spEl('studyChapter').innerHTML='';spInvalidate();}}
+async function loadStudyPlanner(){
+ const uid=activeUserId,version=accessVersion;if(!client||!uid)return;
+ const results=await Promise.all(['study_chapter_plans','study_plan_topics','study_session_groups'].map(table=>client.from(table).select('*').eq('user_id',uid)));
+ if(uid!==activeUserId||version!==accessVersion)return;
+ const error=results.find(r=>r.error)?.error;if(error){studyPlannerReady=false;spStatus('studyPlannerStatus','تعذّر تحميل الخطط. أعد فتح الموقع للمحاولة مجددًا.');throw error;}
+ [chapterPlans,studyTopics,studyGroups]=results.map(r=>r.data||[]);studyPlannerReady=true;spSwitchChapter();
+}
+function spSwitchChapter(subjectChanged=false){
+ const category=spEl('studySubject').value,old=spEl('studyChapter').value,chapters=spChapters(category);
+ spEl('studyChapter').innerHTML=chapters.map(c=>'<option value="'+escapeHtml(c)+'">'+escapeHtml(c)+'</option>').join('');
+ if(!subjectChanged&&chapters.includes(old))spEl('studyChapter').value=old;
+ const chapter=spEl('studyChapter').value,plan=spPlan(category,chapter);
+ spEl('chapterDays').value=plan?.planned_days||7;spEl('chapterStart').value=plan?.start_date||spToday();
+ spEl('sessionStartDate').value=plan?.start_date||spToday();spEl('sessionPlanTitle').value=chapter?('دراسة '+chapter):'';spEl('sessionTopic').value='';spInvalidate();renderStudyPlanner();
+}
+function renderStudyPlanner(){
+ if(!spEl('studyChapter'))return;if(!spEl('studyChapter').options.length){spSwitchChapter();return;}
+ const {category,chapter}=spSelection(),entries=spEntries(category,chapter),done=entries.filter(e=>e.record?.completed).length,percent=entries.length?Math.round(done/entries.length*100):0;
+ spEl('chapterHeading').textContent=chapter||'محاضرات الفصل';spEl('chapterPercent').textContent=percent+'٪';spEl('chapterProgress').value=percent;
+ spEl('chapterCount').textContent=done+' من '+entries.length+' موضوعًا مكتملًا — القائمة تشمل مواد المكتبة المتاحة وعناوينك المضافة.';
+ spEl('chapterTopics').innerHTML=entries.length?entries.map(e=>'<div class="sp-topic'+(e.record?.completed?' done':'')+'"><input type="checkbox" data-sp-topic="'+escapeHtml(e.key)+'" aria-label="إنجاز '+escapeHtml(e.title)+'" '+(e.record?.completed?'checked ':'')+(!studyPlannerReady?'disabled ':'')+'><div><strong dir="auto">'+escapeHtml(e.title)+'</strong><small>'+escapeHtml(e.lecture?[e.lecture.source,e.lecture.type].filter(Boolean).join(' • '):'عنوان شخصي محفوظ')+'</small></div>'+(e.lecture?'<button type="button" class="mb-mini-btn" data-sp-open="'+escapeHtml(e.lecture.id)+'">فتح</button>':'')+'</div>').join(''):'<p class="sp-muted">لا توجد مواد متاحة في هذا الفصل حاليًا. يمكنك إضافة عناوين تدرسها خارج المكتبة.</p>';
+ const chosen=spEl('sessionTopic').value;spEl('sessionTopic').innerHTML='<option value="">الفصل كاملًا</option>'+entries.map(e=>'<option value="'+escapeHtml(e.key)+'">'+escapeHtml(e.title)+'</option>').join('');if(entries.some(e=>e.key===chosen))spEl('sessionTopic').value=chosen;
+ spEl('subjectChapterProgress').innerHTML=spChapters(category).map(c=>{const rows=spEntries(category,c),n=rows.filter(e=>e.record?.completed).length,p=rows.length?Math.round(n/rows.length*100):0;return '<button type="button" class="sp-chapter-card" data-sp-chapter="'+escapeHtml(c)+'"><strong>'+escapeHtml(c)+'</strong><span>'+ (rows.length?n+' / '+rows.length+' — '+p+'٪':'لا توجد مواد')+'</span><progress value="'+p+'" max="100"></progress></button>';}).join('');
+ spEl('saveChapterPlan').disabled=!studyPlannerReady||studyBusy;renderStudySessionGroups();
+}
+function spSessionRows(rows,interactive=false){let date='';return rows.map(r=>{const h=r.scheduled_date!==date?'<h4 class="sp-date">'+escapeHtml(STUDY_DAYS[Number(r.day_of_week)]+' '+r.scheduled_date)+'</h4>':'';date=r.scheduled_date;const [hh,mm]=String(r.start_time).slice(0,5).split(':').map(Number);return h+'<label class="sp-session '+r.kind+(r.completed?' done':'')+'">'+(interactive?'<input type="checkbox" data-sp-session="'+escapeHtml(r.id)+'" aria-label="إنجاز '+escapeHtml(r.title)+'" '+(r.completed?'checked':'')+'>':'<span aria-hidden="true">□</span>')+'<span><strong>'+ (r.kind==='break'?'استراحة':'دراسة')+' — '+r.duration_minutes+' دقيقة</strong><small dir="ltr">'+escapeHtml(String(r.start_time).slice(0,5))+' – '+studyClock(hh*60+mm+r.duration_minutes)+'</small></span></label>';}).join('');}
+function renderStudySessionGroups(){
+ const opened=new Set([...spEl('savedStudyGroups').querySelectorAll('details[open]')].map(e=>e.dataset.group));
+ const {category,chapter}=spSelection(),plan=spPlan(category,chapter),all=spEl('studyGroupsScope').value==='all',groups=studyGroups.filter(g=>all||g.plan_id===plan?.id).sort((a,b)=>String(b.created_at).localeCompare(String(a.created_at)));
+ spEl('savedStudyGroups').innerHTML=groups.length?groups.map(g=>{const rows=scheduleItems.filter(r=>r.session_group_id===g.id).sort((a,b)=>a.session_order-b.session_order),work=rows.filter(r=>r.kind==='study'),total=work.reduce((n,r)=>n+r.duration_minutes,0),done=work.filter(r=>r.completed).reduce((n,r)=>n+r.duration_minutes,0),p=total?Math.round(done/total*100):0;return '<details class="sp-group" data-group="'+escapeHtml(g.id)+'" '+(opened.has(g.id)?'open':'')+'><summary><strong dir="auto">'+escapeHtml(g.title)+'</strong><span>'+p+'٪ — '+done+' / '+total+' دقيقة دراسة</span></summary><progress max="100" value="'+p+'"></progress>'+spSessionRows(rows,true)+'<button type="button" class="mb-mini-btn danger" data-sp-delete-group="'+escapeHtml(g.id)+'">حذف هذه الجلسات</button></details>';}).join(''):'<p class="sp-muted">لا توجد جلسات محفوظة هنا بعد. عاين التقسيم ثم احفظه.</p>';
+}
+function spRequire(){if(!client||!activeUserId||!studyPlannerReady)throw new Error('انتظر تحميل خطط حسابك ثم حاول مجددًا.');}
+async function spEnsurePlan(category,chapter){
+ spRequire();const uid=activeUserId;let plan=spPlan(category,chapter);if(plan)return plan;
+ const result=await client.from('study_chapter_plans').insert({user_id:uid,category,chapter,planned_days:7,start_date:spToday()}).select('*').single();
+ if(uid!==activeUserId)throw new Error('تغير الحساب؛ أعد المحاولة.');
+ if(result.error){if(result.error.code!=='23505')throw result.error;const existing=await client.from('study_chapter_plans').select('*').eq('user_id',uid).eq('category',category).eq('chapter',chapter).single();if(existing.error)throw existing.error;plan=existing.data;}else plan=result.data;
+ chapterPlans.push(plan);return plan;
+}
+async function spEnsureTopic(plan,entry){
+ if(entry.record)return entry.record;const uid=activeUserId,result=await client.from('study_plan_topics').insert({user_id:uid,plan_id:plan.id,lecture_id:entry.lecture?.id||null,title:entry.title}).select('*').single();
+ if(uid!==activeUserId)throw new Error('تغير الحساب؛ أعد المحاولة.');
+ if(result.error){if(result.error.code!=='23505')throw result.error;const r=await client.from('study_plan_topics').select('*').eq('user_id',uid).eq('plan_id',plan.id).eq('lecture_id',entry.lecture.id).single();if(r.error)throw r.error;entry.record=r.data;}else entry.record=result.data;
+ if(!studyTopics.some(t=>t.id===entry.record.id))studyTopics.push(entry.record);return entry.record;
+}
+function spConfig(){return {targetMinutes:Number(spEl('sessionTotal').value)*Number(spEl('sessionTotalUnit').value),mode:spEl('sessionDurationMode').value,workMinutes:Number(spEl('sessionWork').value),restMinutes:Number(spEl('sessionRest').value),startDate:spEl('sessionStartDate').value,startTime:spEl('sessionStartTime').value,horizonDays:Number(spEl('sessionHorizon').value)*Number(spEl('sessionHorizonUnit').value),dailyMinutes:Number(spEl('sessionDailyMinutes').value),weekdays:[...document.querySelectorAll('#sessionWeekdays input:checked')].map(e=>Number(e.value))};}
+function spPreview(){
+ spRequire();if(!spEl('studySessionForm').reportValidity())return;
+ const config=spConfig(),result=generateStudySessions(config),{category,chapter}=spSelection(),title=spEl('sessionPlanTitle').value.trim();if(!title)throw new Error('اكتب عنوان الخطة.');
+ studyPreview={id:crypto.randomUUID(),uid:activeUserId,category,chapter,title,topicKey:spEl('sessionTopic').value,config,result};
+ spEl('studySessionPreview').hidden=false;spEl('studySessionPreview').innerHTML='<p><strong>'+result.focusMinutes+' دقيقة دراسة + '+result.restMinutes+' دقيقة راحة = '+result.totalMinutes+' دقيقة، على '+result.studyDays+' يوم دراسة.</strong></p>'+(result.unusedMinutes?'<p>متبقٍ '+result.unusedMinutes+' دقيقة دون إضافة استراحة في نهاية الخطة.</p>':'')+spSessionRows(result.sessions);spEl('saveStudySessions').disabled=false;spStatus('studySessionStatus','هذه معاينة؛ اضغط حفظ لإضافتها إلى حسابك.');
+}
+async function spRun(action,status='studyPlannerStatus'){
+ if(studyBusy){renderStudyPlanner();return;}const uid=activeUserId;studyBusy=true;try{await action();}catch(error){if(uid===activeUserId)spStatus(status,error.message||'تعذّر الحفظ. حاول مجددًا.');}finally{if(uid===activeUserId){studyBusy=false;renderStudyPlanner();}}
+}
+function wireStudyPlanner(){
+ spEl('sessionWeekdays').innerHTML=STUDY_DAYS.map((d,i)=>'<label><input type="checkbox" value="'+i+'" checked>'+d+'</label>').join('');spSwitchChapter();
+ spEl('studySubject').addEventListener('change',()=>spSwitchChapter(true));spEl('studyChapter').addEventListener('change',()=>spSwitchChapter());spEl('studyGroupsScope').addEventListener('change',renderStudySessionGroups);
+ spEl('studySessionForm').addEventListener('input',spInvalidate);spEl('studySessionForm').addEventListener('change',spInvalidate);
+ spEl('sessionTopic').addEventListener('change',()=>{const {category,chapter}=spSelection(),entry=spEntries(category,chapter).find(e=>e.key===spEl('sessionTopic').value);spEl('sessionPlanTitle').value='دراسة '+(entry?.title||chapter);});
+ spEl('previewStudySessions').addEventListener('click',()=>spRun(async()=>spPreview(),'studySessionStatus'));
+ spEl('saveChapterPlan').addEventListener('click',()=>spRun(async()=>{spRequire();const days=Number(spEl('chapterDays').value),date=spEl('chapterStart').value;if(!Number.isInteger(days)||days<1||days>365)throw new Error('اختر عدد أيام من 1 إلى 365.');studyDate(date);const {category,chapter}=spSelection(),uid=activeUserId,p=await spEnsurePlan(category,chapter);const r=await client.from('study_chapter_plans').update({planned_days:days,start_date:date,updated_at:new Date().toISOString()}).eq('id',p.id).eq('user_id',uid).select('*').single();if(r.error)throw r.error;if(uid!==activeUserId)return;Object.assign(p,r.data);spStatus('studyPlannerStatus','حُفظت خطة الفصل حتى '+studyDatePlus(date,days-1)+'.');}));
+ spEl('customStudyTopicForm').addEventListener('submit',e=>{e.preventDefault();spRun(async()=>{spRequire();const title=spEl('customStudyTopic').value.trim();if(!title)throw new Error('اكتب عنوان الموضوع.');const {category,chapter}=spSelection(),uid=activeUserId,p=await spEnsurePlan(category,chapter);await spEnsureTopic(p,{title});if(uid!==activeUserId)return;spEl('customStudyTopic').value='';spInvalidate();spStatus('studyPlannerStatus','حُفظ العنوان الشخصي.');});});
+ spEl('studySessionForm').addEventListener('submit',e=>{e.preventDefault();spRun(async()=>{spRequire();const preview=studyPreview;if(!preview||preview.uid!==activeUserId)throw new Error('عاين التقسيم أولًا.');const p=await spEnsurePlan(preview.category,preview.chapter),entry=spEntries(preview.category,preview.chapter).find(e=>e.key===preview.topicKey),topic=entry?await spEnsureTopic(p,entry):null;
+ const r=await client.rpc('save_study_session_group',{group_data:{id:preview.id,plan_id:p.id,plan_topic_id:topic?.id||null,title:preview.title,config:preview.config},session_data:preview.result.sessions.map(s=>({...s,title:s.kind==='break'?'استراحة':preview.title}))});if(r.error)throw r.error;if(preview.uid!==activeUserId)return;await Promise.all([loadScheduleItems(),loadStudyPlanner()]);spInvalidate();spStatus('studySessionStatus','حُفظت الجلسات. افتح خطتك أسفل الصفحة وعلّم كل جلسة بعد إنجازها.');},'studySessionStatus');});
+ spEl('scheduleSection').addEventListener('change',e=>{const box=e.target,key=box.dataset.spTopic,id=box.dataset.spSession;if(!key&&!id)return;const checked=box.checked;box.disabled=true;spRun(async()=>{spRequire();const uid=activeUserId;if(id){await toggleScheduleItem(id,checked);return;}const {category,chapter}=spSelection(),entry=spEntries(category,chapter).find(e=>e.key===key);if(!entry)throw new Error('الموضوع غير متاح.');const p=await spEnsurePlan(category,chapter),t=await spEnsureTopic(p,entry),r=await client.from('study_plan_topics').update({completed:checked,updated_at:new Date().toISOString()}).eq('id',t.id).eq('user_id',uid).select('*').single();if(r.error)throw r.error;if(uid!==activeUserId)return;Object.assign(t,r.data);spStatus('studyPlannerStatus','حُفظ التقدم في حسابك.');});});
+ spEl('scheduleSection').addEventListener('click',e=>{const chapter=e.target.closest('[data-sp-chapter]'),open=e.target.closest('[data-sp-open]'),del=e.target.closest('[data-sp-delete-group]');if(chapter){spEl('studyChapter').value=chapter.dataset.spChapter;spSwitchChapter();spEl('studySubject').scrollIntoView({behavior:'smooth'});}if(open){const l=lectures.find(x=>x.id===open.dataset.spOpen);if(l?.text)openReader(l.id);else if(l?.filePath)openStoredPdf(l.id,open);else if(l?.link){const url=safeExternalLink(l.link);if(url)window.open(url,'_blank','noopener,noreferrer');}else showMbToast('لا يتوفر محتوى لفتح هذه المادة.');}if(del)spRun(async()=>{spRequire();const id=del.dataset.spDeleteGroup,uid=activeUserId,n=scheduleItems.filter(s=>s.session_group_id===id).length;if(!confirm('حذف هذه الخطة و'+n+' فترة مرتبطة بها؟ يبقى إنجاز المحاضرات محفوظًا.'))return;const r=await client.from('study_session_groups').delete().eq('id',id).eq('user_id',uid);if(r.error)throw r.error;if(uid!==activeUserId)return;studyGroups=studyGroups.filter(g=>g.id!==id);scheduleItems=scheduleItems.filter(s=>s.session_group_id!==id);renderSchedule();});});
+}
+
 const STUDY_DAYS=['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
 function renderSchedule(){
+  renderStudyPlanner();
+  if(currentMainView==='shareSchedule')renderShareSchedule();
   const grid=document.getElementById('scheduleGrid'); if(!grid)return;
   grid.innerHTML=STUDY_DAYS.map((day,idx)=>{
-    const items=scheduleItems.filter(x=>Number(x.day_of_week)===idx);
+    const items=scheduleItems.filter(x=>!x.session_group_id&&Number(x.day_of_week)===idx);
     return '<section class="mb-day-column"><h4>'+day+'</h4>'+(items.length?items.map(item=>
       '<article class="mb-task'+(item.completed?' done':'')+'">'+
       '<div class="mb-task-title">'+escapeHtml(item.title)+'</div>'+
@@ -2951,6 +3135,7 @@ async function syncAccess(session) {
   }
   resetAIConversation(true);
   closeAIChat(false);
+  spReset();
   activeUserId = userId;
   favoriteRecords = new Map();
   favoritesError = '';
@@ -3114,7 +3299,7 @@ async function startApp(version = accessVersion) {
     banner.classList.add('show');
   }
   if (version === accessVersion && request === contentRequest) {
-    const personal = await Promise.allSettled([loadProfile(), loadScheduleItems(), loadFlashcards(), loadFavorites()]);
+    const personal = await Promise.allSettled([loadProfile(), loadScheduleItems(), loadFlashcards(), loadFavorites(), loadStudyPlanner()]);
     personal.forEach(r => { if (r.status === 'rejected') console.error(r.reason); });
     render();
   }
@@ -3325,6 +3510,7 @@ function wireStaticEvents() {
   wireMedbrainEvents();
   wireSmartSearch();
   wirePersonalPages();
+  wireStudyPlanner();
 
   const toggle = document.getElementById('modeToggle');
   toggle.addEventListener('click', e => {
@@ -4717,7 +4903,7 @@ function buildScheduleShareText(items) {
     if (!tasks.length) continue;
     lines.push('',STUDY_DAYS[day]);
     tasks.forEach(item=>{
-      lines.push((item.completed ? '✓ ' : '• ') + (item.start_time ? String(item.start_time).slice(0,5) + ' — ' : '') + item.title);
+      lines.push((item.completed ? '✓ ' : '• ') + (item.start_time ? String(item.start_time).slice(0,5) + ' — ' : '') + item.title + (item.scheduled_date ? ' — '+item.scheduled_date+' ('+item.duration_minutes+' دقيقة)' : ''));
       if (includeNotes && item.notes) lines.push('  ' + item.notes);
     });
   }
@@ -4819,6 +5005,7 @@ init();
 </script>
 </body>
 </html>
+
 
 
 
