@@ -1,0 +1,6 @@
+import fs from 'node:fs/promises';import path from 'node:path';import {fileURLToPath} from 'node:url';import {build} from 'esbuild';
+const native=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..'),root=path.resolve(native,'..'),out=path.join(native,'www');await fs.mkdir(out,{recursive:true});
+const files=['index.html','pwa.js','sw.js','offline.html','manifest.webmanifest','privacy.html','support.html','delete-account.html'];for(const file of files)await fs.copyFile(path.join(root,file),path.join(out,file));await fs.cp(path.join(root,'assets'),path.join(out,'assets'),{recursive:true});
+let html=await fs.readFile(path.join(out,'index.html'),'utf8');html=html.replace(/<script src="https:\/\/cdn\.jsdelivr\.net\/npm\/@supabase\/supabase-js@[^\"]+\/dist\/umd\/supabase\.js"><\/script>/,'<script src="./native-bridge.js"></script>');await fs.writeFile(path.join(out,'index.html'),html);
+await build({entryPoints:[path.join(native,'bridge.js')],outfile:path.join(out,'native-bridge.js'),bundle:true,format:'iife',platform:'browser',target:['es2020'],minify:true});
+console.log('Bundled local UI, assets, Supabase client and native plugins in native/www (no remote server.url).');

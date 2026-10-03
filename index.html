@@ -1955,6 +1955,20 @@ body.ai-site-open .mb-main{margin-left:var(--ai-site-width);margin-right:0;max-w
 #gateInstallApp{display:block;width:100%;margin-top:14px;padding:10px;border:1px solid var(--medical-blue-border);border-radius:10px;background:var(--medical-blue-soft);color:var(--medical-blue-dark);font-size:13px;}
 :root[data-theme="dark"] #gateInstallApp{background:#181A2B;color:#fff;border-color:#383c55;}
 
+/* Device ergonomics: readable controls, safe areas and thumb navigation. */
+html{-webkit-text-size-adjust:100%;scroll-padding-bottom:90px;}
+button,a,input,select,textarea{-webkit-tap-highlight-color:transparent;}
+.mb-topbar{padding-top:env(safe-area-inset-top,0px);}
+.mb-bottom-nav{display:none;}.mb-bottom-nav button{min-height:48px;border:0;border-radius:12px;background:transparent;color:var(--text-muted);font:inherit;font-size:11px;padding:5px 3px;}.mb-bottom-nav button span{display:block;font-size:21px;line-height:1.25;}.mb-bottom-nav button[aria-current="page"]{color:#0B5FA5;background:#EAF4FF;}:root[data-theme="dark"] .mb-bottom-nav button[aria-current="page"]{color:#fff;background:#23263B;}
+.device-dialog{width:min(450px,calc(100vw - 28px));max-height:calc(100dvh - 32px);overflow:auto;padding:22px;border:1px solid var(--border);border-radius:20px;background:var(--surface);color:var(--text);font:inherit;line-height:1.9;}.device-dialog::backdrop{background:rgba(10,18,40,.55);}.device-dialog h2{font-size:20px;margin:0;}.device-dialog button,.device-dialog input,.device-dialog select{min-height:44px;}.device-dialog input:not([type="checkbox"]){width:100%;padding:8px 12px;font-size:16px;border:1px solid var(--border);border-radius:10px;background:var(--surface);color:var(--text);}.device-dialog label{display:block;font-size:13px;}.device-dialog p{font-size:13px;}.device-dialog .device-pair{display:grid;grid-template-columns:1fr 1fr;gap:10px;}.device-dialog .device-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px;}.device-dialog a,.device-card a{color:var(--medical-blue-dark);}:root[data-theme="dark"] :is(.device-dialog,.device-card) a{color:#aed8ff;}
+#focusClock{display:block;text-align:center;font-size:54px;line-height:1.4;font-family:var(--font-mono);font-variant-numeric:tabular-nums;margin:18px 0 0;color:var(--text);}.focus-stage{text-align:center;font-weight:700;font-size:16px;}#focusMeter{width:100%;height:8px;accent-color:#0F6CBD;}#focusCompact{position:fixed;bottom:24px;left:16px;z-index:1200;padding:10px 14px;border:1px solid var(--border);border-radius:18px;background:#0B5FA5;color:#fff;font-size:13px;box-shadow:0 4px 18px #0002;}#focusCompact[hidden]{display:none;}
+.device-card{line-height:1.9;}.device-card p{font-size:13px;}.device-danger{border:1px solid #d9808b;border-radius:10px;color:#9f2440;background:#fff;padding:10px 14px;}:root[data-theme="dark"] .device-danger{background:#33191D;color:#ffd2d9;}
+#deviceConnection{position:fixed;bottom:92px;left:16px;right:16px;z-index:1300;padding:10px 14px;background:#0B5FA5;color:#fff;border-radius:12px;font-size:13px;max-width:600px;margin:auto;}#deviceConnection[hidden]{display:none;}
+#gateFocusBtn{display:block;width:100%;margin-top:10px;min-height:44px;}.gate-policy-links{font-size:11px;text-align:center;margin-top:12px;}.gate-policy-links a{color:inherit;}
+@media(max-width:820px){.mb-bottom-nav{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));position:fixed;bottom:0;left:0;right:0;z-index:30;border-top:1px solid var(--border);background:var(--surface);padding:6px max(8px,env(safe-area-inset-right)) calc(6px + env(safe-area-inset-bottom)) max(8px,env(safe-area-inset-left));gap:4px;}body{padding-bottom:calc(78px + env(safe-area-inset-bottom));}body:has(#readerOverlay.open) .mb-bottom-nav{display:none;}body.reader-active .mb-bottom-nav{display:none;}#focusCompact{bottom:calc(90px + env(safe-area-inset-bottom));}.mb-page-title{font-size:22px;}.mb-topbar-inner{min-height:60px;}.mb-icon-btn,.mb-page-back,.mb-close,.reader-close,.reader-theme-toggle{min-width:44px;min-height:44px;}.mb-personal-card input:not([type="checkbox"]),.mb-personal-card select,.search-box input,#aiComposer textarea{font-size:16px;}.mb-file-btn,.mb-primary,.mb-mini-btn,.reader-font-tools button,.reader-to-top,.filter-trigger{min-height:44px;}.mb-task-actions{gap:8px;}.reader-toolbar{gap:8px;padding:10px 12px;}.reader-head{padding-left:max(12px,env(safe-area-inset-left));padding-right:max(12px,env(safe-area-inset-right));}.mb-topbar-inner .mb-brand-name{font-size:19px;}.mb-topbar-inner .mb-top-actions{gap:2px;}.mb-topbar-inner .mb-ai-top-label{display:none;}.mb-drawer{max-height:100dvh;}.mb-schedule-form{grid-template-columns:1fr 1fr;}#deviceConnection{bottom:calc(88px + env(safe-area-inset-bottom));}}
+@media(max-width:380px){.mb-topbar-inner{padding-inline:6px;gap:3px;}.mb-topbar-inner .mb-avatar{width:36px;height:36px;}.mb-topbar-inner .mb-brand-name{font-size:17px;}.mb-topbar-inner .mb-brand-mark{width:34px;height:34px;}.mb-topbar-inner .mb-icon-btn{min-width:40px;width:40px;}.device-dialog{padding:18px;}.reader-font-tools{gap:4px;}}
+@media(orientation:landscape) and (max-height:520px){.mb-bottom-nav{padding-top:2px;padding-bottom:env(safe-area-inset-bottom);}.mb-bottom-nav button{min-height:40px;}.mb-bottom-nav button span{display:inline-block;font-size:16px;margin-inline-end:4px;}.device-dialog{max-height:calc(100dvh - 20px);}.reader-toolbar{padding-block:5px;}}
+
 </style>
 <link rel="manifest" href="./manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="192x192" href="./assets/app-icon-192.png">
@@ -2022,7 +2036,7 @@ body.ai-site-open .mb-main{margin-left:var(--ai-site-width);margin-right:0;max-w
       <span>المتابعة باستخدام Google</span>
     </button>
     <button type="button" id="resetPasswordBtn" class="logout-link">تعيين أو استعادة كلمة المرور</button>
-    <button type="button" id="gateInstallApp" data-install-app>تثبيت Medbrain</button>
+    <button type="button" id="gateInstallApp" data-install-app>تثبيت Medbrain</button><button type="button" class="mb-file-btn" id="gateFocusBtn" data-open-focus>مؤقّت الدراسة</button><p class="gate-policy-links"><a href="./privacy.html">الخصوصية</a> · <a href="./delete-account.html">حذف الحساب</a> · <a href="./support.html">الدعم</a></p>
   </div>
 </div>
 
@@ -2295,6 +2309,8 @@ body.ai-site-open .mb-main{margin-left:var(--ai-site-width);margin-right:0;max-w
 <section class="mb-tool-page mb-page-view mb-personal-page" id="settingsSection">
 <div class="mb-page-toolbar"><div class="mb-page-title-wrap"><button class="mb-page-back" type="button" data-tool-view="home" aria-label="العودة للرئيسية">‹</button><div><h2 class="mb-page-title">الإعدادات</h2><p class="mb-page-subtitle">اضبط تجربة Medbrain بما يناسبك.</p></div></div></div>
 <div class="mb-personal-grid">
+ <div class="mb-personal-card device-card"><h3>أدوات جهازك</h3><p>جلسات تركيز واستراحات مع مؤقّت يمكنك تصغيره أثناء القراءة.</p><button type="button" class="mb-primary" data-open-focus>فتح مؤقّت الدراسة</button></div>
+ <div class="mb-personal-card device-card"><h3>بياناتك وخصوصيتك</h3><p><a href="./privacy.html" target="_blank" rel="noopener">سياسة الخصوصية</a> · <a href="./support.html" target="_blank" rel="noopener">الدعم والملاحظات</a></p><div class="mb-personal-actions"><button type="button" class="mb-file-btn" id="exportMyData">تصدير بياناتي</button><button type="button" class="device-danger" id="openDeleteAccount">حذف حسابي</button></div><p id="devicePrivacyStatus" role="status"></p><p>Medbrain منصة تعليمية للطلاب، ولا تُستخدم لتشخيص المرضى أو اتخاذ قرارات علاجية.</p></div>
  <div class="mb-personal-card mb-install-card"><img src="./assets/app-icon-192.png" alt=""><h3>Medbrain على جهازك</h3><p>أضف التطبيق إلى الشاشة الرئيسية وافتحه بأيقونة مستقلة. المحاضرات والحساب والذكاء الاصطناعي تحتاج اتصالًا بالإنترنت.</p><button type="button" class="mb-primary" data-install-app>تثبيت Medbrain</button><p id="installAppStatus" role="status"></p></div>
  <div class="mb-personal-card"><h3>المظهر والقراءة</h3>
   <div class="mb-setting-row"><label for="settingsTheme">مظهر التطبيق<small>يسري على الموقع وواجهة القراءة.</small></label><select id="settingsTheme"><option value="light">فاتح</option><option value="dark">داكن</option></select></div>
@@ -2473,6 +2489,7 @@ body.ai-site-open .mb-main{margin-left:var(--ai-site-width);margin-right:0;max-w
         <button type="button" id="readerFontReset" aria-label="إعادة حجم الخط الافتراضي">إعادة</button>
       </div>
 
+      <button type="button" class="reader-to-top" data-open-focus>مؤقّت الدراسة ◷</button>
       <button type="button" id="readerToTop" class="reader-to-top">بداية النص ↑</button>
     </div>
 
@@ -2513,6 +2530,11 @@ body.ai-site-open .mb-main{margin-left:var(--ai-site-width);margin-right:0;max-w
 </aside>
 </div>
 <div id="smartSuggestions" class="smart-suggestions" role="listbox" aria-label="اقتراحات من المواد المتوفرة" hidden></div>
+
+<nav class="mb-bottom-nav" id="deviceNav" aria-label="التنقل السريع"><button type="button" data-device-view="home" aria-current="page"><span aria-hidden="true">⌂</span>الرئيسية</button><button type="button" data-device-view="library"><span aria-hidden="true">▤</span>المحاضرات</button><button type="button" data-device-view="schedule"><span aria-hidden="true">▦</span>جدولي</button><button type="button" data-device-view="favorites"><span aria-hidden="true">☆</span>المفضلات</button><button type="button" data-device-view="settings"><span aria-hidden="true">⚙</span>الإعدادات</button></nav>
+<button id="focusCompact" type="button" hidden aria-label="فتح مؤقّت الدراسة"></button><div id="deviceConnection" role="status" hidden>الاتصال بالإنترنت غير متاح. يمكنك استخدام مؤقّت الدراسة؛ حفظ التغييرات يحتاج اتصالًا.</div>
+<dialog id="focusDialog" class="device-dialog" aria-labelledby="focusTitle"><div class="sp-card-head"><h2 id="focusTitle">وقت التركيز</h2><button type="button" class="mb-mini-btn" data-device-close="focusDialog" aria-label="تصغير المؤقّت">×</button></div><p>قسّم دراستك إلى جلسات قصيرة واستراحات. يبقى المؤقّت دقيقًا عند تصغيره أو العودة للتطبيق.</p><form id="focusForm"><div class="device-pair"><label>مدة الدراسة (دقيقة)<input id="focusWork" type="number" min="1" max="240" value="30" required></label><label>الراحة (دقيقة)<input id="focusRest" type="number" min="0" max="120" value="5" required></label></div><label>عدد جلسات الدراسة<input id="focusCount" type="number" min="1" max="24" value="4" required></label><label id="focusNotifyLabel" hidden><input id="focusNotify" type="checkbox"> تنبيه على الجهاز عند انتهاء الفترة الحالية</label><div class="device-actions"><button type="submit" class="mb-primary" id="focusStart">بدء جلسات التركيز</button></div></form><div id="focusRunning" hidden><output id="focusClock" dir="ltr" aria-label="الوقت المتبقي">30:00</output><p class="focus-stage" id="focusStage"></p><progress id="focusMeter" max="100" value="0" aria-label="تقدم الجلسات"></progress><div class="device-actions"><button type="button" class="mb-primary" id="focusPause">إيقاف مؤقت</button><button type="button" class="mb-primary" id="focusNext" hidden>بدء الفترة التالية</button><button type="button" class="device-danger" id="focusStop">إنهاء المؤقّت</button></div></div><p id="focusStatus" role="status"></p><p>بدء الفترة التالية يدوي، ليكون وقت الراحة تحت تحكمك. المؤقّت لا يعلّم المحاضرة كمكتملة تلقائيًا.</p></dialog>
+<dialog id="deleteAccountDialog" class="device-dialog" aria-labelledby="deleteAccountTitle"><h2 id="deleteAccountTitle">حذف حساب Medbrain</h2><p>يُحذف حسابك وملفك الشخصي ومفضلاتك وبطاقاتك وجدولك وتقدمك نهائيًا. يمكنك تصدير بياناتك من الإعدادات قبل الحذف. تبقى مواد المكتبة المشتركة.</p><p>لحماية الحساب، يلزم تسجيل دخول خلال آخر عشر دقائق. حساب إدارة المنصة يحتاج نقل مسؤوليته أولًا.</p><label for="deleteAccountConfirm">للتأكيد اكتب «حذف حسابي»<input id="deleteAccountConfirm" autocomplete="off"></label><div class="device-actions"><button type="button" class="device-danger" id="deleteAccountSubmit">حذف الحساب نهائيًا</button><button type="button" class="mb-file-btn" data-device-close="deleteAccountDialog">إلغاء</button></div><p id="deleteAccountStatus" role="status"></p></dialog>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.js"></script>
 <script>
@@ -2929,6 +2951,7 @@ function renderFlashcards(){
 }
 function showMainView(view, kind='', scrollBehavior='smooth') {
   currentMainView=view;
+  deviceSyncNav();
   ['dashboardView','librarySection','scheduleSection','flashcardsSection','subscriptionSection','shareScheduleSection','favoritesSection','settingsSection'].forEach(id=>{
     const el=document.getElementById(id); if(el)el.classList.remove('active');
   });
@@ -3109,6 +3132,55 @@ function lectureCountLabel(n) {
   return n + ' محاضرة محفوظة';
 }
 
+// Device tools use no extra account permissions and cache no medical records.
+let focusState=null,focusInterval=null,focusWake=null;
+const deviceEl=id=>document.getElementById(id);
+function deviceIsNative(){return !!window.MedbrainNative?.isNative;}
+function deviceCloseDrawer(){const b=deviceEl('navBackdrop');b.classList.remove('open');b.setAttribute('aria-hidden','true');}
+function deviceBack(){
+ const openDialog=[...document.querySelectorAll('dialog[open]')].at(-1);if(openDialog){openDialog.close();return true;}
+ if(isAIChatOpen()){closeAIChat();return true;}
+ if(deviceEl('readerOverlay').classList.contains('open')){closeReader();return true;}
+ for(const [id,close] of [['overlay',closeModal],['navBackdrop',deviceCloseDrawer],['accountOverlay',()=>setLayerOpen('accountOverlay',false)]])if(deviceEl(id)?.classList.contains('open')){close();return true;}
+ if(currentMainView!=='home'){showMainView('home');return true;}return false;
+}
+function deviceSyncNav(){document.querySelectorAll('[data-device-view]').forEach(button=>{const active=button.dataset.deviceView===currentMainView;if(active)button.setAttribute('aria-current','page');else button.removeAttribute('aria-current');});}
+function focusPhases(work,rest,count){if(!Number.isInteger(work)||work<1||work>240||!Number.isInteger(rest)||rest<0||rest>120||!Number.isInteger(count)||count<1||count>24)throw new Error('راجع مدة الدراسة والراحة وعدد الجلسات.');const phases=[];for(let i=0;i<count;i++){phases.push({kind:'study',minutes:work,number:i+1});if(rest&&i<count-1)phases.push({kind:'break',minutes:rest,number:i+1});}return phases;}
+function focusRemaining(){if(!focusState)return 0;return focusState.running?Math.max(0,Math.ceil((focusState.endsAt-Date.now())/1000)):focusState.remaining;}
+async function focusRelease(){if(focusWake){try{await focusWake.release();}catch(_){}focusWake=null;}}
+async function focusKeepAwake(){if(!focusState?.running||document.visibilityState!=='visible')return;if(navigator.wakeLock&&!focusWake){try{focusWake=await navigator.wakeLock.request('screen');focusWake.addEventListener('release',()=>focusWake=null);}catch(_){}}}
+async function focusNotify(cancel=false){if(!deviceIsNative()||!window.MedbrainNative.scheduleFocus)return;try{await window.MedbrainNative.cancelFocus();if(!cancel&&focusState?.running&&deviceEl('focusNotify').checked)await window.MedbrainNative.scheduleFocus(focusState.endsAt);}catch(_){deviceEl('focusStatus').textContent='لم يُفعّل التنبيه؛ المؤقّت يستمر داخل التطبيق.';}}
+function focusRender(){
+ const state=focusState;deviceEl('focusForm').hidden=!!state;deviceEl('focusRunning').hidden=!state;deviceEl('focusCompact').hidden=!state;if(!state)return;
+ const phase=state.phases[state.index],seconds=focusRemaining(),clock=String(Math.floor(seconds/60)).padStart(2,'0')+':'+String(seconds%60).padStart(2,'0');
+ if(state.running&&seconds===0){state.running=false;state.remaining=0;focusRelease();window.MedbrainNative?.haptic?.();deviceEl('focusStatus').textContent=state.index===state.phases.length-1?'انتهت آخر جلسة. أحسنت، يمكنك الآن إنهاء المؤقّت.':'انتهت الفترة الحالية. اضغط لبدء الفترة التالية.';}
+ deviceEl('focusClock').textContent=clock;deviceEl('focusStage').textContent=(phase.kind==='study'?'دراسة':'استراحة')+' — الجلسة '+phase.number+' من '+state.count;
+ deviceEl('focusCompact').textContent=(phase.kind==='study'?'دراسة ':'راحة ')+clock;deviceEl('focusPause').hidden=seconds===0;deviceEl('focusPause').textContent=state.running?'إيقاف مؤقت':'استئناف';deviceEl('focusNext').hidden=seconds!==0||state.index===state.phases.length-1;
+ const total=state.phases.reduce((n,p)=>n+p.minutes*60,0),before=state.phases.slice(0,state.index).reduce((n,p)=>n+p.minutes*60,0);deviceEl('focusMeter').value=Math.round((before+phase.minutes*60-seconds)/total*100);
+}
+function focusBeginPhase(){const p=focusState.phases[focusState.index];focusState.remaining=p.minutes*60;focusState.endsAt=Date.now()+focusState.remaining*1000;focusState.running=true;deviceEl('focusStatus').textContent='';focusRender();focusKeepAwake();focusNotify();}
+function focusEnd(){focusState=null;clearInterval(focusInterval);focusInterval=null;focusRelease();focusNotify(true);focusRender();deviceEl('focusStatus').textContent='';}
+function openFocus(){if(!deviceEl('focusDialog').open)deviceEl('focusDialog').showModal();focusRender();}
+async function deviceExport(){
+ if(!client||!activeUserId)throw new Error('سجل الدخول أولًا.');const uid=activeUserId,version=accessVersion;
+ const tables=['profiles','lecture_favorites','flashcards','study_schedule','study_chapter_plans','study_plan_topics','study_session_groups'];const results=await Promise.all(tables.map(t=>client.from(t).select('*').eq(t==='profiles'?'id':'user_id',uid)));if(uid!==activeUserId||version!==accessVersion)throw new Error('تغير الحساب. أعد المحاولة.');const failure=results.find(r=>r.error);if(failure)throw failure.error;
+ const data={exportedAt:new Date().toISOString(),account:{email:activeUserEmail,name:activeUserName},...Object.fromEntries(tables.map((t,i)=>[t,results[i].data||[]]))},text=JSON.stringify(data,null,2);if(deviceIsNative()&&window.MedbrainNative.exportJSON){await window.MedbrainNative.exportJSON(text);return data;}const blob=new Blob([text],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='Medbrain-my-data.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);return data;
+}
+function deviceDeletionIntent(){if(!activeUserId)return;try{if(sessionStorage.getItem('medbrain_delete_intent')==='1'){sessionStorage.removeItem('medbrain_delete_intent');showMainView('settings');renderPersonalPage('settings');deviceEl('openDeleteAccount').click();}}catch(_){}}
+function wireDeviceTools(){
+ try{if(new URLSearchParams(location.search).get('delete-account')==='1')sessionStorage.setItem('medbrain_delete_intent','1');}catch(_){}
+ document.querySelectorAll('[data-device-view]').forEach(button=>button.addEventListener('click',()=>{if(!activeUserId){showGate();return;}deviceCloseDrawer();const view=button.dataset.deviceView;if(view==='library')goToLibraryKind('lectures');else{showMainView(view);if(view==='schedule')renderSchedule();else renderPersonalPage(view);}window.MedbrainNative?.haptic?.();}));
+ document.querySelectorAll('[data-open-focus]').forEach(button=>button.addEventListener('click',openFocus));deviceEl('focusCompact').addEventListener('click',openFocus);document.querySelectorAll('[data-device-close]').forEach(button=>button.addEventListener('click',()=>deviceEl(button.dataset.deviceClose).close()));
+ deviceEl('focusNotifyLabel').hidden=!deviceIsNative();deviceEl('focusForm').addEventListener('submit',e=>{e.preventDefault();try{const work=Number(deviceEl('focusWork').value),rest=Number(deviceEl('focusRest').value),count=Number(deviceEl('focusCount').value);focusState={phases:focusPhases(work,rest,count),index:0,count,running:false,remaining:0};focusBeginPhase();clearInterval(focusInterval);focusInterval=setInterval(focusRender,500);}catch(error){deviceEl('focusStatus').textContent=error.message;}});
+ deviceEl('focusPause').addEventListener('click',()=>{if(!focusState)return;if(focusState.running){focusState.remaining=focusRemaining();focusState.running=false;focusRelease();focusNotify(true);}else{focusState.endsAt=Date.now()+focusState.remaining*1000;focusState.running=true;focusKeepAwake();focusNotify();}focusRender();});deviceEl('focusNext').addEventListener('click',()=>{if(!focusState||focusRemaining()>0||focusState.index>=focusState.phases.length-1)return;focusState.index++;focusBeginPhase();});deviceEl('focusStop').addEventListener('click',()=>{if(confirm('إنهاء جلسات المؤقّت الحالية؟'))focusEnd();});
+ const connection=()=>{deviceEl('deviceConnection').hidden=navigator.onLine;if(!navigator.onLine)deviceEl('deviceConnection').textContent='الاتصال بالإنترنت غير متاح. المؤقّت يعمل، وحفظ التغييرات يحتاج اتصالًا.';};window.addEventListener('online',connection);window.addEventListener('offline',connection);connection();document.addEventListener('visibilitychange',()=>{focusRender();if(document.visibilityState==='visible')focusKeepAwake();else focusRelease();});
+ deviceEl('exportMyData').addEventListener('click',async e=>{e.currentTarget.disabled=true;try{await deviceExport();deviceEl('devicePrivacyStatus').textContent='تم تجهيز نسخة بياناتك. احفظها في مكان خاص.';}catch(error){deviceEl('devicePrivacyStatus').textContent=error.message||'تعذّر تصدير البيانات.';}finally{e.currentTarget.disabled=false;}});
+ deviceEl('openDeleteAccount').addEventListener('click',()=>{deviceEl('deleteAccountConfirm').value='';deviceEl('deleteAccountStatus').textContent='';deviceEl('deleteAccountDialog').showModal();});
+ deviceEl('deleteAccountSubmit').addEventListener('click',async e=>{if(deviceEl('deleteAccountConfirm').value.trim()!=='حذف حسابي'){deviceEl('deleteAccountStatus').textContent='اكتب عبارة التأكيد أولًا.';return;}if(!client||!activeUserId)return;const uid=activeUserId;e.currentTarget.disabled=true;try{const {data,error}=await client.functions.invoke('delete-my-account',{body:{confirmation:'حذف حسابي'}});if(error){let message='تعذّر حذف الحساب. أعد تسجيل الدخول ثم حاول مجددًا.';try{const body=await error.context.json();message=body.error||message;}catch(_){}throw new Error(message);}if(!data?.deleted)throw new Error('لم يُحذف الحساب. حاول مجددًا.');if(uid!==activeUserId)return;deviceEl('deleteAccountDialog').close();focusEnd();await client.auth.signOut({scope:'local'});await syncAccess(null);showMbToast('حُذف حسابك وبياناته الشخصية.');}catch(error){deviceEl('deleteAccountStatus').textContent=error.message;}finally{e.currentTarget.disabled=false;}});
+ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.querySelector('.device-dialog[open]')){e.stopImmediatePropagation();}},true);
+ window.MedbrainNative?.onBack?.(deviceBack);deviceSyncNav();
+}
+
 // ---------------- Init ----------------
 async function init() {
   applySiteTheme();
@@ -3129,7 +3201,8 @@ async function init() {
     document.getElementById('googleLoginBtn').disabled = true;
     return;
   }
-  client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, deviceIsNative()?{auth:{flowType:'pkce',detectSessionInUrl:false}}:undefined);
+  window.MedbrainNative?.setAuthClient?.(client);
   col = supaCol;
   client.auth.onAuthStateChange((event, session) => {
     // Run outside the Auth callback to avoid awaiting requests under its lock.
@@ -3159,6 +3232,8 @@ async function syncAccess(session) {
   }
   resetAIConversation(true);
   closeAIChat(false);
+  focusEnd();
+  window.MedbrainNative?.clearExports?.();
   spReset();
   activeUserId = userId;
   favoriteRecords = new Map();
@@ -3205,6 +3280,7 @@ function wireGateEvents() {
     label.textContent = 'جارٍ الاتصال بـ Google…';
     error.textContent = '';
     try {
+      if(deviceIsNative()){await window.MedbrainNative.signIn(client,'google');return;}
       const { error: authError } = await client.auth.signInWithOAuth({
         provider: 'google',
         options: { redirectTo: new URL(location.pathname, location.origin).href }
@@ -3326,6 +3402,7 @@ async function startApp(version = accessVersion) {
     const personal = await Promise.allSettled([loadProfile(), loadScheduleItems(), loadFlashcards(), loadFavorites(), loadStudyPlanner()]);
     personal.forEach(r => { if (r.status === 'rejected') console.error(r.reason); });
     render();
+    deviceDeletionIntent();
   }
 }
 function applyAccessUI() {
@@ -3535,6 +3612,7 @@ function wireStaticEvents() {
   wireSmartSearch();
   wirePersonalPages();
   wireStudyPlanner();
+  wireDeviceTools();
 
   const toggle = document.getElementById('modeToggle');
   toggle.addEventListener('click', e => {
@@ -4773,13 +4851,14 @@ async function openStoredPdf(id, button) {
   const material = lectures.find(l => l.id === id);
   if (!client || !material || !material.filePath) return;
   // Open during the click so mobile popup blockers do not block the later signed URL.
-  const tab = window.open('about:blank', '_blank');
+  const tab = deviceIsNative()?null:window.open('about:blank', '_blank');
   if (tab) { tab.opener = null; tab.document.title = 'جارٍ فتح PDF…'; }
   button.disabled = true;
   try {
     const { data, error } = await client.storage.from('lecture-files').createSignedUrl(material.filePath, 300);
     if (error || !data || !safeExternalLink(data.signedUrl)) throw error || new Error('pdf_failed');
-    if (tab) tab.location.replace(data.signedUrl);
+    if(deviceIsNative()) await window.MedbrainNative.openUrl(data.signedUrl);
+    else if (tab) tab.location.replace(data.signedUrl);
     else window.location.assign(data.signedUrl);
   } catch (_) {
     if (tab) tab.close();
@@ -4981,6 +5060,7 @@ function wirePersonalPages() {
   document.getElementById('shareScheduleBtn').addEventListener('click',async()=>{
     const text = scheduleShareText();
     if (!text) return;
+    if (deviceIsNative()) { try {await window.MedbrainNative.share({title:'جدولي الدراسي — Medbrain',text});document.getElementById('shareScheduleStatus').textContent='فُتحت نافذة مشاركة الجدول.';}catch(_){document.getElementById('shareScheduleStatus').textContent='تعذّرت المشاركة؛ جرّب نسخ النص.';}return; }
     if (!navigator.share) { await copyScheduleText(); return; }
     const status = document.getElementById('shareScheduleStatus');
     try { await navigator.share({title:'جدولي الدراسي — Medbrain',text}); status.textContent='أُرسلت نسخة الجدول للمشاركة.'; }

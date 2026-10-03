@@ -1,0 +1,1 @@
+{"appId":"com.haider1381.medbrain","appName":"Medbrain","webDir":"www","ios":{"contentInset":"never"},"android":{"allowMixedContent":false},"server":{"hostname":"localhost","androidScheme":"https","iosScheme":"capacitor"}}

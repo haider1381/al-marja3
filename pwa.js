@@ -1,6 +1,7 @@
 (() => {
   'use strict';
   let installPrompt = null;
+  if(window.MedbrainNative?.isNative)return;
   const standalone = window.matchMedia('(display-mode: standalone)');
   const isInstalled = () => standalone.matches || navigator.standalone === true;
   const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
