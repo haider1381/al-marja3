@@ -1,6 +1,6 @@
 # Ask Midbrain AI — Groq integration
 
-The top bar, personal menu and lecture reader open the same memory-only chat. A signed-in user can ask a general study question or select an available text lecture. PDF extraction is not implemented; PDF-only materials are excluded from the context selector.
+The top bar, personal menu and lecture reader open the same memory-only, non-modal chat panel. A signed-in user can ask a general study question or select an available text lecture. PDF extraction is not implemented; PDF-only materials are excluded from the context selector.
 
 ## Server configuration
 
@@ -38,3 +38,13 @@ Existing lecture records, storage policies, editor/owner roles and personal tool
 - A user-authenticated production conversation still needs the account holder's own login to test. No existing user sessions were accessed or impersonated.
 
 To verify on the live site, refresh, sign in, open the stars icon or Ask Midbrain AI in the menu, and submit a short question. In a text lecture, use the reader's AI button to select that lecture automatically.
+
+## Docked conversation UI — 2026-10-03
+
+The top-left Ask MidBrain AI control and menu entry toggle a left-hand dock. On desktop and iPad, the main site uses the remaining width and remains interactive. In the reader, the former outline has been replaced with a MidBrain AI control in the right-hand rail; expanding it places the same conversation underneath, beside the lecture. Moving the shared DOM panel preserves its form handlers and conversation state.
+
+On screens up to 700px wide, the site chat docks to the bottom. The reader divides vertically into independently scrollable text and a compact chat underneath. No centered AI modal or dimming backdrop is used. The reader retains heading semantics and restores its visible paragraph position across opening/closing the panel; progress and the top-of-text button use the active scroll surface. Escape closes AI before the reader. The reader's keyboard focus list includes the chat inputs. Quizzes keep their single-column view without an AI rail.
+
+The visible composer is labeled “اسأل…” with exactly three suggestions underneath: “اشرح لي المحاضرة”, “لخص المحاضرة”, and “اسألني عن المحاضرة”. Lecture selection, new conversation and privacy/limit notes are grouped in collapsed options; within the phone reader, context is assigned automatically. The server API, authentication, quota rules and provider settings are unchanged.
+
+Validation covered left/right placement, interaction with the site while AI is open, keyboard closing, safe answers, context selection, history, failures and cancellation at 320/390/768/1440px in both themes. Long-text checks verify paragraph-position restoration, scroll progress and quiz opening. Existing personal tools regression checks pass.
