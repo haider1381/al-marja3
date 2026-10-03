@@ -1943,7 +1943,28 @@ body.ai-site-open .mb-main{margin-left:var(--ai-site-width);margin-right:0;max-w
 @media(max-width:480px){#scheduleSection .sp-selectors{gap:10px;}#scheduleSection .sp-selectors button{grid-column:1/-1;}.sp-chapter-grid{grid-template-columns:1fr 1fr;}.sp-custom-topic{flex-wrap:wrap;}.sp-topic{padding:10px 8px;gap:7px;}.sp-field-pair{gap:8px;}.sp-topic-title{font-size:13px;}.sp-group{padding:10px;}}
 #scheduleSection .sp-session{display:flex;}#scheduleSection .sp-session>span{display:block;min-width:0;}#scheduleSection .sp-session small{display:block;font-size:11px;color:var(--text-muted);}.sp-session.done strong{text-decoration:line-through;opacity:.65;}.sp-topic>div{min-width:0;flex:1;overflow-wrap:anywhere;}.sp-topic.done strong{text-decoration:line-through;}.sp-chapter-card{min-width:0;text-align:start;padding:12px;border:1px solid var(--border);border-radius:12px;background:var(--sp-panel);color:var(--text);}.sp-chapter-card strong,.sp-chapter-card span{display:block;overflow-wrap:anywhere;}.sp-chapter-card span{font-size:11px;margin:6px 0;color:var(--text-muted);}.sp-chapter-card progress{width:100%;height:7px;accent-color:#0F6CBD;}.sp-date{font-size:12px;color:var(--sp-focus);}.sp-group summary span{display:block;font-size:12px;color:var(--text-muted);}
 
+#installAppDialog{width:min(420px,calc(100vw - 36px));max-height:calc(100dvh - 48px);overflow:auto;border:1px solid var(--border);border-radius:18px;padding:22px;background:var(--surface);color:var(--text);font-family:var(--font-ui);line-height:1.9;}
+#installAppDialog::backdrop{background:rgba(10,18,40,.5);}
+#installAppDialog h2{font-size:20px;margin:0;color:var(--text);}
+#installAppDialog p{font-size:14px;}
+#installAppDialog img,.mb-install-card img{width:56px;height:56px;border-radius:14px;}
+#installAppDialog a{color:var(--medical-blue-dark);overflow-wrap:anywhere;}
+:root[data-theme="dark"] #installAppDialog a{color:#aed8ff;}
+.mb-install-card p{font-size:13px;line-height:1.9;}
+.mb-install-card #installAppStatus{color:var(--text-muted);}
+#gateInstallApp{display:block;width:100%;margin-top:14px;padding:10px;border:1px solid var(--medical-blue-border);border-radius:10px;background:var(--medical-blue-soft);color:var(--medical-blue-dark);font-size:13px;}
+:root[data-theme="dark"] #gateInstallApp{background:#181A2B;color:#fff;border-color:#383c55;}
+
 </style>
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="192x192" href="./assets/app-icon-192.png">
+<link rel="apple-touch-icon" sizes="180x180" href="./assets/apple-touch-icon.png">
+<meta name="theme-color" content="#0B5FA5" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#10162B" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Medbrain">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<script src="./pwa.js" defer></script>
 </head>
 <body>
 
@@ -2001,6 +2022,7 @@ body.ai-site-open .mb-main{margin-left:var(--ai-site-width);margin-right:0;max-w
       <span>المتابعة باستخدام Google</span>
     </button>
     <button type="button" id="resetPasswordBtn" class="logout-link">تعيين أو استعادة كلمة المرور</button>
+    <button type="button" id="gateInstallApp" data-install-app>تثبيت Medbrain</button>
   </div>
 </div>
 
@@ -2273,6 +2295,7 @@ body.ai-site-open .mb-main{margin-left:var(--ai-site-width);margin-right:0;max-w
 <section class="mb-tool-page mb-page-view mb-personal-page" id="settingsSection">
 <div class="mb-page-toolbar"><div class="mb-page-title-wrap"><button class="mb-page-back" type="button" data-tool-view="home" aria-label="العودة للرئيسية">‹</button><div><h2 class="mb-page-title">الإعدادات</h2><p class="mb-page-subtitle">اضبط تجربة Medbrain بما يناسبك.</p></div></div></div>
 <div class="mb-personal-grid">
+ <div class="mb-personal-card mb-install-card"><img src="./assets/app-icon-192.png" alt=""><h3>Medbrain على جهازك</h3><p>أضف التطبيق إلى الشاشة الرئيسية وافتحه بأيقونة مستقلة. المحاضرات والحساب والذكاء الاصطناعي تحتاج اتصالًا بالإنترنت.</p><button type="button" class="mb-primary" data-install-app>تثبيت Medbrain</button><p id="installAppStatus" role="status"></p></div>
  <div class="mb-personal-card"><h3>المظهر والقراءة</h3>
   <div class="mb-setting-row"><label for="settingsTheme">مظهر التطبيق<small>يسري على الموقع وواجهة القراءة.</small></label><select id="settingsTheme"><option value="light">فاتح</option><option value="dark">داكن</option></select></div>
   <div class="mb-setting-row"><label for="settingsFont">حجم خط القراءة<small>يُحفظ لاستخدامه عند فتح المحاضرات.</small></label><select id="settingsFont"><option value="16">16</option><option value="18">18</option><option value="20">20</option><option value="22">22</option><option value="24">24</option><option value="26">26</option></select></div>
@@ -5004,11 +5027,6 @@ function wirePersonalPages() {
 
 init();
 </script>
+<dialog id="installAppDialog" aria-labelledby="installAppTitle" aria-describedby="installAppGuidance"><img src="./assets/app-icon-192.png" alt=""><h2 id="installAppTitle">ثبّت Medbrain على جهازك</h2><p id="installAppGuidance"></p><p><a href="https://haider1381.github.io/al-marja3/" target="_blank" rel="noopener noreferrer">فتح رابط التطبيق في المتصفح</a></p><button type="button" class="mb-primary" id="installAppClose">فهمت</button></dialog>
 </body>
 </html>
-
-
-
-
-
-
