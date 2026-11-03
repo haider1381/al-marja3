@@ -1400,6 +1400,20 @@
     font-size:13px;
   }
   .mb-topic-col button:hover { color:#0876cf; text-decoration:underline; }
+  /* Topics panel: a compact searchable list instead of a full-screen grid. */
+  .mb-topics-dialog { width:min(460px,100%); padding:18px 18px 12px; }
+  .mb-topics-dialog .mb-close { display:grid; place-items:center; padding:0; line-height:0; width:36px; height:36px; }
+  .mb-topics-search { width:100%; box-sizing:border-box; margin:14px 0 8px; height:40px; padding:0 14px; border:1px solid #cfd9e3; border-radius:10px; font:inherit; font-size:14px; background:#fff; color:#1e2835; }
+  .mb-topics-search:focus { outline:2px solid #0876cf; outline-offset:1px; }
+  .mb-topics-list { max-height:min(62vh,560px); overflow-y:auto; overscroll-behavior:contain; }
+  .mb-topics-list .mb-topic-col h3 { position:sticky; top:0; background:#fff; margin:0; padding:10px 2px 6px; font-size:14px; z-index:1; }
+  .mb-topics-list .mb-topic-col button { padding:10px 4px; font-size:14px; border-bottom:1px solid #eef2f6; }
+  .mb-topics-list .mb-topic-col button:hover { background:#f2f8fe; text-decoration:none; }
+  .mb-topics-empty { padding:18px 4px; color:#66758a; font-size:14px; }
+  :root[data-theme="dark"] .mb-topics-search { background:var(--surface); color:var(--text); border-color:var(--border); }
+  :root[data-theme="dark"] .mb-topics-list .mb-topic-col h3 { background:var(--surface); }
+  :root[data-theme="dark"] .mb-topics-list .mb-topic-col button { border-color:var(--border); }
+  :root[data-theme="dark"] .mb-topics-list .mb-topic-col button:hover { background:var(--accent-soft); }
   .mb-account-grid {
     display:grid;
     grid-template-columns:260px 1fr;
@@ -2096,9 +2110,10 @@ button,a,input,select,textarea{-webkit-tap-highlight-color:transparent;}
 </div>
 
 <div class="mb-layer" id="topicsOverlay" aria-hidden="true">
-  <section class="mb-dialog" role="dialog" aria-modal="true" aria-labelledby="topicsTitle">
-    <div class="mb-dialog-head"><h2 id="topicsTitle">Video & Lecture Topics</h2><button class="mb-close" id="topicsClose" type="button" aria-label="إغلاق">×</button></div>
-    <div class="mb-topics-grid" id="topicsGrid"></div>
+  <section class="mb-dialog mb-topics-dialog" role="dialog" aria-modal="true" aria-labelledby="topicsTitle">
+    <div class="mb-dialog-head"><h2 id="topicsTitle">المواضيع</h2><button class="mb-close" id="topicsClose" type="button" aria-label="إغلاق"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></button></div>
+    <input type="search" id="topicsSearch" class="mb-topics-search" placeholder="ابحث عن موضوع…" aria-label="ابحث عن موضوع" dir="auto" autocomplete="off">
+    <div class="mb-topics-list" id="topicsGrid"></div>
   </section>
 </div>
 
@@ -2147,7 +2162,6 @@ button,a,input,select,textarea{-webkit-tap-highlight-color:transparent;}
         </button>
         <button class="mb-brand-home" id="brandHomeBtn" type="button" aria-label="Medbrain — الواجهة الرئيسية"><span class="mb-brand-name">Medbrain</span><small class="mb-brand-sub">MEDICAL LEARNING</small></button>
       </div>
-      <button class="mb-top-search-btn" id="topTopicsBtn" type="button"><span>المواضيع</span><span>⌄</span></button>
       <div class="mb-top-actions">
         <button class="mb-icon-btn keep-mobile mb-global-ai-trigger" id="topAIButton" type="button" data-open-ai aria-label="Ask MidBrain AI" title="Ask MidBrain AI ✨" aria-expanded="false" aria-controls="globalAIDialog"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 3l2.2 6.8L19 12l-6.8 2.2L10 21l-2.2-6.8L1 12l6.8-2.2L10 3z"/><path d="M20 2v6M17 5h6M21 17v4M19 19h4"/></svg><span class="mb-ai-top-label" dir="ltr">Ask MidBrain AI</span></button>
         <button class="mb-icon-btn keep-mobile" id="siteThemeToggle" type="button" aria-label="تفعيل الوضع الداكن" aria-pressed="false" title="الوضع الداكن">☾</button>
@@ -3810,8 +3824,13 @@ function goToLibraryKind(kind) {
   showMainView('library',kind);
 }
 function openTopicsPanel() {
+  const search = document.getElementById('topicsSearch');
+  search.value = '';
   renderTopicsModal();
   setLayerOpen('topicsOverlay', true);
+  document.getElementById('topicsGrid').scrollTop = 0;
+  // On phones, focusing would pop the keyboard over the list, so only focus with a mouse.
+  if (matchMedia('(pointer: fine)').matches) search.focus({ preventScroll: true });
 }
 function openAccountPanel() {
   renderMedbrainWidgets();
@@ -3822,15 +3841,20 @@ function openAccountPanel() {
 function renderTopicsModal() {
   const grid = document.getElementById('topicsGrid');
   if (!grid) return;
+  const q = normalizeSearch((document.getElementById('topicsSearch') || {}).value || '');
   const cats = [...new Set(lectures.map(l => l.category).filter(Boolean))];
-  grid.innerHTML = cats.map(cat => {
-    const topics = [...new Set(lectures.filter(l => l.category === cat).map(l => l.topic).filter(Boolean))];
+  const html = cats.map(cat => {
+    const catMatch = q && normalizeSearch(cat).includes(q);
+    const topics = [...new Set(lectures.filter(l => l.category === cat).map(l => l.topic).filter(Boolean))]
+      .filter(topic => !q || catMatch || normalizeSearch(topic).includes(q));
+    if (!topics.length) return '';
     return '<section class="mb-topic-col"><h3>' + escapeHtml(cat) + '</h3>' +
       topics.map(topic => {
         return '<button type="button" data-topic-category="' + escapeHtml(cat) + '" data-topic-name="' + escapeHtml(topic) + '">' +
           escapeHtml(topic) + '</button>';
       }).join('') + '</section>';
   }).join('');
+  grid.innerHTML = html || '<p class="mb-topics-empty">لا توجد مواضيع مطابقة.</p>';
 }
 function renderMedbrainWidgets() {
   const counts = {
@@ -3943,7 +3967,7 @@ function wireMedbrainEvents() {
     if (!profile.contains(e.target) && !e.target.closest('#profileBtn')) profile.classList.remove('open');
   });
 
-  [document.getElementById('heroTopicsBtn'), document.getElementById('topTopicsBtn')].forEach(btn => {
+  [document.getElementById('heroTopicsBtn')].forEach(btn => {
     if (btn) btn.addEventListener('click', openTopicsPanel);
   });
   document.getElementById('topicsClose').addEventListener('click', () => setLayerOpen('topicsOverlay', false));
@@ -3951,6 +3975,7 @@ function wireMedbrainEvents() {
   document.getElementById('topicsOverlay').addEventListener('click', e => { if (e.target.id === 'topicsOverlay') setLayerOpen('topicsOverlay', false); });
   document.getElementById('accountOverlay').addEventListener('click', e => { if (e.target.id === 'accountOverlay') setLayerOpen('accountOverlay', false); });
 
+  document.getElementById('topicsSearch').addEventListener('input', renderTopicsModal);
   document.getElementById('topicsGrid').addEventListener('click', e => {
     const btn = e.target.closest('[data-topic-name]');
     if (!btn) return;
