@@ -349,6 +349,8 @@
     padding: 1px 6px;
   }
   .chip.empty-count .n { color: var(--text-muted); background: var(--surface-alt); }
+  /* Library sizes stay private: counts would make the collection look limited. */
+  .chip .n, .category-head .n, #cardLectures, #cardQuestions, #cardVideos, #cardOther, #countLabel { display: none !important; }
 
   .back-chip {
     display: inline-flex;
@@ -2223,7 +2225,7 @@ button,a,input,select,textarea{-webkit-tap-highlight-color:transparent;}
         <div class="mb-practice-rocket" aria-hidden="true">
           <svg viewBox="0 0 120 120"><path d="M69 15c24 15 31 46 12 69L54 58c4-20 10-34 15-43Z" fill="#81d6c7" stroke="#4f5960" stroke-width="3"/><circle cx="70" cy="42" r="11" fill="#dff8f6" stroke="#4f5960" stroke-width="3"/><path d="m53 58-19 5-12 22 26-7m32 6 5 18 17-13-7-20" fill="#ef8b9c" stroke="#4f5960" stroke-width="3"/><path d="M42 82c-8 12-11 22-12 27 7-2 18-7 27-16" fill="#f5c449" stroke="#d69f23" stroke-width="3"/></svg>
         </div>
-        <div class="mb-practice-copy"><h4>أسئلة مبنية على المواد التي أضفتها</h4><p><span id="dailyPracticeCount">0</span> مجموعة أسئلة متاحة حاليًا.</p><p>ابدأ مراجعة سريعة لتثبيت المعلومات.</p></div>
+        <div class="mb-practice-copy"><h4>أسئلة مبنية على المواد التي أضفتها</h4><p>مجموعات أسئلة متاحة حسب موادك.</p><p>ابدأ مراجعة سريعة لتثبيت المعلومات.</p></div>
         <button type="button" class="mb-primary" data-dashboard-kind="questions">ابدأ الأسئلة</button>
       </div>
     </section>
@@ -2979,8 +2981,22 @@ function rowToLecture(r) {
     id: String(r.id), title: r.title, source: r.source, category: r.category,
     topic: r.topic, type: r.type, link: r.link, text: r.lecture_text,
     notes: r.notes, createdAt: r.created_at,
-    filePath: r.file_path || null, questions: Array.isArray(r.questions) ? r.questions : []
+    filePath: r.file_path || null, questions: Array.isArray(r.questions) ? r.questions : [],
+    // The library list omits lecture_text and questions; ensureLectureDetails fetches them on open.
+    detailsLoaded: 'lecture_text' in r,
+    hasText: 'has_text' in r ? !!r.has_text : !!(r.lecture_text && r.lecture_text.trim()),
+    questionCount: 'question_count' in r ? Number(r.question_count) || 0 : (Array.isArray(r.questions) ? r.questions.length : 0)
   };
+}
+function lectureHasText(l) { return l.detailsLoaded ? !!(l.text && l.text.trim()) : !!l.hasText; }
+async function ensureLectureDetails(l) {
+  if (!l || l.detailsLoaded) return l;
+  const result = await client.from('lectures').select('lecture_text,questions').eq('id', l.id).single();
+  if (result.error) throw result.error;
+  l.text = result.data.lecture_text;
+  l.questions = Array.isArray(result.data.questions) ? result.data.questions : [];
+  l.detailsLoaded = true;
+  return l;
 }
 function lectureToRow(data) {
   return {
@@ -2998,7 +3014,7 @@ async function loadLecturesFromSupabase() {
   const pageSize = 500;
   for (let offset = 0; ; offset += pageSize) {
     const result = await client.from('lectures')
-      .select('id,title,source,category,topic,type,link,lecture_text,notes,created_at,file_path,questions')
+      .select('id,title,source,category,topic,type,link,notes,created_at,file_path,has_text,question_count')
       .order('created_at', { ascending: false }).order('id', { ascending: false })
       .range(offset, offset + pageSize - 1);
     if (result.error) throw result.error;
@@ -3390,6 +3406,8 @@ function wireGateEvents() {
 async function startApp(version = accessVersion) {
   const request = ++contentRequest;
   const banner = document.getElementById('storageBanner');
+  // Personal data does not depend on the library list, so both load at the same time.
+  const personalLoad = Promise.allSettled([loadProfile(), loadScheduleItems(), loadFlashcards(), loadFavorites(), loadStudyPlanner()]);
   try {
     const loaded = await loadLecturesFromSupabase();
     if (version !== accessVersion || request !== contentRequest) return;
@@ -3401,7 +3419,7 @@ async function startApp(version = accessVersion) {
     banner.classList.add('show');
   }
   if (version === accessVersion && request === contentRequest) {
-    const personal = await Promise.allSettled([loadProfile(), loadScheduleItems(), loadFlashcards(), loadFavorites(), loadStudyPlanner()]);
+    const personal = await personalLoad;
     personal.forEach(r => { if (r.status === 'rejected') console.error(r.reason); });
     render();
     deviceDeletionIntent();
@@ -3422,7 +3440,7 @@ function render() {
   document.getElementById('resetFilters').hidden = !hasFilters;
   const content = document.getElementById('content');
   const list = filterMaterials(lectures, state);
-  content.innerHTML = '<p class="section-label">' + (state.search.trim() ? 'نتائج البحث — ' : 'المواد المتوفرة — ') + '<b>' + list.length + '</b></p>' +
+  content.innerHTML = '<p class="section-label">' + (state.search.trim() ? 'نتائج البحث' : 'المواد المتوفرة') + '</p>' +
     (list.length ? renderLectureList(list) : '<div class="empty">لا توجد مواد مطابقة. جرّب تغيير البحث أو الفلاتر.</div>');
   renderMedbrainWidgets();
   updateFavoriteButtons();
@@ -3436,7 +3454,7 @@ function renderSearchResults(q) {
     (l.topic || '').toLowerCase().includes(q) ||
     (l.category || '').toLowerCase().includes(q)
   );
-  let html = `<p class="section-label">نتائج البحث عن «${escapeHtml(state.search.trim())}» — <b>${matches.length}</b></p>`;
+  let html = `<p class="section-label">نتائج البحث عن «${escapeHtml(state.search.trim())}»</p>`;
   if (matches.length === 0) {
     html += `<div class="empty"><strong>لا توجد نتائج</strong>جرّب كلمة بحث مختلفة، أو أضف هذه المحاضرة الآن.</div>`;
   } else {
@@ -3469,7 +3487,7 @@ function renderSourceMode() {
     sourceLectures.forEach(l => { const c = l.category || 'أخرى'; byCat[c] = (byCat[c]||0) + 1; });
 
     let html = `<button type="button" class="back-chip" data-action="clear-source">${ICONS.back} كل المصادر</button>`;
-    html += `<p class="section-label"><b>${escapeHtml(state.selectedSource)}</b> — ${lectureCountLabel(sourceLectures.length)}</p>`;
+    html += `<p class="section-label"><b>${escapeHtml(state.selectedSource)}</b></p>`;
     html += `<p class="section-label">اختر موضوعًا لعرض محاضرات هذا المصدر فيه</p><div class="chip-grid">`;
     Object.keys(byCat).forEach(cat => {
       if (byCat[cat]) {
@@ -3487,7 +3505,7 @@ function renderSourceMode() {
     catLectures.forEach(l => { const t = l.topic || 'أخرى'; byTopic[t] = (byTopic[t]||0) + 1; });
 
     let html = `<button type="button" class="back-chip" data-action="clear-source-category">${ICONS.back} ${escapeHtml(state.selectedSource)}</button>`;
-    html += `<p class="section-label"><b>${escapeHtml(state.selectedSourceCategory)}</b> — ${lectureCountLabel(catLectures.length)}</p>`;
+    html += `<p class="section-label"><b>${escapeHtml(state.selectedSourceCategory)}</b></p>`;
     html += `<p class="section-label">اختر الموضوع الفرعي</p><div class="chip-grid">`;
     Object.keys(byTopic).forEach(sub => {
       if (byTopic[sub]) {
@@ -3511,14 +3529,14 @@ function renderSourceMode() {
 
   const filtered = list.filter(l => materialGroup(l.type) === state.selectedSourceType);
   let html = `<button type="button" class="back-chip" data-action="clear-source-type">${ICONS.back} ${escapeHtml(state.selectedSourceTopic)}</button>`;
-  html += `<p class="section-label"><b>${escapeHtml(GROUP_LABELS[state.selectedSourceType] || state.selectedSourceType)}</b> — ${lectureCountLabel(filtered.length)}</p>`;
+  html += `<p class="section-label"><b>${escapeHtml(GROUP_LABELS[state.selectedSourceType] || state.selectedSourceType)}</b></p>`;
   html += filtered.length ? renderLectureList(filtered) : `<div class="empty">لا توجد محاضرات بهذا النوع من هذا المصدر بعد.</div>`;
   return html;
 }
 
 function renderTypeLevel(list, opts) {
   let html = '<button type="button" class="back-chip" data-action="' + opts.backAction + '">' + ICONS.back + escapeHtml(opts.backLabel) + '</button>';
-  html += '<p class="section-label"><b>' + escapeHtml(opts.headingLabel) + '</b> — ' + lectureCountLabel(list.length) + '</p><div class="chip-grid">';
+  html += '<p class="section-label"><b>' + escapeHtml(opts.headingLabel) + '</b></p><div class="chip-grid">';
   Object.keys(GROUP_LABELS).forEach(group => {
     const count = list.filter(l => materialGroup(l.type) === group).length;
     if (group === 'other' && !count) return;
@@ -3543,7 +3561,7 @@ function renderTopicMode() {
 
     const filtered = list.filter(l => materialGroup(l.type) === state.selectedType);
     let html = `<button type="button" class="back-chip" data-action="clear-type">${ICONS.back} ${escapeHtml(state.selectedTopic)}</button>`;
-    html += `<p class="section-label"><b>${escapeHtml(GROUP_LABELS[state.selectedType] || state.selectedType)}</b> — ${lectureCountLabel(filtered.length)}</p>`;
+    html += `<p class="section-label"><b>${escapeHtml(GROUP_LABELS[state.selectedType] || state.selectedType)}</b></p>`;
     html += filtered.length ? renderLectureList(filtered) : `<div class="empty">لا توجد محاضرات بهذا النوع بعد.</div>`;
     return html;
   }
@@ -3574,9 +3592,9 @@ function renderLectureList(list) {
   let html = `<div class="lecture-list">`;
   list.forEach(l => {
     const iconKey = TYPE_ICON[l.type] || 'bookmark';
-    const hasText = !!(l.text && l.text.trim());
+    const hasText = lectureHasText(l);
     const externalLink = safeExternalLink(l.link);
-    const hasQuiz = l.type === 'أسئلة' && Array.isArray(l.questions) && l.questions.length > 0;
+    const hasQuiz = l.type === 'أسئلة' && l.questionCount > 0;
     // The whole row opens the material with its main action: text reader, then PDF, then quiz, then link.
     const openAction = hasText ? 'open-reader' : l.filePath ? 'open-pdf' : hasQuiz ? 'open-quiz' : externalLink ? 'open-link' : '';
     const openLabel = { 'open-reader': 'قراءة المحاضرة', 'open-pdf': 'فتح PDF', 'open-quiz': 'بدء الأسئلة', 'open-link': 'فتح الرابط' }[openAction] || '';
@@ -3788,12 +3806,10 @@ function renderTopicsModal() {
   const cats = [...new Set(lectures.map(l => l.category).filter(Boolean))];
   grid.innerHTML = cats.map(cat => {
     const topics = [...new Set(lectures.filter(l => l.category === cat).map(l => l.topic).filter(Boolean))];
-    const count = lectures.filter(l => l.category === cat).length;
-    return '<section class="mb-topic-col"><h3>' + escapeHtml(cat) + ' <small style="color:#7b8998">(' + count + ')</small></h3>' +
+    return '<section class="mb-topic-col"><h3>' + escapeHtml(cat) + '</h3>' +
       topics.map(topic => {
-        const n = lectures.filter(l => l.category === cat && l.topic === topic).length;
         return '<button type="button" data-topic-category="' + escapeHtml(cat) + '" data-topic-name="' + escapeHtml(topic) + '">' +
-          escapeHtml(topic) + (n ? ' · ' + n : '') + '</button>';
+          escapeHtml(topic) + '</button>';
       }).join('') + '</section>';
   }).join('');
 }
@@ -4172,10 +4188,10 @@ function resetAIConversation(clearContext = false) {
 function refreshAILectures() {
   const select=document.getElementById('aiLectureContext'); select.replaceChildren();
   const general=document.createElement('option');general.value='';general.textContent='سؤال عام — دون محاضرة';select.append(general);
-  lectures.filter(l=>l.text&&l.text.trim()).forEach(l=>{
+  lectures.filter(lectureHasText).forEach(l=>{
     const option=document.createElement('option');option.value=l.id;option.textContent=l.title;select.append(option);
   });
-  if(aiLectureId&&!lectures.some(l=>l.id===aiLectureId&&l.text?.trim())){aiLectureId='';resetAIConversation();}
+  if(aiLectureId&&!lectures.some(l=>l.id===aiLectureId&&lectureHasText(l))){aiLectureId='';resetAIConversation();}
   select.value=aiLectureId;
 }
 let aiReturnFocus = null;
@@ -4198,7 +4214,7 @@ function openAIChat(lectureId = null){
   const anchor=captureReaderAnchor();
   document.getElementById('navBackdrop').classList.remove('open');
   document.getElementById('navBackdrop').setAttribute('aria-hidden','true');
-  const selected=lectureId&&lectures.some(l=>l.id===lectureId&&l.text?.trim())?lectureId:'';
+  const selected=lectureId&&lectures.some(l=>l.id===lectureId&&lectureHasText(l))?lectureId:'';
   if(selected!==aiLectureId){aiLectureId=selected;resetAIConversation();}
   refreshAILectures();renderAIConversation();
   const panel=document.getElementById('globalAIDialog');
@@ -4294,10 +4310,10 @@ function wireAIChat() {
   });
 }
 
-function openReader(id) {
-
+async function openReader(id) {
   const lec = lectures.find(l => l.id === id);
   if (!lec) return;
+  try { await ensureLectureDetails(lec); } catch (_) { alert('تعذّر فتح المحاضرة. تحقق من الاتصال وأعد المحاولة.'); return; }
   readerLectureId = lec.id;
   quizState = null;
   document.getElementById('readerBody').classList.remove('quiz-body');
@@ -4421,10 +4437,13 @@ function fillFormFromLecture(l) {
   document.getElementById('f_notes').value = l.notes || '';
 }
 
-function openModal(id) {
+async function openModal(id) {
   if (!col || !canWrite) return;
   editingId = id || null;
   const lec = editingId ? lectures.find(l => l.id === editingId) : null;
+  if (lec) {
+    try { await ensureLectureDetails(lec); } catch (_) { alert('تعذّر تحميل المادة للتعديل. تحقق من الاتصال وأعد المحاولة.'); return; }
+  }
 
   const sourceList = document.getElementById('sourceList');
   sourceList.innerHTML = '';
@@ -4903,9 +4922,10 @@ async function openStoredPdf(id, button, download = false) {
     alert('تعذّر فتح PDF. تحقق من الاتصال وصلاحيات الملف.');
   } finally { button.disabled = false; }
 }
-function openQuiz(id) {
+async function openQuiz(id) {
   const material = lectures.find(l => l.id === id);
   if (!material) return;
+  try { await ensureLectureDetails(material); } catch (_) { alert('تعذّر فتح الأسئلة. تحقق من الاتصال وأعد المحاولة.'); return; }
   try { validateQuestions(material.questions); } catch (_) { alert('هذه المجموعة تحتاج مراجعة الأسئلة من المحرر.'); return; }
   quizState = { material, index: 0, answers: [] };
   document.getElementById('readerTitle').textContent = material.title;
