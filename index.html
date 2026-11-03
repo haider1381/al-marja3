@@ -2220,36 +2220,6 @@ body.ai-site-open .ai-fab, body.ai-fab-hidden .ai-fab { display:none; }
 .ai-suggest-context { display:flex; align-items:center; gap:8px; padding-top:8px; border-top:1px solid var(--ai-border); font-size:11.5px; color:var(--ai-muted); }
 .ai-suggest-context select { flex:1; min-width:0; height:30px; padding:0 8px !important; border-radius:999px !important; font-size:12px !important; color:var(--ai-text) !important; background:var(--ai-panel) !important; border:1px solid var(--ai-border) !important; }
 .reader-ai-host .ai-suggest-context { display:none; }
-
-/* ---------- Library browsing: branch cards, system tiles, topic rows ---------- */
-.branch-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:12px; }
-.branch-card { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; min-height:96px; padding:18px 12px; border-radius:16px; border:1px solid color-mix(in srgb, var(--ink) 22%, transparent); border-inline-start:4px solid var(--ink); background:var(--tint); color:var(--ink); cursor:pointer; font:inherit; transition:transform .15s ease, box-shadow .15s ease, border-color .15s ease; }
-.branch-card:hover { transform:translateY(-2px); border-color:var(--ink); box-shadow:0 10px 24px rgba(12,32,52,.10); }
-.branch-name { font-size:18px; font-weight:800; }
-.branch-en { font-size:12px; color:var(--ink); opacity:.75; font-weight:700; }
-.system-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(132px,1fr)); gap:10px; }
-.system-card { display:flex; flex-direction:column; align-items:center; gap:7px; padding:14px 8px 12px; border-radius:14px; border:1px solid var(--border); background:var(--surface); color:var(--text); cursor:pointer; font:inherit; transition:border-color .15s ease, transform .15s ease; }
-.system-card:hover { border-color:var(--ink); transform:translateY(-1px); }
-.system-art { width:52px; height:52px; border-radius:15px; display:grid; place-items:center; background:var(--tint); color:var(--ink); }
-.system-art svg { width:32px; height:32px; }
-.system-name { font-size:13px; font-weight:700; text-align:center; line-height:1.4; overflow-wrap:anywhere; }
-.subject-list { display:flex; flex-direction:column; gap:6px; }
-.subject-row { display:flex; align-items:center; gap:10px; width:100%; text-align:start; padding:12px 14px; border-radius:12px; border:1px solid var(--border); background:var(--surface); color:var(--text); cursor:pointer; font:inherit; }
-.subject-row:hover { border-color:var(--accent); }
-.subject-name { flex:1; font-size:14px; font-weight:700; }
-.subject-kinds { display:flex; flex-wrap:wrap; gap:4px; }
-.type-badge { display:inline-block; padding:2px 8px; border-radius:999px; font-size:10.5px; font-weight:800; background:var(--accent-soft); color:var(--accent-strong); }
-.subject-arrow { color:var(--text-muted); font-size:18px; }
-.topic-materials { margin-bottom:14px; }
-.topic-type-head { display:flex; align-items:center; gap:8px; margin:6px 0 8px; font-size:14px; }
-:root[data-theme="dark"] .branch-card { background:color-mix(in srgb, var(--ink) 18%, var(--surface)); color:#e8f1fb; }
-:root[data-theme="dark"] .branch-card .branch-en { color:#e8f1fb; }
-:root[data-theme="dark"] .system-art { background:color-mix(in srgb, var(--ink) 22%, transparent); color:#e8f1fb; }
-@media (max-width:480px) {
-  .branch-grid { grid-template-columns:1fr 1fr; gap:10px; }
-  .system-grid { grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; }
-  .system-art { width:44px; height:44px; } .system-art svg { width:27px; height:27px; } .system-name { font-size:11.5px; }
-}
 </style>
 <link rel="manifest" href="./manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="192x192" href="./assets/app-icon-192.png">
@@ -3355,7 +3325,7 @@ const state = {
   selectedTopic: null,
   selectedType: null,
   search: '', filterSource: '', filterTopic: '', filterKind: '', filterCategory: '',
-  browse: { category: null, topic: null, subject: null, source: null, fromSource: false }
+  browse: { category: null, topic: null, source: null, type: null, fromSource: false }
 };
 
 // ---------------- Icons ----------------
@@ -3798,10 +3768,9 @@ function render() {
   if(['subscription','shareSchedule','favorites','settings'].includes(currentMainView))renderPersonalPage(currentMainView);
 }
 
-// ---------------- Browsing: branch → system → topic → materials ----------------
+// ---------------- Browsing: specialty → branch → source → type → ordered lectures ----------------
 const CATEGORY_ORDER = ['Medicine', 'Surgery', 'Pediatrics', 'OB/GYN', 'Emergency', 'Basic Sciences'];
 const TYPE_LABELS = { 'محاضرة': 'محاضرات', 'ملخص': 'ملخصات', 'ملف PDF': 'ملفات PDF', 'فيديو': 'فيديوهات', 'أسئلة': 'أسئلة', 'أخرى': 'أخرى' };
-const TYPE_BADGES = { 'محاضرة': 'PDF', 'ملف PDF': 'PDF', 'ملخص': 'ملخص', 'أسئلة': 'أسئلة', 'فيديو': 'فيديو', 'أخرى': 'أخرى' };
 const TYPE_ORDER = ['محاضرة', 'ملف PDF', 'ملخص', 'أسئلة', 'فيديو', 'أخرى'];
 // Introductory material (introduction, anatomy, basics, physiology…) comes first in every list.
 const INTRO_RE = /\b(intro(duction)?|anatomy|basics?|physiology|principles?|overview|fundamentals?|history taking|general exam(ination)?)\b|مقدمة|تشريح|فسلجة|أساسيات/i;
@@ -3816,157 +3785,70 @@ function orderedValues(values, preferred) {
   const rank = v => { const i = preferred.indexOf(v); return i < 0 ? preferred.length : i; };
   return unique.sort((a, b) => rank(a) - rank(b) || a.localeCompare(b, 'ar'));
 }
-const CATEGORY_INFO = {
-  'Medicine': { ar: 'الباطنية', tint: '#e6f1fc', ink: '#0b67b8' },
-  'Surgery': { ar: 'الجراحة', tint: '#e5f6ef', ink: '#167a57' },
-  'Pediatrics': { ar: 'الأطفال', tint: '#fff1e3', ink: '#b8641a' },
-  'OB/GYN': { ar: 'النسائية والتوليد', tint: '#fdebf2', ink: '#b8406f' },
-  'Emergency': { ar: 'الطوارئ', tint: '#fde9e9', ink: '#b93838' },
-  'Basic Sciences': { ar: 'العلوم الأساسية', tint: '#efecfd', ink: '#5b49c2' }
-};
-// Simple line icons (24px grid) for systems that are not a single organ.
-const LINE_ICONS = {
-  stethoscope: '<path d="M6 3v6a6 6 0 0 0 12 0V3"/><path d="M12 15v1.5a4.5 4.5 0 0 0 9 0V13"/><circle cx="21" cy="11" r="2"/><path d="M5 3h2M17 3h2"/>',
-  scalpel: '<path d="M4 20 14 10"/><path d="M14 10l5.5-5.5a1.8 1.8 0 0 1 2.5 2.5L16.5 12.5Z"/><path d="M11 13l2 2"/>',
-  bottle: '<path d="M9 3h6M10 3v3M14 3v3"/><path d="M8.5 6h7l.5 3v10a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2V9Z"/><path d="M8.5 12h7M8.5 16h7"/>',
-  venus: '<circle cx="12" cy="9" r="5.5"/><path d="M12 14.5V22M8.5 18.5h7"/>',
-  cross: '<path d="M10 4h4v6h6v4h-6v6h-4v-6H4v-4h6Z"/>',
-  flask: '<path d="M9 3h6M10 3v6l-5 9a2 2 0 0 0 1.8 3h10.4a2 2 0 0 0 1.8-3l-5-9V3"/><path d="M7.5 15h9"/>',
-  drop: '<path d="M12 3c3 4.2 6 7.6 6 11a6 6 0 0 1-12 0c0-3.4 3-6.8 6-11Z"/><path d="M9.5 15a2.5 2.5 0 0 0 2.5 2.5"/>',
-  virus: '<circle cx="12" cy="12" r="5"/><path d="M12 3v4M12 17v4M3 12h4M17 12h4M5.6 5.6l2.8 2.8M15.6 15.6l2.8 2.8M18.4 5.6l-2.8 2.8M8.4 15.6l-2.8 2.8"/>',
-  bone: '<path d="M7.5 10.5 13.5 16.5"/><path d="M8.6 11.6A2.5 2.5 0 1 1 5.4 8.4a2.5 2.5 0 1 1 3.2-3.2 2.5 2.5 0 1 1 2.8 2.8"/><path d="M12.4 15.4a2.5 2.5 0 1 0 3.2 3.2 2.5 2.5 0 1 0 3.2-3.2 2.5 2.5 0 1 0-2.8-2.8"/>',
-  butterfly: '<path d="M12 7v13"/><path d="M12 9C9 4 3 4 3.5 9.5 4 14 8.5 15 12 13"/><path d="M12 9c3-5 9-5 8.5.5C20 14 15.5 15 12 13"/><path d="M12 13c-3 1-5 3.5-4 6 1.5 1.5 3.5-.5 4-3M12 13c3 1 5 3.5 4 6-1.5 1.5-3.5-.5-4-3"/>',
-  ear: '<path d="M7 9a5 5 0 0 1 10 0c0 3-2.5 4-3.5 6-.8 1.6-.5 4-3 4a2.5 2.5 0 0 1-2.5-2.5"/><path d="M10 10a2 2 0 0 1 4 0c0 1.5-1.5 2-1.5 3"/>',
-  ecg: '<path d="M2 12h4l2-5 3 10 3-8 2 3h6"/>',
-  xray: '<rect x="4" y="3" width="16" height="18" rx="2"/><path d="M12 6v12M9 8c-2 .5-3 1.5-3 1.5M15 8c2 .5 3 1.5 3 1.5M9 11.5c-2 .5-3 1.5-3 1.5M15 11.5c2 .5 3 1.5 3 1.5M9 15c-1.5.4-2.5 1.2-2.5 1.2M15 15c1.5.4 2.5 1.2 2.5 1.2"/>',
-  skin: '<path d="M3 8c3-2 6 2 9 0s6-2 9 0"/><path d="M3 13c3-2 6 2 9 0s6-2 9 0"/><path d="M6 17v4M12 17v4M18 17v4"/>',
-  mind: '<path d="M14 21v-3h2a2 2 0 0 0 2-2v-2l2-1-2-3a7 7 0 1 0-12 5.5V21"/><path d="M10.5 8a2 2 0 0 1 3 1.5c0 1.5-2 1.5-2 3"/>',
-  syringe: '<path d="m18 2 4 4M17 7l3-3M19 9 9 19l-4-4L15 5Z"/><path d="M9 11l4 4M5 19l-2 2M12 8l1 1"/>',
-  vessel: '<path d="M4 20c3-3 4-7 4-10a4 4 0 0 1 8 0c0 3 1 7 4 10"/><path d="M8 13c2 1 6 1 8 0"/>',
-  baby: '<circle cx="12" cy="8" r="4.5"/><path d="M10.5 8h.01M13.5 8h.01M10.8 10a1.8 1.8 0 0 0 2.4 0"/><path d="M6 21c0-4 2.7-7 6-7s6 3 6 7"/>',
-  growth: '<path d="M4 20h16M6 16v4M10 12v8M14 9v11M18 5v15"/>',
-  apple: '<path d="M12 7c-2-2.5-7-2-7 4 0 5 3.5 10 7 8 3.5 2 7-3 7-8 0-6-5-6.5-7-4Z"/><path d="M12 7c0-2 1-3.5 3-4"/>',
-  shield: '<path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6Z"/><path d="M9 12l2 2 4-4"/>',
-  pregnant: '<circle cx="11" cy="4.5" r="2"/><path d="M11 7c-1.5 0-2.5 1.5-2.5 3.5V14M11 7c2.5 0 3 2 3 3.5 2.5 1 3.5 3 3 5.5-.5 1.8-2.5 2.5-4.5 2v3M8.5 14l.5 7"/>',
-  eye: '<path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/>',
-  book: '<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>'
-};
-// Systems get the organ (or symbol) that fits them.
-const SYSTEM_ICON_RULES = [
-  [/ecg/i, 'ecg'], [/chest x|x-ray|radiolog/i, 'xray'], [/cardiothorac|cardio/i, 'heart'], [/respir|pulmo|polmo/i, 'lungs'],
-  [/hepat|liver/i, 'liver'], [/nutrition/i, 'apple'], [/git|gastro|diarr/i, 'stomach'], [/neuro|brain/i, 'brain'], [/renal|nephro|urolog/i, 'kidney'],
-  [/endocr|thyroid/i, 'butterfly'], [/hemat/i, 'drop'], [/immun/i, 'shield'], [/infect/i, 'virus'],
-  [/rheumat|ortho|trauma|bone/i, 'bone'], [/dermat|plastic|skin/i, 'skin'], [/psych/i, 'mind'], [/ophthal|eye/i, 'eye'],
-  [/\bent\b|ear/i, 'ear'], [/anesth/i, 'syringe'], [/vascular/i, 'vessel'], [/neonat/i, 'baby'], [/growth|development/i, 'growth'],
-  [/genetic|iem|metabol/i, 'dna'], [/obstet|antenatal|labor|pregnan/i, 'pregnant'], [/gyne|infertil|contracep|oncolog/i, 'venus'],
-  [/emergenc/i, 'cross'], [/surgery/i, 'scalpel'], [/misc|other|general|أخرى/i, 'book']
-];
-function systemIconKey(topic) { const hit = SYSTEM_ICON_RULES.find(([re]) => re.test(topic || '')); return hit ? hit[1] : 'book'; }
-function browseIcon(key) {
-  if (typeof ORGAN_PATHS !== 'undefined' && ORGAN_PATHS[key])
-    return '<svg viewBox="0 0 80 80" fill="none" stroke="currentColor" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + ORGAN_PATHS[key] + '</svg>';
-  return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + (LINE_ICONS[key] || LINE_ICONS.book) + '</svg>';
-}
-// A "topic" groups the same subject across sources and parts ("Heart Failure-1", "Heart failure (Part 2)" → Heart failure).
-function subjectKey(title) {
-  return String(title || '').toLowerCase()
-    .replace(/\((medwise version|part\s*\d+|part\s*[ivx]+|pediatric er)\)/g, ' ')
-    .replace(/\bpart\s*(\d+|[ivx]+)\b/g, ' ')
-    .replace(/^\s*(lecture|lec|uro|l)\s*\.?\s*\d+(\s*[-–]\s*\d+)?\s*[:\-–.]?\s*/, '')
-    .replace(/[-_\s]+\d+\s*$/, '')
-    .replace(/^the\s+/, '')
-    .replace(/[^a-z0-9؀-ۿ]+/g, ' ').trim().split(' ')
-    // Plurals and small words don't make a new topic: "Diseases of the pericardium" = "Disease of pericardium".
-    .filter(w => w && !['of', 'the', 'and', 'in', 'a'].includes(w)).map(w => w.length > 3 ? w.replace(/(?<!s)s$/, '') : w).join(' ') || String(title || '').toLowerCase();
-}
-function subjectLabel(title) {
-  return String(title || '').replace(/\s*\((medwise version|part\s*\d+|part\s*[ivx]+)\)\s*$/i, '').replace(/(\s*[-_]\s*|\s+)\d+\s*$/, '').trim() || title;
-}
-function browseSubjects(pool) {
-  const groups = new Map();
-  pool.slice().sort(browseLectureOrder).forEach(l => {
-    const key = subjectKey(l.title);
-    if (!groups.has(key)) groups.set(key, { key, label: subjectLabel(l.title), items: [] });
-    groups.get(key).items.push(l);
-  });
-  return [...groups.values()];
-}
+const BROWSE_KEY = { category: l => l.category, topic: l => l.topic || 'أخرى', source: l => l.source || 'غير محدد', type: l => l.type || 'أخرى' };
 function browsePath() {
+  // Resolve each level; a level with a single option (source or type) is skipped automatically.
   const b = state.browse;
-  const path = { category: null, topic: null, subject: null, level: 'category', options: [],
+  const path = { category: null, topic: null, source: null, type: null, level: 'list', options: [],
     pool: lectures.filter(l => (!state.filterKind || materialGroup(l.type) === state.filterKind) &&
       (!b.fromSource || (l.source || 'غير محدد') === b.source)) };
-  const categories = orderedValues(path.pool.map(l => l.category), CATEGORY_ORDER);
-  if (!b.category || !categories.includes(b.category)) { path.options = categories; return path; }
-  path.category = b.category; path.pool = path.pool.filter(l => l.category === b.category);
-  const topics = orderedValues(path.pool.map(l => l.topic || 'أخرى'), TOPICS[b.category] || []);
-  if (!b.topic || !topics.includes(b.topic)) { path.level = 'topic'; path.options = topics; return path; }
-  path.topic = b.topic; path.pool = path.pool.filter(l => (l.topic || 'أخرى') === b.topic);
-  const subjects = browseSubjects(path.pool);
-  const chosen = subjects.find(sj => sj.key === b.subject);
-  if (!chosen) { path.level = 'subject'; path.options = subjects; return path; }
-  path.subject = chosen; path.level = 'list'; path.pool = chosen.items;
+  const levels = [['category', CATEGORY_ORDER, false], ['topic', null, false], ['source', [], true], ['type', TYPE_ORDER, true]];
+  for (const [key, preferred, skipSingle] of levels) {
+    const options = orderedValues(path.pool.map(BROWSE_KEY[key]), preferred || TOPICS[path.category] || []);
+    if (b[key] && options.includes(b[key])) path[key] = b[key];
+    else if (skipSingle && options.length === 1) path[key] = options[0];
+    else { path.level = key; path.options = options; return path; }
+    path.pool = path.pool.filter(l => BROWSE_KEY[key](l) === path[key]);
+  }
   return path;
 }
 function renderBrowse() {
   const path = browsePath();
   lastBrowsePath = path;
   const b = state.browse;
-  const crumbs = [['root', 'كل الفروع']];
+  const crumbs = [['root', 'كل التخصصات']];
   if (b.fromSource && b.source) crumbs.push(['from-source', b.source]);
-  if (path.category) crumbs.push(['category', (CATEGORY_INFO[path.category] || {}).ar || path.category]);
-  if (path.topic) crumbs.push(['topic', path.topic]);
-  if (path.subject) crumbs.push(['subject', path.subject.label]);
-  let html = crumbs.length > 1 ? '<nav class="browse-crumbs" aria-label="مسار التصفح">' + crumbs.map(([level, label], i) =>
-    i === crumbs.length - 1
+  ['category', 'topic', 'source', 'type'].forEach(key => {
+    if (path[key] && !(key === 'source' && b.fromSource)) crumbs.push([key, key === 'type' ? (TYPE_LABELS[path[key]] || path[key]) : path[key]]);
+  });
+  let html = '<nav class="browse-crumbs" aria-label="مسار التصفح">' + crumbs.map(([level, label], i) =>
+    i === crumbs.length - 1 && path.level === 'list'
       ? '<span aria-current="page" dir="auto">' + escapeHtml(label) + '</span>'
       : '<button type="button" data-action="browse-to" data-level="' + level + '" dir="auto">' + escapeHtml(label) + '</button>'
-  ).join('<span class="sep" aria-hidden="true">›</span>') + '</nav>' : '';
+  ).join('<span class="sep" aria-hidden="true">›</span>') + '</nav>';
   if (path.level === 'list') {
-    // A topic shows what it has, grouped by kind: PDF lectures, summaries, questions…
-    const byType = orderedValues(path.pool.map(l => l.type || 'أخرى'), TYPE_ORDER);
-    return html + byType.map(type => {
-      const list = path.pool.filter(l => (l.type || 'أخرى') === type).sort(browseLectureOrder);
-      return '<section class="topic-materials"><h3 class="topic-type-head"><span class="type-badge">' + escapeHtml(TYPE_BADGES[type] || type) + '</span>' + escapeHtml(TYPE_LABELS[type] || type) + '</h3>' + renderLectureList(list) + '</section>';
-    }).join('');
+    const list = path.pool.slice().sort(browseLectureOrder);
+    return html + (list.length ? renderLectureList(list) : '<div class="empty">لا توجد مواد هنا بعد.</div>');
   }
   if (!path.options.length) return html + '<div class="empty">لا توجد مواد هنا بعد.</div>';
-  if (path.level === 'category') {
-    return html + '<p class="section-label">الفروع الرئيسية</p><div class="branch-grid">' + path.options.map(cat => {
-      const info = CATEGORY_INFO[cat] || { ar: cat, tint: '#eef3f8', ink: '#355' };
-      return '<button type="button" class="branch-card" data-action="browse" data-level="category" data-value="' + escapeHtml(cat) + '" style="--tint:' + info.tint + ';--ink:' + info.ink + '">' +
-        '<span class="branch-name">' + escapeHtml(info.ar) + '</span><span class="branch-en" dir="ltr">' + escapeHtml(cat) + '</span></button>';
-    }).join('') + '</div>';
-  }
-  if (path.level === 'topic') {
-    const info = CATEGORY_INFO[path.category] || { tint: '#eef3f8', ink: '#355' };
-    return html + '<p class="section-label">الأجهزة والأقسام</p><div class="system-grid">' + path.options.map(topic =>
-      '<button type="button" class="system-card" data-action="browse" data-level="topic" data-value="' + escapeHtml(topic) + '" style="--tint:' + info.tint + ';--ink:' + info.ink + '">' +
-      '<span class="system-art">' + browseIcon(systemIconKey(topic)) + '</span><span class="system-name" dir="auto">' + escapeHtml(topic) + '</span></button>').join('') + '</div>';
-  }
-  // Topics of one system, introductory ones first; each shows which kinds of material it has.
-  return html + '<p class="section-label">المواضيع</p><div class="subject-list">' + path.options.map(sj => {
-    const kinds = orderedValues(sj.items.map(l => TYPE_BADGES[l.type] || 'أخرى'), ['PDF', 'ملخص', 'أسئلة', 'فيديو', 'أخرى']);
-    return '<button type="button" class="subject-row" data-action="browse" data-level="subject" data-value="' + escapeHtml(sj.key) + '">' +
-      '<span class="subject-name" dir="auto">' + escapeHtml(sj.label) + '</span><span class="subject-kinds">' + kinds.map(k => '<span class="type-badge">' + escapeHtml(k) + '</span>').join('') + '</span>' +
-      '<span class="subject-arrow" aria-hidden="true">‹</span></button>';
-  }).join('') + '</div>';
+  const prompts = { category: 'اختر التخصص', topic: 'اختر الفرع', source: 'اختر المصدر', type: 'اختر النوع' };
+  html += '<p class="section-label">' + prompts[path.level] + '</p><div class="chip-grid browse-grid">';
+  html += path.options.map(value => '<button type="button" class="chip browse-chip" data-action="browse" data-level="' + path.level + '" data-value="' + escapeHtml(value) + '" dir="auto">' +
+    (path.level === 'category' && ICONS[CATEGORY_ICON[value]] ? ICONS[CATEGORY_ICON[value]] : '') +
+    '<span>' + escapeHtml(path.level === 'type' ? (TYPE_LABELS[value] || value) : value) + '</span></button>').join('');
+  return html + '</div>';
 }
 function browseTo(level, value) {
+  const order = ['category', 'topic', 'source', 'type'];
   const b = state.browse;
-  const order = ['category', 'topic', 'subject'];
-  if (level === 'root') { b.fromSource = false; b.source = null; order.forEach(k => { b[k] = null; }); }
-  else if (level === 'from-source') order.forEach(k => { b[k] = null; });
-  else {
-    const i = order.indexOf(level);
-    if (value !== undefined) b[level] = value;
-    order.slice(i + 1).forEach(k => { b[k] = null; });
+  if (level === 'from-source') { b.category = b.topic = b.type = null; render(); return; }
+  if (level === 'root') b.fromSource = false;
+  const lockedSource = b.fromSource ? b.source : null;
+  const i = level === 'root' ? -1 : order.indexOf(level);
+  if (value !== undefined) b[level] = value;
+  // Clearing the levels after the chosen one also re-shows levels that were skipped automatically.
+  order.slice(level === 'root' ? 0 : value !== undefined ? i + 1 : i).forEach(k => { b[k] = null; });
+  if (value === undefined && i >= 0) {
+    // A crumb keeps its own choice and reopens the next level's options.
+    b[level] = browsePathValue(level);
   }
+  // Browsing inside one source keeps that source fixed at every level.
+  if (lockedSource) b.source = lockedSource;
   render();
-  const content = document.getElementById('content');
-  if (content.getBoundingClientRect().top < 0) content.scrollIntoView({ block: 'start', behavior: document.documentElement.dataset.motion === 'reduce' ? 'auto' : 'smooth' });
+  document.getElementById('content').scrollIntoView({ block: 'start', behavior: document.documentElement.dataset.motion === 'reduce' ? 'auto' : 'smooth' });
 }
 let lastBrowsePath = null;
+function browsePathValue(level) { return lastBrowsePath ? lastBrowsePath[level] : null; }
 
 function renderSearchResults(q) {
   const matches = lectures.filter(l =>
@@ -4432,9 +4314,8 @@ function layoutOrganMarks() {
       mark.style.visibility = 'hidden';
       const w = mark.offsetWidth, h = mark.offsetHeight;
       const kind = Object.keys(ORGAN_ANCHORS).find(k => mark.classList.contains(k)) || 'organ-mark-s1';
-      // Pages with a search bar keep their marks in the header strip above it, away from cards and lists.
+      // Pages with a search bar keep their marks in the header strip above it, away from chips and lists.
       const stop = container.matches('#librarySection, .mb-tool-page') && container.querySelector('.smart-search-form');
-      // Header marks go to its empty left side, far from the title and text on the right.
       const [ax, ay] = stop ? (kind === 'organ-mark-s1' ? [0, 0] : [0.12, 1]) : ORGAN_ANCHORS[kind];
       const maxX = box.width - w - 8, maxY = stop ? stop.getBoundingClientRect().top - box.top - h - 10 : box.height - h - 8;
       if (maxX < 8 || maxY < 8) return;
@@ -4575,7 +4456,7 @@ function wireMedbrainEvents() {
     state.selectedTopic = null;
     state.selectedType = null;
     state.search = state.filterSource = state.filterKind = state.filterCategory = state.filterTopic = '';
-    state.browse = { category: btn.dataset.topicCategory, topic: btn.dataset.topicName, subject: null, source: null, fromSource: false };
+    state.browse = { category: btn.dataset.topicCategory, topic: btn.dataset.topicName, source: null, type: null };
     document.getElementById('searchInput').value = '';
     document.getElementById('librarySearchInput').value = '';
     const toggle = document.getElementById('modeToggle');
@@ -5474,7 +5355,7 @@ function renderSearchSuggestions(input) {
   positionSearchSuggestions();
 }
 function browseStartFor(kind, label) {
-  const start = { category: null, topic: null, subject: null, source: null, fromSource: false };
+  const start = { category: null, topic: null, source: null, type: null, fromSource: false };
   if (kind === 'category') start.category = label;
   else if (kind === 'source') { start.source = label; start.fromSource = true; }
   else if (kind === 'topic') {
