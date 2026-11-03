@@ -2116,6 +2116,23 @@ button,a,input,select,textarea{-webkit-tap-highlight-color:transparent;}
 #gateOverlay .gate-modal::-webkit-scrollbar-thumb { background:#9fc3e6; border-radius:99px; }
 #gateOverlay .gate-modal::-webkit-scrollbar-button { display:none; height:0; }
 @media (max-width:420px) { #gateOverlay .gate-modal, #nameOverlay .gate-modal { padding:22px 16px 14px; border-radius:20px; } }
+
+/* ---------- Floating AI button ---------- */
+.ai-fab { position:fixed; z-index:40; left:max(18px, env(safe-area-inset-left)); bottom:calc(22px + env(safe-area-inset-bottom));
+  width:56px; height:56px; padding:0; border:0; border-radius:50%; display:grid; place-items:center; cursor:pointer;
+  background:linear-gradient(135deg,#0876cf 0%,#21a3c9 55%,#39c99b 100%); color:#ffffff;
+  box-shadow:0 10px 26px rgba(8,118,207,.35), 0 2px 6px rgba(8,30,60,.18); transition:transform .15s ease, box-shadow .15s ease; }
+.ai-fab svg { width:26px; height:26px; }
+.ai-fab:hover { transform:translateY(-2px) scale(1.04); box-shadow:0 14px 32px rgba(8,118,207,.42), 0 3px 8px rgba(8,30,60,.2); }
+.ai-fab:active { transform:scale(.96); }
+.ai-fab:focus-visible { outline:3px solid #8cc8ff; outline-offset:3px; }
+.ai-fab::after { content:attr(data-tip); position:absolute; left:calc(100% + 10px); top:50%; transform:translateY(-50%); white-space:nowrap;
+  padding:6px 10px; border-radius:8px; background:#172235; color:#ffffff; font-size:12px; font-weight:700; opacity:0; pointer-events:none; transition:opacity .15s ease; }
+.ai-fab:hover::after, .ai-fab:focus-visible::after { opacity:1; }
+@media (hover:none) { .ai-fab::after { display:none; } }
+@media (max-width:820px) { .ai-fab { bottom:calc(78px + env(safe-area-inset-bottom)); width:52px; height:52px; } }
+body.ai-site-open .ai-fab, body.ai-fab-hidden .ai-fab { display:none; }
+@media (prefers-reduced-motion:reduce) { .ai-fab { transition:none; } .ai-fab:hover { transform:none; } }
 </style>
 <link rel="manifest" href="./manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="192x192" href="./assets/app-icon-192.png">
@@ -2292,7 +2309,6 @@ button,a,input,select,textarea{-webkit-tap-highlight-color:transparent;}
         <button class="mb-brand-home" id="brandHomeBtn" type="button" aria-label="Medbrain — الواجهة الرئيسية"><span class="mb-brand-name">Medbrain</span><small class="mb-brand-sub">MEDICAL LEARNING</small></button>
       </div>
       <div class="mb-top-actions">
-        <button class="mb-icon-btn keep-mobile mb-global-ai-trigger" id="topAIButton" type="button" data-open-ai aria-label="Ask MidBrain AI" title="Ask MidBrain AI ✨" aria-expanded="false" aria-controls="globalAIDialog"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 3l2.2 6.8L19 12l-6.8 2.2L10 21l-2.2-6.8L1 12l6.8-2.2L10 3z"/><path d="M20 2v6M17 5h6M21 17v4M19 19h4"/></svg><span class="mb-ai-top-label" dir="ltr">Ask MidBrain AI</span></button>
         <button class="mb-icon-btn keep-mobile" id="siteThemeToggle" type="button" aria-label="تفعيل الوضع الداكن" aria-pressed="false" title="الوضع الداكن">☾</button>
         <button class="mb-avatar" id="profileBtn" type="button" aria-label="الحساب"><span id="avatarInitials">MB</span></button>
       </div>
@@ -2658,6 +2674,7 @@ button,a,input,select,textarea{-webkit-tap-highlight-color:transparent;}
   </div>
 </div>
 
+<button type="button" class="ai-fab" id="topAIButton" data-open-ai aria-label="اسأل MidBrain AI" aria-expanded="false" aria-controls="globalAIDialog" data-tip="اسأل MidBrain AI"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 2.5l2.3 6.6 6.7 2.4-6.7 2.4L12 20.5l-2.3-6.6-6.7-2.4 6.7-2.4L12 2.5z" fill="currentColor"/><path d="M19 2.5v3.5M17.25 4.25h3.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button>
 <div id="siteAIHost">
 <aside id="globalAIDialog" class="mb-ai-dialog" aria-labelledby="globalAIHeading" hidden>
   <div class="mb-ai-dialog-head"><h2 id="globalAIHeading" dir="ltr">Ask MidBrain AI ✨</h2><button type="button" id="globalAIClose" aria-label="إغلاق محادثة AI">×</button></div>
@@ -4158,7 +4175,17 @@ function renderMedbrainWidgets() {
   renderFlashcards();
 }
 
+function syncAIFab() {
+  const hide = ['readerOverlay', 'gateOverlay', 'nameOverlay'].some(id => {
+    const el = document.getElementById(id);
+    return el && el.classList.contains('open');
+  });
+  document.body.classList.toggle('ai-fab-hidden', hide);
+}
 function wireMedbrainEvents() {
+  const fabWatch = new MutationObserver(syncAIFab);
+  ['readerOverlay', 'gateOverlay', 'nameOverlay'].forEach(id => { const el = document.getElementById(id); if (el) fabWatch.observe(el, { attributes: true, attributeFilter: ['class'] }); });
+  syncAIFab();
   document.body.addEventListener('click', e => {
     if(!e.target.closest('[data-open-ai]'))return;
     closeDrawer();
