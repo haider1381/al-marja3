@@ -2341,7 +2341,7 @@ body.ai-site-open .ai-fab, body.ai-fab-hidden .ai-fab { display:none; }
     <section class="mb-page-view active" id="dashboardView">
     <section class="mb-hero">
       <span class="mb-watermark mb-wm-brain" aria-hidden="true"><svg viewBox="0 0 100 80" fill="none" stroke="currentColor" stroke-width="4"><path d="M47 67c-7 7-20 4-22-6-12 1-18-13-10-21-7-8-1-22 10-21 2-11 17-14 23-5 8-10 24-5 25 7 12-1 18 14 10 22 9 7 4 23-8 23-3 10-17 12-24 5-2 3-4 5-8 6Z"/><path d="M48 17v48M35 23c10 4 7 12 2 16m25-16c-10 4-7 12-2 16M29 48c8-4 14 0 18 6m25-6c-8-4-14 0-18 6"/></svg></span>
-      <span class="mb-watermark mb-wm-heart" aria-hidden="true"><svg viewBox="0 0 80 100" fill="none" stroke="currentColor" stroke-width="4"><path d="M39 88C22 73 7 57 9 38c1-13 13-20 24-13 4 2 6 6 7 10 2-9 9-17 19-15 12 2 17 16 12 27-6 15-19 29-32 41Z"/><path d="M37 33c4 15 2 29-4 42m9-27c8 2 14 7 18 14"/></svg></span>
+      <span class="mb-watermark mb-wm-heart" aria-hidden="true"><svg viewBox="0 0 80 80" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M30 31C21 34 15 43 17 54C19 66 31 75 44 73C57 71 65 60 63 46C62 38 57 32 50 30"/><path d="M37 31C36 21 40 13 49 11C56 10 61 14 60 21"/><path d="M44 13V5M50 11V3M56 13V6"/><path d="M33 31C31 24 26 20 19 20M28 35C23 29 23 20 26 12M38 40C43 50 43 59 38 67"/></svg></span>
       <span class="mb-watermark mb-wm-micro" aria-hidden="true"><svg viewBox="0 0 90 90" fill="none" stroke="currentColor" stroke-width="4"><circle cx="43" cy="45" r="17"/><path d="m31 14 9 18m20-11-8 14M15 45h11m36 0h14M26 72l8-13m25 14-9-14"/><circle cx="43" cy="45" r="4"/></svg></span>
 
       <h1 class="mb-welcome" dir="ltr">Welcome, <span id="welcomeName">Doctor</span>!</h1>
@@ -4196,8 +4196,8 @@ function renderMedbrainWidgets() {
 }
 
 // Organ outline marks: three per large section, one per card, placed in quiet corners and scrolling with the page.
-const ORGAN_PATHS = {heart:'<path d="M40 70C18 56 8 42 10 28C12 16 24 10 33 16C37 19 39 22 40 25C41 22 43 19 47 16C56 10 68 16 70 28C72 42 62 56 40 70Z"/><path d="M34 16C33 9 36 5 41 4M46 16C47 10 52 7 58 8M30 34C34 40 40 42 46 40"/>',brain:'<path d="M40 14C33 8 22 10 20 19C11 20 7 30 12 37C7 44 11 54 20 55C22 64 33 67 40 61C47 67 58 64 60 55C69 54 73 44 68 37C73 30 69 20 60 19C58 10 47 8 40 14Z"/><path d="M40 14V61M26 28C30 30 30 35 26 38M54 28C50 30 50 35 54 38M24 47C29 46 32 49 31 53M56 47C51 46 48 49 49 53"/>',lungs:'<path d="M40 6V30M40 30C36 34 32 36 28 38M40 30C44 34 48 36 52 38"/><path d="M34 22C24 22 14 34 12 50C10 64 16 72 26 70C33 69 36 62 36 52V30M46 22C56 22 66 34 68 50C70 64 64 72 54 70C47 69 44 62 44 52V30"/>',stomach:'<path d="M30 6C30 14 32 22 30 28C22 34 16 46 22 58C30 72 52 72 62 60C70 50 68 36 58 34C50 32 46 40 44 46C42 52 36 50 36 42C36 32 38 18 38 6"/><path d="M28 52C34 58 46 60 54 54"/>',liver:'<path d="M8 34C10 22 26 16 44 18C58 20 72 18 74 26C76 34 66 42 54 50C44 57 34 64 26 62C14 59 6 46 8 34Z"/><path d="M44 18C42 30 44 42 50 52M20 40C26 44 32 46 38 46"/>',kidney:'<path d="M48 12C34 8 20 18 20 38C20 58 34 70 48 66C58 63 58 52 52 46C47 42 47 36 52 32C58 26 58 15 48 12Z"/><path d="M52 40C60 44 64 54 62 72M30 30C27 36 27 42 30 48"/>',skull:'<path d="M40 8C22 8 12 20 12 36C12 46 18 52 24 54V64H56V54C62 52 68 46 68 36C68 20 58 8 40 8Z"/><circle cx="29" cy="36" r="6"/><circle cx="51" cy="36" r="6"/><path d="M40 43L37 49H43ZM32 54V64M40 54V64M48 54V64"/>',eye:'<path d="M6 40C22 20 58 20 74 40C58 60 22 60 6 40Z"/><circle cx="40" cy="40" r="11"/><circle cx="40" cy="40" r="4"/>',dna:'<path d="M28 4C52 16 52 28 28 40C4 52 4 64 28 76M52 4C28 16 28 28 52 40C76 52 76 64 52 76"/><path d="M31 11H49M38 22H42M31 33H49M17 47H63M17 69H63M23 58H57"/>'};
-const ORGAN_COLORS = {heart:'#e5737d',brain:'#8f7fe0',lungs:'#5aa6e0',stomach:'#ec9a52',liver:'#c97b7b',kidney:'#b07ccc',skull:'#7f98b3',eye:'#3fb896',dna:'#3fb896'};
+const ORGAN_PATHS = {heart:'<path d="M30 31C21 34 15 43 17 54C19 66 31 75 44 73C57 71 65 60 63 46C62 38 57 32 50 30"/><path d="M37 31C36 21 40 13 49 11C56 10 61 14 60 21"/><path d="M44 13V5M50 11V3M56 13V6"/><path d="M33 31C31 24 26 20 19 20M28 35C23 29 23 20 26 12M38 40C43 50 43 59 38 67"/>',brain:'<path d="M40 14C33 8 22 10 20 19C11 20 7 30 12 37C7 44 11 54 20 55C22 64 33 67 40 61C47 67 58 64 60 55C69 54 73 44 68 37C73 30 69 20 60 19C58 10 47 8 40 14Z"/><path d="M40 14V61M26 28C30 30 30 35 26 38M54 28C50 30 50 35 54 38M24 47C29 46 32 49 31 53M56 47C51 46 48 49 49 53"/>',lungs:'<path d="M40 6V30M40 30C36 34 32 36 28 38M40 30C44 34 48 36 52 38"/><path d="M34 22C24 22 14 34 12 50C10 64 16 72 26 70C33 69 36 62 36 52V30M46 22C56 22 66 34 68 50C70 64 64 72 54 70C47 69 44 62 44 52V30"/>',stomach:'<path d="M30 6C30 14 32 22 30 28C22 34 16 46 22 58C30 72 52 72 62 60C70 50 68 36 58 34C50 32 46 40 44 46C42 52 36 50 36 42C36 32 38 18 38 6"/><path d="M28 52C34 58 46 60 54 54"/>',liver:'<path d="M8 34C10 22 26 16 44 18C58 20 72 18 74 26C76 34 66 42 54 50C44 57 34 64 26 62C14 59 6 46 8 34Z"/><path d="M44 18C42 30 44 42 50 52M20 40C26 44 32 46 38 46"/>',kidney:'<path d="M48 12C34 8 20 18 20 38C20 58 34 70 48 66C58 63 58 52 52 46C47 42 47 36 52 32C58 26 58 15 48 12Z"/><path d="M52 40C60 44 64 54 62 72M30 30C27 36 27 42 30 48"/>',skull:'<path d="M40 9C24 9 14 21 14 36C14 46 19 52 26 55V61C26 65 30 68 34 68H46C50 68 54 65 54 61V55C61 52 66 46 66 36C66 21 56 9 40 9Z"/><ellipse cx="30" cy="37" rx="6.5" ry="7.5"/><ellipse cx="50" cy="37" rx="6.5" ry="7.5"/><path d="M40 45L37.5 50Q40 51.5 42.5 50Z"/><path d="M33 58Q40 63 47 58"/>',dna:'<path d="M28 4C52 16 52 28 28 40C4 52 4 64 28 76M52 4C28 16 28 28 52 40C76 52 76 64 52 76"/><path d="M31 11H49M38 22H42M31 33H49M17 47H63M17 69H63M23 58H57"/>'};
+const ORGAN_COLORS = {heart:'#e5737d',brain:'#8f7fe0',lungs:'#5aa6e0',stomach:'#ec9a52',liver:'#c97b7b',kidney:'#b07ccc',skull:'#7f98b3',dna:'#3fb896'};
 function organMark(name, cls) {
   const el = document.createElement('span');
   el.className = 'organ-mark ' + cls;
@@ -4207,7 +4207,7 @@ function organMark(name, cls) {
   return el;
 }
 function decorateOrganMarks() {
-  const trios = [['brain', 'lungs', 'heart'], ['stomach', 'skull', 'kidney'], ['liver', 'eye', 'dna']];
+  const trios = [['brain', 'lungs', 'heart'], ['stomach', 'skull', 'kidney'], ['liver', 'heart', 'dna']];
   const sections = ['.mb-practice', '#librarySection', '.mb-tool-page', '#gateOverlay .gate-modal', '#nameOverlay .gate-modal'];
   let n = 0;
   sections.forEach(sel => document.querySelectorAll(sel).forEach(section => {
@@ -4215,7 +4215,7 @@ function decorateOrganMarks() {
     section.classList.add('has-organ-marks');
     trios[n++ % trios.length].forEach((name, i) => section.prepend(organMark(name, 'organ-mark-s' + (i + 1))));
   }));
-  const singles = ['lungs', 'brain', 'eye', 'heart', 'dna', 'kidney', 'stomach', 'liver', 'skull'];
+  const singles = ['lungs', 'brain', 'skull', 'heart', 'dna', 'kidney', 'stomach', 'liver'];
   let m = 0;
   document.querySelectorAll('.mb-feature, .mb-personal-card').forEach(card => {
     if (card.querySelector(':scope > .organ-mark')) return;
