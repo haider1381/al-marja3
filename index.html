@@ -441,6 +441,8 @@
   .lecture .meta-row span { display: inline-flex; align-items: center; gap: 3px; }
   .lecture .notes { font-size: 12.5px; color: var(--text-muted); margin-top: 6px; line-height: 1.5; }
   .lecture .body.clickable { cursor: pointer; }
+  .lecture.openable { cursor: pointer; }
+  .lecture.openable:focus-visible { outline: 2px solid var(--accent-strong); outline-offset: 2px; }
   .lecture .body.clickable:hover .title { color: var(--accent-strong); }
   .lecture .actions { display: flex; flex-direction: column; gap: 6px; align-items: center; flex-shrink: 0; }
   .lecture .actions a, .lecture .actions button {
@@ -3575,9 +3577,12 @@ function renderLectureList(list) {
     const hasText = !!(l.text && l.text.trim());
     const externalLink = safeExternalLink(l.link);
     const hasQuiz = l.type === 'أسئلة' && Array.isArray(l.questions) && l.questions.length > 0;
-    html += `<div class="lecture">
+    // The whole row opens the material with its main action: text reader, then PDF, then quiz, then link.
+    const openAction = hasText ? 'open-reader' : l.filePath ? 'open-pdf' : hasQuiz ? 'open-quiz' : externalLink ? 'open-link' : '';
+    const openLabel = { 'open-reader': 'قراءة المحاضرة', 'open-pdf': 'فتح PDF', 'open-quiz': 'بدء الأسئلة', 'open-link': 'فتح الرابط' }[openAction] || '';
+    html += `<div class="lecture${openAction ? ' openable' : ''}"${openAction ? ` data-open="${openAction}" data-id="${escapeHtml(l.id)}" role="button" tabindex="0" aria-label="${openLabel}: ${escapeHtml(l.title)}"` : ''}>
       <div class="icon">${ICONS[iconKey]}</div>
-      <div class="body${hasText ? ' clickable' : ''}"${hasText ? ` data-action="open-reader" data-id="${escapeHtml(l.id)}"` : ''}>
+      <div class="body${openAction ? ' clickable' : ''}">
         <p class="title">${escapeHtml(l.title)}</p>
         <div class="meta-row">
           <span>${escapeHtml(l.source || '')}</span>
@@ -3590,9 +3595,8 @@ function renderLectureList(list) {
       </div>
       <div class="actions">
         <button type="button" class="${favoriteRecords.has(l.id) ? 'favorite-saved' : ''}" data-action="toggle-favorite" data-id="${escapeHtml(l.id)}" aria-label="${favoriteRecords.has(l.id) ? 'إزالة من المفضلات' : 'إضافة إلى المفضلات'}" aria-pressed="${favoriteRecords.has(l.id)}" ${favoritePending.has(l.id) ? 'disabled' : ''}>${ICONS.bookmark}</button>
-        ${hasText ? `<button type="button" class="read" data-action="open-reader" data-id="${escapeHtml(l.id)}" aria-label="قراءة المحاضرة">${ICONS.read}</button>` : ''}
-        ${hasQuiz ? `<button type="button" class="read" data-action="open-quiz" data-id="${escapeHtml(l.id)}" aria-label="بدء الأسئلة">${ICONS.help}</button>` : ''}
-        ${l.filePath ? `<button type="button" class="read" data-action="open-pdf" data-id="${escapeHtml(l.id)}" aria-label="فتح PDF" title="فتح PDF">${ICONS.file}</button>` : ''}
+        ${hasQuiz && openAction !== 'open-quiz' ? `<button type="button" class="read" data-action="open-quiz" data-id="${escapeHtml(l.id)}" aria-label="بدء الأسئلة">${ICONS.help}</button>` : ''}
+        ${l.filePath && openAction !== 'open-pdf' ? `<button type="button" class="read" data-action="open-pdf" data-id="${escapeHtml(l.id)}" aria-label="فتح PDF" title="فتح PDF">${ICONS.file}</button>` : ''}
         ${l.filePath ? `<button type="button" class="read" data-action="download-pdf" data-id="${escapeHtml(l.id)}" aria-label="تنزيل PDF" title="تنزيل PDF">${ICONS.download}</button>` : ''}
         ${externalLink ? `<a href="${escapeHtml(externalLink)}" target="_blank" rel="noopener noreferrer" aria-label="فتح الرابط">${ICONS.link}</a>` : ''}
         ${canWrite ? `<button type="button" class="edit" data-action="edit-lecture" data-id="${escapeHtml(l.id)}" aria-label="تعديل المادة">${ICONS.edit}</button>` : ''}
@@ -3626,6 +3630,7 @@ function wireStaticEvents() {
   });
 
   document.getElementById('content').addEventListener('click', onContentClick);
+  document.getElementById('content').addEventListener('keydown', onLectureCardKey);
 
   document.getElementById('openAddBtn').addEventListener('click', () => openModal());
   document.getElementById('cancelBtn').addEventListener('click', closeModal);
@@ -3713,6 +3718,24 @@ function onContentClick(e) {
 
   const readerTrigger = e.target.closest('[data-action="open-reader"]');
   if (readerTrigger) { openReader(readerTrigger.dataset.id); return; }
+
+  const card = e.target.closest('.lecture[data-open]');
+  if (card && !e.target.closest('.actions, a, button')) openLectureCard(card);
+}
+function openLectureCard(card) {
+  const id = card.dataset.id;
+  if (card.dataset.open === 'open-reader') openReader(id);
+  else if (card.dataset.open === 'open-pdf') openStoredPdf(id, card);
+  else if (card.dataset.open === 'open-quiz') openQuiz(id);
+  else if (card.dataset.open === 'open-link') {
+    const link = safeExternalLink((lectures.find(l => l.id === id) || {}).link);
+    if (link) window.open(link, '_blank', 'noopener,noreferrer');
+  }
+}
+function onLectureCardKey(e) {
+  if ((e.key !== 'Enter' && e.key !== ' ') || !e.target.matches('.lecture[data-open]')) return;
+  e.preventDefault();
+  openLectureCard(e.target);
 }
 
 
@@ -4862,7 +4885,8 @@ async function callLectureFile(action, body, contentType) {
 }
 async function openStoredPdf(id, button, download = false) {
   const material = lectures.find(l => l.id === id);
-  if (!client || !material || !material.filePath) return;
+  // A row is not a real button, so its disabled flag only guards against double clicks here.
+  if (!client || !material || !material.filePath || button.disabled) return;
   // Open during the click so mobile popup blockers do not block the later signed URL.
   // A download is served as an attachment, so it can stay in this page without a new tab.
   const tab = deviceIsNative() || download ? null : window.open('about:blank', '_blank');
@@ -5088,6 +5112,7 @@ function wirePersonalPages() {
     document.getElementById('shareScheduleStatus').textContent='تم تنزيل نسخة من الجدول.';
   });
   document.getElementById('favoritesContent').addEventListener('click',onContentClick);
+  document.getElementById('favoritesContent').addEventListener('keydown',onLectureCardKey);
   document.getElementById('favoritesSearch').addEventListener('input',renderFavorites);
   document.getElementById('favoritesSort').addEventListener('change',renderFavorites);
   document.getElementById('refreshFavoritesBtn').addEventListener('click',async e=>{
