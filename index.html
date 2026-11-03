@@ -4403,7 +4403,7 @@ function decorateOrganMarks() {
   sections.forEach(sel => document.querySelectorAll(sel).forEach(section => {
     if (section.querySelector(':scope > .organ-mark')) return;
     section.classList.add('has-organ-marks');
-    trios[n++ % trios.length].forEach((name, i) => section.prepend(organMark(name, 'organ-mark-s' + (i + 1))));
+    trios[n++ % trios.length].slice(0, section.id === 'librarySection' ? 2 : 3).forEach((name, i) => section.prepend(organMark(name, 'organ-mark-s' + (i + 1))));
   }));
   const singles = ['lungs', 'brain', 'skull', 'heart', 'dna', 'kidney', 'stomach', 'liver'];
   let m = 0;
@@ -4423,7 +4423,7 @@ function layoutOrganMarks() {
     const box = container.getBoundingClientRect();
     // A hidden or tiny section keeps its marks hidden, so old positions never show over new content.
     if (!container.offsetParent || box.width < 40 || box.height < 40) { marks.forEach(m => { m.style.visibility = 'hidden'; }); return; }
-    const pad = 6;
+    const pad = container.matches('#librarySection, .mb-tool-page') ? 18 : 6;
     const blockers = [...container.querySelectorAll(ORGAN_BLOCKERS)]
       .filter(el => !el.closest('.organ-mark') && el !== container && !(el.classList && el.classList.contains('has-organ-marks') && el.tagName === 'BUTTON' && el === container))
       .map(el => el.getBoundingClientRect()).filter(r => r.width > 0 && r.height > 0 && !(r.width >= box.width - 2 && r.height >= box.height - 2));
@@ -4432,8 +4432,11 @@ function layoutOrganMarks() {
       mark.style.visibility = 'hidden';
       const w = mark.offsetWidth, h = mark.offsetHeight;
       const kind = Object.keys(ORGAN_ANCHORS).find(k => mark.classList.contains(k)) || 'organ-mark-s1';
-      const [ax, ay] = ORGAN_ANCHORS[kind];
-      const maxX = box.width - w - 8, maxY = box.height - h - 8;
+      // Pages with a search bar keep their marks in the header strip above it, away from cards and lists.
+      const stop = container.matches('#librarySection, .mb-tool-page') && container.querySelector('.smart-search-form');
+      // Header marks go to its empty left side, far from the title and text on the right.
+      const [ax, ay] = stop ? (kind === 'organ-mark-s1' ? [0, 0] : [0.12, 1]) : ORGAN_ANCHORS[kind];
+      const maxX = box.width - w - 8, maxY = stop ? stop.getBoundingClientRect().top - box.top - h - 10 : box.height - h - 8;
       if (maxX < 8 || maxY < 8) return;
       const steps = 14, spots = [];
       for (let i = 0; i <= steps; i++) for (let j = 0; j <= steps; j++) {
