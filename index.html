@@ -1672,12 +1672,14 @@
   .library-search:focus-within { border-color:var(--accent); box-shadow:0 0 0 2px var(--accent-soft); }
   .search-filter-btn { margin-inline-start:0; }
   #filterActiveCount { position:absolute; top:-3px; left:-3px; border-radius:50%; min-width:15px; padding:1px 3px; background:#0F6CBD; color:#ffffff; font-size:9px; }
-  .search-filter-popover { position:absolute; z-index:26; top:calc(100% + 6px); left:0; width:min(340px,100%); padding:14px; background:var(--surface); border:1px solid var(--border); border-radius:14px; box-shadow:var(--mb-shadow); color:var(--text); }
+  .search-filter-popover { position:absolute; z-index:26; top:calc(100% + 6px); left:0; width:min(380px,100%); box-sizing:border-box; padding:14px; background:var(--surface); border:1px solid var(--border); border-radius:14px; box-shadow:var(--mb-shadow); color:var(--text); }
   .filter-popover-head { display:flex; justify-content:space-between; align-items:center; font-size:14px; margin-bottom:10px; }
-  .filter-popover-head button { border:0; background:var(--surface-alt); color:var(--text); width:26px; height:26px; border-radius:7px; font-size:20px; }
-  .mb-library .library-filters { grid-template-columns:1fr 1fr; gap:8px; margin:0; }
-  .mb-library .library-filters label { font-size:11px; }
-  .mb-library .library-filters select { padding:7px; font-size:12px; margin-top:4px; border-radius:7px; }
+  .filter-popover-head button { border:0; background:var(--surface-alt); color:var(--text); width:30px; height:30px; border-radius:50%; display:grid; place-items:center; padding:0; line-height:0; }
+  .filter-popover-actions .mb-primary { flex:1; height:40px; font-size:13.5px; }
+  .mb-library .library-filters { grid-template-columns:1fr; gap:10px; margin:0; }
+  .mb-library .library-filters label { font-size:12.5px; font-weight:700; color:var(--text); }
+  .mb-library .library-filters select { width:100%; height:42px; padding:0 10px; font-size:14px; margin-top:5px; border-radius:10px; border:1px solid var(--border); background:var(--surface-alt); color:var(--text); }
+  .mb-library .library-filters select:focus { outline:2px solid var(--accent); outline-offset:1px; }
   .filter-popover-actions { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-top:12px; }
   .filter-popover-actions button { font-size:12px; padding:7px 12px; }
   #clearFilterChoices { border:0; background:transparent; color:var(--text-muted); }
@@ -1700,6 +1702,18 @@
   .smart-option span { overflow-wrap:anywhere; }
   .smart-option small { flex-shrink:0; color:var(--text-muted); font-size:10px; }
   .smart-option:hover, .smart-option[aria-selected="true"] { background:var(--accent-soft); color:var(--accent-strong); }
+  .smart-option.recent { justify-content:flex-start; }
+  .smart-option.recent span { flex:1; }
+  .smart-option.recent svg { width:15px; height:15px; flex-shrink:0; color:var(--text-muted); }
+  .smart-recent-head { display:flex; align-items:center; justify-content:space-between; padding:6px 10px 4px; font-size:11px; font-weight:700; color:var(--text-muted); }
+  .smart-recent-head button { border:0; background:none; padding:2px 4px; font:inherit; color:var(--accent); cursor:pointer; }
+  .smart-divider { height:1px; margin:6px 8px; background:var(--border); }
+  #smartSuggestions, #libraryFilterPopover { scrollbar-width:thin; scrollbar-color:#9fc3e6 transparent; }
+  #smartSuggestions::-webkit-scrollbar { width:6px; }
+  #smartSuggestions::-webkit-scrollbar-thumb { background:#9fc3e6; border-radius:99px; }
+  #smartSuggestions::-webkit-scrollbar-button { display:none; height:0; }
+  :root[data-theme="dark"] #smartSuggestions { scrollbar-color:#3b5b85 transparent; }
+  :root[data-theme="dark"] #smartSuggestions::-webkit-scrollbar-thumb { background:#3b5b85; }
   :root[data-theme="dark"] .smart-search-form { background:var(--bg); border-color:var(--border); }
 
 
@@ -2357,12 +2371,12 @@ button,a,input,select,textarea{-webkit-tap-highlight-color:transparent;}
           <button type="submit" class="search-submit" aria-label="بحث في المحاضرات"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg></button>
           <input type="search" id="librarySearchInput" aria-label="البحث في المحاضرات والمواد" placeholder="ابحث باسم المحاضرة أو الموضوع…" autocomplete="off" role="combobox" aria-autocomplete="list" aria-controls="smartSuggestions" aria-expanded="false">
           <button type="button" id="libraryFilterBtn" class="search-filter-btn" aria-label="فلاتر البحث" aria-expanded="false" aria-controls="libraryFilterPopover">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 6h7m4 0h7M3 12h12m4 0h2M3 18h3m4 0h11"/><circle cx="12" cy="6" r="2"/><circle cx="17" cy="12" r="2"/><circle cx="8" cy="18" r="2"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 5h18l-7 8.5V19l-4 2v-7.5L3 5Z"/></svg>
             <span id="filterActiveCount" hidden></span>
           </button>
         </form>
         <section id="libraryFilterPopover" class="search-filter-popover" aria-label="فلاتر البحث" hidden>
-          <div class="filter-popover-head"><strong>فلاتر البحث</strong><button type="button" id="closeFiltersBtn" aria-label="إغلاق الفلاتر">×</button></div>
+          <div class="filter-popover-head"><strong>فلاتر البحث</strong><button type="button" id="closeFiltersBtn" aria-label="إغلاق الفلاتر"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true" focusable="false"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></button></div>
           <div class="library-filters">
             <label>التخصص<select id="filterCategory"><option value="">كل التخصصات</option></select></label>
             <label>الموضوع<select id="filterTopic"><option value="">كل المواضيع</option></select></label>
@@ -3171,7 +3185,7 @@ const state = {
   selectedTopic: null,
   selectedType: null,
   search: '', filterSource: '', filterTopic: '', filterKind: '', filterCategory: '',
-  browse: { category: null, topic: null, source: null, type: null }
+  browse: { category: null, topic: null, source: null, type: null, fromSource: false }
 };
 
 // ---------------- Icons ----------------
@@ -3636,7 +3650,8 @@ function browsePath() {
   // Resolve each level; a level with a single option (source or type) is skipped automatically.
   const b = state.browse;
   const path = { category: null, topic: null, source: null, type: null, level: 'list', options: [],
-    pool: lectures.filter(l => !state.filterKind || materialGroup(l.type) === state.filterKind) };
+    pool: lectures.filter(l => (!state.filterKind || materialGroup(l.type) === state.filterKind) &&
+      (!b.fromSource || (l.source || 'غير محدد') === b.source)) };
   const levels = [['category', CATEGORY_ORDER, false], ['topic', null, false], ['source', [], true], ['type', TYPE_ORDER, true]];
   for (const [key, preferred, skipSingle] of levels) {
     const options = orderedValues(path.pool.map(BROWSE_KEY[key]), preferred || TOPICS[path.category] || []);
@@ -3650,9 +3665,11 @@ function browsePath() {
 function renderBrowse() {
   const path = browsePath();
   lastBrowsePath = path;
+  const b = state.browse;
   const crumbs = [['root', 'كل التخصصات']];
+  if (b.fromSource && b.source) crumbs.push(['from-source', b.source]);
   ['category', 'topic', 'source', 'type'].forEach(key => {
-    if (path[key]) crumbs.push([key, key === 'type' ? (TYPE_LABELS[path[key]] || path[key]) : path[key]]);
+    if (path[key] && !(key === 'source' && b.fromSource)) crumbs.push([key, key === 'type' ? (TYPE_LABELS[path[key]] || path[key]) : path[key]]);
   });
   let html = '<nav class="browse-crumbs" aria-label="مسار التصفح">' + crumbs.map(([level, label], i) =>
     i === crumbs.length - 1 && path.level === 'list'
@@ -3674,6 +3691,9 @@ function renderBrowse() {
 function browseTo(level, value) {
   const order = ['category', 'topic', 'source', 'type'];
   const b = state.browse;
+  if (level === 'from-source') { b.category = b.topic = b.type = null; render(); return; }
+  if (level === 'root') b.fromSource = false;
+  const lockedSource = b.fromSource ? b.source : null;
   const i = level === 'root' ? -1 : order.indexOf(level);
   if (value !== undefined) b[level] = value;
   // Clearing the levels after the chosen one also re-shows levels that were skipped automatically.
@@ -3682,6 +3702,8 @@ function browseTo(level, value) {
     // A crumb keeps its own choice and reopens the next level's options.
     b[level] = browsePathValue(level);
   }
+  // Browsing inside one source keeps that source fixed at every level.
+  if (lockedSource) b.source = lockedSource;
   render();
   document.getElementById('content').scrollIntoView({ block: 'start', behavior: document.documentElement.dataset.motion === 'reduce' ? 'auto' : 'smooth' });
 }
@@ -4901,12 +4923,25 @@ function replaceSelectOptions(id, values, selected, label) {
     unique.map(v => '<option value="' + escapeHtml(v) + '">' + escapeHtml(v) + '</option>').join('');
   select.value = selected;
 }
+function replaceTopicOptions(list, selected, single) {
+  const select = document.getElementById('filterTopic');
+  const byCat = new Map();
+  list.forEach(l => { const c = l.category || 'أخرى'; if (!byCat.has(c)) byCat.set(c, new Set()); byCat.get(c).add(l.topic || 'أخرى'); });
+  const cats = orderedValues([...byCat.keys()], CATEGORY_ORDER);
+  const sortTopics = (cat, set) => orderedValues([...set], TOPICS[cat] || []);
+  let html = '<option value="">كل المواضيع</option>';
+  if (single || cats.length === 1) cats.forEach(c => { html += sortTopics(c, byCat.get(c)).map(t => '<option value="' + escapeHtml(t) + '">' + escapeHtml(t) + '</option>').join(''); });
+  else html += cats.map(c => '<optgroup label="' + escapeHtml(c) + '">' + sortTopics(c, byCat.get(c)).map(t => '<option value="' + escapeHtml(t) + '">' + escapeHtml(t) + '</option>').join('') + '</optgroup>').join('');
+  select.innerHTML = html;
+  if (selected && ![...select.options].some(o => o.value === selected)) select.insertAdjacentHTML('beforeend', '<option value="' + escapeHtml(selected) + '">' + escapeHtml(selected) + '</option>');
+  select.value = selected;
+}
 function refreshFilterOptions() {
   const withoutQuery={...state,search:''};
   const scoped=key=>filterMaterials(lectures,{...withoutQuery,[key]:''});
   replaceSelectOptions('filterCategory',scoped('filterCategory').map(l=>l.category).filter(Boolean),state.filterCategory,'كل التخصصات');
   replaceSelectOptions('filterSource',scoped('filterSource').map(l=>l.source||'غير محدد'),state.filterSource,'كل المصادر');
-  replaceSelectOptions('filterTopic',scoped('filterTopic').map(l=>l.topic||'أخرى'),state.filterTopic,'كل المواضيع');
+  replaceTopicOptions(scoped('filterTopic'),state.filterTopic,!!state.filterCategory);
   const select=document.getElementById('filterKind');
   const kinds=[...new Set(scoped('filterKind').map(l=>materialGroup(l.type)))];
   if(state.filterKind&&!kinds.includes(state.filterKind))kinds.push(state.filterKind);
@@ -4920,6 +4955,18 @@ function refreshFilterOptions() {
 let suggestionInput=null;
 let suggestionItems=[];
 let suggestionIndex=-1;
+// Recent searches are a per-device convenience, so they live in this browser only.
+const RECENT_SEARCH_KEY='medbrain_recent_searches';
+function readRecentSearches(){
+  try{const list=JSON.parse(localStorage.getItem(RECENT_SEARCH_KEY)||'[]');return Array.isArray(list)?list.filter(x=>x&&typeof x.label==='string'&&x.label.trim()).slice(0,8):[];}catch(_){return [];}
+}
+function rememberSearch(kind,label){
+  label=String(label||'').trim();if(label.length<2)return;
+  const list=readRecentSearches().filter(x=>!(x.kind===kind&&normalizeSearch(x.label)===normalizeSearch(label)));
+  list.unshift({kind,label});
+  try{localStorage.setItem(RECENT_SEARCH_KEY,JSON.stringify(list.slice(0,8)));}catch(_){}
+}
+function clearRecentSearches(){try{localStorage.removeItem(RECENT_SEARCH_KEY);}catch(_){}}
 function closeSearchSuggestions() {
   document.getElementById('smartSuggestions').hidden=true;
   ['searchInput','librarySearchInput'].forEach(id=>{
@@ -4953,30 +5000,48 @@ function renderSearchSuggestions(input) {
     groups.get(key).count++;
   };
   scope.forEach(l=>{add('title',l.title);add('topic',l.topic);add('category',l.category);add('source',l.source);});
-  suggestionItems=[...groups.values()].map(item=>{
+  const recent=!query?readRecentSearches().map(r=>({kind:'recent',recentKind:r.kind,label:r.label,score:1000})):[];
+  suggestionItems=recent.concat([...groups.values()].map(item=>{
     const label=normalizeSearch(item.label);
     const score=!query?1:label===query?100:label.startsWith(query)?90:label.includes(query)?80:materialSearchScore({title:item.label},query)>0?40:0;
     return {...item,score};
   }).filter(item=>item.score>0&& (query||item.kind==='category'||item.kind==='topic'))
-    .sort((a,b)=>b.score-a.score || ({title:0,topic:1,category:2,source:3}[a.kind]-{title:0,topic:1,category:2,source:3}[b.kind]) || a.label.localeCompare(b.label,'ar')).slice(0,8);
+    .sort((a,b)=>b.score-a.score || ({title:0,topic:1,category:2,source:3}[a.kind]-{title:0,topic:1,category:2,source:3}[b.kind]) || a.label.localeCompare(b.label,'ar')).slice(0,recent.length?6:8));
   const list=document.getElementById('smartSuggestions');
-  const names={title:'مادة',topic:'موضوع',category:'تخصص',source:'مصدر'};
-  list.innerHTML=suggestionItems.map((item,i)=>'<div role="option" aria-selected="false" id="smart-option-'+i+'" data-suggestion="'+i+'" class="smart-option"><span dir="auto">'+escapeHtml(item.label)+'</span><small>'+names[item.kind]+' · '+item.count+'</small></div>').join('');
+  const names={title:'مادة',topic:'موضوع',category:'تخصص',source:'مصدر',recent:'بحث سابق'};
+  const historyIcon='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l3 2"/></svg>';
+  const recentCount=suggestionItems.filter(item=>item.kind==='recent').length;
+  list.innerHTML=(recentCount?'<div class="smart-recent-head"><span>عمليات البحث الأخيرة</span><button type="button" data-clear-recent>مسح</button></div>':'')+
+    suggestionItems.map((item,i)=>(i===recentCount&&recentCount?'<div class="smart-divider" role="presentation"></div>':'')+
+      '<div role="option" aria-selected="false" id="smart-option-'+i+'" data-suggestion="'+i+'" class="smart-option'+(item.kind==='recent'?' recent':'')+'">'+
+      (item.kind==='recent'?historyIcon:'')+'<span dir="auto">'+escapeHtml(item.label)+'</span><small>'+names[item.kind]+'</small></div>').join('');
   list.hidden=!suggestionItems.length;
   input.setAttribute('aria-expanded',String(suggestionItems.length>0));
   input.removeAttribute('aria-activedescendant');
   positionSearchSuggestions();
 }
+function browseStartFor(kind, label) {
+  const start = { category: null, topic: null, source: null, type: null, fromSource: false };
+  if (kind === 'category') start.category = label;
+  else if (kind === 'source') { start.source = label; start.fromSource = true; }
+  else if (kind === 'topic') {
+    const owner = lectures.find(l => (l.topic || 'أخرى') === label);
+    start.category = owner ? owner.category : null; start.topic = owner ? label : null;
+  }
+  return start;
+}
 function chooseSearchSuggestion(index) {
-  const item=suggestionItems[index];if(!item)return;
+  let item=suggestionItems[index];if(!item)return;
+  if(item.kind==='recent')item={kind:item.recentKind||'title',label:item.label};
+  rememberSearch(item.kind,item.label);
   if(suggestionInput.id==='searchInput'){
     state.search='';state.filterCategory=state.filterSource=state.filterTopic=state.filterKind='';
   }
   if(item.kind==='title')state.search=item.label;
   else {
     state.search='';
-    const key={category:'filterCategory',topic:'filterTopic',source:'filterSource'}[item.kind];
-    state[key]=item.label;
+    state.filterCategory=state.filterSource=state.filterTopic='';
+    state.browse=browseStartFor(item.kind,item.label);
   }
   ['searchInput','librarySearchInput'].forEach(id=>{document.getElementById(id).value=state.search;});
   closeSearchSuggestions();render();showMainView('library','');
@@ -4985,6 +5050,19 @@ function chooseSearchSuggestion(index) {
 }
 function wireSmartSearch() {
   const submitSearch=()=>{
+    const q=normalizeSearch(state.search);
+    if(q.length>=3&&!lectures.some(l=>normalizeSearch(l.title).includes(q))){
+      const source=[...new Set(lectures.map(l=>l.source).filter(Boolean))].find(src=>normalizeSearch(src).includes(q));
+      if(source){
+        rememberSearch('source',source);
+        state.search='';state.filterCategory=state.filterSource=state.filterTopic='';
+        state.browse=browseStartFor('source',source);
+        ['searchInput','librarySearchInput'].forEach(id=>{document.getElementById(id).value='';});
+        closeSearchSuggestions();setSearchFiltersOpen(false);render();showMainView('library','');
+        return;
+      }
+    }
+    rememberSearch('title',state.search);
     closeSearchSuggestions();setSearchFiltersOpen(false);
     render();showMainView('library','');
   };
@@ -4995,6 +5073,8 @@ function wireSmartSearch() {
       document.getElementById(id==='searchInput'?'librarySearchInput':'searchInput').value=input.value;
       if(id==='searchInput'){state.filterCategory=state.filterSource=state.filterTopic=state.filterKind='';}
       render();renderSearchSuggestions(input);
+      clearTimeout(rememberSearch.timer);
+      rememberSearch.timer=setTimeout(()=>{if(normalizeSearch(state.search).length>=2&&filterMaterials(lectures,state).length)rememberSearch('title',state.search);},1500);
     });
     input.addEventListener('focus',()=>renderSearchSuggestions(input));
     input.addEventListener('keydown',e=>{
@@ -5017,6 +5097,7 @@ function wireSmartSearch() {
   ['homeSearchForm','librarySearchForm'].forEach(id=>document.getElementById(id).addEventListener('submit',e=>{e.preventDefault();submitSearch();}));
   document.getElementById('smartSuggestions').addEventListener('mousedown',e=>e.preventDefault());
   document.getElementById('smartSuggestions').addEventListener('click',e=>{
+    if(e.target.closest('[data-clear-recent]')){clearRecentSearches();if(suggestionInput)renderSearchSuggestions(suggestionInput);return;}
     const option=e.target.closest('[data-suggestion]');if(option)chooseSearchSuggestion(Number(option.dataset.suggestion));
   });
   document.getElementById('libraryFilterBtn').addEventListener('click',()=>{
