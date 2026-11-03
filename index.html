@@ -1687,6 +1687,24 @@
   :is(.mb-library,.search-filter-popover) .library-filters select { width:100%; height:42px; padding:0 10px; font-size:14px; margin-top:5px; border-radius:10px; border:1px solid var(--border); background:var(--surface-alt); color:var(--text); }
   :is(.mb-library,.search-filter-popover) .library-filters select:focus { outline:2px solid var(--accent); outline-offset:1px; }
   .filter-popover-actions { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-top:12px; }
+  .library-filters .filter-block { display:block; }
+  .library-filters .filter-title { display:block; font-size:12.5px; font-weight:700; color:var(--text); margin-bottom:6px; }
+  .filter-chips { display:flex; flex-wrap:wrap; gap:6px; }
+  .filter-chip { border:1px solid var(--border); background:var(--surface-alt); color:var(--text); border-radius:999px; padding:6px 12px; font:inherit; font-size:12.5px; font-weight:600; cursor:pointer; }
+  .filter-chip:hover { border-color:var(--accent); }
+  .filter-chip[aria-pressed="true"] { background:var(--accent); border-color:var(--accent); color:#ffffff; }
+  .filter-find { width:100%; box-sizing:border-box; height:38px; padding:0 12px; border:1px solid var(--border); border-radius:10px; background:var(--surface-alt); color:var(--text); font:inherit; font-size:13px; margin-bottom:6px; }
+  .filter-find:focus { outline:2px solid var(--accent); outline-offset:1px; }
+  .filter-list { max-height:168px; overflow-y:auto; border:1px solid var(--border); border-radius:10px; padding:4px; scrollbar-width:thin; scrollbar-color:#9fc3e6 transparent; }
+  .filter-list::-webkit-scrollbar { width:6px; }
+  .filter-list::-webkit-scrollbar-thumb { background:#9fc3e6; border-radius:99px; }
+  .filter-option { display:block; width:100%; text-align:start; border:0; background:transparent; color:var(--text); padding:8px 10px; border-radius:8px; font:inherit; font-size:13px; cursor:pointer; }
+  .filter-option:hover { background:var(--accent-soft); }
+  .filter-option[aria-selected="true"] { background:var(--accent-soft); color:var(--accent-strong); font-weight:700; }
+  .filter-option[aria-selected="true"]::after { content:" ✓"; }
+  .filter-option.all { color:var(--text-muted); }
+  .filter-group { margin:6px 10px 2px; font-size:11px; font-weight:800; color:var(--accent-strong); }
+  .filter-empty { margin:8px 10px; font-size:12.5px; color:var(--text-muted); }
   .filter-popover-actions button { font-size:12px; padding:7px 12px; }
   #clearFilterChoices { border:0; background:transparent; color:var(--text-muted); }
   .library-results-tools { display:flex; align-items:center; justify-content:space-between; gap:8px; margin:4px 0 8px; font-size:11px; color:var(--text-muted); }
@@ -2387,10 +2405,14 @@ button,a,input,select,textarea{-webkit-tap-highlight-color:transparent;}
         <section id="libraryFilterPopover" class="search-filter-popover" aria-label="فلاتر البحث" hidden>
           <div class="filter-popover-head"><strong>فلاتر البحث</strong><button type="button" id="closeFiltersBtn" aria-label="إغلاق الفلاتر"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true" focusable="false"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></button></div>
           <div class="library-filters">
-            <label>التخصص<select id="filterCategory"><option value="">كل التخصصات</option></select></label>
-            <label>الموضوع<select id="filterTopic"><option value="">كل المواضيع</option></select></label>
-            <label>المصدر<select id="filterSource"><option value="">كل المصادر</option></select></label>
-            <label>نوع المادة<select id="filterKind"><option value="">كل المواد</option></select></label>
+            <div class="filter-block"><span class="filter-title">التخصص</span><div class="filter-chips" id="filterCategoryChips" data-filter-key="filterCategory"></div></div>
+            <div class="filter-block"><span class="filter-title">الموضوع</span>
+              <input type="search" class="filter-find" id="filterTopicFind" placeholder="ابحث عن موضوع…" aria-label="ابحث عن موضوع" autocomplete="off" dir="auto">
+              <div class="filter-list" id="filterTopicList" data-filter-key="filterTopic" role="listbox" aria-label="المواضيع"></div></div>
+            <div class="filter-block"><span class="filter-title">المصدر</span>
+              <input type="search" class="filter-find" id="filterSourceFind" placeholder="ابحث عن مصدر…" aria-label="ابحث عن مصدر" autocomplete="off" dir="auto">
+              <div class="filter-list" id="filterSourceList" data-filter-key="filterSource" role="listbox" aria-label="المصادر"></div></div>
+            <div class="filter-block"><span class="filter-title">نوع المادة</span><div class="filter-chips" id="filterKindChips" data-filter-key="filterKind"></div></div>
           </div>
           <div class="filter-popover-actions"><button type="button" id="applyFiltersBtn" class="mb-primary">عرض النتائج</button><button type="button" id="clearFilterChoices">مسح الفلاتر</button></div>
         </section>
@@ -4072,8 +4094,6 @@ function goToLibraryKind(kind) {
   document.getElementById('librarySearchInput').value = '';
   closeSearchSuggestions();
   setSearchFiltersOpen(false);
-  const filter = document.getElementById('filterKind');
-  if (filter) filter.value = state.filterKind;
   render();
   showMainView('library',kind);
 }
@@ -4924,44 +4944,64 @@ function filterMaterials(list, filters) {
   if(normalizeSearch(filters.search))filtered.sort((a,b)=>b.score-a.score || a.index-b.index);
   return filtered.map(entry=>entry.material);
 }
-function replaceSelectOptions(id, values, selected, label) {
-  const select = document.getElementById(id);
-  const unique = [...new Set(values)].sort((a,b) => a.localeCompare(b, 'ar'));
-  if (selected && !unique.includes(selected)) unique.push(selected);
-  select.innerHTML = '<option value="">' + escapeHtml(label) + '</option>' +
-    unique.map(v => '<option value="' + escapeHtml(v) + '">' + escapeHtml(v) + '</option>').join('');
-  select.value = selected;
+// Smart filters: each field only offers values that still have materials with the other choices.
+function filterOptionValues() {
+  const withoutQuery = { ...state, search: '' };
+  const scoped = key => filterMaterials(lectures, { ...withoutQuery, [key]: '' });
+  const topics = scoped('filterTopic');
+  return {
+    // Specialties ignore the chosen topic so the user can always switch specialty; the topic is dropped if it no longer fits.
+    filterCategory: orderedValues(filterMaterials(lectures, { ...withoutQuery, filterCategory: '', filterTopic: '' }).map(l => l.category), CATEGORY_ORDER),
+    filterSource: orderedValues(scoped('filterSource').map(l => l.source || 'غير محدد'), []),
+    filterKind: orderedValues(scoped('filterKind').map(l => materialGroup(l.type)), ['lectures', 'questions', 'videos', 'other']),
+    filterTopic: orderedValues(topics.map(l => l.category), CATEGORY_ORDER).map(cat => ({
+      cat, topics: orderedValues(topics.filter(l => l.category === cat).map(l => l.topic || 'أخرى'), TOPICS[cat] || [])
+    }))
+  };
 }
-function replaceTopicOptions(list, selected, single) {
-  const select = document.getElementById('filterTopic');
-  const byCat = new Map();
-  list.forEach(l => { const c = l.category || 'أخرى'; if (!byCat.has(c)) byCat.set(c, new Set()); byCat.get(c).add(l.topic || 'أخرى'); });
-  const cats = orderedValues([...byCat.keys()], CATEGORY_ORDER);
-  const sortTopics = (cat, set) => orderedValues([...set], TOPICS[cat] || []);
-  let html = '<option value="">كل المواضيع</option>';
-  if (single || cats.length === 1) cats.forEach(c => { html += sortTopics(c, byCat.get(c)).map(t => '<option value="' + escapeHtml(t) + '">' + escapeHtml(t) + '</option>').join(''); });
-  else html += cats.map(c => '<optgroup label="' + escapeHtml(c) + '">' + sortTopics(c, byCat.get(c)).map(t => '<option value="' + escapeHtml(t) + '">' + escapeHtml(t) + '</option>').join('') + '</optgroup>').join('');
-  select.innerHTML = html;
-  if (selected && ![...select.options].some(o => o.value === selected)) select.insertAdjacentHTML('beforeend', '<option value="' + escapeHtml(selected) + '">' + escapeHtml(selected) + '</option>');
-  select.value = selected;
+function filterChipsHtml(key, values, allLabel, label = v => v) {
+  return '<button type="button" class="filter-chip" data-value="" aria-pressed="' + !state[key] + '">' + allLabel + '</button>' +
+    values.map(v => '<button type="button" class="filter-chip" data-value="' + escapeHtml(v) + '" aria-pressed="' + (state[key] === v) + '" dir="auto">' + escapeHtml(label(v)) + '</button>').join('');
+}
+function filterListItem(key, value) {
+  return '<button type="button" role="option" class="filter-option" data-value="' + escapeHtml(value) + '" aria-selected="' + (state[key] === value) + '" dir="auto">' + escapeHtml(value) + '</button>';
+}
+function renderFilterLists(opts = filterOptionValues()) {
+  const topicQ = normalizeSearch(document.getElementById('filterTopicFind').value);
+  const sourceQ = normalizeSearch(document.getElementById('filterSourceFind').value);
+  const groups = opts.filterTopic.map(g => ({ cat: g.cat, topics: g.topics.filter(t => !topicQ || normalizeSearch(t).includes(topicQ) || normalizeSearch(g.cat).includes(topicQ)) })).filter(g => g.topics.length);
+  const showHeads = !state.filterCategory && groups.length > 1;
+  document.getElementById('filterTopicList').innerHTML =
+    (topicQ ? '' : '<button type="button" role="option" class="filter-option all" data-value="" aria-selected="' + !state.filterTopic + '">كل المواضيع</button>') +
+    (groups.map(g => (showHeads ? '<p class="filter-group" dir="auto">' + escapeHtml(g.cat) + '</p>' : '') + g.topics.map(t => filterListItem('filterTopic', t)).join('')).join('') ||
+      '<p class="filter-empty">لا توجد مواضيع مطابقة.</p>');
+  const sources = opts.filterSource.filter(v => !sourceQ || normalizeSearch(v).includes(sourceQ));
+  document.getElementById('filterSourceList').innerHTML =
+    (sourceQ ? '' : '<button type="button" role="option" class="filter-option all" data-value="" aria-selected="' + !state.filterSource + '">كل المصادر</button>') +
+    (sources.map(v => filterListItem('filterSource', v)).join('') || '<p class="filter-empty">لا توجد مصادر مطابقة.</p>');
 }
 function refreshFilterOptions() {
-  const withoutQuery={...state,search:''};
-  const scoped=key=>filterMaterials(lectures,{...withoutQuery,[key]:''});
-  replaceSelectOptions('filterCategory',scoped('filterCategory').map(l=>l.category).filter(Boolean),state.filterCategory,'كل التخصصات');
-  replaceSelectOptions('filterSource',scoped('filterSource').map(l=>l.source||'غير محدد'),state.filterSource,'كل المصادر');
-  replaceTopicOptions(scoped('filterTopic'),state.filterTopic,!!state.filterCategory);
-  const select=document.getElementById('filterKind');
-  const kinds=[...new Set(scoped('filterKind').map(l=>materialGroup(l.type)))];
-  if(state.filterKind&&!kinds.includes(state.filterKind))kinds.push(state.filterKind);
-  select.innerHTML='<option value="">كل المواد</option>'+kinds.map(k=>'<option value="'+escapeHtml(k)+'">'+escapeHtml(GROUP_LABELS[k]||k)+'</option>').join('');
-  select.value=state.filterKind;
+  const opts = filterOptionValues();
+  document.getElementById('filterCategoryChips').innerHTML = filterChipsHtml('filterCategory', opts.filterCategory, 'كل التخصصات');
+  document.getElementById('filterKindChips').innerHTML = filterChipsHtml('filterKind', opts.filterKind, 'كل المواد', k => GROUP_LABELS[k] || k);
+  renderFilterLists(opts);
   const count=[state.filterCategory,state.filterTopic,state.filterSource,state.filterKind].filter(Boolean).length;
   const badge=document.getElementById('filterActiveCount');
   badge.hidden=!count;badge.textContent=count;
   const homeBadge=document.querySelector('.home-filter-count');
   if(homeBadge){homeBadge.hidden=!count;homeBadge.textContent=count;}
   document.getElementById('librarySearchHint').textContent=state.search.trim()?'النتائج مرتبة حسب الأقرب لعنوان البحث':'المواد المتوفرة في المكتبة';
+}
+function chooseFilterValue(key, value) {
+  state[key] = state[key] === value ? '' : value;
+  // A choice can make other choices impossible (e.g. a topic from another specialty): drop those.
+  for (let pass = 0; pass < 2; pass++) {
+    const opts = filterOptionValues();
+    if (state.filterTopic && !opts.filterTopic.some(g => g.topics.includes(state.filterTopic))) state.filterTopic = '';
+    ['filterCategory', 'filterSource', 'filterKind'].forEach(k => { if (state[k] && !opts[k].includes(state[k])) state[k] = ''; });
+  }
+  closeSearchSuggestions();
+  render();
 }
 let suggestionInput=null;
 let suggestionItems=[];
@@ -4996,7 +5036,13 @@ function setSearchFiltersOpen(open, from) {
   popover.hidden=!open;
   if(open&&popover.classList.contains('floating'))positionFloatingFilters();
   ['libraryFilterBtn','homeFilterBtn'].forEach(id=>{const b=document.getElementById(id);if(b)b.setAttribute('aria-expanded',String(open&&(from?id===(from==='home'?'homeFilterBtn':'libraryFilterBtn'):b.getAttribute('aria-expanded')==='true')));});
-  if(open){closeSearchSuggestions();document.getElementById('filterCategory').focus();}
+  if(open){
+    closeSearchSuggestions();
+    ['filterTopicFind','filterSourceFind'].forEach(id=>{document.getElementById(id).value='';});
+    renderFilterLists();
+    const first=document.querySelector('#filterCategoryChips .filter-chip');
+    if(first&&matchMedia('(pointer: fine)').matches)first.focus();
+  }
 }
 function positionFloatingFilters() {
   const popover=document.getElementById('libraryFilterPopover');
@@ -5144,7 +5190,8 @@ function wireSmartSearch() {
   });
   document.addEventListener('click',e=>{
     if(!e.target.closest('.smart-search-form')&&!e.target.closest('#smartSuggestions'))closeSearchSuggestions();
-    if(!e.target.closest('.library-search-wrap')&&!e.target.closest('.mb-search-row')&&!e.target.closest('#libraryFilterPopover'))setSearchFiltersOpen(false);
+    // Choosing a filter re-renders its buttons, so the clicked element may already be detached: that is not an outside click.
+    if(e.target.isConnected&&!e.target.closest('.library-search-wrap')&&!e.target.closest('.mb-search-row')&&!e.target.closest('#libraryFilterPopover'))setSearchFiltersOpen(false);
   });
   document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeSearchSuggestions();setSearchFiltersOpen(false);}});
   document.addEventListener('focusin',e=>{
@@ -5219,14 +5266,11 @@ function wireAuthoringEvents() {
     try { await startApp(); }
     finally { button.disabled = false; button.textContent = 'تحديث المكتبة'; }
   });
-  [['filterSource','filterSource'], ['filterTopic','filterTopic'], ['filterKind','filterKind'], ['filterCategory','filterCategory']].forEach(([id, key]) => {
-    document.getElementById(id).addEventListener('change', e => {
-      state[key] = e.target.value;
-      if (key === 'filterSource' || key === 'filterCategory' || key === 'filterKind') state.filterTopic = '';
-      closeSearchSuggestions();
-      render();
-    });
+  document.getElementById('libraryFilterPopover').addEventListener('click', e => {
+    const choice = e.target.closest('[data-filter-key] [data-value]');
+    if (choice) chooseFilterValue(choice.closest('[data-filter-key]').dataset.filterKey, choice.dataset.value);
   });
+  ['filterTopicFind', 'filterSourceFind'].forEach(id => document.getElementById(id).addEventListener('input', () => renderFilterLists()));
   document.getElementById('resetFilters').addEventListener('click', () => {
     state.search = state.filterSource = state.filterTopic = state.filterKind = '';
     document.getElementById('searchInput').value = '';
