@@ -1892,7 +1892,7 @@
 .mb-ai-dialog-head button{width:36px;height:36px;border:1px solid #B9D8F4;border-radius:10px;background:#EAF4FF;color:#0B5FA5;font-size:24px;cursor:pointer;}
 :root[data-theme="dark"] .mb-ai-dialog{background:#181A2B;color:#F5F5F5;border-color:#383C55;}
 :root[data-theme="dark"] .mb-ai-dialog h2{color:#aed8ff;}
-:root[data-theme="dark"] .mb-ai-dialog-head button{background:#23263B;color:#F5F5F5;border-color:#383C55;}
+:root[data-theme="dark"] .mb-ai-dialog-head button{background:transparent;color:#b0bed4;border-color:#383C55;}
 .mb-global-ai-trigger:focus-visible{outline:3px solid #1479CC;outline-offset:3px;}
 /* Shared study chat, with theme-scoped colors and native dialog focus management. */
 .mb-ai-dialog{--ai-bg:#fff;--ai-panel:#EAF4FF;--ai-text:#233448;--ai-muted:#52677b;--ai-accent:#0B5FA5;--ai-border:#B9D8F4;width:min(620px,calc(100vw - 24px));max-height:calc(100dvh - 24px);padding:20px;background:var(--ai-bg);color:var(--ai-text);}
@@ -1946,7 +1946,7 @@ body.ai-site-open .mb-main{margin-left:var(--ai-site-width);margin-right:0;max-w
 .mb-ai-details summary{cursor:pointer;line-height:1.8;}
 .mb-ai-details label{margin-top:8px;}
 .mb-ai-dialog .mb-ai-details #aiLectureContext{font-size:12px;padding:8px;}
-.mb-ai-dialog #aiNewChat{margin-top:8px;border:1px solid var(--ai-border);background:var(--ai-panel);color:var(--ai-text);border-radius:8px;padding:6px 10px;font:inherit;cursor:pointer;}
+
 .mb-ai-dialog .mb-ai-study-note{flex-shrink:0;margin:0;font-size:10px;}
 .reader-layout,.reader-layout.no-outline{grid-template-columns:180px minmax(0,760px);gap:24px;}
 .reader-ai-rail{position:sticky;top:16px;min-width:0;}
@@ -1981,7 +1981,7 @@ body.ai-site-open .mb-main{margin-left:var(--ai-site-width);margin-right:0;max-w
  .reader-ai-host #aiSend{bottom:8px;}
 }
 @media(max-height:650px) and (min-width:701px){.mb-ai-dialog{gap:6px;padding:10px;}.mb-ai-dialog .mb-ai-prompts button{padding:5px 8px;}.mb-ai-dialog .mb-ai-study-note{display:none;}#readerOverlay.ai-reader-open .reader-ai-host{height:calc(100dvh - 200px);min-height:280px;}}
-.mb-ai-form .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;}
+.mb-ai-form .sr-only,.mb-ai-dialog .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;}
 #readerOverlay.ai-reader-open .reader-ai-host{height:var(--ai-reader-height,calc(100dvh - 280px));max-height:none;}
 @media(max-width:850px) and (min-width:701px){#siteAIHost .mb-ai-dialog{top:58px;height:calc(100dvh - 58px);}}
 @media(max-width:700px){#readerOverlay.ai-reader-open .reader-ai-host{height:auto;}.reader-ai-host .mb-ai-dialog{overflow-y:auto;}.reader-ai-rail #readerAIButton{align-self:flex-start;}}
@@ -2153,6 +2153,45 @@ body.ai-site-open .ai-fab, body.ai-fab-hidden .ai-fab { display:none; }
 }
 :root[data-theme="dark"] .organ-mark { opacity:.22; }
 .mb-practice > .organ-mark-s1 { top:58px; }
+
+/* ---------- Calm AI window ---------- */
+.mb-ai-dialog .mb-ai-dialog-head { display:flex; align-items:center; justify-content:space-between; gap:10px; padding-bottom:10px; border-bottom:1px solid var(--ai-border); }
+.mb-ai-dialog .mb-ai-dialog-head h2 { display:flex; align-items:center; gap:8px; margin:0; font-size:16px; font-weight:800; color:var(--ai-text); }
+.ai-head-icon { width:28px; height:28px; border-radius:9px; display:grid; place-items:center; color:#fff; background:linear-gradient(135deg,#0876cf,#21a3c9 55%,#39c99b); }
+.ai-head-icon svg { width:15px; height:15px; }
+.ai-head-actions { display:flex; gap:6px; }
+.mb-ai-dialog .mb-ai-dialog-head .ai-icon-btn { width:32px; height:32px; padding:0; display:grid; place-items:center; line-height:0; border-radius:50%; font-size:0;
+  border:1px solid var(--ai-border); background:transparent; color:var(--ai-muted); cursor:pointer; }
+.mb-ai-dialog .mb-ai-dialog-head .ai-icon-btn:hover { color:var(--ai-accent); background:var(--ai-panel); }
+.mb-ai-dialog .mb-ai-messages { border:0; margin:10px 0; padding:4px 2px; }
+.mb-ai-dialog .mb-ai-message { border:0; border-radius:16px; padding:10px 13px; }
+.mb-ai-dialog .mb-ai-message[data-role="user"] { background:var(--ai-panel); margin-inline-start:40px; }
+.mb-ai-dialog .mb-ai-message[data-role="assistant"] { background:transparent; padding-inline:2px; }
+.mb-ai-dialog .mb-ai-message[data-role="user"] .mb-ai-message-title { display:none; }
+.mb-ai-dialog .mb-ai-welcome { display:flex; flex-direction:column; align-items:center; gap:10px; padding:36px 8px; font-size:15px; font-weight:700; color:var(--ai-muted); }
+.ai-welcome-icon { width:46px; height:46px; border-radius:15px; display:grid; place-items:center; color:#fff; background:linear-gradient(135deg,#0876cf,#21a3c9 55%,#39c99b); opacity:.9; }
+.ai-welcome-icon svg { width:24px; height:24px; }
+.mb-ai-dialog .mb-ai-prompts[hidden] { display:none !important; }
+.mb-ai-dialog .mb-ai-prompts { flex-direction:row !important; flex-wrap:wrap; gap:6px !important; margin:0 0 8px !important; }
+.mb-ai-dialog .mb-ai-prompts button { flex:0 0 auto !important; border-radius:999px !important; padding:6px 12px !important; font-size:12px !important; text-align:center !important; }
+.mb-ai-dialog .mb-ai-compose { display:flex; align-items:flex-end; gap:8px; border:1px solid var(--ai-border); border-radius:18px; background:var(--ai-bg); padding:6px 6px 6px 6px; }
+.mb-ai-dialog .mb-ai-compose:focus-within { border-color:var(--ai-accent); box-shadow:0 0 0 3px rgba(8,118,207,.12); }
+.mb-ai-dialog .mb-ai-compose #aiQuestion { flex:1 1 auto; width:auto !important; min-width:0; overflow-y:hidden; scrollbar-width:none; border:0 !important; background:transparent !important; min-height:40px !important; height:40px; max-height:140px; resize:none !important; padding:9px 8px !important; box-shadow:none !important; outline:none; }
+.mb-ai-dialog #aiSend { position:static !important; transform:none !important; flex:0 0 38px; width:38px; height:38px; border-radius:50%; border:0; padding:0; display:grid; place-items:center; line-height:0; color:#fff; background:linear-gradient(135deg,#0876cf,#39c99b); cursor:pointer; }
+.mb-ai-dialog #aiSend:disabled { opacity:.55; cursor:default; }
+.mb-ai-dialog #aiSend.busy svg { animation:aiPulse 1s ease-in-out infinite; }
+@keyframes aiPulse { 50% { opacity:.35; } }
+.mb-ai-dialog .mb-ai-status:empty { display:none; }
+.mb-ai-meta { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-top:8px; }
+.ai-context-pill select { max-width:230px; height:30px; padding:0 10px !important; border-radius:999px !important; font-size:12px !important; color:var(--ai-muted) !important; background:transparent !important; border:1px solid var(--ai-border) !important; }
+.mb-ai-dialog .ai-about { flex-shrink:0; max-height:none; overflow:visible; position:relative; }
+.mb-ai-dialog .ai-about summary { list-style:none; width:28px; height:28px; display:grid; place-items:center; border-radius:50%; color:var(--ai-muted); cursor:pointer; font-size:14px; }
+.mb-ai-dialog .ai-about summary::-webkit-details-marker { display:none; }
+.mb-ai-dialog .ai-about[open] summary { color:var(--ai-accent); }
+.mb-ai-dialog .ai-about .mb-ai-footnote { position:absolute; bottom:34px; left:0; width:min(280px,70vw); padding:10px 12px; border-radius:12px; border:1px solid var(--ai-border); background:var(--ai-bg); box-shadow:0 10px 24px rgba(12,32,52,.16); font-size:11px; z-index:2; }
+.reader-ai-host .mb-ai-meta { justify-content:flex-end; }
+.reader-ai-host .ai-context-pill { display:none; }
+.reader-ai-host .mb-ai-details.ai-about { display:block; }
 </style>
 <link rel="manifest" href="./manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="192x192" href="./assets/app-icon-192.png">
@@ -2697,11 +2736,12 @@ body.ai-site-open .ai-fab, body.ai-fab-hidden .ai-fab { display:none; }
 <button type="button" class="ai-fab" id="topAIButton" data-open-ai aria-label="Ask MidBrain AI" aria-expanded="false" aria-controls="globalAIDialog" data-tip="Ask MidBrain AI" dir="ltr"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 2.5l2.3 6.6 6.7 2.4-6.7 2.4L12 20.5l-2.3-6.6-6.7-2.4 6.7-2.4L12 2.5z" fill="currentColor"/><path d="M19 2.5v3.5M17.25 4.25h3.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button>
 <div id="siteAIHost">
 <aside id="globalAIDialog" class="mb-ai-dialog" aria-labelledby="globalAIHeading" hidden>
-  <div class="mb-ai-dialog-head"><h2 id="globalAIHeading" dir="ltr">Ask MidBrain AI ✨</h2><button type="button" id="globalAIClose" aria-label="إغلاق محادثة AI">×</button></div>
+  <div class="mb-ai-dialog-head"><h2 id="globalAIHeading" dir="ltr"><span class="ai-head-icon"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 2.5l2.3 6.6 6.7 2.4-6.7 2.4L12 20.5l-2.3-6.6-6.7-2.4 6.7-2.4L12 2.5z" fill="currentColor"/></svg></span>MidBrain AI</h2>
+    <div class="ai-head-actions"><button type="button" id="aiNewChat" class="ai-icon-btn" aria-label="محادثة جديدة" title="محادثة جديدة"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></button><button type="button" id="globalAIClose" class="ai-icon-btn" aria-label="إغلاق محادثة AI"><svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true" focusable="false"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></button></div></div>
   <div id="aiMessages" class="mb-ai-messages" role="log" aria-label="المحادثة مع المساعد" aria-live="polite" aria-relevant="additions text"></div>
   <form id="aiQuestionForm" class="mb-ai-form">
     <label for="aiQuestion" class="sr-only">اسأل</label>
-    <div class="mb-ai-compose"><textarea id="aiQuestion" rows="2" maxlength="1200" required placeholder="اسأل…" dir="auto"></textarea><button type="submit" id="aiSend" aria-label="إرسال السؤال">↑</button></div>
+    <div class="mb-ai-compose"><textarea id="aiQuestion" rows="2" maxlength="1200" required placeholder="اكتب سؤالك…" dir="auto"></textarea><button type="submit" id="aiSend" aria-label="إرسال السؤال"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button></div>
   </form>
   <div class="mb-ai-prompts" aria-label="مقترحات للمحاضرة">
     <button type="button" data-ai-prompt="اشرح لي المحاضرة بأسلوب واضح، مع بيان أن السياق قد يكون مقتطفات فقط.">اشرح لي المحاضرة</button>
@@ -2709,13 +2749,12 @@ body.ai-site-open .ai-fab, body.ai-fab-hidden .ai-fab { display:none; }
     <button type="button" data-ai-prompt="اسألني سؤالًا واحدًا عن المحاضرة، وانتظر إجابتي قبل توضيح الإجابة الصحيحة.">اسألني عن المحاضرة</button>
   </div>
   <p id="aiStatus" class="mb-ai-status" role="status"></p>
-  <details class="mb-ai-details"><summary>المحاضرة وخيارات المحادثة</summary>
-    <label class="mb-ai-context-label" for="aiLectureContext">المحاضرة المرتبطة بالسؤال</label>
-    <select id="aiLectureContext"><option value="">سؤال عام — دون محاضرة</option></select>
-    <button type="button" id="aiNewChat">محادثة جديدة</button>
-    <p class="mb-ai-footnote">يُرسل السؤال والمحادثة ومقتطف من المحاضرة إلى Groq. المحادثة مؤقتة وغير محفوظة في حسابك. لا تُدخل بيانات مرضى. الحصة: 15 طلبًا للحساب و40 للموقع يوميًا، وقد تفرض Groq حدودًا إضافية.</p>
+  <div class="mb-ai-meta">
+    <label class="ai-context-pill"><span class="sr-only">المحاضرة المرتبطة بالسؤال</span><select id="aiLectureContext"><option value="">سؤال عام</option></select></label>
+    <details class="mb-ai-details ai-about"><summary aria-label="عن المساعد" title="عن المساعد">ⓘ</summary>
+    <p class="mb-ai-footnote">مساعد للدراسة — تحقّق من الإجابات. يُرسل السؤال والمحادثة ومقتطف من المحاضرة إلى Groq. المحادثة مؤقتة وغير محفوظة في حسابك. لا تُدخل بيانات مرضى. الحصة: 15 طلبًا للحساب و40 للموقع يوميًا، وقد تفرض Groq حدودًا إضافية.</p>
   </details>
-  <p class="mb-ai-footnote mb-ai-study-note">مساعد للدراسة — تحقّق من الإجابات.</p>
+  </div>
 </aside>
 </div>
 <div id="smartSuggestions" class="smart-suggestions" role="listbox" aria-label="اقتراحات من المواد المتوفرة" hidden></div>
@@ -4553,9 +4592,11 @@ function renderAIConversation(pendingQuestion = '') {
   if (pendingQuestion) items.push({role:'user',content:pendingQuestion},{role:'assistant',content:'جارٍ التفكير…'});
   if (!items.length) {
     const welcome = document.createElement('div'); welcome.className='mb-ai-welcome';
-    welcome.textContent='اسألني عن المحاضرة';
+    welcome.innerHTML='<span class="ai-welcome-icon" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 2.5l2.3 6.6 6.7 2.4-6.7 2.4L12 20.5l-2.3-6.6-6.7-2.4 6.7-2.4L12 2.5z" fill="currentColor"/></svg></span><span>كيف أساعدك في دراستك؟</span>';
     log.append(welcome);
   }
+  // Suggestions only make sense for an attached lecture, and only before the chat starts.
+  document.querySelectorAll('.mb-ai-prompts').forEach(el=>{el.hidden=!!items.length||!aiLectureId;});
   items.forEach(item => {
     const box=document.createElement('div');box.className='mb-ai-message';box.dataset.role=item.role;
     const title=document.createElement('div');title.className='mb-ai-message-title';title.textContent=item.role==='user'?'أنت':'Midbrain AI ✨';
@@ -4570,7 +4611,7 @@ function renderAIConversation(pendingQuestion = '') {
 function setAIBusy(busy) {
   aiBusy=busy;
   document.getElementById('aiSend').disabled=busy;
-  document.getElementById('aiSend').textContent=busy?'…':'↑';
+  document.getElementById('aiSend').classList.toggle('busy',busy);
   document.getElementById('aiLectureContext').disabled=busy;
   document.querySelectorAll('[data-ai-prompt]').forEach(el=>el.disabled=busy);
 }
@@ -4584,7 +4625,7 @@ function resetAIConversation(clearContext = false) {
 }
 function refreshAILectures() {
   const select=document.getElementById('aiLectureContext'); select.replaceChildren();
-  const general=document.createElement('option');general.value='';general.textContent='سؤال عام — دون محاضرة';select.append(general);
+  const general=document.createElement('option');general.value='';general.textContent='سؤال عام';select.append(general);
   lectures.filter(lectureHasText).forEach(l=>{
     const option=document.createElement('option');option.value=l.id;option.textContent=l.title;select.append(option);
   });
@@ -4697,9 +4738,10 @@ function wireAIChat() {
   document.getElementById('aiQuestionForm').addEventListener('submit',sendAIQuestion);
   document.getElementById('aiNewChat').addEventListener('click',()=>{resetAIConversation();document.getElementById('aiQuestion').focus();});
   document.getElementById('aiLectureContext').addEventListener('change',e=>{aiLectureId=e.target.value;resetAIConversation();});
+  document.getElementById('aiQuestion').addEventListener('input',e=>{const t=e.target;t.style.height='auto';t.style.height=Math.min(140,t.scrollHeight)+'px';t.style.overflowY=t.scrollHeight>140?'auto':'hidden';});
   document.querySelectorAll('[data-ai-prompt]').forEach(button=>button.addEventListener('click',()=>{
     document.getElementById('aiQuestion').value=button.dataset.aiPrompt;
-    if(!aiLectureId){document.querySelector('.mb-ai-details').open=true;document.getElementById('aiStatus').textContent='اختر المحاضرة من الخيارات، أو اكتب سؤالًا عامًا.';}
+    if(!aiLectureId){document.getElementById('aiLectureContext').focus();document.getElementById('aiStatus').textContent='اختر المحاضرة أولًا، أو اكتب سؤالًا عامًا.';}
     document.getElementById('aiQuestion').focus();
   }));
   document.getElementById('aiQuestion').addEventListener('keydown',e=>{
