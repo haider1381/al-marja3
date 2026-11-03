@@ -1088,6 +1088,7 @@
     font-weight:700;
     margin-top:2px;
   }
+  .mb-feature-count[hidden] { display:none !important; }
   .mb-feature-count {
     font-family:'Nunito',sans-serif;
     color:#0876cf;
@@ -2519,37 +2520,37 @@ body.ai-site-open .ai-fab, body.ai-fab-hidden .ai-fab { display:none; }
 
     <section class="mb-feature-grid" aria-label="أقسام Medbrain">
       <button type="button" class="mb-feature" data-dashboard-kind="lectures">
-        <div class="mb-feature-top"><div><h3 class="mb-feature-title">المحاضرات</h3><span class="mb-feature-en">Lectures</span></div><span class="mb-feature-count" id="cardLectures">0</span></div>
+        <div class="mb-feature-top"><div><h3 class="mb-feature-title">المحاضرات</h3><span class="mb-feature-en">Lectures</span></div><span class="mb-feature-count" id="cardLectures" hidden></span></div>
         <div class="mb-art"><img class="mb-art-image" src="assets/medbrain/lectures.webp?v=4" alt="" loading="eager"></div>
         <p class="mb-feature-note">كل النصوص وملفات PDF والملخصات في مكان واحد.</p>
       </button>
 
       <button type="button" class="mb-feature" data-dashboard-kind="questions">
-        <div class="mb-feature-top"><div><h3 class="mb-feature-title">بنك الأسئلة</h3><span class="mb-feature-en">QBank</span></div><span class="mb-feature-count" id="cardQuestions">0</span></div>
+        <div class="mb-feature-top"><div><h3 class="mb-feature-title">بنك الأسئلة</h3><span class="mb-feature-en">QBank</span></div><span class="mb-feature-count" id="cardQuestions" hidden></span></div>
         <div class="mb-art"><img class="mb-art-image" src="assets/medbrain/qbank.webp?v=4" alt="" loading="eager"></div>
         <p class="mb-feature-note">اختبارات تفاعلية مع التصحيح والتفسيرات.</p>
       </button>
 
       <button type="button" class="mb-feature" data-dashboard-kind="videos">
-        <div class="mb-feature-top"><div><h3 class="mb-feature-title">فيديوهات مقترحة</h3><span class="mb-feature-en">Recommended Videos</span></div><span class="mb-feature-count" id="cardVideos">0</span></div>
+        <div class="mb-feature-top"><div><h3 class="mb-feature-title">فيديوهات مقترحة</h3><span class="mb-feature-en">Recommended Videos</span></div><span class="mb-feature-count" id="cardVideos" hidden></span></div>
         <div class="mb-art"><img class="mb-art-image" src="assets/medbrain/recommended.webp?v=4" alt="" loading="eager"></div>
         <p class="mb-feature-note">افتح الفيديوهات المحفوظة حسب تخصصك وموضوعك.</p>
       </button>
 
       <button type="button" class="mb-feature" data-tool-view="flashcards">
-        <div class="mb-feature-top"><div><h3 class="mb-feature-title">البطاقات التعليمية</h3><span class="mb-feature-en">Flashcards</span></div><span class="mb-feature-count" id="cardFlashcards">0</span></div>
+        <div class="mb-feature-top"><div><h3 class="mb-feature-title">البطاقات التعليمية</h3><span class="mb-feature-en">Flashcards</span></div><span class="mb-feature-count" id="cardFlashcards" hidden></span></div>
         <div class="mb-art"><img class="mb-art-image" src="assets/medbrain/flashcards.webp?v=4" alt="" loading="eager"></div>
         <p class="mb-feature-note">أنشئ بطاقاتك الشخصية وراجعها واقلبها لرؤية الإجابة.</p>
       </button>
 
       <button type="button" class="mb-feature" data-dashboard-kind="other">
-        <div class="mb-feature-top"><div><h3 class="mb-feature-title">متنوعات</h3><span class="mb-feature-en">Miscellaneous</span></div><span class="mb-feature-count" id="cardOther">0</span></div>
+        <div class="mb-feature-top"><div><h3 class="mb-feature-title">متنوعات</h3><span class="mb-feature-en">Miscellaneous</span></div><span class="mb-feature-count" id="cardOther" hidden></span></div>
         <div class="mb-art"><img class="mb-art-image" src="assets/medbrain/misc.webp?v=4" alt="" loading="eager"></div>
         <p class="mb-feature-note">كل المواد التي لا تندرج ضمن الأقسام الرئيسية.</p>
       </button>
 
       <button type="button" class="mb-feature" data-tool-view="schedule">
-        <div class="mb-feature-top"><div><h3 class="mb-feature-title">جدول الدراسة</h3><span class="mb-feature-en">Study Schedule</span></div><span class="mb-feature-count" id="cardSchedule">0</span></div>
+        <div class="mb-feature-top"><div><h3 class="mb-feature-title">جدول الدراسة</h3><span class="mb-feature-en">Study Schedule</span></div><span class="mb-feature-count" id="cardSchedule" hidden></span></div>
         <div class="mb-art"><img class="mb-art-image" src="assets/medbrain/schedule.webp?v=4" alt="" loading="eager"></div>
         <p class="mb-feature-note">أنشئ جدولك الأسبوعي وحدّد أوقات الدراسة وتابع إنجازك.</p>
       </button>
@@ -2717,18 +2718,13 @@ body.ai-site-open .ai-fab, body.ai-fab-hidden .ai-fab { display:none; }
         </div>
       </div>
       <section class="deck-area" id="deckArea" aria-labelledby="deckAreaTitle">
-        <div class="deck-area-head"><h3 class="deck-area-title" id="deckAreaTitle">بطاقات المكتبة</h3><span class="deck-area-sub" id="deckAreaSub"></span></div>
+        <div class="deck-area-head"><h3 class="deck-area-title" id="deckAreaTitle">بطاقات المكتبة</h3></div>
         <div class="deck-grid" id="deckGrid"><div class="mb-empty-tool">جارٍ تحميل المجموعات…</div></div>
         <div class="deck-study" id="deckStudy" hidden>
           <div class="deck-study-head">
             <button type="button" class="deck-pill" data-deck-action="close">› المجموعات</button>
             <div class="deck-study-title"><strong id="deckStudyTitle" dir="auto"></strong><span id="deckStudySource" dir="auto"></span></div>
             <button type="button" class="deck-pill" data-deck-action="shuffle" aria-pressed="false">خلط</button>
-          </div>
-          <div class="deck-stats" aria-live="polite">
-            <span class="deck-stat st-left"><b id="deckLeft">0</b> متبقية</span>
-            <span class="deck-stat st-hard"><b id="deckHard">0</b> صعبة</span>
-            <span class="deck-stat st-known"><b id="deckKnown">0</b> أتقنتها</span>
           </div>
           <div class="deck-progress" aria-hidden="true"><span id="deckProgressBar"></span></div>
           <div class="deck-stage" id="deckStage">
@@ -3199,8 +3195,6 @@ function renderFlashDecks() {
   const grid = document.getElementById('deckGrid'); if (!grid) return;
   if (flashDecks === null) { loadFlashDecks(); return; }
   if (!flashDecks.length) { grid.innerHTML = '<div class="mb-empty-tool">لا توجد مجموعات بطاقات في المكتبة بعد.</div>'; return; }
-  const total = flashDecks.reduce((n, d) => n + (d.card_count || 0), 0);
-  document.getElementById('deckAreaSub').textContent = flashDecks.length + ' مجموعة · ' + total.toLocaleString('en') + ' بطاقة';
   grid.innerHTML = flashDecks.map((d, i) => {
     const [c1, c2] = DECK_THEMES[i % DECK_THEMES.length];
     const known = Math.min(deckStore(d.id).known.length, d.card_count || 0);
@@ -3208,7 +3202,7 @@ function renderFlashDecks() {
     return '<button type="button" class="deck-tile" data-deck-open="' + escapeHtml(d.id) + '" style="--c1:' + c1 + ';--c2:' + c2 + ';--pct:' + pct + '">' +
       '<span class="deck-tile-stack" aria-hidden="true"></span>' +
       '<span class="deck-tile-face">' +
-        '<span class="deck-tile-top"><span class="deck-tile-count">' + (d.card_count || 0) + ' بطاقة</span>' +
+        '<span class="deck-tile-top"><span class="deck-tile-count">Flashcards</span>' +
         '<span class="deck-ring" role="img" aria-label="أتقنت ' + pct + '%"><span>' + pct + '%</span></span></span>' +
         '<span class="deck-tile-mono" aria-hidden="true" dir="ltr">' + escapeHtml(deckShort(d.title)) + '</span>' +
         '<strong dir="auto">' + escapeHtml(d.title) + '</strong>' +
@@ -3267,9 +3261,6 @@ function closeDeck() {
 }
 function updateDeckStats() {
   const total = deckCards.length || 1;
-  document.getElementById('deckLeft').textContent = deckQueue.length;
-  document.getElementById('deckHard').textContent = deckProgress.hard.length;
-  document.getElementById('deckKnown').textContent = deckProgress.known.length;
   document.getElementById('deckProgressBar').style.width = Math.min(100, deckProgress.known.length / total * 100) + '%';
 }
 function showDeckCard() {
@@ -3284,7 +3275,7 @@ function showDeckCard() {
   document.getElementById('deckDone').hidden = !done;
   updateDeckStats();
   if (done) {
-    document.getElementById('deckDoneText').textContent = 'أتقنت ' + deckProgress.known.length + ' من ' + deckCards.length + ' بطاقة' + (deckProgress.hard.length ? '، وبقيت ' + deckProgress.hard.length + ' صعبة.' : '.');
+    document.getElementById('deckDoneText').textContent = deckProgress.hard.length ? 'بقيت لديك بطاقات صعبة، راجعها لتثبيتها.' : 'أتقنت كل بطاقات هذه المجموعة.';
     document.getElementById('deckAgainHard').hidden = !deckProgress.hard.length;
     return;
   }
@@ -4533,7 +4524,7 @@ function renderMedbrainWidgets() {
     cardVideos: counts.videos,
     cardQuestions: counts.questions,
     cardOther: counts.other,
-    cardFlashcards: flashcards.length + (flashDecks || []).reduce((n, d) => n + (d.card_count || 0), 0),
+    cardFlashcards: flashcards.length,
     cardSchedule: scheduleItems.length,
     dailyPracticeCount: counts.questions,
     statMaterials: lectures.length,
