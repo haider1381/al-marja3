@@ -2109,8 +2109,8 @@ button,a,input,select,textarea{-webkit-tap-highlight-color:transparent;}
       <p class="sub" id="gateSubtitle">سجّل الدخول إلى عقلك الطبي ومكتبتك الدراسية.</p>
     </div>
     <div class="gate-tabs" role="tablist" aria-label="نوع الدخول">
-      <button type="button" role="tab" id="gateTabLogin" data-gate-mode="login" aria-selected="true">لدي حساب</button>
       <button type="button" role="tab" id="gateTabSignup" data-gate-mode="signup" aria-selected="false">حساب جديد</button>
+      <button type="button" role="tab" id="gateTabLogin" data-gate-mode="login" aria-selected="true">لدي حساب</button>
     </div>
     <button type="button" id="googleLoginBtn" class="google-login-btn">
       <svg viewBox="0 0 48 48" aria-hidden="true" focusable="false">
@@ -3369,6 +3369,7 @@ async function syncAccess(session) {
   applyAccessUI();
   render();
   if (!session) { showGate(); return; }
+  try { localStorage.setItem('medbrain_signed_in_before', '1'); } catch (_) {}
   hideGate();
   syncNamePrompt();
   try {
@@ -3475,6 +3476,10 @@ function wireGateEvents() {
     const msg = document.getElementById('gateError'); msg.textContent = ''; msg.classList.remove('ok');
   };
   document.querySelectorAll('[data-gate-mode]').forEach(tab => tab.addEventListener('click', () => setGateMode(tab.dataset.gateMode)));
+  // Most visitors are new, so "New account" opens first; a device that has signed in before opens "I have an account".
+  let knownDevice = false;
+  try { knownDevice = localStorage.getItem('medbrain_signed_in_before') === '1'; } catch (_) {}
+  setGateMode(knownDevice ? 'login' : 'signup');
   document.querySelectorAll('[data-toggle-password]').forEach(button => button.addEventListener('click', () => {
     const show = button.getAttribute('aria-pressed') !== 'true';
     button.setAttribute('aria-pressed', String(show));
