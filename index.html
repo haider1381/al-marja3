@@ -875,7 +875,9 @@
     flex-shrink:0; width:32px; height:32px; border:1px solid var(--medical-blue);
     border-radius:50%; background:var(--medical-blue-soft);
     color:var(--medical-blue-dark); font-size:18px;
+    display:grid; place-items:center; padding:0; line-height:0; cursor:pointer;
   }
+  .mb-about-close svg { display:block; }
   .mb-about-close:hover { background:var(--medical-blue-hover); color:#ffffff; }
   .mb-brand-home { border:0; padding:0; background:transparent; color:inherit; font:inherit; text-align:inherit; cursor:pointer; }
   .mb-brand-home:focus-visible { outline:2px solid var(--mb-blue); outline-offset:5px; border-radius:4px; }
@@ -2087,9 +2089,9 @@ button,a,input,select,textarea{-webkit-tap-highlight-color:transparent;}
   <section class="mb-about-dialog" role="dialog" aria-labelledby="aboutTitle" aria-describedby="aboutDescription">
     <div class="mb-about-head">
       <h2 id="aboutTitle" dir="ltr">Medbrain</h2>
-      <button type="button" id="aboutClose" class="mb-about-close" aria-label="إغلاق النبذة">×</button>
+      <button type="button" id="aboutClose" class="mb-about-close" aria-label="إغلاق النبذة"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true" focusable="false"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></button>
     </div>
-    <p id="aboutDescription">منصة دماغ الطب هي الدماغ الذي يحمل كل معلوماته من محاضرات وفيديوهات وأسئلة وملخصات.</p>
+    <p id="aboutDescription">منصة دماغ الطب هي الدماغ الذي يحمل كل معلوماتك من محاضرات وفيديوهات وأسئلة وملخصات.</p>
   </section>
 </div>
 
