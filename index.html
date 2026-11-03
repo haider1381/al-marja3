@@ -2221,43 +2221,93 @@ body.ai-site-open .ai-fab, body.ai-fab-hidden .ai-fab { display:none; }
 .ai-suggest-context select { flex:1; min-width:0; height:30px; padding:0 8px !important; border-radius:999px !important; font-size:12px !important; color:var(--ai-text) !important; background:var(--ai-panel) !important; border:1px solid var(--ai-border) !important; }
 .reader-ai-host .ai-suggest-context { display:none; }
 
-/* ---------- Library flashcard decks and the study card ---------- */
+/* ---------- Library flashcard decks: colorful card piles and a 3D flip study card ---------- */
 .deck-area { margin:4px 0 22px; }
-.deck-area-title { margin:18px 0 10px; font-size:16px; font-weight:800; color:var(--text); }
-.deck-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:12px; }
-.deck-tile { display:flex; flex-direction:column; align-items:flex-start; gap:6px; text-align:start; padding:16px; border-radius:14px; border:1px solid var(--border); border-inline-start:4px solid var(--accent); background:var(--surface); color:var(--text); font:inherit; cursor:pointer; transition:transform .15s ease, box-shadow .15s ease; }
-.deck-tile:hover { transform:translateY(-2px); box-shadow:0 10px 24px rgba(12,32,52,.10); }
-.deck-tile strong { font-size:15.5px; }
-.deck-tile-count { font-size:11px; font-weight:800; padding:2px 9px; border-radius:999px; background:var(--accent-soft); color:var(--accent-strong); }
-.deck-tile-meta { font-size:12px; color:var(--text-muted); }
-.deck-tile-go { margin-top:4px; font-size:12.5px; font-weight:800; color:var(--accent-strong); }
-.deck-study { max-width:760px; margin:0 auto; }
-.deck-study-head { display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; margin-bottom:10px; }
-.deck-study-title { display:flex; flex-direction:column; align-items:center; text-align:center; flex:1; min-width:160px; }
+.deck-area-head { display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; margin:18px 0 12px; }
+.deck-area-title { margin:0; font-size:17px; font-weight:800; color:var(--text); }
+.deck-area-sub { font-size:12.5px; color:var(--text-muted); font-weight:700; }
+.deck-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(205px,1fr)); gap:18px 14px; padding-top:8px; }
+.deck-tile { position:relative; padding:0; border:0; background:none; font:inherit; color:#fff; cursor:pointer; text-align:start; }
+.deck-tile-stack, .deck-tile-stack::before { position:absolute; inset:0; border-radius:20px; background:var(--c2); opacity:.35; transform:translateY(-7px) scale(.94); transition:transform .25s ease; }
+.deck-tile-stack::before { content:""; opacity:.6; transform:translateY(-6px) scale(.95); }
+.deck-tile-face { position:relative; display:flex; flex-direction:column; gap:6px; min-height:178px; padding:16px; border-radius:20px; background:linear-gradient(145deg, var(--c1), var(--c2)); box-shadow:0 12px 24px -10px var(--c2), inset 0 1px 0 rgba(255,255,255,.35), inset 0 -3px 0 rgba(0,0,0,.08); overflow:hidden; transition:transform .25s cubic-bezier(.2,.8,.3,1.3), box-shadow .25s ease; }
+.deck-tile:hover .deck-tile-face, .deck-tile:focus-visible .deck-tile-face { transform:translateY(-4px) rotate(-1deg); box-shadow:0 18px 30px -12px var(--c2), inset 0 1px 0 rgba(255,255,255,.35); }
+.deck-tile:hover .deck-tile-stack { transform:translateY(-10px) scale(.93) rotate(2deg); }
+.deck-tile:focus-visible { outline:none; } .deck-tile:focus-visible .deck-tile-face { outline:3px solid var(--text); outline-offset:3px; }
+.deck-tile:active .deck-tile-face { transform:scale(.98); }
+.deck-tile-top { display:flex; justify-content:space-between; align-items:center; }
+.deck-tile-count { font-size:11px; font-weight:800; padding:3px 10px; border-radius:999px; background:rgba(255,255,255,.22); backdrop-filter:blur(4px); }
+.deck-ring { --deg:calc(var(--pct) * 3.6deg); width:40px; height:40px; border-radius:50%; display:grid; place-items:center; background:conic-gradient(#fff var(--deg), rgba(255,255,255,.25) 0); }
+.deck-ring span { width:31px; height:31px; border-radius:50%; display:grid; place-items:center; background:var(--c2); font-size:9.5px; font-weight:800; }
+.deck-tile-mono { position:absolute; inset-inline-end:-6px; bottom:-14px; font-size:76px; font-weight:900; line-height:1; letter-spacing:-3px; color:rgba(255,255,255,.14); pointer-events:none; }
+.deck-tile strong { position:relative; margin-top:auto; font-size:17px; line-height:1.3; text-shadow:0 1px 2px rgba(0,0,0,.12); }
+.deck-tile-meta { position:relative; font-size:11.5px; opacity:.88; }
+.deck-tile-go { position:relative; align-self:flex-start; margin-top:4px; font-size:12px; font-weight:800; padding:6px 12px; border-radius:999px; background:#fff; color:var(--c2); box-shadow:0 3px 0 rgba(0,0,0,.12); }
+.deck-study { --c1:#5b8def; --c2:#3a5bd9; max-width:720px; margin:0 auto; }
+.deck-study-head { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:12px; }
+.deck-study-title { display:flex; flex-direction:column; align-items:center; text-align:center; flex:1; min-width:0; }
+.deck-study-title strong { font-size:17px; }
 .deck-study-title span { font-size:12px; color:var(--text-muted); }
-.deck-study-head [aria-pressed="true"] { background:var(--accent-soft); color:var(--accent-strong); }
-.deck-progress { height:5px; border-radius:99px; background:var(--accent-soft); overflow:hidden; margin-bottom:12px; }
-.deck-progress span { display:block; height:100%; width:0; background:var(--accent); border-radius:inherit; transition:width .25s ease; }
-.deck-card { position:relative; min-height:260px; padding:34px 22px 22px; border-radius:18px; border:1px solid var(--border); background:var(--surface); box-shadow:0 10px 30px rgba(12,32,52,.08); cursor:pointer; display:flex; flex-direction:column; justify-content:center; text-align:center; font-size:17px; line-height:1.8; color:var(--text); direction:ltr; outline:none; transition:border-color .2s ease; }
-.deck-card:focus-visible { border-color:var(--accent); }
-.deck-card.is-back { border-color:var(--accent); background:linear-gradient(180deg, var(--accent-soft), var(--surface) 60%); }
-.deck-card-side { position:absolute; top:12px; inset-inline-start:14px; direction:rtl; font-size:11px; font-weight:800; color:var(--accent-strong); background:var(--accent-soft); padding:2px 10px; border-radius:999px; }
+.deck-pill { height:38px; padding:0 14px; border-radius:999px; border:2px solid var(--border); background:var(--surface); color:var(--text); font:inherit; font-size:13px; font-weight:800; cursor:pointer; white-space:nowrap; box-shadow:0 3px 0 var(--border); transition:transform .12s ease, box-shadow .12s ease; }
+.deck-pill:active { transform:translateY(2px); box-shadow:0 1px 0 var(--border); }
+.deck-pill[aria-pressed="true"] { border-color:var(--c1); color:var(--c2); box-shadow:0 3px 0 var(--c1); }
+.deck-stats { display:flex; justify-content:center; gap:8px; flex-wrap:wrap; margin-bottom:8px; }
+.deck-stat { font-size:12px; font-weight:700; padding:4px 12px; border-radius:999px; background:var(--surface); border:1px solid var(--border); color:var(--text-muted); }
+.deck-stat b { font-size:14px; margin-inline-end:3px; }
+.st-left b { color:var(--c2); } .st-hard b { color:#d9534f; } .st-known b { color:#2f9452; }
+.deck-progress { height:10px; border-radius:99px; background:var(--accent-soft); overflow:hidden; margin-bottom:22px; box-shadow:inset 0 2px 3px rgba(0,0,0,.06); }
+.deck-progress span { display:block; height:100%; width:0; border-radius:inherit; background:linear-gradient(90deg, var(--c1), var(--c2)); transition:width .4s cubic-bezier(.2,.8,.3,1); }
+.deck-stage { position:relative; perspective:1400px; padding-top:14px; }
+.deck-pile span { position:absolute; inset:14px 0 0; border-radius:24px; background:linear-gradient(145deg, var(--c1), var(--c2)); opacity:.22; transform:translateY(-12px) scale(.92) rotate(-2deg); }
+.deck-pile span + span { opacity:.38; transform:translateY(-6px) scale(.96) rotate(1.5deg); }
+.deck-card { position:relative; display:grid; outline:none; cursor:pointer; transform-style:preserve-3d; transition:transform .55s cubic-bezier(.3,1.25,.4,1); }
+.deck-card.is-flipped { transform:rotateY(180deg); }
+.deck-face { grid-area:1/1; display:flex; flex-direction:column; justify-content:center; min-height:300px; padding:40px 24px 26px; border-radius:24px; background:var(--surface); border:3px solid color-mix(in srgb, var(--c1) 35%, var(--border)); box-shadow:0 18px 40px -18px color-mix(in srgb, var(--c2) 60%, transparent), 0 4px 0 color-mix(in srgb, var(--c1) 30%, var(--border)); text-align:center; font-size:18px; line-height:1.8; color:var(--text); direction:ltr; backface-visibility:hidden; -webkit-backface-visibility:hidden; }
+.deck-back { transform:rotateY(180deg); background:linear-gradient(180deg, color-mix(in srgb, var(--c1) 12%, var(--surface)), var(--surface) 55%); }
+.deck-card:focus-visible .deck-face { border-color:var(--c2); }
+.deck-face-tag { position:absolute; top:14px; inset-inline-start:16px; direction:rtl; font-size:11px; font-weight:800; color:#fff; background:linear-gradient(135deg, var(--c1), var(--c2)); padding:3px 12px; border-radius:999px; }
+.deck-tap { margin-top:18px; direction:rtl; font-size:11.5px; font-weight:700; color:var(--text-muted); }
 .deck-card-body { overflow-wrap:anywhere; }
 .deck-card-body ol, .deck-card-body ul { text-align:start; display:inline-block; margin:6px auto; }
-.deck-card mark { background:var(--accent-soft); color:var(--accent-strong); font-weight:800; padding:1px 6px; border-radius:6px; }
-.deck-card img { max-width:100%; max-height:360px; border-radius:10px; margin:6px auto; display:block; }
-.deck-card hr { border:0; border-top:1px dashed var(--border); margin:14px 0; }
-.deck-q { font-weight:700; }
+.deck-card mark { background:color-mix(in srgb, var(--c1) 18%, transparent); color:var(--c2); font-weight:800; padding:1px 8px; border-radius:8px; border-bottom:2px solid var(--c1); }
+.deck-card img { max-width:100%; max-height:340px; border-radius:12px; margin:8px auto; display:block; }
+.deck-card hr { border:0; border-top:2px dashed var(--border); margin:14px 0; }
+.deck-q { font-weight:700; opacity:.8; font-size:.9em; }
 .deck-note { color:var(--text-muted); font-size:14px; direction:rtl; }
-.deck-card-extra { margin-top:14px; padding-top:12px; border-top:1px dashed var(--border); font-size:14px; color:var(--text-muted); text-align:start; }
-.deck-controls { display:flex; justify-content:center; align-items:center; gap:10px; margin-top:14px; }
-.deck-nav { height:42px; padding:0 16px; border-radius:12px; border:1px solid var(--border); background:var(--surface); color:var(--text); font:inherit; font-weight:700; cursor:pointer; }
-.deck-nav:hover { border-color:var(--accent); color:var(--accent-strong); }
-.deck-flip { min-width:150px; }
-.deck-count { text-align:center; margin:8px 0 0; font-size:12.5px; color:var(--text-muted); font-weight:700; }
+.deck-card-extra { margin-top:16px; padding:12px 14px; border-radius:14px; background:color-mix(in srgb, var(--c1) 8%, var(--surface)); font-size:14px; line-height:1.7; color:var(--text-muted); text-align:start; }
+.deck-card.deal { animation:deckDeal .38s cubic-bezier(.2,.9,.3,1.2); }
+.deck-card.fly-good { animation:deckFlyGood .26s ease-in forwards; }
+.deck-card.fly-hard { animation:deckFlyHard .26s ease-in forwards; }
+@keyframes deckDeal { from { opacity:0; transform:translateY(26px) scale(.94); } }
+@keyframes deckFlyGood { to { opacity:0; transform:translateX(-120px) rotate(-8deg) rotateY(180deg); } }
+@keyframes deckFlyHard { to { opacity:0; transform:translateX(120px) rotate(8deg) rotateY(180deg); } }
+.deck-controls { display:flex; justify-content:center; margin-top:20px; }
+.deck-flip-btn { min-width:220px; height:50px; padding:0 22px; border-radius:16px; border:0; background:linear-gradient(135deg, var(--c1), var(--c2)); color:#fff; font:inherit; font-size:15.5px; font-weight:800; cursor:pointer; box-shadow:0 5px 0 color-mix(in srgb, var(--c2) 70%, #000); transition:transform .12s ease, box-shadow .12s ease; }
+.deck-flip-btn:active { transform:translateY(4px); box-shadow:0 1px 0 color-mix(in srgb, var(--c2) 70%, #000); }
+.deck-rate { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-top:20px; }
+.rate-btn { display:flex; flex-direction:column; align-items:center; gap:2px; padding:10px 6px; border-radius:16px; border:0; color:#fff; font:inherit; cursor:pointer; transition:transform .12s ease, box-shadow .12s ease; }
+.rate-btn b { font-size:15px; } .rate-btn small { font-size:11px; opacity:.9; }
+.rate-btn:active { transform:translateY(4px); }
+.rate-hard { background:#e5534b; box-shadow:0 5px 0 #a8322c; } .rate-hard:active { box-shadow:0 1px 0 #a8322c; }
+.rate-good { background:#f0a020; box-shadow:0 5px 0 #b06f0a; } .rate-good:active { box-shadow:0 1px 0 #b06f0a; }
+.rate-easy { background:#34a65a; box-shadow:0 5px 0 #23733d; } .rate-easy:active { box-shadow:0 1px 0 #23733d; }
+.deck-keys { text-align:center; margin:14px 0 0; font-size:11.5px; color:var(--text-muted); }
+@media (pointer:coarse) { .deck-keys { display:none; } }
+.deck-done { text-align:center; padding:30px 18px; border-radius:24px; background:linear-gradient(160deg, color-mix(in srgb, var(--c1) 14%, var(--surface)), var(--surface)); border:3px solid color-mix(in srgb, var(--c1) 30%, var(--border)); }
+.deck-done-badge { width:74px; height:74px; margin:0 auto 10px; border-radius:50%; display:grid; place-items:center; font-size:36px; font-weight:900; color:#fff; background:linear-gradient(135deg, #4fbf73, #2f9452); box-shadow:0 6px 0 #23733d; animation:deckDeal .5s cubic-bezier(.2,.9,.3,1.4); }
+.deck-done h4 { margin:6px 0; font-size:19px; }
+.deck-done p { margin:0 0 16px; color:var(--text-muted); }
+.deck-done-actions { display:flex; justify-content:center; gap:10px; flex-wrap:wrap; }
+.deck-done-actions .deck-flip-btn { min-width:0; height:44px; }
+.deck-done-actions .deck-pill { height:44px; }
+@media (prefers-reduced-motion: reduce) { .deck-card, .deck-tile-face, .deck-tile-stack { transition:none; } .deck-card.deal, .deck-card.fly-good, .deck-card.fly-hard, .deck-done-badge { animation:none; } }
+:root[data-motion="reduce"] .deck-card { transition:none; }
 @media (max-width:480px) {
-  .deck-card { min-height:220px; padding:32px 14px 16px; font-size:15.5px; }
-  .deck-nav { padding:0 11px; } .deck-flip { min-width:0; flex:1; }
+  .deck-grid { grid-template-columns:1fr 1fr; gap:16px 10px; }
+  .deck-tile-face { min-height:160px; padding:13px; } .deck-tile strong { font-size:15px; } .deck-tile-mono { font-size:60px; }
+  .deck-face { min-height:250px; padding:38px 15px 20px; font-size:16px; }
+  .deck-flip-btn { min-width:0; width:100%; }
+  .deck-pill { padding:0 11px; }
 }
 </style>
 <link rel="manifest" href="./manifest.webmanifest">
@@ -2667,26 +2717,45 @@ body.ai-site-open .ai-fab, body.ai-fab-hidden .ai-fab { display:none; }
         </div>
       </div>
       <section class="deck-area" id="deckArea" aria-labelledby="deckAreaTitle">
-        <h3 class="deck-area-title" id="deckAreaTitle">بطاقات المكتبة</h3>
+        <div class="deck-area-head"><h3 class="deck-area-title" id="deckAreaTitle">بطاقات المكتبة</h3><span class="deck-area-sub" id="deckAreaSub"></span></div>
         <div class="deck-grid" id="deckGrid"><div class="mb-empty-tool">جارٍ تحميل المجموعات…</div></div>
         <div class="deck-study" id="deckStudy" hidden>
           <div class="deck-study-head">
-            <button type="button" class="back-chip" data-deck-action="close">‹ كل المجموعات</button>
-            <div class="deck-study-title"><strong id="deckStudyTitle"></strong><span id="deckStudySource"></span></div>
-            <button type="button" class="back-chip" data-deck-action="shuffle" aria-pressed="false">خلط البطاقات</button>
+            <button type="button" class="deck-pill" data-deck-action="close">› المجموعات</button>
+            <div class="deck-study-title"><strong id="deckStudyTitle" dir="auto"></strong><span id="deckStudySource" dir="auto"></span></div>
+            <button type="button" class="deck-pill" data-deck-action="shuffle" aria-pressed="false">خلط</button>
+          </div>
+          <div class="deck-stats" aria-live="polite">
+            <span class="deck-stat st-left"><b id="deckLeft">0</b> متبقية</span>
+            <span class="deck-stat st-hard"><b id="deckHard">0</b> صعبة</span>
+            <span class="deck-stat st-known"><b id="deckKnown">0</b> أتقنتها</span>
           </div>
           <div class="deck-progress" aria-hidden="true"><span id="deckProgressBar"></span></div>
-          <article class="deck-card" id="deckCard" tabindex="0" aria-live="polite">
-            <span class="deck-card-side" id="deckCardSide">السؤال</span>
-            <div class="deck-card-body" id="deckCardBody"></div>
-            <div class="deck-card-extra" id="deckCardExtra" hidden></div>
-          </article>
-          <div class="deck-controls">
-            <button type="button" class="deck-nav" data-deck-action="prev" aria-label="البطاقة السابقة">السابقة ›</button>
-            <button type="button" class="mb-primary deck-flip" data-deck-action="flip" id="deckFlipBtn">إظهار الإجابة</button>
-            <button type="button" class="deck-nav" data-deck-action="next" aria-label="البطاقة التالية">‹ التالية</button>
+          <div class="deck-stage" id="deckStage">
+            <div class="deck-pile" aria-hidden="true"><span></span><span></span></div>
+            <article class="deck-card" id="deckCard" tabindex="0" aria-label="البطاقة. اضغط لقلبها">
+              <div class="deck-face deck-front"><span class="deck-face-tag">سؤال</span><div class="deck-card-body" id="deckFront"></div><span class="deck-tap">اضغط لقلب البطاقة</span></div>
+              <div class="deck-face deck-back"><span class="deck-face-tag">إجابة</span><div class="deck-card-body" id="deckBack"></div><div class="deck-card-extra" id="deckCardExtra" hidden></div></div>
+            </article>
           </div>
-          <p class="deck-count" id="deckCount"></p>
+          <div class="deck-controls" id="deckFlipRow">
+            <button type="button" class="deck-flip-btn" data-deck-action="flip">إظهار الإجابة</button>
+          </div>
+          <div class="deck-rate" id="deckRateRow" hidden>
+            <button type="button" class="rate-btn rate-hard" data-deck-rate="hard"><b>صعبة</b><small>أعدها لي قريبًا</small></button>
+            <button type="button" class="rate-btn rate-good" data-deck-rate="good"><b>جيدة</b><small>تذكرتها بجهد</small></button>
+            <button type="button" class="rate-btn rate-easy" data-deck-rate="easy"><b>سهلة</b><small>أتقنتها</small></button>
+          </div>
+          <p class="deck-keys">المسافة لقلب البطاقة · 1 صعبة · 2 جيدة · 3 سهلة</p>
+          <div class="deck-done" id="deckDone" hidden>
+            <div class="deck-done-badge" aria-hidden="true">✓</div>
+            <h4>أحسنت! أنهيت المجموعة</h4>
+            <p id="deckDoneText"></p>
+            <div class="deck-done-actions">
+              <button type="button" class="deck-flip-btn" data-deck-action="again-hard" id="deckAgainHard">راجع الصعبة فقط</button>
+              <button type="button" class="deck-pill" data-deck-action="reset">ابدأ المجموعة من جديد</button>
+            </div>
+          </div>
         </div>
       </section>
       <h3 class="deck-area-title">بطاقاتي الشخصية</h3>
@@ -3109,7 +3178,15 @@ async function loadFlashcards() {
   loadFlashDecks();
 }
 // Shared library decks (imported from Anki), read-only for students.
-let flashDecks = null, deckCards = [], deckOrder = [], deckIndex = 0, deckFlipped = false, activeDeck = null;
+// Each viewer's progress (mastered / hard cards) stays in this browser.
+let flashDecks = null, deckCards = [], deckQueue = [], deckFlipped = false, activeDeck = null, deckProgress = null;
+const DECK_THEMES = [['#5b8def', '#3a5bd9'], ['#16a39a', '#0e7c74'], ['#f08a5d', '#d9603b'], ['#a66cf2', '#7b45d1'], ['#ef5f8b', '#c93b67'],
+  ['#2fb3e0', '#1784b6'], ['#f2b33d', '#d48a14'], ['#4fbf73', '#2f9452'], ['#e86f6f', '#c24848'], ['#6c7ef5', '#4652c8']];
+function deckStore(id) {
+  try { const v = JSON.parse(localStorage.getItem('medbrain_deck_' + id) || 'null'); if (v && Array.isArray(v.known)) return v; } catch (_) {}
+  return { known: [], hard: [] };
+}
+function saveDeckStore() { try { if (activeDeck) localStorage.setItem('medbrain_deck_' + activeDeck.id, JSON.stringify(deckProgress)); } catch (_) {} }
 async function loadFlashDecks() {
   if (!client || !activeUserId) return;
   const result = await client.from('flashcard_decks').select('id,title,source,category,topic,card_count,sort').order('sort');
@@ -3117,16 +3194,28 @@ async function loadFlashDecks() {
   renderFlashDecks();
   if (typeof renderMedbrainWidgets === 'function') renderMedbrainWidgets();
 }
+function deckShort(title) { return (String(title).match(/[A-Za-z]+/g) || [title]).map(w => w.slice(0, 1)).join('').slice(0, 3).toUpperCase(); }
 function renderFlashDecks() {
   const grid = document.getElementById('deckGrid'); if (!grid) return;
   if (flashDecks === null) { loadFlashDecks(); return; }
   if (!flashDecks.length) { grid.innerHTML = '<div class="mb-empty-tool">لا توجد مجموعات بطاقات في المكتبة بعد.</div>'; return; }
-  grid.innerHTML = flashDecks.map(d =>
-    '<button type="button" class="deck-tile" data-deck-open="' + escapeHtml(d.id) + '">' +
-    '<span class="deck-tile-count">' + d.card_count + ' بطاقة</span>' +
-    '<strong dir="auto">' + escapeHtml(d.title) + '</strong>' +
-    '<span class="deck-tile-meta" dir="auto">' + escapeHtml([d.topic, d.source].filter(Boolean).join(' · ')) + '</span>' +
-    '<span class="deck-tile-go">ابدأ المراجعة ‹</span></button>').join('');
+  const total = flashDecks.reduce((n, d) => n + (d.card_count || 0), 0);
+  document.getElementById('deckAreaSub').textContent = flashDecks.length + ' مجموعة · ' + total.toLocaleString('en') + ' بطاقة';
+  grid.innerHTML = flashDecks.map((d, i) => {
+    const [c1, c2] = DECK_THEMES[i % DECK_THEMES.length];
+    const known = Math.min(deckStore(d.id).known.length, d.card_count || 0);
+    const pct = d.card_count ? Math.round(known / d.card_count * 100) : 0;
+    return '<button type="button" class="deck-tile" data-deck-open="' + escapeHtml(d.id) + '" style="--c1:' + c1 + ';--c2:' + c2 + ';--pct:' + pct + '">' +
+      '<span class="deck-tile-stack" aria-hidden="true"></span>' +
+      '<span class="deck-tile-face">' +
+        '<span class="deck-tile-top"><span class="deck-tile-count">' + (d.card_count || 0) + ' بطاقة</span>' +
+        '<span class="deck-ring" role="img" aria-label="أتقنت ' + pct + '%"><span>' + pct + '%</span></span></span>' +
+        '<span class="deck-tile-mono" aria-hidden="true" dir="ltr">' + escapeHtml(deckShort(d.title)) + '</span>' +
+        '<strong dir="auto">' + escapeHtml(d.title) + '</strong>' +
+        '<span class="deck-tile-meta" dir="auto">' + escapeHtml(d.source || '') + '</span>' +
+        '<span class="deck-tile-go">' + (known ? 'أكمل المراجعة' : 'ابدأ المراجعة') + ' <span aria-hidden="true">‹</span></span>' +
+      '</span></button>';
+  }).join('');
 }
 // Card HTML was cleaned on import; this second pass keeps only simple tags and local card images.
 const DECK_TAGS = new Set(['B', 'STRONG', 'I', 'EM', 'U', 'BR', 'DIV', 'P', 'UL', 'OL', 'LI', 'SUB', 'SUP', 'SPAN', 'IMG', 'TABLE', 'THEAD', 'TBODY', 'TR', 'TD', 'TH', 'HR', 'MARK', 'SMALL']);
@@ -3145,57 +3234,96 @@ function safeCardHtml(html) {
   walk(doc.body.firstChild);
   return doc.body.firstChild.innerHTML;
 }
+function buildDeckQueue(onlyHard) {
+  const known = new Set(deckProgress.known), hard = new Set(deckProgress.hard);
+  deckQueue = deckCards.map((c, i) => i).filter(i => onlyHard ? hard.has(deckCards[i].id) : !known.has(deckCards[i].id));
+  if (document.querySelector('[data-deck-action="shuffle"]').getAttribute('aria-pressed') === 'true') shuffleQueue();
+}
+function shuffleQueue() { for (let i = deckQueue.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [deckQueue[i], deckQueue[j]] = [deckQueue[j], deckQueue[i]]; } }
 async function openDeck(id) {
-  activeDeck = (flashDecks || []).find(d => d.id === id); if (!activeDeck) return;
+  const index = (flashDecks || []).findIndex(d => d.id === id); if (index < 0) return;
+  activeDeck = flashDecks[index];
+  const [c1, c2] = DECK_THEMES[index % DECK_THEMES.length];
+  const study = document.getElementById('deckStudy');
+  study.style.setProperty('--c1', c1); study.style.setProperty('--c2', c2);
   document.getElementById('deckGrid').hidden = true;
-  document.getElementById('deckStudy').hidden = false;
+  study.hidden = false;
   document.getElementById('deckStudyTitle').textContent = activeDeck.title;
   document.getElementById('deckStudySource').textContent = [activeDeck.topic, activeDeck.source].filter(Boolean).join(' · ');
-  document.getElementById('deckCardBody').innerHTML = '<div class="mb-empty-tool">جارٍ تحميل البطاقات…</div>';
+  document.getElementById('deckFront').innerHTML = '<div class="mb-empty-tool">جارٍ تحميل البطاقات…</div>';
   const result = await client.from('library_flashcards').select('id,ord,kind,front,back,extra').eq('deck_id', id).order('ord');
   deckCards = result.error ? [] : (result.data || []);
-  deckOrder = deckCards.map((_, i) => i);
-  const saved = Number(localStorage.getItem('medbrain_deck_pos_' + id) || 0);
-  deckIndex = saved > 0 && saved < deckCards.length ? saved : 0;
+  deckProgress = deckStore(id);
   document.querySelector('[data-deck-action="shuffle"]').setAttribute('aria-pressed', 'false');
+  buildDeckQueue(false);
   showDeckCard();
-  document.getElementById('deckStudy').scrollIntoView({ block: 'start', behavior: 'smooth' });
+  study.scrollIntoView({ block: 'start', behavior: document.documentElement.dataset.motion === 'reduce' ? 'auto' : 'smooth' });
 }
 function closeDeck() {
   activeDeck = null;
   document.getElementById('deckStudy').hidden = true;
   document.getElementById('deckGrid').hidden = false;
+  renderFlashDecks();
 }
-function showDeckCard(flipped = false) {
-  deckFlipped = flipped;
-  const body = document.getElementById('deckCardBody'), extra = document.getElementById('deckCardExtra');
-  if (!deckCards.length) { body.innerHTML = '<div class="mb-empty-tool">لا توجد بطاقات في هذه المجموعة.</div>'; return; }
-  const card = deckCards[deckOrder[deckIndex]];
-  const answer = card.back && card.back.trim() ? card.back : '<p class="deck-note">الإجابة موجودة في الصورة.</p>';
-  body.innerHTML = safeCardHtml(flipped ? (card.kind === 'cloze' ? card.back : answer) : card.front);
-  if (flipped && card.kind === 'basic') body.innerHTML = '<div class="deck-q">' + safeCardHtml(card.front) + '</div><hr>' + safeCardHtml(answer);
-  extra.hidden = !(flipped && card.extra);
-  extra.innerHTML = flipped && card.extra ? safeCardHtml(card.extra) : '';
-  document.getElementById('deckCard').classList.toggle('is-back', flipped);
-  document.getElementById('deckCardSide').textContent = flipped ? 'الإجابة' : 'السؤال';
-  document.getElementById('deckFlipBtn').textContent = flipped ? 'إخفاء الإجابة' : 'إظهار الإجابة';
-  document.getElementById('deckCount').textContent = (deckIndex + 1) + ' / ' + deckCards.length;
-  document.getElementById('deckProgressBar').style.width = ((deckIndex + 1) / deckCards.length * 100) + '%';
-  try { if (activeDeck) localStorage.setItem('medbrain_deck_pos_' + activeDeck.id, String(deckIndex)); } catch (_) {}
+function updateDeckStats() {
+  const total = deckCards.length || 1;
+  document.getElementById('deckLeft').textContent = deckQueue.length;
+  document.getElementById('deckHard').textContent = deckProgress.hard.length;
+  document.getElementById('deckKnown').textContent = deckProgress.known.length;
+  document.getElementById('deckProgressBar').style.width = Math.min(100, deckProgress.known.length / total * 100) + '%';
+}
+function showDeckCard() {
+  deckFlipped = false;
+  const card = document.getElementById('deckCard');
+  card.classList.remove('is-flipped');
+  const done = !deckQueue.length;
+  document.getElementById('deckStage').hidden = done;
+  document.getElementById('deckFlipRow').hidden = done;
+  document.getElementById('deckRateRow').hidden = true;
+  document.querySelector('.deck-keys').hidden = done;
+  document.getElementById('deckDone').hidden = !done;
+  updateDeckStats();
+  if (done) {
+    document.getElementById('deckDoneText').textContent = 'أتقنت ' + deckProgress.known.length + ' من ' + deckCards.length + ' بطاقة' + (deckProgress.hard.length ? '، وبقيت ' + deckProgress.hard.length + ' صعبة.' : '.');
+    document.getElementById('deckAgainHard').hidden = !deckProgress.hard.length;
+    return;
+  }
+  const c = deckCards[deckQueue[0]];
+  const answer = c.back && c.back.trim() ? c.back : '<p class="deck-note">الإجابة موجودة في الصورة.</p>';
+  document.getElementById('deckFront').innerHTML = safeCardHtml(c.front);
+  document.getElementById('deckBack').innerHTML = c.kind === 'cloze' ? safeCardHtml(c.back) : '<div class="deck-q">' + safeCardHtml(c.front) + '</div><hr>' + safeCardHtml(answer);
+  const extra = document.getElementById('deckCardExtra');
+  extra.hidden = !c.extra; extra.innerHTML = c.extra ? safeCardHtml(c.extra) : '';
+  card.classList.remove('deal'); void card.offsetWidth; card.classList.add('deal');
+}
+function flipDeckCard() {
+  if (!deckQueue.length) return;
+  deckFlipped = !deckFlipped;
+  document.getElementById('deckCard').classList.toggle('is-flipped', deckFlipped);
+  document.getElementById('deckFlipRow').hidden = deckFlipped;
+  document.getElementById('deckRateRow').hidden = !deckFlipped;
+}
+function rateDeckCard(rate) {
+  if (!deckFlipped || !deckQueue.length) return;
+  const idx = deckQueue.shift(), id = deckCards[idx].id;
+  const hard = new Set(deckProgress.hard), known = new Set(deckProgress.known);
+  if (rate === 'hard') { hard.add(id); known.delete(id); deckQueue.splice(Math.min(deckQueue.length, 4), 0, idx); }
+  else { known.add(id); if (rate === 'easy') hard.delete(id); }
+  deckProgress.hard = [...hard]; deckProgress.known = [...known];
+  saveDeckStore();
+  const card = document.getElementById('deckCard');
+  card.classList.add(rate === 'hard' ? 'fly-hard' : 'fly-good');
+  setTimeout(() => { card.classList.remove('fly-hard', 'fly-good'); showDeckCard(); }, document.documentElement.dataset.motion === 'reduce' ? 0 : 260);
 }
 function deckAction(action) {
-  if (!deckCards.length && action !== 'close') return;
-  if (action === 'flip') showDeckCard(!deckFlipped);
-  else if (action === 'next') { deckIndex = (deckIndex + 1) % deckCards.length; showDeckCard(); }
-  else if (action === 'prev') { deckIndex = (deckIndex - 1 + deckCards.length) % deckCards.length; showDeckCard(); }
+  if (action === 'close') { closeDeck(); return; }
+  if (action === 'flip') flipDeckCard();
   else if (action === 'shuffle') {
     const btn = document.querySelector('[data-deck-action="shuffle"]');
-    const on = btn.getAttribute('aria-pressed') !== 'true';
-    btn.setAttribute('aria-pressed', String(on));
-    deckOrder = deckCards.map((_, i) => i);
-    if (on) for (let i = deckOrder.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [deckOrder[i], deckOrder[j]] = [deckOrder[j], deckOrder[i]]; }
-    deckIndex = 0; showDeckCard();
-  } else if (action === 'close') closeDeck();
+    btn.setAttribute('aria-pressed', String(btn.getAttribute('aria-pressed') !== 'true'));
+    buildDeckQueue(false); showDeckCard();
+  } else if (action === 'reset') { deckProgress = { known: [], hard: [] }; saveDeckStore(); buildDeckQueue(false); showDeckCard(); }
+  else if (action === 'again-hard') { buildDeckQueue(true); showDeckCard(); }
 }
 async function addFlashcard(data) {
   const result=await client.from('flashcards').insert({
@@ -4722,14 +4850,18 @@ function wireMedbrainEvents() {
   document.getElementById('deckArea').addEventListener('click', e => {
     const open = e.target.closest('[data-deck-open]');
     if (open) { openDeck(open.dataset.deckOpen); return; }
+    const rate = e.target.closest('[data-deck-rate]');
+    if (rate) { rateDeckCard(rate.dataset.deckRate); return; }
     const act = e.target.closest('[data-deck-action]');
     if (act) { deckAction(act.dataset.deckAction); return; }
-    if (e.target.closest('#deckCard')) deckAction('flip');
+    if (e.target.closest('#deckCard')) flipDeckCard();
   });
-  document.getElementById('deckCard').addEventListener('keydown', e => {
-    if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); deckAction('flip'); }
-    else if (e.key === 'ArrowLeft') deckAction(document.dir === 'rtl' || document.documentElement.dir === 'rtl' ? 'next' : 'prev');
-    else if (e.key === 'ArrowRight') deckAction(document.dir === 'rtl' || document.documentElement.dir === 'rtl' ? 'prev' : 'next');
+  document.addEventListener('keydown', e => {
+    if (!activeDeck || document.getElementById('deckStudy').hidden || e.target.closest('input, textarea, select')) return;
+    if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); flipDeckCard(); }
+    else if (e.key === '1') rateDeckCard('hard');
+    else if (e.key === '2') rateDeckCard('good');
+    else if (e.key === '3') rateDeckCard('easy');
   });
   document.getElementById('flashcardForm').addEventListener('submit', async e => {
     e.preventDefault();
