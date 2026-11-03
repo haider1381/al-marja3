@@ -2137,7 +2137,7 @@ body.ai-site-open .ai-fab, body.ai-fab-hidden .ai-fab { display:none; }
 
 /* ---------- Organ outline marks (same look as the three home symbols) ---------- */
 .has-organ-marks { position:relative; }
-.organ-mark { position:absolute; pointer-events:none; opacity:.3; z-index:0; }
+.organ-mark { position:absolute; pointer-events:none; opacity:.3; z-index:0; visibility:hidden; }
 .organ-mark svg { width:100%; height:100%; display:block; }
 .organ-mark-card { width:50px; height:50px; left:18px; top:58px; transform:rotate(-8deg); }
 .mb-personal-card > .organ-mark-card { width:40px; height:40px; left:14px; top:14px; opacity:.24; }
@@ -2223,12 +2223,10 @@ body.ai-site-open .ai-fab, body.ai-fab-hidden .ai-fab { display:none; }
 
 /* ---------- Library browsing: branch cards, system tiles, topic rows ---------- */
 .branch-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:12px; }
-.branch-card { display:flex; flex-direction:column; align-items:center; gap:8px; padding:18px 12px 16px; border-radius:16px; border:1px solid var(--border); background:var(--surface); color:var(--text); cursor:pointer; font:inherit; transition:transform .15s ease, box-shadow .15s ease, border-color .15s ease; }
+.branch-card { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; min-height:96px; padding:18px 12px; border-radius:16px; border:1px solid color-mix(in srgb, var(--ink) 22%, transparent); border-inline-start:4px solid var(--ink); background:var(--tint); color:var(--ink); cursor:pointer; font:inherit; transition:transform .15s ease, box-shadow .15s ease, border-color .15s ease; }
 .branch-card:hover { transform:translateY(-2px); border-color:var(--ink); box-shadow:0 10px 24px rgba(12,32,52,.10); }
-.branch-art { width:86px; height:86px; border-radius:24px; display:grid; place-items:center; background:var(--tint); color:var(--ink); }
-.branch-art svg { width:50px; height:50px; }
-.branch-name { font-size:16px; font-weight:800; }
-.branch-en { font-size:11.5px; color:var(--text-muted); font-weight:600; }
+.branch-name { font-size:18px; font-weight:800; }
+.branch-en { font-size:12px; color:var(--ink); opacity:.75; font-weight:700; }
 .system-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(132px,1fr)); gap:10px; }
 .system-card { display:flex; flex-direction:column; align-items:center; gap:7px; padding:14px 8px 12px; border-radius:14px; border:1px solid var(--border); background:var(--surface); color:var(--text); cursor:pointer; font:inherit; transition:border-color .15s ease, transform .15s ease; }
 .system-card:hover { border-color:var(--ink); transform:translateY(-1px); }
@@ -2244,10 +2242,11 @@ body.ai-site-open .ai-fab, body.ai-fab-hidden .ai-fab { display:none; }
 .subject-arrow { color:var(--text-muted); font-size:18px; }
 .topic-materials { margin-bottom:14px; }
 .topic-type-head { display:flex; align-items:center; gap:8px; margin:6px 0 8px; font-size:14px; }
-:root[data-theme="dark"] .branch-art, :root[data-theme="dark"] .system-art { background:color-mix(in srgb, var(--ink) 22%, transparent); color:#e8f1fb; }
+:root[data-theme="dark"] .branch-card { background:color-mix(in srgb, var(--ink) 18%, var(--surface)); color:#e8f1fb; }
+:root[data-theme="dark"] .branch-card .branch-en { color:#e8f1fb; }
+:root[data-theme="dark"] .system-art { background:color-mix(in srgb, var(--ink) 22%, transparent); color:#e8f1fb; }
 @media (max-width:480px) {
   .branch-grid { grid-template-columns:1fr 1fr; gap:10px; }
-  .branch-art { width:70px; height:70px; border-radius:20px; } .branch-art svg { width:42px; height:42px; }
   .system-grid { grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; }
   .system-art { width:44px; height:44px; } .system-art svg { width:27px; height:27px; } .system-name { font-size:11.5px; }
 }
@@ -3818,12 +3817,12 @@ function orderedValues(values, preferred) {
   return unique.sort((a, b) => rank(a) - rank(b) || a.localeCompare(b, 'ar'));
 }
 const CATEGORY_INFO = {
-  'Medicine': { ar: 'الباطنية', icon: 'stethoscope', tint: '#e6f1fc', ink: '#0b67b8' },
-  'Surgery': { ar: 'الجراحة', icon: 'scalpel', tint: '#e5f6ef', ink: '#167a57' },
-  'Pediatrics': { ar: 'الأطفال', icon: 'bottle', tint: '#fff1e3', ink: '#b8641a' },
-  'OB/GYN': { ar: 'النسائية والتوليد', icon: 'venus', tint: '#fdebf2', ink: '#b8406f' },
-  'Emergency': { ar: 'الطوارئ', icon: 'cross', tint: '#fde9e9', ink: '#b93838' },
-  'Basic Sciences': { ar: 'العلوم الأساسية', icon: 'flask', tint: '#efecfd', ink: '#5b49c2' }
+  'Medicine': { ar: 'الباطنية', tint: '#e6f1fc', ink: '#0b67b8' },
+  'Surgery': { ar: 'الجراحة', tint: '#e5f6ef', ink: '#167a57' },
+  'Pediatrics': { ar: 'الأطفال', tint: '#fff1e3', ink: '#b8641a' },
+  'OB/GYN': { ar: 'النسائية والتوليد', tint: '#fdebf2', ink: '#b8406f' },
+  'Emergency': { ar: 'الطوارئ', tint: '#fde9e9', ink: '#b93838' },
+  'Basic Sciences': { ar: 'العلوم الأساسية', tint: '#efecfd', ink: '#5b49c2' }
 };
 // Simple line icons (24px grid) for systems that are not a single organ.
 const LINE_ICONS = {
@@ -3934,9 +3933,9 @@ function renderBrowse() {
   if (!path.options.length) return html + '<div class="empty">لا توجد مواد هنا بعد.</div>';
   if (path.level === 'category') {
     return html + '<p class="section-label">الفروع الرئيسية</p><div class="branch-grid">' + path.options.map(cat => {
-      const info = CATEGORY_INFO[cat] || { ar: cat, icon: 'book', tint: '#eef3f8', ink: '#355' };
+      const info = CATEGORY_INFO[cat] || { ar: cat, tint: '#eef3f8', ink: '#355' };
       return '<button type="button" class="branch-card" data-action="browse" data-level="category" data-value="' + escapeHtml(cat) + '" style="--tint:' + info.tint + ';--ink:' + info.ink + '">' +
-        '<span class="branch-art">' + browseIcon(info.icon) + '</span><span class="branch-name">' + escapeHtml(info.ar) + '</span><span class="branch-en" dir="ltr">' + escapeHtml(cat) + '</span></button>';
+        '<span class="branch-name">' + escapeHtml(info.ar) + '</span><span class="branch-en" dir="ltr">' + escapeHtml(cat) + '</span></button>';
     }).join('') + '</div>';
   }
   if (path.level === 'topic') {
@@ -4420,9 +4419,10 @@ const ORGAN_ANCHORS = { 'organ-mark-card': [0, 0.28], 'organ-mark-s1': [0, 0], '
 function layoutOrganMarks() {
   document.querySelectorAll('.has-organ-marks').forEach(container => {
     const marks = [...container.querySelectorAll(':scope > .organ-mark')];
-    if (!marks.length || !container.offsetParent) return;
+    if (!marks.length) return;
     const box = container.getBoundingClientRect();
-    if (box.width < 40 || box.height < 40) return;
+    // A hidden or tiny section keeps its marks hidden, so old positions never show over new content.
+    if (!container.offsetParent || box.width < 40 || box.height < 40) { marks.forEach(m => { m.style.visibility = 'hidden'; }); return; }
     const pad = 6;
     const blockers = [...container.querySelectorAll(ORGAN_BLOCKERS)]
       .filter(el => !el.closest('.organ-mark') && el !== container && !(el.classList && el.classList.contains('has-organ-marks') && el.tagName === 'BUTTON' && el === container))
@@ -4446,7 +4446,7 @@ function layoutOrganMarks() {
         return ![...blockers, ...placed].some(b => !(r.right <= b.left || r.left >= b.right || r.bottom <= b.top || r.top >= b.bottom));
       });
       if (!free) return;
-      Object.assign(mark.style, { left: free.x + 'px', top: free.y + 'px', right: 'auto', bottom: 'auto', visibility: '' });
+      Object.assign(mark.style, { left: free.x + 'px', top: free.y + 'px', right: 'auto', bottom: 'auto', visibility: 'visible' });
       placed.push({ left: box.left + free.x, top: box.top + free.y, right: box.left + free.x + w, bottom: box.top + free.y + h });
     });
   });
@@ -4467,6 +4467,8 @@ function wireMedbrainEvents() {
   new MutationObserver(muts => { if (muts.some(m => !(m.target.closest && m.target.closest('.organ-mark')))) scheduleOrganLayout(); })
     .observe(document.querySelector('.mb-main') || document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['class', 'hidden'] });
   window.addEventListener('resize', scheduleOrganLayout);
+  // A section that appears again or grows/shrinks (new cards, a page switch) gets its marks placed again.
+  if (window.ResizeObserver) { const ro = new ResizeObserver(scheduleOrganLayout); document.querySelectorAll('.has-organ-marks').forEach(el => ro.observe(el)); }
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(scheduleOrganLayout);
   const fabWatch = new MutationObserver(syncAIFab);
   ['readerOverlay', 'gateOverlay', 'nameOverlay'].forEach(id => { const el = document.getElementById(id); if (el) fabWatch.observe(el, { attributes: true, attributeFilter: ['class'] }); });
