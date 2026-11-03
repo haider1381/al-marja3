@@ -3919,6 +3919,10 @@ function wireMedbrainEvents() {
     setSearchFiltersOpen(false);
     profile.classList.remove('open');
     profile.setAttribute('aria-hidden', 'true');
+    // The wordmark always lands on a clean home screen, whatever window is open.
+    if (document.getElementById('readerOverlay').classList.contains('open')) closeReader();
+    if (document.getElementById('overlay').classList.contains('open')) closeModal();
+    document.querySelectorAll('.mb-layer.open').forEach(layer => setLayerOpen(layer.id, false));
     showMainView('home', '', 'instant');
   });
   document.getElementById('menuBtn').addEventListener('click', openDrawer);
