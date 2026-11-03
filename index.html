@@ -2152,6 +2152,17 @@ body.ai-site-open .ai-fab, body.ai-fab-hidden .ai-fab { display:none; }
   .organ-mark-card { width:44px; height:44px; }
 }
 :root[data-theme="dark"] .organ-mark { opacity:.22; }
+/* Library and personal pages: keep all three marks in the empty part of the header band (left of the title),
+   never over the specialty buttons, lists or important words. */
+#librarySection > .organ-mark, .mb-tool-page > .organ-mark { top:auto; bottom:auto; right:auto; transform:none; }
+#librarySection > .organ-mark-s1, .mb-tool-page > .organ-mark-s1 { left:4%; top:14px; width:58px; height:58px; transform:rotate(-8deg); }
+#librarySection > .organ-mark-s2, .mb-tool-page > .organ-mark-s2 { left:15%; top:58px; width:46px; height:46px; transform:rotate(7deg); }
+#librarySection > .organ-mark-s3, .mb-tool-page > .organ-mark-s3 { left:26%; top:16px; width:40px; height:40px; transform:rotate(-4deg); }
+@media (max-width:600px) {
+  #librarySection > .organ-mark-s1, .mb-tool-page > .organ-mark-s1 { left:4%; top:12px; width:42px; height:42px; }
+  #librarySection > .organ-mark-s2, .mb-tool-page > .organ-mark-s2 { left:18%; top:44px; width:34px; height:34px; }
+  #librarySection > .organ-mark-s3, .mb-tool-page > .organ-mark-s3 { left:32%; top:12px; width:30px; height:30px; }
+}
 .mb-practice > .organ-mark-s1 { top:58px; }
 
 /* ---------- Calm AI window ---------- */
@@ -2192,6 +2203,23 @@ body.ai-site-open .ai-fab, body.ai-fab-hidden .ai-fab { display:none; }
 .reader-ai-host .mb-ai-meta { justify-content:flex-end; }
 .reader-ai-host .ai-context-pill { display:none; }
 .reader-ai-host .mb-ai-details.ai-about { display:block; }
+
+/* ---------- AI question suggestions: a small window above the compose row ---------- */
+.mb-ai-meta { position:relative; }
+.ai-suggest-btn { height:30px; padding:0 12px; border-radius:999px; border:1px solid var(--ai-border); background:transparent; color:var(--ai-muted); font:inherit; font-size:12px; font-weight:700; cursor:pointer; }
+.ai-suggest-btn:hover, .ai-suggest-btn[aria-expanded="true"] { color:var(--ai-accent); border-color:var(--ai-accent); background:var(--ai-panel); }
+.ai-suggest-panel { position:absolute; bottom:38px; right:0; left:0; z-index:5; padding:10px; border-radius:14px; border:1px solid var(--ai-border); background:var(--ai-bg); box-shadow:0 12px 28px rgba(12,32,52,.18); }
+.ai-suggest-find { width:100%; box-sizing:border-box; height:36px; padding:0 12px; border-radius:10px; border:1px solid var(--ai-border); background:var(--ai-panel); color:var(--ai-text); font:inherit; font-size:13px; }
+.ai-suggest-find:focus { outline:2px solid var(--ai-accent); outline-offset:1px; }
+.ai-suggest-list { max-height:min(220px,38dvh); overflow-y:auto; margin:8px 0; scrollbar-width:thin; scrollbar-color:#9fc3e6 transparent; }
+.ai-suggest-list::-webkit-scrollbar { width:6px; }
+.ai-suggest-list::-webkit-scrollbar-thumb { background:#9fc3e6; border-radius:99px; }
+.ai-suggest-item { display:flex; align-items:baseline; gap:8px; width:100%; text-align:start; border:0; background:transparent; color:var(--ai-text); padding:8px; border-radius:9px; font:inherit; font-size:13px; line-height:1.6; cursor:pointer; }
+.ai-suggest-item:hover, .ai-suggest-item:focus-visible { background:var(--ai-panel); outline:none; }
+.ai-suggest-item small { flex:0 0 auto; min-width:44px; padding:1px 8px; border-radius:999px; background:var(--ai-panel); color:var(--ai-accent); font-size:10.5px; font-weight:800; text-align:center; }
+.ai-suggest-context { display:flex; align-items:center; gap:8px; padding-top:8px; border-top:1px solid var(--ai-border); font-size:11.5px; color:var(--ai-muted); }
+.ai-suggest-context select { flex:1; min-width:0; height:30px; padding:0 8px !important; border-radius:999px !important; font-size:12px !important; color:var(--ai-text) !important; background:var(--ai-panel) !important; border:1px solid var(--ai-border) !important; }
+.reader-ai-host .ai-suggest-context { display:none; }
 </style>
 <link rel="manifest" href="./manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="192x192" href="./assets/app-icon-192.png">
@@ -2750,7 +2778,12 @@ body.ai-site-open .ai-fab, body.ai-fab-hidden .ai-fab { display:none; }
   </div>
   <p id="aiStatus" class="mb-ai-status" role="status"></p>
   <div class="mb-ai-meta">
-    <label class="ai-context-pill"><span class="sr-only">المحاضرة المرتبطة بالسؤال</span><select id="aiLectureContext"><option value="">سؤال عام</option></select></label>
+    <button type="button" id="aiSuggestBtn" class="ai-suggest-btn" aria-expanded="false" aria-controls="aiSuggestPanel">💡 اقتراحات</button>
+    <section id="aiSuggestPanel" class="ai-suggest-panel" aria-label="اقتراحات الأسئلة" hidden>
+      <input type="search" id="aiSuggestFind" class="ai-suggest-find" placeholder="اكتب موضوعًا، مثل Heart failure…" aria-label="ابحث في الاقتراحات" autocomplete="off" dir="auto">
+      <div id="aiSuggestList" class="ai-suggest-list" role="listbox" aria-label="أسئلة مقترحة"></div>
+      <label class="ai-suggest-context"><span>اربط بمحاضرة</span><select id="aiLectureContext"><option value="">سؤال عام</option></select></label>
+    </section>
     <details class="mb-ai-details ai-about"><summary aria-label="عن المساعد" title="عن المساعد">ⓘ</summary>
     <p class="mb-ai-footnote">مساعد للدراسة — تحقّق من الإجابات. يُرسل السؤال والمحادثة ومقتطف من المحاضرة إلى Groq. المحادثة مؤقتة وغير محفوظة في حسابك. لا تُدخل بيانات مرضى. الحصة: 15 طلبًا للحساب و40 للموقع يوميًا، وقد تفرض Groq حدودًا إضافية.</p>
   </details>
@@ -4262,6 +4295,45 @@ function decorateOrganMarks() {
     card.prepend(organMark(singles[m++ % singles.length], 'organ-mark-card'));
   });
 }
+// Place each mark in empty space only: never over buttons, headings, text, fields or illustrations.
+const ORGAN_BLOCKERS = 'button, a, h1, h2, h3, h4, p, label, input, select, textarea, img, svg, .chip, .mb-art, .mb-feature-title, .mb-feature-en, .lecture, .browse-crumbs, .section-label, progress, pre, summary, .mb-personal-pill, .smart-search-form';
+const ORGAN_ANCHORS = { 'organ-mark-card': [0, 0.28], 'organ-mark-s1': [0, 0], 'organ-mark-s2': [1, 1], 'organ-mark-s3': [0.45, 1] };
+function layoutOrganMarks() {
+  document.querySelectorAll('.has-organ-marks').forEach(container => {
+    const marks = [...container.querySelectorAll(':scope > .organ-mark')];
+    if (!marks.length || !container.offsetParent) return;
+    const box = container.getBoundingClientRect();
+    if (box.width < 40 || box.height < 40) return;
+    const pad = 6;
+    const blockers = [...container.querySelectorAll(ORGAN_BLOCKERS)]
+      .filter(el => !el.closest('.organ-mark') && el !== container && !(el.classList && el.classList.contains('has-organ-marks') && el.tagName === 'BUTTON' && el === container))
+      .map(el => el.getBoundingClientRect()).filter(r => r.width > 0 && r.height > 0 && !(r.width >= box.width - 2 && r.height >= box.height - 2));
+    const placed = [];
+    marks.forEach(mark => {
+      mark.style.visibility = 'hidden';
+      const w = mark.offsetWidth, h = mark.offsetHeight;
+      const kind = Object.keys(ORGAN_ANCHORS).find(k => mark.classList.contains(k)) || 'organ-mark-s1';
+      const [ax, ay] = ORGAN_ANCHORS[kind];
+      const maxX = box.width - w - 8, maxY = box.height - h - 8;
+      if (maxX < 8 || maxY < 8) return;
+      const steps = 14, spots = [];
+      for (let i = 0; i <= steps; i++) for (let j = 0; j <= steps; j++) {
+        const x = 8 + (maxX - 8) * i / steps, y = 8 + (maxY - 8) * j / steps;
+        spots.push({ x, y, d: Math.hypot(x / box.width - ax * (maxX / box.width), y / box.height - ay * (maxY / box.height)) });
+      }
+      spots.sort((a, b) => a.d - b.d);
+      const free = spots.find(({ x, y }) => {
+        const r = { left: box.left + x - pad, top: box.top + y - pad, right: box.left + x + w + pad, bottom: box.top + y + h + pad };
+        return ![...blockers, ...placed].some(b => !(r.right <= b.left || r.left >= b.right || r.bottom <= b.top || r.top >= b.bottom));
+      });
+      if (!free) return;
+      Object.assign(mark.style, { left: free.x + 'px', top: free.y + 'px', right: 'auto', bottom: 'auto', visibility: '' });
+      placed.push({ left: box.left + free.x, top: box.top + free.y, right: box.left + free.x + w, bottom: box.top + free.y + h });
+    });
+  });
+}
+let organLayoutTimer = 0;
+function scheduleOrganLayout() { clearTimeout(organLayoutTimer); organLayoutTimer = setTimeout(() => requestAnimationFrame(layoutOrganMarks), 80); }
 function syncAIFab() {
   const hide = ['readerOverlay', 'gateOverlay', 'nameOverlay'].some(id => {
     const el = document.getElementById(id);
@@ -4271,6 +4343,12 @@ function syncAIFab() {
 }
 function wireMedbrainEvents() {
   decorateOrganMarks();
+  scheduleOrganLayout();
+  // Re-place marks whenever content or the screen size changes (new lists, page switches, rotation).
+  new MutationObserver(muts => { if (muts.some(m => !(m.target.closest && m.target.closest('.organ-mark')))) scheduleOrganLayout(); })
+    .observe(document.querySelector('.mb-main') || document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['class', 'hidden'] });
+  window.addEventListener('resize', scheduleOrganLayout);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(scheduleOrganLayout);
   const fabWatch = new MutationObserver(syncAIFab);
   ['readerOverlay', 'gateOverlay', 'nameOverlay'].forEach(id => { const el = document.getElementById(id); if (el) fabWatch.observe(el, { attributes: true, attributeFilter: ['class'] }); });
   syncAIFab();
@@ -4623,6 +4701,58 @@ function resetAIConversation(clearContext = false) {
   document.getElementById('aiStatus').textContent='';
   renderAIConversation();
 }
+// Question suggestions: templates filled with the typed topic (or the attached lecture), placed into the compose box.
+const AI_SUGGESTIONS = [
+  ['شرح', 'اشرح لي {t} بأسلوب واضح ومبسط.'],
+  ['آلية', 'ما آلية حدوث {t} (Pathophysiology)؟'],
+  ['أعراض', 'ما أهم أعراض {t} وعلاماته السريرية؟'],
+  ['تشخيص', 'كيف يُشخَّص {t}؟ وما الفحوصات المطلوبة؟'],
+  ['علاج', 'ما خطة علاج {t} حسب المراجع الدراسية؟'],
+  ['مضاعفات', 'ما المضاعفات الشائعة لـ {t}؟'],
+  ['مقارنة', 'ما الفرق بين {t} وأقرب حالة تشبهه؟'],
+  ['ملخص', 'اكتب لي ملخصًا سريعًا عن {t} في نقاط.'],
+  ['اختبار', 'اختبرني بخمسة أسئلة MCQ عن {t} مع التصحيح.'],
+  ['مراجعة', 'ضع لي خطة مراجعة لموضوع {t} خلال أسبوع.']
+];
+const AI_LECTURE_SUGGESTIONS = [
+  ['شرح', 'اشرح لي المحاضرة بأسلوب واضح، مع بيان أن السياق قد يكون مقتطفات فقط.'],
+  ['ملخص', 'لخص المحاضرة بناءً على المقتطفات المتاحة، مع أهم النقاط.'],
+  ['اختبار', 'اسألني سؤالًا واحدًا عن المحاضرة، وانتظر إجابتي قبل توضيح الإجابة الصحيحة.']
+];
+function renderAISuggestions() {
+  const topic = document.getElementById('aiSuggestFind').value.trim();
+  const lecture = aiLectureId && lectures.find(l => l.id === aiLectureId);
+  const q = normalizeSearch(topic);
+  const fallback = lecture ? lecture.title : '…';
+  // A typed word that names a kind of question (e.g. "علاج") narrows the list; any other text is the topic.
+  const purpose = q ? AI_SUGGESTIONS.filter(([tag]) => normalizeSearch(tag).includes(q)) : [];
+  const subject = purpose.length ? fallback : (topic || fallback);
+  const items = [];
+  if (lecture && !topic) AI_LECTURE_SUGGESTIONS.forEach(([, text]) => items.push({ tag: 'المحاضرة', text }));
+  (purpose.length ? purpose : AI_SUGGESTIONS).forEach(([tag, text]) => items.push({ tag, text: text.replace('{t}', subject) }));
+  document.getElementById('aiSuggestList').innerHTML = items.slice(0, 13).map(it =>
+    '<button type="button" role="option" class="ai-suggest-item" data-ai-suggest="' + escapeHtml(it.text) + '" dir="auto"><small>' + escapeHtml(it.tag) + '</small><span>' + escapeHtml(it.text) + '</span></button>').join('');
+}
+function setAISuggestOpen(open) {
+  const panel = document.getElementById('aiSuggestPanel');
+  panel.hidden = !open;
+  document.getElementById('aiSuggestBtn').setAttribute('aria-expanded', String(open));
+  if (open) {
+    document.getElementById('aiSuggestFind').value = '';
+    renderAISuggestions();
+    if (matchMedia('(pointer: fine)').matches) document.getElementById('aiSuggestFind').focus();
+  }
+}
+function useAISuggestion(text) {
+  const box = document.getElementById('aiQuestion');
+  box.value = text;
+  box.dispatchEvent(new Event('input'));
+  setAISuggestOpen(false);
+  box.focus();
+  // Put the cursor on the placeholder "…" when the template still needs a topic.
+  const gap = text.indexOf('…');
+  if (gap >= 0) box.setSelectionRange(gap, gap + 1); else box.setSelectionRange(text.length, text.length);
+}
 function refreshAILectures() {
   const select=document.getElementById('aiLectureContext'); select.replaceChildren();
   const general=document.createElement('option');general.value='';general.textContent='سؤال عام';select.append(general);
@@ -4737,7 +4867,12 @@ function wireAIChat() {
   },true);
   document.getElementById('aiQuestionForm').addEventListener('submit',sendAIQuestion);
   document.getElementById('aiNewChat').addEventListener('click',()=>{resetAIConversation();document.getElementById('aiQuestion').focus();});
-  document.getElementById('aiLectureContext').addEventListener('change',e=>{aiLectureId=e.target.value;resetAIConversation();});
+  document.getElementById('aiLectureContext').addEventListener('change',e=>{aiLectureId=e.target.value;resetAIConversation();renderAISuggestions();});
+  document.getElementById('aiSuggestBtn').addEventListener('click',()=>setAISuggestOpen(document.getElementById('aiSuggestPanel').hidden));
+  document.getElementById('aiSuggestFind').addEventListener('input',renderAISuggestions);
+  document.getElementById('aiSuggestFind').addEventListener('keydown',e=>{if(e.key==='Escape'){e.stopPropagation();setAISuggestOpen(false);document.getElementById('aiSuggestBtn').focus();}});
+  document.getElementById('aiSuggestList').addEventListener('click',e=>{const b=e.target.closest('[data-ai-suggest]');if(b)useAISuggestion(b.dataset.aiSuggest);});
+  document.addEventListener('click',e=>{if(e.target.isConnected&&!e.target.closest('#aiSuggestPanel')&&!e.target.closest('#aiSuggestBtn'))setAISuggestOpen(false);});
   document.getElementById('aiQuestion').addEventListener('input',e=>{const t=e.target;t.style.height='auto';t.style.height=Math.min(140,t.scrollHeight)+'px';t.style.overflowY=t.scrollHeight>140?'auto':'hidden';});
   document.querySelectorAll('[data-ai-prompt]').forEach(button=>button.addEventListener('click',()=>{
     document.getElementById('aiQuestion').value=button.dataset.aiPrompt;
