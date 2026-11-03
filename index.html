@@ -1993,11 +1993,83 @@ button,a,input,select,textarea{-webkit-tap-highlight-color:transparent;}
 #focusClock{display:block;text-align:center;font-size:54px;line-height:1.4;font-family:var(--font-mono);font-variant-numeric:tabular-nums;margin:18px 0 0;color:var(--text);}.focus-stage{text-align:center;font-weight:700;font-size:16px;}#focusMeter{width:100%;height:8px;accent-color:#0F6CBD;}#focusCompact{position:fixed;bottom:24px;left:16px;z-index:1200;padding:10px 14px;border:1px solid var(--border);border-radius:18px;background:#0B5FA5;color:#fff;font-size:13px;box-shadow:0 4px 18px #0002;}#focusCompact[hidden]{display:none;}
 .device-card{line-height:1.9;}.device-card p{font-size:13px;}.device-danger{border:1px solid #d9808b;border-radius:10px;color:#9f2440;background:#fff;padding:10px 14px;}:root[data-theme="dark"] .device-danger{background:#33191D;color:#ffd2d9;}
 #deviceConnection{position:fixed;bottom:92px;left:16px;right:16px;z-index:1300;padding:10px 14px;background:#0B5FA5;color:#fff;border-radius:12px;font-size:13px;max-width:600px;margin:auto;}#deviceConnection[hidden]{display:none;}
-#gateFocusBtn{display:block;width:100%;margin-top:10px;min-height:44px;}.gate-policy-links{font-size:11px;text-align:center;margin-top:12px;}.gate-policy-links a{color:inherit;}
+.gate-policy-links{font-size:11px;text-align:center;margin-top:12px;}.gate-policy-links a{color:inherit;}
 @media(max-width:820px){.mb-bottom-nav{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));position:fixed;bottom:0;left:0;right:0;z-index:30;border-top:1px solid var(--border);background:var(--surface);padding:6px max(8px,env(safe-area-inset-right)) calc(6px + env(safe-area-inset-bottom)) max(8px,env(safe-area-inset-left));gap:4px;}body{padding-bottom:calc(78px + env(safe-area-inset-bottom));}body:has(#readerOverlay.open) .mb-bottom-nav{display:none;}body.reader-active .mb-bottom-nav{display:none;}#focusCompact{bottom:calc(90px + env(safe-area-inset-bottom));}.mb-page-title{font-size:22px;}.mb-topbar-inner{min-height:60px;}.mb-icon-btn,.mb-page-back,.mb-close,.reader-close,.reader-theme-toggle{min-width:44px;min-height:44px;}.mb-personal-card input:not([type="checkbox"]),.mb-personal-card select,.search-box input,#aiComposer textarea{font-size:16px;}.mb-file-btn,.mb-primary,.mb-mini-btn,.reader-font-tools button,.reader-to-top,.filter-trigger{min-height:44px;}.mb-task-actions{gap:8px;}.reader-toolbar{gap:8px;padding:10px 12px;}.reader-head{padding-left:max(12px,env(safe-area-inset-left));padding-right:max(12px,env(safe-area-inset-right));}.mb-topbar-inner .mb-brand-name{font-size:19px;}.mb-topbar-inner .mb-top-actions{gap:2px;}.mb-topbar-inner .mb-ai-top-label{display:none;}.mb-drawer{max-height:100dvh;}.mb-schedule-form{grid-template-columns:1fr 1fr;}#deviceConnection{bottom:calc(88px + env(safe-area-inset-bottom));}}
 @media(max-width:380px){.mb-topbar-inner{padding-inline:6px;gap:3px;}.mb-topbar-inner .mb-avatar{width:36px;height:36px;}.mb-topbar-inner .mb-brand-name{font-size:17px;}.mb-topbar-inner .mb-brand-mark{width:34px;height:34px;}.mb-topbar-inner .mb-icon-btn{min-width:40px;width:40px;}.device-dialog{padding:18px;}.reader-font-tools{gap:4px;}}
 @media(orientation:landscape) and (max-height:520px){.mb-bottom-nav{padding-top:2px;padding-bottom:env(safe-area-inset-bottom);}.mb-bottom-nav button{min-height:40px;}.mb-bottom-nav button span{display:inline-block;font-size:16px;margin-inline-end:4px;}.device-dialog{max-height:calc(100dvh - 20px);}.reader-toolbar{padding-block:5px;}}
 
+
+/* ---------- Sign-in window: modern card that follows the site theme ---------- */
+#gateOverlay, #nameOverlay {
+  --gate-card:#ffffff; --gate-text:#172235; --gate-muted:#5d6b7c; --gate-line:#dbe5ee;
+  --gate-field:#f6f9fc; --gate-field-focus:#ffffff; --gate-accent:#0876cf; --gate-accent-strong:#075aa7;
+  --gate-tab-bg:#eef4fa; --gate-tab-on:#ffffff; --gate-error:#b42318; --gate-ok:#067647;
+  background:radial-gradient(120% 90% at 50% 0%, rgba(8,118,207,.28), rgba(10,20,34,.62));
+  backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px);
+}
+:root[data-theme="dark"] #gateOverlay, :root[data-theme="dark"] #nameOverlay {
+  --gate-card:#141a2b; --gate-text:#eef2f8; --gate-muted:#9aa6bb; --gate-line:#2a3350;
+  --gate-field:#0f1422; --gate-field-focus:#111829; --gate-accent:#3b8fe0; --gate-accent-strong:#2f7fd0;
+  --gate-tab-bg:#0f1422; --gate-tab-on:#1f2840; --gate-error:#ff8a80; --gate-ok:#6ee7b7;
+  color-scheme:dark;
+}
+#gateOverlay .gate-modal, #nameOverlay .gate-modal {
+  background:var(--gate-card); color:var(--gate-text);
+  max-width:400px; padding:28px 24px 18px; border-radius:22px;
+  border:1px solid var(--gate-line); box-shadow:0 24px 70px rgba(6,25,48,.32);
+}
+#gateOverlay .gate-modal h2, #nameOverlay .gate-modal h2 { color:var(--gate-text) !important; }
+#gateOverlay .sub, #nameOverlay .sub { color:var(--gate-muted); }
+#nameOverlay .field input { background:var(--gate-field); color:var(--gate-text); border-color:var(--gate-line); border-radius:12px; }
+#nameOverlay .mb-primary { background:var(--gate-accent); border:0; border-radius:12px; }
+#nameOverlay .logout-link, #nameOverlay #nameError { color:var(--gate-muted); }
+.gate-brand { text-align:center; margin-bottom:18px; }
+.gate-logo { width:58px; height:58px; margin:0 auto 10px; display:grid; place-items:center; border-radius:18px;
+  background:linear-gradient(145deg,#e8f4fd,#e6f8f1); box-shadow:inset 0 0 0 1px rgba(8,118,207,.12); }
+:root[data-theme="dark"] .gate-logo { background:linear-gradient(145deg,#16233b,#132a2a); box-shadow:inset 0 0 0 1px rgba(255,255,255,.06); }
+.gate-logo svg { width:36px; height:36px; }
+.gate-brand h2 { font-family:'Nunito',sans-serif; font-weight:900; font-size:28px; margin:0; letter-spacing:.2px; }
+.gate-brand .sub { margin:4px 0 0; font-size:13px; }
+.gate-tabs { display:grid; grid-template-columns:1fr 1fr; gap:4px; padding:4px; border-radius:14px; background:var(--gate-tab-bg); margin-bottom:16px; }
+.gate-tabs button { border:0; background:transparent; color:var(--gate-muted); font:inherit; font-size:14px; font-weight:700; padding:9px 8px; border-radius:10px; cursor:pointer; transition:background .15s, color .15s, box-shadow .15s; }
+.gate-tabs button[aria-selected="true"] { background:var(--gate-tab-on); color:var(--gate-accent-strong); box-shadow:0 1px 3px rgba(12,32,52,.12); }
+:root[data-theme="dark"] .gate-tabs button[aria-selected="true"] { color:#ffffff; }
+#gateOverlay .google-login-btn { margin-top:0; border-radius:12px; border:1px solid var(--gate-line); background:var(--gate-card); color:var(--gate-text); padding:11px 14px; min-height:46px; }
+#gateOverlay .google-login-btn:hover { background:var(--gate-field); }
+#gateOverlay .login-divider { display:flex; align-items:center; gap:10px; margin:16px 0 12px; color:var(--gate-muted); font-size:12px; }
+#gateOverlay .login-divider::before, #gateOverlay .login-divider::after { content:""; flex:1; height:1px; background:var(--gate-line); }
+.gate-field { margin-bottom:12px; }
+.gate-field label { display:block; font-size:13px; font-weight:700; margin-bottom:6px; color:var(--gate-text); }
+.gate-label-row { display:flex; align-items:baseline; justify-content:space-between; gap:8px; }
+.gate-label-row label { margin-bottom:6px; }
+.gate-input { position:relative; display:flex; align-items:center; }
+.gate-input > svg { position:absolute; inset-inline-start:13px; width:18px; height:18px; color:var(--gate-muted); pointer-events:none; }
+#gateOverlay .gate-input input { width:100%; box-sizing:border-box; height:46px; padding:0 42px; border-radius:12px; border:1px solid var(--gate-line);
+  background:var(--gate-field); color:var(--gate-text); font:inherit; font-size:14px; transition:border-color .15s, box-shadow .15s, background .15s; }
+#gateOverlay .gate-input input::placeholder { color:var(--gate-muted); opacity:.75; }
+#gateOverlay .gate-input input:focus { outline:none; border-color:var(--gate-accent); background:var(--gate-field-focus); box-shadow:0 0 0 4px rgba(8,118,207,.15); }
+#gateOverlay #gatePassword, #gateOverlay #gatePasswordConfirm { direction:ltr; text-align:left; }
+.gate-eye { position:absolute; inset-inline-end:6px; width:34px; height:34px; display:grid; place-items:center; border:0; border-radius:8px; background:transparent; color:var(--gate-muted); cursor:pointer; }
+.gate-eye:hover, .gate-eye[aria-pressed="true"] { color:var(--gate-accent); }
+.gate-eye svg { width:18px; height:18px; }
+.gate-link { border:0; background:none; padding:0; font:inherit; font-size:12.5px; font-weight:600; color:var(--gate-accent); cursor:pointer; }
+.gate-link:hover { text-decoration:underline; }
+#gateOverlay #gateError.gate-message { min-height:1.2em; margin:2px 0 10px; font-size:12.5px; line-height:1.6; color:var(--gate-error); }
+#gateOverlay #gateError.gate-message.ok { color:var(--gate-ok); }
+#gateOverlay .gate-submit { width:100%; height:48px; border:0; border-radius:12px; font:inherit; font-size:15px; font-weight:800;
+  background:linear-gradient(135deg,var(--gate-accent),var(--gate-accent-strong)); color:#ffffff; box-shadow:0 8px 20px rgba(8,118,207,.28); cursor:pointer; }
+#gateOverlay .gate-submit:hover { filter:brightness(1.06); }
+#gateOverlay .gate-submit:disabled { filter:none; opacity:.7; cursor:wait; }
+.gate-extras { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:16px; padding-top:14px; border-top:1px solid var(--gate-line); }
+#gateOverlay .gate-extras button { display:block; width:100%; margin:0; min-height:40px; padding:8px; border-radius:10px; border:1px solid var(--gate-line);
+  background:var(--gate-field); color:var(--gate-text); font:inherit; font-size:12.5px; font-weight:700; cursor:pointer; }
+#gateOverlay .gate-extras button:hover { border-color:var(--gate-accent); color:var(--gate-accent); }
+#gateOverlay .gate-policy-links { margin:12px 0 0; color:var(--gate-muted); }
+#gateOverlay .gate-modal, #nameOverlay .gate-modal { scrollbar-width:thin; scrollbar-color:#9fc3e6 transparent; }
+#gateOverlay .gate-modal::-webkit-scrollbar { width:6px; }
+#gateOverlay .gate-modal::-webkit-scrollbar-thumb { background:#9fc3e6; border-radius:99px; }
+#gateOverlay .gate-modal::-webkit-scrollbar-button { display:none; height:0; }
+@media (max-width:420px) { #gateOverlay .gate-modal, #nameOverlay .gate-modal { padding:22px 16px 14px; border-radius:20px; } }
 </style>
 <link rel="manifest" href="./manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="192x192" href="./assets/app-icon-192.png">
@@ -2032,29 +2104,16 @@ button,a,input,select,textarea{-webkit-tap-highlight-color:transparent;}
 </div>
 
 <div class="overlay gate open" id="gateOverlay">
-  <div class="modal gate-modal">
-    <div class="logomark" aria-hidden="true" style="margin:0 auto 14px;">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M4 6c3-1.5 6-1.5 8 0v13c-2-1.5-5-1.5-8 0V6z"/>
-        <path d="M20 6c-3-1.5-6-1.5-8 0v13c2-1.5 5-1.5 8 0V6z"/>
-        <polyline points="3 10 8 10 10 6 13 15 16 10 21 10"/>
-      </svg>
+  <div class="modal gate-modal" role="dialog" aria-modal="true" aria-labelledby="gateTitle" aria-describedby="gateSubtitle">
+    <div class="gate-brand">
+      <span class="gate-logo" aria-hidden="true"><svg viewBox="0 0 48 48" fill="none"><path d="M17 9c-5 0-9 4-9 9 0 2 .6 3.7 1.8 5.3A9 9 0 0 0 14 39c2 0 3.8-.7 5.2-1.8C21 39 23 40 24 40V8c-2 0-4 1-5.4 2.5A8 8 0 0 0 17 9Z" fill="#58b9ea"/><path d="M31 9c5 0 9 4 9 9 0 2-.6 3.7-1.8 5.3A9 9 0 0 1 34 39c-2 0-3.8-.7-5.2-1.8C27 39 25 40 24 40V8c2 0 4 1 5.4 2.5A8 8 0 0 1 31 9Z" fill="#39c99b"/><path d="M24 13c-4-3-8 0-8 4m8 2c-5-2-8 1-8 5m8 4c-5-2-8 1-7 5m7-20c4-3 8 0 8 4m-8 2c5-2 8 1 8 5m-8 4c5-2 8 1 7 5" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg></span>
+      <h2 id="gateTitle">Medbrain</h2>
+      <p class="sub" id="gateSubtitle">سجّل الدخول إلى عقلك الطبي ومكتبتك الدراسية.</p>
     </div>
-    <h2 style="text-align:center;font-family:'Nunito',sans-serif;font-weight:900;color:#075aa7;font-size:30px;">Medbrain</h2>
-    <p class="sub" style="text-align:center;">سجّل الدخول إلى عقلك الطبي ومكتبتك الدراسية.</p>
-    <form id="gateForm">
-      <div class="field">
-        <label for="gateEmail">البريد الإلكتروني</label>
-        <input type="email" id="gateEmail" dir="ltr" autocomplete="username" required>
-      </div>
-      <div class="field">
-        <label for="gatePassword">كلمة المرور</label>
-        <input type="password" id="gatePassword" autocomplete="current-password" required>
-      </div>
-      <p id="gateError" style="color:var(--accent2);font-size:12.5px;margin:0 0 10px;min-height:1em;"></p>
-      <button type="submit" class="btn-save" id="gateSubmit" style="width:100%;">دخول</button>
-    </form>
-    <p class="login-divider">أو</p>
+    <div class="gate-tabs" role="tablist" aria-label="نوع الدخول">
+      <button type="button" role="tab" id="gateTabLogin" data-gate-mode="login" aria-selected="true">لدي حساب</button>
+      <button type="button" role="tab" id="gateTabSignup" data-gate-mode="signup" aria-selected="false">حساب جديد</button>
+    </div>
     <button type="button" id="googleLoginBtn" class="google-login-btn">
       <svg viewBox="0 0 48 48" aria-hidden="true" focusable="false">
         <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
@@ -2064,8 +2123,28 @@ button,a,input,select,textarea{-webkit-tap-highlight-color:transparent;}
       </svg>
       <span>المتابعة باستخدام Google</span>
     </button>
-    <button type="button" id="resetPasswordBtn" class="logout-link">تعيين أو استعادة كلمة المرور</button>
-    <button type="button" id="gateInstallApp" data-install-app>تثبيت Medbrain</button><button type="button" class="mb-file-btn" id="gateFocusBtn" data-open-focus>مؤقّت الدراسة</button><p class="gate-policy-links"><a href="./privacy.html">الخصوصية</a> · <a href="./delete-account.html">حذف الحساب</a> · <a href="./support.html">الدعم</a></p>
+    <p class="login-divider"><span>أو بالبريد الإلكتروني</span></p>
+    <form id="gateForm" novalidate>
+      <div class="gate-field">
+        <label for="gateEmail">البريد الإلكتروني</label>
+        <div class="gate-input"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg><input type="email" id="gateEmail" dir="ltr" autocomplete="username" placeholder="name@example.com" required></div>
+      </div>
+      <div class="gate-field">
+        <div class="gate-label-row"><label for="gatePassword">كلمة المرور</label><button type="button" id="resetPasswordBtn" class="gate-link">نسيت كلمة المرور؟</button></div>
+        <div class="gate-input"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg><input type="password" id="gatePassword" autocomplete="current-password" required minlength="8"><button type="button" class="gate-eye" data-toggle-password="gatePassword" aria-label="إظهار كلمة المرور" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg></button></div>
+      </div>
+      <div class="gate-field" id="gateConfirmField" hidden>
+        <label for="gatePasswordConfirm">تأكيد كلمة المرور</label>
+        <div class="gate-input"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg><input type="password" id="gatePasswordConfirm" autocomplete="new-password" minlength="8"></div>
+      </div>
+      <p id="gateError" class="gate-message" role="status" aria-live="polite"></p>
+      <button type="submit" class="btn-save gate-submit" id="gateSubmit">دخول</button>
+    </form>
+    <div class="gate-extras">
+      <button type="button" id="gateInstallApp" data-install-app>تثبيت Medbrain</button>
+      <button type="button" class="mb-file-btn" id="gateFocusBtn" data-open-focus>مؤقّت الدراسة</button>
+    </div>
+    <p class="gate-policy-links"><a href="./privacy.html">الخصوصية</a> · <a href="./delete-account.html">حذف الحساب</a> · <a href="./support.html">الدعم</a></p>
   </div>
 </div>
 
@@ -3375,6 +3454,7 @@ function wireGateEvents() {
     if (!emailInput.value.trim() || !emailInput.reportValidity()) return;
     const btn = document.getElementById("resetPasswordBtn");
     const message = document.getElementById("gateError");
+    message.classList.remove('ok');
     btn.disabled = true;
     try {
       const { error } = await client.auth.resetPasswordForEmail(emailInput.value.trim(), {
@@ -3382,32 +3462,79 @@ function wireGateEvents() {
       });
       if (error) throw error;
       message.textContent = "إذا كان البريد مسجلاً، ستصلك رسالة لتعيين كلمة المرور. افحص البريد المزعج أيضًا.";
+      message.classList.add('ok');
     } catch (_) {
       message.textContent = "تعذّر إرسال الرابط. تحقق من الاتصال وحاول لاحقًا.";
     } finally { btn.disabled = false; }
   });
+  // Sign-in window: "I have an account" / "New account" share one form.
+  let gateMode = 'login';
+  const setGateMode = mode => {
+    gateMode = mode;
+    const signup = mode === 'signup';
+    document.querySelectorAll('[data-gate-mode]').forEach(tab => tab.setAttribute('aria-selected', String(tab.dataset.gateMode === mode)));
+    document.getElementById('gateConfirmField').hidden = !signup;
+    document.getElementById('resetPasswordBtn').hidden = signup;
+    document.getElementById('gatePassword').autocomplete = signup ? 'new-password' : 'current-password';
+    document.getElementById('gateSubmit').textContent = signup ? 'إنشاء الحساب' : 'دخول';
+    document.getElementById('gateSubtitle').textContent = signup ? 'أنشئ حسابك وابدأ مكتبتك الطبية في دقيقة.' : 'سجّل الدخول إلى عقلك الطبي ومكتبتك الدراسية.';
+    const msg = document.getElementById('gateError'); msg.textContent = ''; msg.classList.remove('ok');
+  };
+  document.querySelectorAll('[data-gate-mode]').forEach(tab => tab.addEventListener('click', () => setGateMode(tab.dataset.gateMode)));
+  document.querySelectorAll('[data-toggle-password]').forEach(button => button.addEventListener('click', () => {
+    const show = button.getAttribute('aria-pressed') !== 'true';
+    button.setAttribute('aria-pressed', String(show));
+    button.setAttribute('aria-label', show ? 'إخفاء كلمة المرور' : 'إظهار كلمة المرور');
+    ['gatePassword', 'gatePasswordConfirm'].forEach(id => { document.getElementById(id).type = show ? 'text' : 'password'; });
+  }));
   document.getElementById('gateForm').addEventListener('submit', async e => {
     e.preventDefault();
     if (!client) return;
     const errEl = document.getElementById('gateError');
     const btn = document.getElementById('gateSubmit');
+    const email = document.getElementById('gateEmail').value.trim();
+    const password = document.getElementById('gatePassword').value;
+    const signup = gateMode === 'signup';
     errEl.textContent = '';
+    errEl.classList.remove('ok');
+    if (!email || !document.getElementById('gateEmail').checkValidity()) { errEl.textContent = 'اكتب بريدًا إلكترونيًا صحيحًا.'; return; }
+    if (!password) { errEl.textContent = 'اكتب كلمة المرور.'; return; }
+    if (signup && password.length < 8) { errEl.textContent = 'كلمة المرور يجب أن تكون 8 أحرف على الأقل.'; return; }
+    if (signup && password !== document.getElementById('gatePasswordConfirm').value) { errEl.textContent = 'كلمتا المرور غير متطابقتين.'; return; }
     btn.disabled = true;
-    btn.textContent = 'جارٍ التحقق…';
+    btn.textContent = signup ? 'جارٍ إنشاء الحساب…' : 'جارٍ التحقق…';
     try {
-      const { error } = await client.auth.signInWithPassword({
-        email: document.getElementById('gateEmail').value.trim(),
-        password: document.getElementById('gatePassword').value
-      });
-      if (error) throw error;
-      document.getElementById('gatePassword').value = '';
-    } catch (_) {
-      errEl.textContent = 'تعذّر تسجيل الدخول. تحقق من بيانات الحساب والاتصال بالإنترنت.';
+      if (signup) {
+        const { data, error } = await client.auth.signUp({ email, password, options: { emailRedirectTo: new URL(location.pathname, location.origin).href } });
+        if (error) throw error;
+        document.getElementById('gatePassword').value = '';
+        document.getElementById('gatePasswordConfirm').value = '';
+        if (!data.session) {
+          errEl.textContent = 'تم إنشاء حسابك. أرسلنا رسالة تأكيد إلى بريدك؛ اضغط الرابط فيها ثم سجّل الدخول. افحص البريد المزعج أيضًا.';
+          errEl.classList.add('ok');
+          setGateModeKeepMessage('login');
+        }
+      } else {
+        const { error } = await client.auth.signInWithPassword({ email, password });
+        if (error) throw error;
+        document.getElementById('gatePassword').value = '';
+      }
+    } catch (err) {
+      const text = String(err && err.message || '');
+      if (signup && /already|registered/i.test(text)) errEl.textContent = 'هذا البريد لديه حساب بالفعل. اختر «لدي حساب» وسجّل الدخول.';
+      else if (signup && /signup.*(disabled|not allowed)/i.test(text)) errEl.textContent = 'إنشاء الحسابات الجديدة متوقف حاليًا.';
+      else if (signup) errEl.textContent = 'تعذّر إنشاء الحساب. تحقق من البريد والاتصال ثم حاول مجددًا.';
+      else if (/confirm/i.test(text)) errEl.textContent = 'أكّد بريدك أولًا من الرسالة التي وصلتك، ثم سجّل الدخول.';
+      else errEl.textContent = 'تعذّر تسجيل الدخول. تحقق من البريد وكلمة المرور والاتصال بالإنترنت.';
     } finally {
       btn.disabled = false;
-      btn.textContent = 'دخول';
+      btn.textContent = gateMode === 'signup' ? 'إنشاء الحساب' : 'دخول';
     }
   });
+  function setGateModeKeepMessage(mode) {
+    const msg = document.getElementById('gateError'), text = msg.textContent, ok = msg.classList.contains('ok');
+    setGateMode(mode); msg.textContent = text; msg.classList.toggle('ok', ok);
+  }
   document.getElementById('logoutBtn').addEventListener('click', async () => {
     if (!client || document.getElementById('logoutBtn').disabled) return;
     const buttons = ['logoutBtn', 'profileLogoutBtn', 'nameLogout'].map(id => document.getElementById(id));
