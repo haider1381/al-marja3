@@ -2220,6 +2220,45 @@ body.ai-site-open .ai-fab, body.ai-fab-hidden .ai-fab { display:none; }
 .ai-suggest-context { display:flex; align-items:center; gap:8px; padding-top:8px; border-top:1px solid var(--ai-border); font-size:11.5px; color:var(--ai-muted); }
 .ai-suggest-context select { flex:1; min-width:0; height:30px; padding:0 8px !important; border-radius:999px !important; font-size:12px !important; color:var(--ai-text) !important; background:var(--ai-panel) !important; border:1px solid var(--ai-border) !important; }
 .reader-ai-host .ai-suggest-context { display:none; }
+
+/* ---------- Library flashcard decks and the study card ---------- */
+.deck-area { margin:4px 0 22px; }
+.deck-area-title { margin:18px 0 10px; font-size:16px; font-weight:800; color:var(--text); }
+.deck-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:12px; }
+.deck-tile { display:flex; flex-direction:column; align-items:flex-start; gap:6px; text-align:start; padding:16px; border-radius:14px; border:1px solid var(--border); border-inline-start:4px solid var(--accent); background:var(--surface); color:var(--text); font:inherit; cursor:pointer; transition:transform .15s ease, box-shadow .15s ease; }
+.deck-tile:hover { transform:translateY(-2px); box-shadow:0 10px 24px rgba(12,32,52,.10); }
+.deck-tile strong { font-size:15.5px; }
+.deck-tile-count { font-size:11px; font-weight:800; padding:2px 9px; border-radius:999px; background:var(--accent-soft); color:var(--accent-strong); }
+.deck-tile-meta { font-size:12px; color:var(--text-muted); }
+.deck-tile-go { margin-top:4px; font-size:12.5px; font-weight:800; color:var(--accent-strong); }
+.deck-study { max-width:760px; margin:0 auto; }
+.deck-study-head { display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; margin-bottom:10px; }
+.deck-study-title { display:flex; flex-direction:column; align-items:center; text-align:center; flex:1; min-width:160px; }
+.deck-study-title span { font-size:12px; color:var(--text-muted); }
+.deck-study-head [aria-pressed="true"] { background:var(--accent-soft); color:var(--accent-strong); }
+.deck-progress { height:5px; border-radius:99px; background:var(--accent-soft); overflow:hidden; margin-bottom:12px; }
+.deck-progress span { display:block; height:100%; width:0; background:var(--accent); border-radius:inherit; transition:width .25s ease; }
+.deck-card { position:relative; min-height:260px; padding:34px 22px 22px; border-radius:18px; border:1px solid var(--border); background:var(--surface); box-shadow:0 10px 30px rgba(12,32,52,.08); cursor:pointer; display:flex; flex-direction:column; justify-content:center; text-align:center; font-size:17px; line-height:1.8; color:var(--text); direction:ltr; outline:none; transition:border-color .2s ease; }
+.deck-card:focus-visible { border-color:var(--accent); }
+.deck-card.is-back { border-color:var(--accent); background:linear-gradient(180deg, var(--accent-soft), var(--surface) 60%); }
+.deck-card-side { position:absolute; top:12px; inset-inline-start:14px; direction:rtl; font-size:11px; font-weight:800; color:var(--accent-strong); background:var(--accent-soft); padding:2px 10px; border-radius:999px; }
+.deck-card-body { overflow-wrap:anywhere; }
+.deck-card-body ol, .deck-card-body ul { text-align:start; display:inline-block; margin:6px auto; }
+.deck-card mark { background:var(--accent-soft); color:var(--accent-strong); font-weight:800; padding:1px 6px; border-radius:6px; }
+.deck-card img { max-width:100%; max-height:360px; border-radius:10px; margin:6px auto; display:block; }
+.deck-card hr { border:0; border-top:1px dashed var(--border); margin:14px 0; }
+.deck-q { font-weight:700; }
+.deck-note { color:var(--text-muted); font-size:14px; direction:rtl; }
+.deck-card-extra { margin-top:14px; padding-top:12px; border-top:1px dashed var(--border); font-size:14px; color:var(--text-muted); text-align:start; }
+.deck-controls { display:flex; justify-content:center; align-items:center; gap:10px; margin-top:14px; }
+.deck-nav { height:42px; padding:0 16px; border-radius:12px; border:1px solid var(--border); background:var(--surface); color:var(--text); font:inherit; font-weight:700; cursor:pointer; }
+.deck-nav:hover { border-color:var(--accent); color:var(--accent-strong); }
+.deck-flip { min-width:150px; }
+.deck-count { text-align:center; margin:8px 0 0; font-size:12.5px; color:var(--text-muted); font-weight:700; }
+@media (max-width:480px) {
+  .deck-card { min-height:220px; padding:32px 14px 16px; font-size:15.5px; }
+  .deck-nav { padding:0 11px; } .deck-flip { min-width:0; flex:1; }
+}
 </style>
 <link rel="manifest" href="./manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="192x192" href="./assets/app-icon-192.png">
@@ -2624,9 +2663,33 @@ body.ai-site-open .ai-fab, body.ai-fab-hidden .ai-fab { display:none; }
       <div class="mb-page-toolbar">
         <div class="mb-page-title-wrap">
           <button class="mb-page-back" type="button" data-tool-view="home" aria-label="رجوع">‹</button>
-          <div><h2 class="mb-page-title">Flashcards</h2><p class="mb-page-subtitle">اصنع بطاقاتك الشخصية واضغط البطاقة لقلبها ورؤية الإجابة.</p></div>
+          <div><h2 class="mb-page-title">Flashcards</h2><p class="mb-page-subtitle">راجع بطاقات المكتبة أو اصنع بطاقاتك، واضغط البطاقة لقلبها ورؤية الإجابة.</p></div>
         </div>
       </div>
+      <section class="deck-area" id="deckArea" aria-labelledby="deckAreaTitle">
+        <h3 class="deck-area-title" id="deckAreaTitle">بطاقات المكتبة</h3>
+        <div class="deck-grid" id="deckGrid"><div class="mb-empty-tool">جارٍ تحميل المجموعات…</div></div>
+        <div class="deck-study" id="deckStudy" hidden>
+          <div class="deck-study-head">
+            <button type="button" class="back-chip" data-deck-action="close">‹ كل المجموعات</button>
+            <div class="deck-study-title"><strong id="deckStudyTitle"></strong><span id="deckStudySource"></span></div>
+            <button type="button" class="back-chip" data-deck-action="shuffle" aria-pressed="false">خلط البطاقات</button>
+          </div>
+          <div class="deck-progress" aria-hidden="true"><span id="deckProgressBar"></span></div>
+          <article class="deck-card" id="deckCard" tabindex="0" aria-live="polite">
+            <span class="deck-card-side" id="deckCardSide">السؤال</span>
+            <div class="deck-card-body" id="deckCardBody"></div>
+            <div class="deck-card-extra" id="deckCardExtra" hidden></div>
+          </article>
+          <div class="deck-controls">
+            <button type="button" class="deck-nav" data-deck-action="prev" aria-label="البطاقة السابقة">السابقة ›</button>
+            <button type="button" class="mb-primary deck-flip" data-deck-action="flip" id="deckFlipBtn">إظهار الإجابة</button>
+            <button type="button" class="deck-nav" data-deck-action="next" aria-label="البطاقة التالية">‹ التالية</button>
+          </div>
+          <p class="deck-count" id="deckCount"></p>
+        </div>
+      </section>
+      <h3 class="deck-area-title">بطاقاتي الشخصية</h3>
       <form class="mb-flash-form" id="flashcardForm">
         <label>السؤال / الوجه الأمامي<textarea id="flashFront" maxlength="1000" required placeholder="مثال: What are the causes of HFrEF?"></textarea></label>
         <label>الإجابة / الوجه الخلفي<textarea id="flashBack" maxlength="4000" required placeholder="اكتب الإجابة المختصرة"></textarea></label>
@@ -3043,6 +3106,94 @@ async function loadFlashcards() {
   if (result.error) throw result.error;
   flashcards=result.data||[];
   renderFlashcards();
+}
+// Shared library decks (imported from Anki), read-only for students.
+let flashDecks = null, deckCards = [], deckOrder = [], deckIndex = 0, deckFlipped = false, activeDeck = null;
+async function loadFlashDecks() {
+  if (!client || !activeUserId) return;
+  const result = await client.from('flashcard_decks').select('id,title,source,category,topic,card_count,sort').order('sort');
+  flashDecks = result.error ? [] : (result.data || []);
+  renderFlashDecks();
+}
+function renderFlashDecks() {
+  const grid = document.getElementById('deckGrid'); if (!grid) return;
+  if (flashDecks === null) { loadFlashDecks(); return; }
+  if (!flashDecks.length) { grid.innerHTML = '<div class="mb-empty-tool">لا توجد مجموعات بطاقات في المكتبة بعد.</div>'; return; }
+  grid.innerHTML = flashDecks.map(d =>
+    '<button type="button" class="deck-tile" data-deck-open="' + escapeHtml(d.id) + '">' +
+    '<span class="deck-tile-count">' + d.card_count + ' بطاقة</span>' +
+    '<strong dir="auto">' + escapeHtml(d.title) + '</strong>' +
+    '<span class="deck-tile-meta" dir="auto">' + escapeHtml([d.topic, d.source].filter(Boolean).join(' · ')) + '</span>' +
+    '<span class="deck-tile-go">ابدأ المراجعة ‹</span></button>').join('');
+}
+// Card HTML was cleaned on import; this second pass keeps only simple tags and local card images.
+const DECK_TAGS = new Set(['B', 'STRONG', 'I', 'EM', 'U', 'BR', 'DIV', 'P', 'UL', 'OL', 'LI', 'SUB', 'SUP', 'SPAN', 'IMG', 'TABLE', 'THEAD', 'TBODY', 'TR', 'TD', 'TH', 'HR', 'MARK', 'SMALL']);
+function safeCardHtml(html) {
+  const doc = new DOMParser().parseFromString('<div>' + (html || '') + '</div>', 'text/html');
+  const walk = node => [...node.children].forEach(el => {
+    if (!DECK_TAGS.has(el.tagName)) { el.replaceWith(...el.childNodes); return; }
+    const src = el.tagName === 'IMG' ? el.getAttribute('src') || '' : '';
+    [...el.attributes].forEach(a => el.removeAttribute(a.name));
+    if (el.tagName === 'IMG') {
+      if (!/^assets\/cards\/[a-f0-9]+\.webp$/.test(src)) { el.remove(); return; }
+      el.setAttribute('src', src); el.setAttribute('alt', ''); el.setAttribute('loading', 'lazy');
+    }
+    walk(el);
+  });
+  walk(doc.body.firstChild);
+  return doc.body.firstChild.innerHTML;
+}
+async function openDeck(id) {
+  activeDeck = (flashDecks || []).find(d => d.id === id); if (!activeDeck) return;
+  document.getElementById('deckGrid').hidden = true;
+  document.getElementById('deckStudy').hidden = false;
+  document.getElementById('deckStudyTitle').textContent = activeDeck.title;
+  document.getElementById('deckStudySource').textContent = [activeDeck.topic, activeDeck.source].filter(Boolean).join(' · ');
+  document.getElementById('deckCardBody').innerHTML = '<div class="mb-empty-tool">جارٍ تحميل البطاقات…</div>';
+  const result = await client.from('library_flashcards').select('id,ord,kind,front,back,extra').eq('deck_id', id).order('ord');
+  deckCards = result.error ? [] : (result.data || []);
+  deckOrder = deckCards.map((_, i) => i);
+  const saved = Number(localStorage.getItem('medbrain_deck_pos_' + id) || 0);
+  deckIndex = saved > 0 && saved < deckCards.length ? saved : 0;
+  document.querySelector('[data-deck-action="shuffle"]').setAttribute('aria-pressed', 'false');
+  showDeckCard();
+  document.getElementById('deckStudy').scrollIntoView({ block: 'start', behavior: 'smooth' });
+}
+function closeDeck() {
+  activeDeck = null;
+  document.getElementById('deckStudy').hidden = true;
+  document.getElementById('deckGrid').hidden = false;
+}
+function showDeckCard(flipped = false) {
+  deckFlipped = flipped;
+  const body = document.getElementById('deckCardBody'), extra = document.getElementById('deckCardExtra');
+  if (!deckCards.length) { body.innerHTML = '<div class="mb-empty-tool">لا توجد بطاقات في هذه المجموعة.</div>'; return; }
+  const card = deckCards[deckOrder[deckIndex]];
+  const answer = card.back && card.back.trim() ? card.back : '<p class="deck-note">الإجابة موجودة في الصورة.</p>';
+  body.innerHTML = safeCardHtml(flipped ? (card.kind === 'cloze' ? card.back : answer) : card.front);
+  if (flipped && card.kind === 'basic') body.innerHTML = '<div class="deck-q">' + safeCardHtml(card.front) + '</div><hr>' + safeCardHtml(answer);
+  extra.hidden = !(flipped && card.extra);
+  extra.innerHTML = flipped && card.extra ? safeCardHtml(card.extra) : '';
+  document.getElementById('deckCard').classList.toggle('is-back', flipped);
+  document.getElementById('deckCardSide').textContent = flipped ? 'الإجابة' : 'السؤال';
+  document.getElementById('deckFlipBtn').textContent = flipped ? 'إخفاء الإجابة' : 'إظهار الإجابة';
+  document.getElementById('deckCount').textContent = (deckIndex + 1) + ' / ' + deckCards.length;
+  document.getElementById('deckProgressBar').style.width = ((deckIndex + 1) / deckCards.length * 100) + '%';
+  try { if (activeDeck) localStorage.setItem('medbrain_deck_pos_' + activeDeck.id, String(deckIndex)); } catch (_) {}
+}
+function deckAction(action) {
+  if (!deckCards.length && action !== 'close') return;
+  if (action === 'flip') showDeckCard(!deckFlipped);
+  else if (action === 'next') { deckIndex = (deckIndex + 1) % deckCards.length; showDeckCard(); }
+  else if (action === 'prev') { deckIndex = (deckIndex - 1 + deckCards.length) % deckCards.length; showDeckCard(); }
+  else if (action === 'shuffle') {
+    const btn = document.querySelector('[data-deck-action="shuffle"]');
+    const on = btn.getAttribute('aria-pressed') !== 'true';
+    btn.setAttribute('aria-pressed', String(on));
+    deckOrder = deckCards.map((_, i) => i);
+    if (on) for (let i = deckOrder.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [deckOrder[i], deckOrder[j]] = [deckOrder[j], deckOrder[i]]; }
+    deckIndex = 0; showDeckCard();
+  } else if (action === 'close') closeDeck();
 }
 async function addFlashcard(data) {
   const result=await client.from('flashcards').insert({
@@ -4483,7 +4634,7 @@ function wireMedbrainEvents() {
       const view=tool.dataset.toolView;
       if(view==='home') showMainView('home');
       if(view==='schedule'){showMainView('schedule');renderSchedule();}
-      if(view==='flashcards'){showMainView('flashcards');renderFlashcards();}
+      if(view==='flashcards'){showMainView('flashcards');renderFlashcards();renderFlashDecks();}
       if(['subscription','shareSchedule','favorites','settings'].includes(view)){showMainView(view);renderPersonalPage(view);}
       return;
     }
@@ -4565,6 +4716,18 @@ function wireMedbrainEvents() {
     }catch(err){console.error(err);status.textContent='تعذّر إضافة المهمة.';}
   });
 
+  document.getElementById('deckArea').addEventListener('click', e => {
+    const open = e.target.closest('[data-deck-open]');
+    if (open) { openDeck(open.dataset.deckOpen); return; }
+    const act = e.target.closest('[data-deck-action]');
+    if (act) { deckAction(act.dataset.deckAction); return; }
+    if (e.target.closest('#deckCard')) deckAction('flip');
+  });
+  document.getElementById('deckCard').addEventListener('keydown', e => {
+    if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); deckAction('flip'); }
+    else if (e.key === 'ArrowLeft') deckAction(document.dir === 'rtl' || document.documentElement.dir === 'rtl' ? 'next' : 'prev');
+    else if (e.key === 'ArrowRight') deckAction(document.dir === 'rtl' || document.documentElement.dir === 'rtl' ? 'prev' : 'next');
+  });
   document.getElementById('flashcardForm').addEventListener('submit', async e => {
     e.preventDefault();
     const status=document.getElementById('flashStatus');
