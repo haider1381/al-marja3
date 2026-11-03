@@ -444,6 +444,7 @@
   .lecture .notes { font-size: 12.5px; color: var(--text-muted); margin-top: 6px; line-height: 1.5; }
   .lecture .body.clickable { cursor: pointer; }
   .lecture.openable { cursor: pointer; }
+  .show-more-lectures { display: block; margin: 14px auto 4px; padding: 10px 22px; border-radius: 999px; border: 1px solid var(--border, #dbe3ea); background: var(--surface, #fff); color: var(--accent-strong); font: inherit; font-weight: 600; cursor: pointer; }
   .lecture.openable:focus-visible { outline: 2px solid var(--accent-strong); outline-offset: 2px; }
   .lecture .body.clickable:hover .title { color: var(--accent-strong); }
   .lecture .actions { display: flex; flex-direction: column; gap: 6px; align-items: center; flex-shrink: 0; }
@@ -3010,16 +3011,18 @@ function assertEditor() {
   if (!client || !canWrite) throw new Error('editor_required');
 }
 async function loadLecturesFromSupabase() {
+  // The database is far away (Seoul), so pages are requested together rather than one after another.
+  const pageSize = 500, parallel = 4;
+  const page = offset => client.from('lectures')
+    .select('id,title,source,category,topic,type,link,notes,created_at,file_path,has_text,question_count')
+    .order('created_at', { ascending: false }).order('id', { ascending: false })
+    .range(offset, offset + pageSize - 1)
+    .then(result => { if (result.error) throw result.error; return result.data; });
   const rows = [];
-  const pageSize = 500;
-  for (let offset = 0; ; offset += pageSize) {
-    const result = await client.from('lectures')
-      .select('id,title,source,category,topic,type,link,notes,created_at,file_path,has_text,question_count')
-      .order('created_at', { ascending: false }).order('id', { ascending: false })
-      .range(offset, offset + pageSize - 1);
-    if (result.error) throw result.error;
-    rows.push(...result.data);
-    if (result.data.length < pageSize) break;
+  for (let start = 0; ; start += pageSize * parallel) {
+    const pages = await Promise.all(Array.from({ length: parallel }, (_, i) => page(start + i * pageSize)));
+    pages.forEach(data => rows.push(...data));
+    if (pages[parallel - 1].length < pageSize) break;
   }
   return rows.map(rowToLecture);
 }
@@ -3274,12 +3277,15 @@ async function syncAccess(session) {
   hideGate();
   syncNamePrompt();
   try {
+    // The editor check and the library load are independent, so they run together.
+    const appLoad = startApp(version);
     const { data, error } = await client.rpc('is_editor');
     if (version !== accessVersion) return;
     if (error) throw error;
     canWrite = data === true;
     applyAccessUI();
-    await startApp(version);
+    await appLoad;
+    if (canWrite && version === accessVersion) render();
   } catch (_) {
     if (version !== accessVersion) return;
     canWrite = false;
@@ -3588,9 +3594,14 @@ function renderTopicMode() {
   return html;
 }
 
+// Building every row at once is slow on older phones, so the list grows in pages.
+const LECTURE_PAGE = 60;
+let lectureListLimit = LECTURE_PAGE, lectureListKey = '';
 function renderLectureList(list) {
+  const key = list.length + ':' + (list[0] && list[0].id) + ':' + (list[list.length - 1] && list[list.length - 1].id);
+  if (key !== lectureListKey) { lectureListKey = key; lectureListLimit = LECTURE_PAGE; }
   let html = `<div class="lecture-list">`;
-  list.forEach(l => {
+  list.slice(0, lectureListLimit).forEach(l => {
     const iconKey = TYPE_ICON[l.type] || 'bookmark';
     const hasText = lectureHasText(l);
     const externalLink = safeExternalLink(l.link);
@@ -3623,6 +3634,7 @@ function renderLectureList(list) {
     </div>`;
   });
   html += `</div>`;
+  if (list.length > lectureListLimit) html += `<button type="button" class="show-more-lectures" data-action="show-more-lectures">عرض المزيد</button>`;
   return html;
 }
 
@@ -3676,6 +3688,11 @@ function wireStaticEvents() {
 }
 
 function onContentClick(e) {
+  if (e.target.closest('[data-action="show-more-lectures"]')) {
+    lectureListLimit += LECTURE_PAGE;
+    if (e.currentTarget && e.currentTarget.id === 'favoritesContent') renderFavorites(); else render();
+    return;
+  }
   const quizBtn = e.target.closest('[data-action="open-quiz"]');
   if (quizBtn) { openQuiz(quizBtn.dataset.id); return; }
   const pdfBtn = e.target.closest('[data-action="open-pdf"]');
