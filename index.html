@@ -2436,7 +2436,7 @@ button,a,input,select,textarea{-webkit-tap-highlight-color:transparent;}
         <input type="url" id="f_link" dir="ltr" placeholder="https://…">
       </div>
       <div class="field" id="pdfField">
-        <label for="f_pdf">رفع PDF من جهازك <span class="hint">(اختياري — حتى 25 MB)</span></label>
+        <label for="f_pdf">رفع PDF من جهازك <span class="hint">(اختياري — حتى 50 MB)</span></label>
         <input type="file" id="f_pdf" accept=".pdf,application/pdf">
         <p class="sub" id="currentPdf"></p>
         <label><input type="checkbox" id="removePdf" style="width:auto"> إزالة الملف المرتبط من هذه المادة</label>
@@ -3592,7 +3592,8 @@ function renderLectureList(list) {
         <button type="button" class="${favoriteRecords.has(l.id) ? 'favorite-saved' : ''}" data-action="toggle-favorite" data-id="${escapeHtml(l.id)}" aria-label="${favoriteRecords.has(l.id) ? 'إزالة من المفضلات' : 'إضافة إلى المفضلات'}" aria-pressed="${favoriteRecords.has(l.id)}" ${favoritePending.has(l.id) ? 'disabled' : ''}>${ICONS.bookmark}</button>
         ${hasText ? `<button type="button" class="read" data-action="open-reader" data-id="${escapeHtml(l.id)}" aria-label="قراءة المحاضرة">${ICONS.read}</button>` : ''}
         ${hasQuiz ? `<button type="button" class="read" data-action="open-quiz" data-id="${escapeHtml(l.id)}" aria-label="بدء الأسئلة">${ICONS.help}</button>` : ''}
-        ${l.filePath ? `<button type="button" class="read" data-action="open-pdf" data-id="${escapeHtml(l.id)}" aria-label="فتح PDF">${ICONS.download}</button>` : ''}
+        ${l.filePath ? `<button type="button" class="read" data-action="open-pdf" data-id="${escapeHtml(l.id)}" aria-label="فتح PDF" title="فتح PDF">${ICONS.file}</button>` : ''}
+        ${l.filePath ? `<button type="button" class="read" data-action="download-pdf" data-id="${escapeHtml(l.id)}" aria-label="تنزيل PDF" title="تنزيل PDF">${ICONS.download}</button>` : ''}
         ${externalLink ? `<a href="${escapeHtml(externalLink)}" target="_blank" rel="noopener noreferrer" aria-label="فتح الرابط">${ICONS.link}</a>` : ''}
         ${canWrite ? `<button type="button" class="edit" data-action="edit-lecture" data-id="${escapeHtml(l.id)}" aria-label="تعديل المادة">${ICONS.edit}</button>` : ''}
         ${canWrite ? `<button type="button" class="del" data-action="delete-lecture" data-id="${escapeHtml(l.id)}" aria-label="حذف المحاضرة">${ICONS.trash}</button>` : ''}
@@ -3656,6 +3657,8 @@ function onContentClick(e) {
   if (quizBtn) { openQuiz(quizBtn.dataset.id); return; }
   const pdfBtn = e.target.closest('[data-action="open-pdf"]');
   if (pdfBtn) { openStoredPdf(pdfBtn.dataset.id, pdfBtn); return; }
+  const downloadBtn = e.target.closest('[data-action="download-pdf"]');
+  if (downloadBtn) { openStoredPdf(downloadBtn.dataset.id, downloadBtn, true); return; }
   const sourceChip = e.target.closest('[data-action="select-source"]');
   if (sourceChip) { state.selectedSource = sourceChip.dataset.source; state.selectedSourceCategory = null; state.selectedSourceTopic = null; state.selectedSourceType = null; render(); return; }
 
@@ -4483,13 +4486,10 @@ async function onSubmitLecture(e) {
   let uploadedPath = null;
   try {
     if (file) {
-      const path = 'pdf/' + crypto.randomUUID() + '.pdf';
-      const result = await client.storage.from('lecture-files').upload(path, file, {
-        contentType: 'application/pdf', upsert: false
-      });
-      if (result.error) throw result.error;
-      uploadedPath = path;
-      data.filePath = path;
+      const result = await callLectureFile('upload', file, 'application/pdf');
+      if (!result.path) throw new Error('upload_failed');
+      uploadedPath = result.path;
+      data.filePath = result.path;
     }
     if (version !== accessVersion || !canWrite) throw new Error('تغيّرت جلسة الدخول؛ سجل الدخول ثم حاول مجددًا.');
     if (targetId) await col.doc(targetId).update(data);
@@ -4844,22 +4844,36 @@ function wireAuthoringEvents() {
 function validatePdf(file) {
   if (!file || !/\.pdf$/i.test(file.name) || (file.type && file.type !== 'application/pdf'))
     throw new Error('اختر ملف PDF صالحًا.');
-  if (file.size <= 0 || file.size > 25 * 1024 * 1024)
-    throw new Error('حجم PDF يجب أن يكون أكبر من صفر وأقل من أو يساوي 25 MB.');
+  if (file.size <= 0 || file.size > 50 * 1024 * 1024)
+    throw new Error('حجم PDF يجب أن يكون أكبر من صفر وأقل من أو يساوي 50 MB.');
 }
-async function openStoredPdf(id, button) {
+// PDFs are stored in Cloudflare R2; the lecture-file edge function checks access and signs URLs.
+async function callLectureFile(action, body, contentType) {
+  const { data, error } = await client.auth.getSession();
+  if (error || !data.session?.access_token) throw new Error('sign_in_required');
+  const response = await fetch(SUPABASE_URL + '/functions/v1/lecture-file?action=' + action, {
+    method: 'POST',
+    headers: { 'Content-Type': contentType, apikey: SUPABASE_KEY, Authorization: 'Bearer ' + data.session.access_token },
+    body
+  });
+  const result = await response.json().catch(() => null);
+  if (!response.ok || !result) throw new Error(result?.error || 'lecture_file_failed');
+  return result;
+}
+async function openStoredPdf(id, button, download = false) {
   const material = lectures.find(l => l.id === id);
   if (!client || !material || !material.filePath) return;
   // Open during the click so mobile popup blockers do not block the later signed URL.
-  const tab = deviceIsNative()?null:window.open('about:blank', '_blank');
+  // A download is served as an attachment, so it can stay in this page without a new tab.
+  const tab = deviceIsNative() || download ? null : window.open('about:blank', '_blank');
   if (tab) { tab.opener = null; tab.document.title = 'جارٍ فتح PDF…'; }
   button.disabled = true;
   try {
-    const { data, error } = await client.storage.from('lecture-files').createSignedUrl(material.filePath, 300);
-    if (error || !data || !safeExternalLink(data.signedUrl)) throw error || new Error('pdf_failed');
-    if(deviceIsNative()) await window.MedbrainNative.openUrl(data.signedUrl);
-    else if (tab) tab.location.replace(data.signedUrl);
-    else window.location.assign(data.signedUrl);
+    const { url } = await callLectureFile('open', JSON.stringify({ lecture_id: material.id, download }), 'application/json');
+    if (!safeExternalLink(url)) throw new Error('pdf_failed');
+    if(deviceIsNative()) await window.MedbrainNative.openUrl(url);
+    else if (tab) tab.location.replace(url);
+    else window.location.assign(url);
   } catch (_) {
     if (tab) tab.close();
     alert('تعذّر فتح PDF. تحقق من الاتصال وصلاحيات الملف.');

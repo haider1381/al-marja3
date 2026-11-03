@@ -41,7 +41,7 @@ function throws(fn, name) { assert.throws(fn, undefined, name); count++; }
   api.validatePdf({name:'lecture.pdf',type:'application/pdf',size:1024});
   throws(()=>api.validatePdf({name:'file.exe',type:'application/pdf',size:1}),'PDF extension');
   throws(()=>api.validatePdf({name:'file.pdf',type:'application/pdf',size:0}),'empty PDF');
-  throws(()=>api.validatePdf({name:'file.pdf',type:'application/pdf',size:26214401}),'oversize PDF');
+  throws(()=>api.validatePdf({name:'file.pdf',type:'application/pdf',size:52428801}),'oversize PDF');
   check(api.rowToLecture({id:1,questions:[question],file_path:'pdf/x.pdf'}).filePath==='pdf/x.pdf','file mapping');
   check(api.rowToLecture({id:1}).questions.length===0,'legacy questions');
   check(api.lectureToRow({questions:[question],filePath:'pdf/x.pdf'}).questions[0].correctIndex===2,'MCQ persistence');
