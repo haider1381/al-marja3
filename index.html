@@ -352,6 +352,14 @@
   /* Library sizes stay private: counts would make the collection look limited. */
   .chip .n, .category-head .n, #cardLectures, #cardQuestions, #cardVideos, #cardOther, #countLabel { display: none !important; }
 
+  .browse-crumbs { display:flex; flex-wrap:wrap; align-items:center; gap:4px 6px; margin:0 0 14px; font-size:13px; }
+  .browse-crumbs button { border:0; background:none; padding:4px 2px; font:inherit; font-weight:700; color:var(--accent); cursor:pointer; }
+  .browse-crumbs button:hover { text-decoration:underline; }
+  .browse-crumbs span[aria-current] { font-weight:700; color:var(--text); }
+  .browse-crumbs .sep { color:var(--text-muted); }
+  .browse-grid { gap:10px; }
+  .browse-chip { padding:11px 16px; font-size:14px; cursor:pointer; }
+  .browse-chip svg { width:16px; height:16px; color:var(--accent); }
   .back-chip {
     display: inline-flex;
     align-items: center;
@@ -3162,7 +3170,8 @@ const state = {
   selectedCategory: null,
   selectedTopic: null,
   selectedType: null,
-  search: '', filterSource: '', filterTopic: '', filterKind: '', filterCategory: ''
+  search: '', filterSource: '', filterTopic: '', filterKind: '', filterCategory: '',
+  browse: { category: null, topic: null, source: null, type: null }
 };
 
 // ---------------- Icons ----------------
@@ -3593,13 +3602,91 @@ function render() {
   const hasFilters = !!(state.search.trim() || state.filterSource || state.filterTopic || state.filterKind || state.filterCategory);
   document.getElementById('resetFilters').hidden = !hasFilters;
   const content = document.getElementById('content');
-  const list = filterMaterials(lectures, state);
-  content.innerHTML = '<p class="section-label">' + (state.search.trim() ? 'نتائج البحث' : 'المواد المتوفرة') + '</p>' +
-    (list.length ? renderLectureList(list) : '<div class="empty">لا توجد مواد مطابقة. جرّب تغيير البحث أو الفلاتر.</div>');
+  const browsing = !(state.search.trim() || state.filterSource || state.filterTopic || state.filterCategory);
+  if (browsing) content.innerHTML = renderBrowse();
+  else {
+    const list = filterMaterials(lectures, state);
+    content.innerHTML = '<p class="section-label">' + (state.search.trim() ? 'نتائج البحث' : 'المواد المتوفرة') + '</p>' +
+      (list.length ? renderLectureList(list) : '<div class="empty">لا توجد مواد مطابقة. جرّب تغيير البحث أو الفلاتر.</div>');
+  }
   renderMedbrainWidgets();
   updateFavoriteButtons();
   if(['subscription','shareSchedule','favorites','settings'].includes(currentMainView))renderPersonalPage(currentMainView);
 }
+
+// ---------------- Browsing: specialty → branch → source → type → ordered lectures ----------------
+const CATEGORY_ORDER = ['Medicine', 'Surgery', 'Pediatrics', 'OB/GYN', 'Emergency', 'Basic Sciences'];
+const TYPE_LABELS = { 'محاضرة': 'محاضرات', 'ملخص': 'ملخصات', 'ملف PDF': 'ملفات PDF', 'فيديو': 'فيديوهات', 'أسئلة': 'أسئلة', 'أخرى': 'أخرى' };
+const TYPE_ORDER = ['محاضرة', 'ملف PDF', 'ملخص', 'أسئلة', 'فيديو', 'أخرى'];
+// Introductory material (introduction, anatomy, basics, physiology…) comes first in every list.
+const INTRO_RE = /\b(intro(duction)?|anatomy|basics?|physiology|principles?|overview|fundamentals?|history taking|general exam(ination)?)\b|مقدمة|تشريح|فسلجة|أساسيات/i;
+function introRank(l) { return INTRO_RE.test(l.title || '') ? 0 : 1; }
+function browseLectureOrder(a, b) {
+  return introRank(a) - introRank(b) ||
+    String(a.createdAt || '').localeCompare(String(b.createdAt || '')) ||
+    String(a.title || '').localeCompare(String(b.title || ''), undefined, { numeric: true, sensitivity: 'base' });
+}
+function orderedValues(values, preferred) {
+  const unique = [...new Set(values.filter(Boolean))];
+  const rank = v => { const i = preferred.indexOf(v); return i < 0 ? preferred.length : i; };
+  return unique.sort((a, b) => rank(a) - rank(b) || a.localeCompare(b, 'ar'));
+}
+const BROWSE_KEY = { category: l => l.category, topic: l => l.topic || 'أخرى', source: l => l.source || 'غير محدد', type: l => l.type || 'أخرى' };
+function browsePath() {
+  // Resolve each level; a level with a single option (source or type) is skipped automatically.
+  const b = state.browse;
+  const path = { category: null, topic: null, source: null, type: null, level: 'list', options: [],
+    pool: lectures.filter(l => !state.filterKind || materialGroup(l.type) === state.filterKind) };
+  const levels = [['category', CATEGORY_ORDER, false], ['topic', null, false], ['source', [], true], ['type', TYPE_ORDER, true]];
+  for (const [key, preferred, skipSingle] of levels) {
+    const options = orderedValues(path.pool.map(BROWSE_KEY[key]), preferred || TOPICS[path.category] || []);
+    if (b[key] && options.includes(b[key])) path[key] = b[key];
+    else if (skipSingle && options.length === 1) path[key] = options[0];
+    else { path.level = key; path.options = options; return path; }
+    path.pool = path.pool.filter(l => BROWSE_KEY[key](l) === path[key]);
+  }
+  return path;
+}
+function renderBrowse() {
+  const path = browsePath();
+  lastBrowsePath = path;
+  const crumbs = [['root', 'كل التخصصات']];
+  ['category', 'topic', 'source', 'type'].forEach(key => {
+    if (path[key]) crumbs.push([key, key === 'type' ? (TYPE_LABELS[path[key]] || path[key]) : path[key]]);
+  });
+  let html = '<nav class="browse-crumbs" aria-label="مسار التصفح">' + crumbs.map(([level, label], i) =>
+    i === crumbs.length - 1 && path.level === 'list'
+      ? '<span aria-current="page" dir="auto">' + escapeHtml(label) + '</span>'
+      : '<button type="button" data-action="browse-to" data-level="' + level + '" dir="auto">' + escapeHtml(label) + '</button>'
+  ).join('<span class="sep" aria-hidden="true">›</span>') + '</nav>';
+  if (path.level === 'list') {
+    const list = path.pool.slice().sort(browseLectureOrder);
+    return html + (list.length ? renderLectureList(list) : '<div class="empty">لا توجد مواد هنا بعد.</div>');
+  }
+  if (!path.options.length) return html + '<div class="empty">لا توجد مواد هنا بعد.</div>';
+  const prompts = { category: 'اختر التخصص', topic: 'اختر الفرع', source: 'اختر المصدر', type: 'اختر النوع' };
+  html += '<p class="section-label">' + prompts[path.level] + '</p><div class="chip-grid browse-grid">';
+  html += path.options.map(value => '<button type="button" class="chip browse-chip" data-action="browse" data-level="' + path.level + '" data-value="' + escapeHtml(value) + '" dir="auto">' +
+    (path.level === 'category' && ICONS[CATEGORY_ICON[value]] ? ICONS[CATEGORY_ICON[value]] : '') +
+    '<span>' + escapeHtml(path.level === 'type' ? (TYPE_LABELS[value] || value) : value) + '</span></button>').join('');
+  return html + '</div>';
+}
+function browseTo(level, value) {
+  const order = ['category', 'topic', 'source', 'type'];
+  const b = state.browse;
+  const i = level === 'root' ? -1 : order.indexOf(level);
+  if (value !== undefined) b[level] = value;
+  // Clearing the levels after the chosen one also re-shows levels that were skipped automatically.
+  order.slice(level === 'root' ? 0 : value !== undefined ? i + 1 : i).forEach(k => { b[k] = null; });
+  if (value === undefined && i >= 0) {
+    // A crumb keeps its own choice and reopens the next level's options.
+    b[level] = browsePathValue(level);
+  }
+  render();
+  document.getElementById('content').scrollIntoView({ block: 'start', behavior: document.documentElement.dataset.motion === 'reduce' ? 'auto' : 'smooth' });
+}
+let lastBrowsePath = null;
+function browsePathValue(level) { return lastBrowsePath ? lastBrowsePath[level] : null; }
 
 function renderSearchResults(q) {
   const matches = lectures.filter(l =>
@@ -3836,6 +3923,10 @@ function wireStaticEvents() {
 }
 
 function onContentClick(e) {
+  const browseChip = e.target.closest('[data-action="browse"]');
+  if (browseChip) { browseTo(browseChip.dataset.level, browseChip.dataset.value); return; }
+  const crumb = e.target.closest('[data-action="browse-to"]');
+  if (crumb) { browseTo(crumb.dataset.level); return; }
   if (e.target.closest('[data-action="show-more-lectures"]')) {
     lectureListLimit += LECTURE_PAGE;
     if (e.currentTarget && e.currentTarget.id === 'favoritesContent') renderFavorites(); else render();
@@ -4115,9 +4206,8 @@ function wireMedbrainEvents() {
     state.selectedCategory = btn.dataset.topicCategory;
     state.selectedTopic = null;
     state.selectedType = null;
-    state.search = state.filterSource = state.filterKind = '';
-    state.filterCategory = btn.dataset.topicCategory;
-    state.filterTopic = btn.dataset.topicName;
+    state.search = state.filterSource = state.filterKind = state.filterCategory = state.filterTopic = '';
+    state.browse = { category: btn.dataset.topicCategory, topic: btn.dataset.topicName, source: null, type: null };
     document.getElementById('searchInput').value = '';
     document.getElementById('librarySearchInput').value = '';
     const toggle = document.getElementById('modeToggle');
