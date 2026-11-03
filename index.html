@@ -1981,8 +1981,6 @@ body.ai-site-open .mb-main{margin-left:var(--ai-site-width);margin-right:0;max-w
 :root[data-theme="dark"] #installAppDialog a{color:#aed8ff;}
 .mb-install-card p{font-size:13px;line-height:1.9;}
 .mb-install-card #installAppStatus{color:var(--text-muted);}
-#gateInstallApp{display:block;width:100%;margin-top:14px;padding:10px;border:1px solid var(--medical-blue-border);border-radius:10px;background:var(--medical-blue-soft);color:var(--medical-blue-dark);font-size:13px;}
-:root[data-theme="dark"] #gateInstallApp{background:#181A2B;color:#fff;border-color:#383c55;}
 
 /* Device ergonomics: readable controls, safe areas and thumb navigation. */
 html{-webkit-text-size-adjust:100%;scroll-padding-bottom:90px;}
@@ -2064,7 +2062,7 @@ button,a,input,select,textarea{-webkit-tap-highlight-color:transparent;}
 #gateOverlay .gate-extras button { display:block; width:100%; margin:0; min-height:40px; padding:8px; border-radius:10px; border:1px solid var(--gate-line);
   background:var(--gate-field); color:var(--gate-text); font:inherit; font-size:12.5px; font-weight:700; cursor:pointer; }
 #gateOverlay .gate-extras button:hover { border-color:var(--gate-accent); color:var(--gate-accent); }
-#gateOverlay .gate-policy-links { margin:12px 0 0; color:var(--gate-muted); }
+#gateOverlay .gate-policy-links { margin:16px 0 0; padding-top:12px; border-top:1px solid var(--gate-line); color:var(--gate-muted); }
 #gateOverlay .gate-modal, #nameOverlay .gate-modal { scrollbar-width:thin; scrollbar-color:#9fc3e6 transparent; }
 #gateOverlay .gate-modal::-webkit-scrollbar { width:6px; }
 #gateOverlay .gate-modal::-webkit-scrollbar-thumb { background:#9fc3e6; border-radius:99px; }
@@ -2140,10 +2138,6 @@ button,a,input,select,textarea{-webkit-tap-highlight-color:transparent;}
       <p id="gateError" class="gate-message" role="status" aria-live="polite"></p>
       <button type="submit" class="btn-save gate-submit" id="gateSubmit">دخول</button>
     </form>
-    <div class="gate-extras">
-      <button type="button" id="gateInstallApp" data-install-app>تثبيت Medbrain</button>
-      <button type="button" class="mb-file-btn" id="gateFocusBtn" data-open-focus>مؤقّت الدراسة</button>
-    </div>
     <p class="gate-policy-links"><a href="./privacy.html">الخصوصية</a> · <a href="./delete-account.html">حذف الحساب</a> · <a href="./support.html">الدعم</a></p>
   </div>
 </div>
