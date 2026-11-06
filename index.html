@@ -2331,6 +2331,70 @@ body.ai-site-open .ai-fab, body.ai-fab-hidden .ai-fab { display:none; }
 .topic-section { margin-bottom:14px; }
 .topic-section-head { margin:10px 0 8px; font-size:14px; }
 @media (max-width:480px) { .topic-row { flex-wrap:wrap; } .topic-row-kinds { order:3; width:100%; justify-content:flex-start; } }
+
+/* ---------- Related materials bar + split screen beside the reader ---------- */
+.reader-related { display:flex; align-items:center; gap:8px; flex-wrap:wrap; padding:8px 18px; border-bottom:1px solid var(--border); background:color-mix(in srgb, var(--accent) 5%, var(--surface)); }
+.reader-related-label { font-size:12px; font-weight:800; color:var(--text-muted); margin-inline-end:4px; }
+.related-btn { display:inline-flex; align-items:center; gap:6px; height:34px; padding:0 13px; border-radius:999px; border:1.5px solid var(--border); background:var(--surface); color:var(--text); font:inherit; font-size:12.5px; font-weight:800; cursor:pointer; transition:border-color .15s ease, background .15s ease, transform .12s ease; }
+.related-btn svg { width:17px; height:17px; flex:0 0 auto; }
+.related-btn { white-space:nowrap; flex:0 0 auto; }
+.related-btn:hover { transform:translateY(-1px); }
+.related-btn:focus-visible { outline:3px solid var(--accent); outline-offset:2px; }
+.rel-questions { --rel:#e5534b; } .rel-flash { --rel:#7b45d1; } .rel-summary { --rel:#16a39a; } .rel-sources { --rel:#3a5bd9; }
+.related-btn { color:var(--rel); border-color:color-mix(in srgb, var(--rel) 35%, var(--border)); }
+.related-btn[aria-pressed="true"] { background:var(--rel); color:#fff; border-color:var(--rel); }
+.reader-side { position:absolute; z-index:6; display:flex; flex-direction:column; background:var(--surface); border-inline-start:1px solid var(--border); box-shadow:-12px 0 30px -18px rgba(12,32,52,.35); }
+.reader-side[hidden] { display:none; }
+.reader-side-head { display:flex; align-items:center; gap:10px; padding:12px 14px; border-bottom:1px solid var(--border); }
+.reader-side-head h3 { flex:1; margin:0; font-size:14.5px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.reader-side-close { width:34px; height:34px; border-radius:50%; border:1px solid var(--border); background:var(--surface); color:var(--text); cursor:pointer; font-size:14px; }
+.reader-side-grip { display:none; }
+.reader-side-body { flex:1; overflow-y:auto; padding:14px; overscroll-behavior:contain; }
+.side-list { display:flex; flex-direction:column; gap:8px; }
+.side-item { display:flex; flex-direction:column; gap:3px; text-align:start; padding:11px 13px; border-radius:12px; border:1px solid var(--border); background:var(--surface); color:var(--text); font:inherit; cursor:pointer; }
+.side-item:hover { border-color:var(--accent); }
+.side-item strong { font-size:13.5px; } .side-item span { font-size:11.5px; color:var(--text-muted); }
+.side-source { margin:0 0 8px; font-size:12px; font-weight:800; color:var(--accent-strong); }
+.side-text { font-size:15px; line-height:1.8; }
+.side-quiz-top { display:flex; flex-direction:column; gap:6px; margin-bottom:10px; }
+.side-quiz-top .deck-progress, .side-card-wrap .deck-progress { margin-bottom:6px; --c1:var(--accent); --c2:var(--accent-strong); }
+.side-quiz-prompt { font-size:15px; font-weight:700; line-height:1.75; padding:12px 14px; border-radius:14px; background:color-mix(in srgb, var(--accent) 7%, var(--surface)); margin-bottom:12px; }
+.side-option { display:grid; grid-template-columns:30px 1fr; gap:6px 10px; align-items:start; width:100%; text-align:start; margin-bottom:8px; padding:11px 12px; border-radius:14px; border:2px solid var(--border); background:var(--surface); color:var(--text); font:inherit; cursor:pointer; transition:border-color .15s ease, background .15s ease; }
+.side-option:hover { border-color:var(--accent); }
+.side-option-letter { width:28px; height:28px; border-radius:50%; display:grid; place-items:center; font-size:12px; font-weight:900; background:var(--accent-soft); color:var(--accent-strong); }
+.side-option-text { font-size:14px; line-height:1.6; padding-top:3px; }
+.side-option-why { grid-column:1 / -1; display:flex; flex-direction:column; gap:2px; font-size:13px; line-height:1.7; padding-top:6px; border-top:1px dashed currentColor; }
+.side-option-why span { text-align:start; }
+.side-option.is-right { border-color:#34a65a; background:color-mix(in srgb, #34a65a 10%, var(--surface)); }
+.side-option.is-right .side-option-letter { background:#34a65a; color:#fff; } .side-option.is-right .side-option-why b { color:#23733d; }
+.side-option.is-wrong { border-color:#e5534b; background:color-mix(in srgb, #e5534b 9%, var(--surface)); }
+.side-option.is-wrong .side-option-letter { background:#e5534b; color:#fff; } .side-option.is-wrong .side-option-why b { color:#a8322c; }
+.side-quiz-nav { display:flex; justify-content:space-between; gap:10px; margin-top:10px; }
+.side-quiz-nav .deck-pill:disabled { opacity:.45; cursor:default; }
+.side-card { --c1:var(--accent); --c2:var(--accent-strong); }
+.side-card .deck-face { min-height:220px; font-size:15.5px; padding:36px 16px 18px; }
+.reader.pdf-mode .reader-font-tools, .reader.pdf-mode #readerToTop, .reader.pdf-mode .reader-progress, .reader.pdf-mode .reader-stats #readerPercent { display:none; }
+.pdf-frame-wrap { position:relative; height:calc(100dvh - 230px); min-height:420px; }
+.pdf-frame { width:100%; height:100%; border:0; border-radius:12px; background:#fff; }
+.pdf-out { position:absolute; top:8px; inset-inline-start:10px; padding:5px 12px; border-radius:999px; background:var(--surface); border:1px solid var(--border); font-size:12px; font-weight:800; color:var(--accent-strong); text-decoration:none; }
+.pdf-open-card { max-width:420px; margin:30px auto; text-align:center; padding:26px 20px; border-radius:22px; border:2px solid var(--border); background:var(--surface); }
+.pdf-open-card h3 { margin:12px 0 6px; } .pdf-open-card p { color:var(--text-muted); font-size:13.5px; line-height:1.7; margin:0 0 16px; }
+.pdf-open-card .deck-flip-btn { display:inline-flex; align-items:center; justify-content:center; text-decoration:none; --c1:var(--accent); --c2:var(--accent-strong); }
+.pdf-open-icon { width:64px; height:64px; margin:0 auto; border-radius:18px; display:grid; place-items:center; font-weight:900; color:#fff; background:linear-gradient(135deg,#e5534b,#b93838); box-shadow:0 5px 0 #8f2a2a; }
+@media (min-width:900px) {
+  .reader-modal { position:relative; }
+  .reader-side { top:0; bottom:0; inset-inline-end:0; width:min(44%, 520px); }
+  .reader.side-open .reader-workspace, .reader.side-open .reader-related, .reader.side-open .reader-toolbar, .reader.side-open .reader-progress { margin-inline-end:min(44%, 520px); }
+}
+@media (max-width:899px) {
+  .reader-side { position:fixed; inset-inline:0; bottom:0; height:min(72dvh, 640px); border-radius:22px 22px 0 0; border-inline-start:0; border-top:1px solid var(--border); box-shadow:0 -14px 34px -16px rgba(12,32,52,.4); padding-bottom:env(safe-area-inset-bottom); animation:sideUp .28s cubic-bezier(.2,.9,.3,1); }
+  .reader-side-grip { display:block; position:absolute; top:6px; left:50%; width:42px; height:5px; margin-left:-21px; border-radius:99px; background:var(--border); }
+  .reader-side-head { padding-top:18px; }
+  .reader-related { padding:8px 12px; overflow-x:auto; flex-wrap:nowrap; scrollbar-width:none; }
+  .reader-related-label { display:none; }
+}
+@keyframes sideUp { from { transform:translateY(40px); opacity:0; } }
+@media (prefers-reduced-motion: reduce) { .reader-side { animation:none; } }
 </style>
 <link rel="manifest" href="./manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="192x192" href="./assets/app-icon-192.png">
@@ -2897,6 +2961,7 @@ body.ai-site-open .ai-fab, body.ai-fab-hidden .ai-fab { display:none; }
       <button type="button" id="readerToTop" class="reader-to-top">بداية النص ↑</button>
     </div>
 
+    <nav class="reader-related" id="readerRelated" aria-label="مواد مرتبطة بهذا الموضوع" hidden></nav>
     <progress class="reader-progress" id="readerProgress" max="100" value="0" aria-label="تقدم القراءة"></progress>
     <div class="reader-workspace" id="readerWorkspace">
       <div class="reader-layout no-outline" id="readerLayout">
@@ -2907,6 +2972,14 @@ body.ai-site-open .ai-fab, body.ai-fab-hidden .ai-fab { display:none; }
         <div class="reader-body" id="readerBody" dir="auto"></div>
       </div>
     </div>
+    <aside class="reader-side" id="readerSide" aria-labelledby="readerSideTitle" hidden>
+      <div class="reader-side-head">
+        <span class="reader-side-grip" aria-hidden="true"></span>
+        <h3 id="readerSideTitle"></h3>
+        <button type="button" class="reader-side-close" id="readerSideClose" aria-label="إغلاق اللوحة">✕</button>
+      </div>
+      <div class="reader-side-body" id="readerSideBody"></div>
+    </aside>
   </div>
 </div>
 
@@ -3569,7 +3642,11 @@ async function loadTopics() {
     .then(result => { if (result.error) throw result.error; return result.data; });
   const rows = (await Promise.all([page(0), page(1000), page(2000)])).flat();
   topicsById = new Map(rows.map(t => [t.id, t]));
+  const links = (await Promise.all([0, 1000, 2000].map(from => client.from('library_flashcard_topics').select('topic_id').range(from, from + 999)
+    .then(r => r.error ? [] : r.data)))).flat();
+  flashTopicIds = new Set(links.map(x => x.topic_id));
 }
+let flashTopicIds = new Set();
 async function loadLecturesFromSupabase() {
   loadTopics().catch(() => {}).then(() => { if (typeof render === 'function' && lectures.length) render(); });
   // The database is far away (Seoul), so pages are requested together rather than one after another.
@@ -4496,7 +4573,7 @@ function onContentClick(e) {
   const quizBtn = e.target.closest('[data-action="open-quiz"]');
   if (quizBtn) { openQuiz(quizBtn.dataset.id); return; }
   const pdfBtn = e.target.closest('[data-action="open-pdf"]');
-  if (pdfBtn) { openStoredPdf(pdfBtn.dataset.id, pdfBtn); return; }
+  if (pdfBtn) { openPdfInReader(pdfBtn.dataset.id); return; }
   const downloadBtn = e.target.closest('[data-action="download-pdf"]');
   if (downloadBtn) { openStoredPdf(downloadBtn.dataset.id, downloadBtn, true); return; }
   const sourceChip = e.target.closest('[data-action="select-source"]');
@@ -4560,7 +4637,7 @@ function onContentClick(e) {
 function openLectureCard(card) {
   const id = card.dataset.id;
   if (card.dataset.open === 'open-reader') openReader(id);
-  else if (card.dataset.open === 'open-pdf') openStoredPdf(id, card);
+  else if (card.dataset.open === 'open-pdf') openPdfInReader(id);
   else if (card.dataset.open === 'open-quiz') openQuiz(id);
   else if (card.dataset.open === 'open-link') {
     const link = safeExternalLink((lectures.find(l => l.id === id) || {}).link);
@@ -5304,6 +5381,148 @@ function wireAIChat() {
   });
 }
 
+// ---------- Related materials: one bar of icons, opened beside the current material ----------
+const RELATED_KINDS = [
+  ['questions', 'أسئلة', '<path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3"/><path d="M12 17h.01"/><circle cx="12" cy="12" r="9"/>'],
+  ['flash', 'فلاش كارد', '<rect x="3" y="6" width="14" height="14" rx="2"/><path d="M7 3h12a2 2 0 0 1 2 2v12"/>'],
+  ['summary', 'ملخص', '<path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M8 13h8M8 17h5"/>'],
+  ['sources', 'مصادر أخرى', '<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>']
+];
+let relatedLecture = null, sidePanelKind = null;
+function relatedFor(lec) {
+  const same = lec && lec.topicId ? lectures.filter(l => l.topicId === lec.topicId && l.id !== lec.id) : [];
+  return {
+    questions: same.filter(l => l.type === 'أسئلة' && l.questionCount > 0),
+    summary: same.filter(l => l.type === 'ملخص'),
+    sources: same.filter(l => l.type !== 'ملخص' && l.type !== 'أسئلة'),
+    flash: lec && lec.topicId && flashTopicIds.has(lec.topicId) ? [true] : []
+  };
+}
+function renderRelatedBar(lec) {
+  relatedLecture = lec;
+  const bar = document.getElementById('readerRelated');
+  const rel = relatedFor(lec);
+  const kinds = RELATED_KINDS.filter(([k]) => rel[k].length);
+  bar.hidden = !kinds.length;
+  bar.innerHTML = kinds.length ? '<span class="reader-related-label">مرتبط بهذا الموضوع</span>' + kinds.map(([k, label, icon]) =>
+    '<button type="button" class="related-btn rel-' + k + '" data-related="' + k + '" aria-pressed="' + (sidePanelKind === k) + '">' +
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + icon + '</svg><span>' + label + '</span></button>').join('') : '';
+  if (sidePanelKind && !rel[sidePanelKind].length) closeSidePanel();
+}
+function closeSidePanel() {
+  sidePanelKind = null;
+  document.getElementById('readerSide').hidden = true;
+  document.getElementById('readerOverlay').classList.remove('side-open');
+  document.querySelectorAll('#readerRelated .related-btn').forEach(b => b.setAttribute('aria-pressed', 'false'));
+}
+function openSidePanel(kind) {
+  if (sidePanelKind === kind) { closeSidePanel(); return; }
+  closeAIChat(false);
+  sidePanelKind = kind;
+  const label = (RELATED_KINDS.find(([k]) => k === kind) || [])[1] || '';
+  document.getElementById('readerSideTitle').textContent = label + ' · ' + topicName(relatedLecture.topicId);
+  const side = document.getElementById('readerSide');
+  side.hidden = false;
+  // On wide screens the panel sits under the reader header, so its close button stays reachable.
+  side.style.top = matchMedia('(min-width: 900px)').matches ? document.querySelector('#readerOverlay .reader-head').offsetHeight + 'px' : '';
+  document.getElementById('readerOverlay').classList.add('side-open');
+  document.querySelectorAll('#readerRelated .related-btn').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.related === kind)));
+  const body = document.getElementById('readerSideBody');
+  const rel = relatedFor(relatedLecture);
+  if (kind === 'flash') { body.innerHTML = '<div class="mb-empty-tool">جارٍ تحميل البطاقات…</div>'; loadSideFlashcards(relatedLecture.topicId); }
+  else if (kind === 'summary' && rel.summary.length === 1) openSideText(rel.summary[0].id);
+  else if (kind === 'questions' && rel.questions.length === 1) openSideQuiz(rel.questions[0].id);
+  else body.innerHTML = '<div class="side-list">' + rel[kind].slice().sort(browseLectureOrder).map(l =>
+    '<button type="button" class="side-item" data-side-open="' + escapeHtml(l.id) + '"><strong dir="auto">' + escapeHtml(l.title) + '</strong><span dir="auto">' + escapeHtml(sourceShort(l.source)) + (l.doctor && l.doctor !== 'غير محدد' ? ' · ' + escapeHtml(l.doctor) : '') + '</span></button>').join('') + '</div>';
+  body.scrollTop = 0;
+}
+async function openSideText(id) {
+  const l = lectures.find(x => x.id === id); if (!l) return;
+  const body = document.getElementById('readerSideBody');
+  body.innerHTML = '<div class="mb-empty-tool">جارٍ التحميل…</div>';
+  try { await ensureLectureDetails(l); } catch (_) { body.innerHTML = '<div class="mb-empty-tool">تعذّر التحميل.</div>'; return; }
+  body.innerHTML = '<p class="side-source" dir="auto">' + escapeHtml(sourceShort(l.source)) + '</p><div class="side-text" dir="auto">' + renderLectureText(l.text) + '</div>';
+}
+// Questions beside the lecture: tap an option to see if it is right and why, for every option.
+let sideQuiz = null;
+async function openSideQuiz(id) {
+  const l = lectures.find(x => x.id === id); if (!l) return;
+  const body = document.getElementById('readerSideBody');
+  body.innerHTML = '<div class="mb-empty-tool">جارٍ التحميل…</div>';
+  try { await ensureLectureDetails(l); validateQuestions(l.questions); } catch (_) { body.innerHTML = '<div class="mb-empty-tool">تعذّر فتح الأسئلة.</div>'; return; }
+  sideQuiz = { lecture: l, index: 0, picked: new Set() };
+  renderSideQuiz();
+}
+function renderSideQuiz() {
+  const { lecture, index, picked } = sideQuiz, qs = lecture.questions, q = qs[index];
+  const body = document.getElementById('readerSideBody');
+  body.innerHTML = '<div class="side-quiz">' +
+    '<div class="side-quiz-top"><span class="side-source" dir="auto">' + escapeHtml(sourceShort(lecture.source)) + '</span><div class="deck-progress"><span style="width:' + ((index + 1) / qs.length * 100) + '%"></span></div></div>' +
+    '<div class="side-quiz-prompt" dir="auto">' + escapeHtml(q.prompt).replace(/\n/g, '<br>') + '</div>' +
+    q.options.map((o, i) => {
+      const shown = picked.has(i), ok = i === q.correctIndex;
+      return '<button type="button" class="side-option' + (shown ? (ok ? ' is-right' : ' is-wrong') : '') + '" data-side-option="' + i + '" aria-expanded="' + shown + '">' +
+        '<span class="side-option-letter">' + 'ABCD'[i] + '</span><span class="side-option-text" dir="auto">' + escapeHtml(o.text) + '</span>' +
+        (shown ? '<span class="side-option-why"><b>' + (ok ? 'صحيح ✓' : 'خطأ ✗') + '</b><span dir="auto">' + escapeHtml(o.explanation) + '</span></span>' : '') + '</button>';
+    }).join('') +
+    '<div class="side-quiz-nav"><button type="button" class="deck-pill" data-side-quiz="prev"' + (index ? '' : ' disabled') + '>السابق ›</button>' +
+    '<button type="button" class="deck-pill" data-side-quiz="next"' + (index < qs.length - 1 ? '' : ' disabled') + '>‹ التالي</button></div></div>';
+}
+// Flashcards on this topic, one at a time, flip and move on.
+let sideCards = [], sideCardIndex = 0, sideCardFlipped = false;
+async function loadSideFlashcards(topicId) {
+  const result = await client.from('library_flashcard_topics').select('library_flashcards(id,kind,front,back,extra)').eq('topic_id', topicId).limit(80);
+  sideCards = result.error ? [] : (result.data || []).map(r => r.library_flashcards).filter(Boolean);
+  sideCardIndex = 0; sideCardFlipped = false;
+  renderSideCard();
+}
+function renderSideCard() {
+  const body = document.getElementById('readerSideBody');
+  if (!sideCards.length) { body.innerHTML = '<div class="mb-empty-tool">لا توجد بطاقات لهذا الموضوع.</div>'; return; }
+  const c = sideCards[sideCardIndex];
+  const back = c.kind === 'cloze' ? c.back : '<div class="deck-q">' + c.front + '</div><hr>' + (c.back || '');
+  body.innerHTML = '<div class="side-card-wrap"><div class="deck-progress"><span style="width:' + ((sideCardIndex + 1) / sideCards.length * 100) + '%"></span></div>' +
+    '<article class="deck-card side-card' + (sideCardFlipped ? ' is-flipped' : '') + '" data-side-card tabindex="0" aria-label="البطاقة. اضغط لقلبها">' +
+    '<div class="deck-face deck-front"><span class="deck-face-tag">سؤال</span><div class="deck-card-body">' + safeCardHtml(c.front) + '</div><span class="deck-tap">اضغط لقلب البطاقة</span></div>' +
+    '<div class="deck-face deck-back"><span class="deck-face-tag">إجابة</span><div class="deck-card-body">' + safeCardHtml(back) + '</div>' +
+    (c.extra ? '<div class="deck-card-extra">' + safeCardHtml(c.extra) + '</div>' : '') + '</div></article>' +
+    '<div class="side-quiz-nav"><button type="button" class="deck-pill" data-side-cardnav="prev"' + (sideCardIndex ? '' : ' disabled') + '>السابقة ›</button>' +
+    '<button type="button" class="deck-pill" data-side-cardnav="next"' + (sideCardIndex < sideCards.length - 1 ? '' : ' disabled') + '>‹ التالية</button></div></div>';
+}
+// Opens any material in the reader: text, PDF or question set.
+function openMaterialInReader(id) {
+  const l = lectures.find(x => x.id === id); if (!l) return;
+  if (lectureHasText(l)) openReader(id);
+  else if (l.filePath) openPdfInReader(id);
+  else if (l.type === 'أسئلة' && l.questionCount > 0) openQuiz(id);
+}
+async function openPdfInReader(id) {
+  const lec = lectures.find(l => l.id === id);
+  if (!lec || !lec.filePath || !client) return;
+  readerLectureId = lec.id;
+  quizState = null;
+  const body = document.getElementById('readerBody');
+  body.classList.remove('quiz-body');
+  document.getElementById('readerTitle').textContent = lec.title;
+  document.getElementById('readerMeta').textContent = [lec.source, lec.doctor && lec.doctor !== 'غير محدد' ? lec.doctor : '', lec.category, lec.topic].filter(Boolean).join(' · ');
+  document.getElementById('readerTime').textContent = 'ملف PDF';
+  document.getElementById('readerLayout').classList.add('no-outline');
+  document.getElementById('readerOverlay').classList.add('pdf-mode');
+  body.innerHTML = '<div class="mb-empty-tool">جارٍ فتح الملف…</div>';
+  renderRelatedBar(lec);
+  openReaderSurface();
+  try {
+    const { url } = await callLectureFile('open', JSON.stringify({ lecture_id: lec.id }), 'application/json');
+    if (!safeExternalLink(url) || readerLectureId !== lec.id) return;
+    // Phones usually cannot show a PDF inside a page, so they get a clear button instead of a blank frame.
+    const inline = navigator.pdfViewerEnabled !== false && !matchMedia('(pointer: coarse)').matches;
+    body.innerHTML = inline
+      ? '<div class="pdf-frame-wrap"><iframe class="pdf-frame" src="' + escapeHtml(url) + '#view=FitH" title="' + escapeHtml(lec.title) + '"></iframe><a class="pdf-out" href="' + escapeHtml(url) + '" target="_blank" rel="noopener noreferrer">فتح في تبويب جديد ↗</a></div>'
+      : '<div class="pdf-open-card"><div class="pdf-open-icon" aria-hidden="true">PDF</div><h3 dir="auto">' + escapeHtml(lec.title) + '</h3><p>يفتح الملف في عارض PDF، ويمكنك الرجوع هنا لرؤية الأسئلة والبطاقات المرتبطة.</p><a class="deck-flip-btn" href="' + escapeHtml(url) + '" target="_blank" rel="noopener noreferrer">فتح PDF</a></div>';
+  } catch (_) {
+    body.innerHTML = '<div class="mb-empty-tool">تعذّر فتح PDF. تحقق من الاتصال وأعد المحاولة.</div>';
+  }
+}
 async function openReader(id) {
   const lec = lectures.find(l => l.id === id);
   if (!lec) return;
@@ -5313,7 +5532,9 @@ async function openReader(id) {
   document.getElementById('readerBody').classList.remove('quiz-body');
   document.getElementById('readerTitle').textContent = lec.title;
   document.getElementById('readerMeta').textContent = [lec.source, lec.category, lec.topic, lec.type].filter(Boolean).join(' · ');
+  document.getElementById('readerOverlay').classList.remove('pdf-mode');
   document.getElementById('readerBody').innerHTML = renderLectureText(lec.text);
+  renderRelatedBar(lec);
   const words = String(lec.text || '').trim().split(/\s+/).filter(Boolean).length;
   document.getElementById('readerTime').textContent = 'قراءة تقديرية: ' + Math.max(1, Math.ceil(words / 180)) + ' دقيقة';
   buildReaderContents();
@@ -5321,7 +5542,10 @@ async function openReader(id) {
 }
 function closeReader() {
   closeAIChat(false);
+  closeSidePanel();
   readerLectureId=null;
+  document.getElementById('readerOverlay').classList.remove('pdf-mode');
+  const frame = document.querySelector('#readerBody .pdf-frame'); if (frame) frame.remove();
 
   quizState = null;
   const overlay = document.getElementById('readerOverlay');
@@ -5331,7 +5555,29 @@ function closeReader() {
   if (readerReturnFocus && readerReturnFocus.isConnected) readerReturnFocus.focus();
   readerReturnFocus = null;
 }
+function wireRelatedTools() {
+  document.getElementById('readerRelated').addEventListener('click', e => { const b = e.target.closest('[data-related]'); if (b) openSidePanel(b.dataset.related); });
+  document.getElementById('readerSideClose').addEventListener('click', closeSidePanel);
+  document.getElementById('readerSideBody').addEventListener('click', e => {
+    const item = e.target.closest('[data-side-open]');
+    if (item) {
+      const l = lectures.find(x => x.id === item.dataset.sideOpen);
+      if (sidePanelKind === 'summary') openSideText(l.id);
+      else if (sidePanelKind === 'questions') openSideQuiz(l.id);
+      else { closeSidePanel(); openMaterialInReader(l.id); }
+      return;
+    }
+    const opt = e.target.closest('[data-side-option]');
+    if (opt && sideQuiz) { const i = Number(opt.dataset.sideOption); sideQuiz.picked.has(i) ? sideQuiz.picked.delete(i) : sideQuiz.picked.add(i); renderSideQuiz(); return; }
+    const qn = e.target.closest('[data-side-quiz]');
+    if (qn && sideQuiz) { sideQuiz.index += qn.dataset.sideQuiz === 'next' ? 1 : -1; sideQuiz.picked = new Set(); renderSideQuiz(); return; }
+    const cn = e.target.closest('[data-side-cardnav]');
+    if (cn) { sideCardIndex += cn.dataset.sideCardnav === 'next' ? 1 : -1; sideCardFlipped = false; renderSideCard(); return; }
+    if (e.target.closest('[data-side-card]')) { sideCardFlipped = !sideCardFlipped; e.target.closest('[data-side-card]').classList.toggle('is-flipped', sideCardFlipped); }
+  });
+}
 function wireReaderTools() {
+  wireRelatedTools();
   document.getElementById('readerAIButton').addEventListener('click', () => {if(document.getElementById('readerOverlay').classList.contains('ai-reader-open'))closeAIChat();else openAIChat(readerLectureId);});
   document.getElementById('readerThemeToggle').addEventListener('click', () => {
     toggleSiteTheme();
@@ -6031,6 +6277,8 @@ async function openQuiz(id) {
   try { await ensureLectureDetails(material); } catch (_) { alert('تعذّر فتح الأسئلة. تحقق من الاتصال وأعد المحاولة.'); return; }
   try { validateQuestions(material.questions); } catch (_) { alert('هذه المجموعة تحتاج مراجعة الأسئلة من المحرر.'); return; }
   quizState = { material, index: 0, answers: [] };
+  document.getElementById('readerOverlay').classList.remove('pdf-mode');
+  renderRelatedBar(material);
   document.getElementById('readerTitle').textContent = material.title;
   document.getElementById('readerMeta').textContent = [material.source, material.topic, 'أسئلة تفاعلية'].filter(Boolean).join(' · ');
   document.getElementById('readerBody').classList.add('quiz-body');
