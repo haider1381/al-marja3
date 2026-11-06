@@ -2310,6 +2310,27 @@ body.ai-site-open .ai-fab, body.ai-fab-hidden .ai-fab { display:none; }
   .deck-flip-btn { min-width:0; width:100%; }
   .deck-pill { padding:0 11px; }
 }
+
+/* ---------- Study guide: topic rows and the topic page ---------- */
+.topic-rows { display:flex; flex-direction:column; gap:8px; }
+.topic-row { display:flex; align-items:center; gap:12px; width:100%; text-align:start; padding:12px 14px; border-radius:14px; border:1px solid var(--border); background:var(--surface); color:var(--text); font:inherit; cursor:pointer; transition:border-color .15s ease, transform .15s ease; }
+.topic-row:hover { border-color:var(--accent); transform:translateY(-1px); }
+.topic-row:focus-visible { outline:3px solid var(--accent); outline-offset:2px; }
+.topic-row-main { flex:1; min-width:0; display:flex; flex-direction:column; gap:5px; }
+.topic-row-name { font-size:14.5px; font-weight:800; }
+.topic-row-sources { display:flex; flex-wrap:wrap; gap:4px; }
+.topic-row-sources span { font-size:11px; font-weight:700; color:var(--text-muted); background:var(--accent-soft); padding:1px 8px; border-radius:999px; }
+.topic-row-kinds { display:flex; flex-wrap:wrap; gap:4px; justify-content:flex-end; }
+.type-badge { display:inline-block; padding:2px 8px; border-radius:999px; font-size:10.5px; font-weight:800; background:var(--accent-soft); color:var(--accent-strong); }
+.topic-row-arrow { color:var(--text-muted); font-size:18px; }
+.topic-head { display:flex; flex-direction:column; gap:2px; margin:4px 0 12px; }
+.topic-head h3 { margin:0; font-size:19px; }
+.topic-head span { font-size:12.5px; color:var(--text-muted); }
+.source-filter { margin-bottom:12px; }
+.source-filter .chip.active { background:var(--accent); color:#fff; border-color:var(--accent); }
+.topic-section { margin-bottom:14px; }
+.topic-section-head { margin:10px 0 8px; font-size:14px; }
+@media (max-width:480px) { .topic-row { flex-wrap:wrap; } .topic-row-kinds { order:3; width:100%; justify-content:flex-start; } }
 </style>
 <link rel="manifest" href="./manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="192x192" href="./assets/app-icon-192.png">
@@ -3513,7 +3534,7 @@ function rowToLecture(r) {
     topic: r.topic, type: r.type, link: r.link, text: r.lecture_text,
     notes: r.notes, createdAt: r.created_at,
     filePath: r.file_path || null, questions: Array.isArray(r.questions) ? r.questions : [],
-    stage: r.stage || null, doctor: r.doctor || null,
+    stage: r.stage || null, doctor: r.doctor || null, topicId: r.topic_id || null,
     // The library list omits lecture_text and questions; ensureLectureDetails fetches them on open.
     detailsLoaded: 'lecture_text' in r,
     hasText: 'has_text' in r ? !!r.has_text : !!(r.lecture_text && r.lecture_text.trim()),
@@ -3541,11 +3562,20 @@ function lectureToRow(data) {
 function assertEditor() {
   if (!client || !canWrite) throw new Error('editor_required');
 }
+// Topics are the hubs of the study guide; every material from every source links to one.
+let topicsById = new Map();
+async function loadTopics() {
+  const page = from => client.from('topics').select('id,name,category,branch,sort').range(from, from + 999)
+    .then(result => { if (result.error) throw result.error; return result.data; });
+  const rows = (await Promise.all([page(0), page(1000), page(2000)])).flat();
+  topicsById = new Map(rows.map(t => [t.id, t]));
+}
 async function loadLecturesFromSupabase() {
+  loadTopics().catch(() => {}).then(() => { if (typeof render === 'function' && lectures.length) render(); });
   // The database is far away (Seoul), so pages are requested together rather than one after another.
   const pageSize = 500, parallel = 4;
   const page = offset => client.from('lectures')
-    .select('id,title,source,category,topic,type,link,notes,created_at,file_path,has_text,question_count,stage,doctor')
+    .select('id,title,source,category,topic,type,link,notes,created_at,file_path,has_text,question_count,stage,doctor,topic_id')
     .order('created_at', { ascending: false }).order('id', { ascending: false })
     .range(offset, offset + pageSize - 1)
     .then(result => { if (result.error) throw result.error; return result.data; });
@@ -3599,7 +3629,7 @@ const state = {
   selectedTopic: null,
   selectedType: null,
   search: '', filterSource: '', filterTopic: '', filterKind: '', filterCategory: '',
-  browse: { category: null, topic: null, source: null, type: null, stage: null, doctor: null, fromSource: false }
+  browse: { category: null, topic: null, source: null, type: null, stage: null, doctor: null, hub: null, hubSource: null, fromSource: false }
 };
 
 // ---------------- Icons ----------------
@@ -4059,9 +4089,17 @@ function orderedValues(values, preferred) {
   const rank = v => { const i = preferred.indexOf(v); return i < 0 ? preferred.length : i; };
   return unique.sort((a, b) => rank(a) - rank(b) || a.localeCompare(b, 'ar'));
 }
-const BROWSE_KEY = { category: l => l.category, topic: l => l.topic || 'أخرى', source: l => l.source || 'غير محدد', type: l => l.type || 'أخرى', stage: l => l.stage ? String(l.stage) : 'غير محدد', doctor: l => l.doctor || 'غير محدد' };
+const BROWSE_KEY = { category: l => l.category, topic: l => l.topic || 'أخرى', source: l => l.source || 'غير محدد', type: l => l.type || 'أخرى', stage: l => l.stage ? String(l.stage) : 'غير محدد', doctor: l => l.doctor || 'غير محدد', hub: l => l.topicId || 'title:' + subjectKeyOf(l.title) };
 const STAGE_NAMES = { 1: 'الأولى', 2: 'الثانية', 3: 'الثالثة', 4: 'الرابعة', 5: 'الخامسة', 6: 'السادسة' };
+function subjectKeyOf(title) { return String(title || '').toLowerCase().replace(/\(part\s*\d+\)|[^a-z0-9\u0600-\u06ff]+/g, ' ').trim(); }
+function topicName(id, fallbackPool) {
+  const t = topicsById.get(id);
+  if (t) return t.name;
+  const l = (fallbackPool || lectures).find(x => (x.topicId || 'title:' + subjectKeyOf(x.title)) === id);
+  return l ? l.title : id;
+}
 function browseLabel(level, value) {
+  if (level === 'hub') return topicName(value);
   if (level === 'type') return TYPE_LABELS[value] || value;
   if (level === 'stage') return STAGE_NAMES[value] ? 'المرحلة ' + STAGE_NAMES[value] : 'مرحلة غير محددة';
   if (level === 'doctor' && value === 'غير محدد') return 'دكاترة آخرون';
@@ -4075,18 +4113,24 @@ function browseLevels() {
     const early = b.stage && Number(b.stage) <= 3;
     return [['stage', ['1', '2', '3', '4', '5', '6'], false], early ? ['topic', null, false] : ['category', CATEGORY_ORDER, false], ['doctor', [], true], ['type', TYPE_ORDER, true]];
   }
-  return [['category', CATEGORY_ORDER, false], ['topic', null, false], ['source', [], true], ['type', TYPE_ORDER, true]];
+  if (b.fromSource) return [['category', CATEGORY_ORDER, false], ['topic', null, false], ['source', [], true], ['type', TYPE_ORDER, true]];
+  return [['category', CATEGORY_ORDER, false], ['topic', null, false], ['hub', [], false]];
+}
+function hubOrder(pool) {
+  const first = new Map();
+  pool.slice().sort(browseLectureOrder).forEach((l, i) => { const k = BROWSE_KEY.hub(l); if (!first.has(k)) first.set(k, { i, intro: introRank(l), sort: (topicsById.get(k) || {}).sort ?? 1 }); });
+  return [...first.keys()].sort((a, b) => first.get(a).sort - first.get(b).sort || first.get(a).intro - first.get(b).intro || first.get(a).i - first.get(b).i);
 }
 function browsePath() {
   // Resolve each level; a level with a single option (source, doctor or type) is skipped automatically.
   const b = state.browse;
-  const path = { category: null, topic: null, source: null, type: null, stage: null, doctor: null, level: 'list', options: [],
+  const path = { category: null, topic: null, source: null, type: null, stage: null, doctor: null, hub: null, level: 'list', options: [],
     pool: lectures.filter(l => (!state.filterKind || materialGroup(l.type) === state.filterKind) &&
       (!b.fromSource || (l.source || 'غير محدد') === b.source)) };
   const levels = browseLevels();
   path.keys = levels.map(([key]) => key);
   for (const [key, preferred, skipSingle] of levels) {
-    const options = orderedValues(path.pool.map(BROWSE_KEY[key]), preferred || TOPICS[path.category] || []);
+    const options = key === 'hub' ? hubOrder(path.pool) : orderedValues(path.pool.map(BROWSE_KEY[key]), preferred || TOPICS[path.category] || []);
     if (b[key] && options.includes(b[key])) path[key] = b[key];
     else if (skipSingle && options.length === 1) path[key] = options[0];
     else { path.level = key; path.options = options; return path; }
@@ -4108,10 +4152,12 @@ function renderBrowse() {
       ? '<span aria-current="page" dir="auto">' + escapeHtml(label) + '</span>'
       : '<button type="button" data-action="browse-to" data-level="' + level + '" dir="auto">' + escapeHtml(label) + '</button>'
   ).join('<span class="sep" aria-hidden="true">›</span>') + '</nav>';
+  if (path.level === 'list' && path.hub) return html + renderTopicPage(path);
   if (path.level === 'list') {
     const list = path.pool.slice().sort(browseLectureOrder);
     return html + (list.length ? renderLectureList(list) : '<div class="empty">لا توجد مواد هنا بعد.</div>');
   }
+  if (path.level === 'hub') return html + '<p class="section-label">اختر الموضوع</p>' + renderTopicRows(path);
   if (!path.options.length) return html + '<div class="empty">لا توجد مواد هنا بعد.</div>';
   const prompts = { category: 'اختر التخصص', topic: path.keys[0] === 'stage' ? 'اختر المادة' : 'اختر الفرع', source: 'اختر المصدر', type: 'اختر النوع', stage: 'اختر المرحلة', doctor: 'اختر الدكتور' };
   if (path.level === 'category' && !b.fromSource) {
@@ -4125,12 +4171,51 @@ function renderBrowse() {
     '<span>' + escapeHtml(browseLabel(path.level, value)) + '</span></button>').join('');
   return html + '</div>';
 }
+const TYPE_SHORT = { 'محاضرة': 'PDF', 'ملف PDF': 'PDF', 'ملخص': 'ملخص', 'أسئلة': 'أسئلة', 'فيديو': 'فيديو', 'أخرى': 'أخرى' };
+function sourceShort(src) { return String(src || 'غير محدد').replace(/^محاضرات\s+/, '').replace(/^دكتور\s+/, 'د. '); }
+function renderTopicRows(path) {
+  const groups = new Map();
+  path.pool.forEach(l => { const k = BROWSE_KEY.hub(l); if (!groups.has(k)) groups.set(k, []); groups.get(k).push(l); });
+  return '<div class="topic-rows">' + path.options.map(k => {
+    const items = groups.get(k) || [];
+    const kinds = orderedValues(items.map(l => TYPE_SHORT[l.type] || 'أخرى'), ['PDF', 'ملخص', 'أسئلة', 'فيديو', 'أخرى']);
+    const sources = orderedValues(items.map(l => sourceShort(l.source)), []);
+    return '<button type="button" class="topic-row" data-action="browse" data-level="hub" data-value="' + escapeHtml(k) + '">' +
+      '<span class="topic-row-main"><span class="topic-row-name" dir="auto">' + escapeHtml(topicName(k, items)) + '</span>' +
+      '<span class="topic-row-sources" dir="auto">' + sources.map(x => '<span>' + escapeHtml(x) + '</span>').join('') + '</span></span>' +
+      '<span class="topic-row-kinds">' + kinds.map(x => '<span class="type-badge">' + escapeHtml(x) + '</span>').join('') + '</span>' +
+      '<span class="topic-row-arrow" aria-hidden="true">‹</span></button>';
+  }).join('') + '</div>';
+}
+// One topic, every source: filter by source, materials grouped by kind.
+function renderTopicPage(path) {
+  const b = state.browse;
+  const sources = orderedValues(path.pool.map(l => l.source || 'غير محدد'), []);
+  const pick = b.hubSource && sources.includes(b.hubSource) ? b.hubSource : null;
+  const pool = pick ? path.pool.filter(l => (l.source || 'غير محدد') === pick) : path.pool;
+  let html = '<div class="topic-head"><h3 dir="auto">' + escapeHtml(topicName(path.hub, path.pool)) + '</h3><span dir="auto">' + escapeHtml([path.category, path.topic].filter(Boolean).join(' · ')) + '</span></div>';
+  if (sources.length > 1) html += '<p class="section-label">المصادر التي كتبت عن هذا الموضوع</p><div class="chip-grid source-filter">' +
+    ['', ...sources].map(src => '<button type="button" class="chip' + ((src || null) === pick ? ' active' : '') + '" data-action="hub-source" data-value="' + escapeHtml(src) + '" aria-pressed="' + ((src || null) === pick) + '" dir="auto">' + escapeHtml(src ? sourceShort(src) : 'كل المصادر') + '</button>').join('') + '</div>';
+  const types = orderedValues(pool.map(l => l.type || 'أخرى'), TYPE_ORDER);
+  return html + types.map(type => '<section class="topic-section"><h4 class="topic-section-head">' + escapeHtml(TYPE_LABELS[type] || type) + '</h4>' +
+    renderLectureList(pool.filter(l => (l.type || 'أخرى') === type).sort(browseLectureOrder)) + '</section>').join('');
+}
+// From any lecture (search, a source, a doctor) jump to its topic with every source side by side.
+function openTopicHub(topicId) {
+  const l = lectures.find(x => x.topicId === topicId); if (!l) return;
+  state.search = ''; state.filterSource = state.filterTopic = state.filterCategory = '';
+  const input = document.getElementById('librarySearchInput'); if (input) input.value = '';
+  state.browse = { category: l.category, topic: l.topic || 'أخرى', source: null, type: null, stage: null, doctor: null, hub: topicId, hubSource: null, fromSource: false };
+  render();
+  document.getElementById('content').scrollIntoView({ block: 'start', behavior: document.documentElement.dataset.motion === 'reduce' ? 'auto' : 'smooth' });
+}
 function browseTo(level, value) {
   const b = state.browse;
   // Stage decides whether the next level is a specialty or a subject, so set it before reading the order.
   if (level === 'stage' && value !== undefined) b.stage = value;
   const order = browseLevels().map(([key]) => key);
-  if (level === 'from-source') { b.category = b.topic = b.type = b.stage = b.doctor = null; render(); return; }
+  b.hubSource = null;
+  if (level === 'from-source') { b.category = b.topic = b.type = b.stage = b.doctor = b.hub = null; render(); return; }
   if (level === 'root') b.fromSource = false;
   const lockedSource = b.fromSource ? b.source : null;
   const i = level === 'root' ? -1 : order.indexOf(level);
@@ -4293,6 +4378,14 @@ function renderTopicMode() {
 // Building every row at once is slow on older phones, so the list grows in pages.
 const LECTURE_PAGE = 60;
 let lectureListLimit = LECTURE_PAGE, lectureListKey = '';
+let topicCountCache = null;
+function topicSiblings(l) {
+  if (!topicCountCache || topicCountCache.n !== lectures.length) {
+    const m = new Map(); lectures.forEach(x => { if (x.topicId) m.set(x.topicId, (m.get(x.topicId) || 0) + 1); });
+    topicCountCache = { n: lectures.length, m };
+  }
+  return (topicCountCache.m.get(l.topicId) || 0) > 1;
+}
 function renderLectureList(list) {
   const key = list.length + ':' + (list[0] && list[0].id) + ':' + (list[list.length - 1] && list[list.length - 1].id);
   if (key !== lectureListKey) { lectureListKey = key; lectureListLimit = LECTURE_PAGE; }
@@ -4320,6 +4413,7 @@ function renderLectureList(list) {
       </div>
       <div class="actions">
         <button type="button" class="${favoriteRecords.has(l.id) ? 'favorite-saved' : ''}" data-action="toggle-favorite" data-id="${escapeHtml(l.id)}" aria-label="${favoriteRecords.has(l.id) ? 'إزالة من المفضلات' : 'إضافة إلى المفضلات'}" aria-pressed="${favoriteRecords.has(l.id)}" ${favoritePending.has(l.id) ? 'disabled' : ''}>${ICONS.bookmark}</button>
+        ${l.topicId && state.browse.hub !== l.topicId && topicSiblings(l) ? `<button type="button" class="read topic-jump" data-action="open-topic" data-topic="${escapeHtml(l.topicId)}" aria-label="كل المصادر لموضوع ${escapeHtml(topicName(l.topicId))}" title="كل المصادر لهذا الموضوع">${ICONS.book}</button>` : ''}
         ${hasQuiz && openAction !== 'open-quiz' ? `<button type="button" class="read" data-action="open-quiz" data-id="${escapeHtml(l.id)}" aria-label="بدء الأسئلة">${ICONS.help}</button>` : ''}
         ${l.filePath && openAction !== 'open-pdf' ? `<button type="button" class="read" data-action="open-pdf" data-id="${escapeHtml(l.id)}" aria-label="فتح PDF" title="فتح PDF">${ICONS.file}</button>` : ''}
         ${l.filePath ? `<button type="button" class="read" data-action="download-pdf" data-id="${escapeHtml(l.id)}" aria-label="تنزيل PDF" title="تنزيل PDF">${ICONS.download}</button>` : ''}
@@ -4384,6 +4478,10 @@ function wireStaticEvents() {
 }
 
 function onContentClick(e) {
+  const hubSrc = e.target.closest('[data-action="hub-source"]');
+  if (hubSrc) { state.browse.hubSource = hubSrc.dataset.value || null; render(); return; }
+  const toTopic = e.target.closest('[data-action="open-topic"]');
+  if (toTopic) { e.stopPropagation(); openTopicHub(toTopic.dataset.topic); return; }
   const uni = e.target.closest('[data-action="browse-uni"]');
   if (uni) { state.browse = browseStartFor('source', uni.dataset.value); render(); return; }
   const browseChip = e.target.closest('[data-action="browse"]');
@@ -5672,7 +5770,7 @@ function renderSearchSuggestions(input) {
   positionSearchSuggestions();
 }
 function browseStartFor(kind, label) {
-  const start = { category: null, topic: null, source: null, type: null, stage: null, doctor: null, fromSource: false };
+  const start = { category: null, topic: null, source: null, type: null, stage: null, doctor: null, hub: null, hubSource: null, fromSource: false };
   if (kind === 'category') start.category = label;
   else if (kind === 'source') { start.source = label; start.fromSource = true; }
   else if (kind === 'topic') {
