@@ -3513,6 +3513,7 @@ function rowToLecture(r) {
     topic: r.topic, type: r.type, link: r.link, text: r.lecture_text,
     notes: r.notes, createdAt: r.created_at,
     filePath: r.file_path || null, questions: Array.isArray(r.questions) ? r.questions : [],
+    stage: r.stage || null, doctor: r.doctor || null,
     // The library list omits lecture_text and questions; ensureLectureDetails fetches them on open.
     detailsLoaded: 'lecture_text' in r,
     hasText: 'has_text' in r ? !!r.has_text : !!(r.lecture_text && r.lecture_text.trim()),
@@ -3544,7 +3545,7 @@ async function loadLecturesFromSupabase() {
   // The database is far away (Seoul), so pages are requested together rather than one after another.
   const pageSize = 500, parallel = 4;
   const page = offset => client.from('lectures')
-    .select('id,title,source,category,topic,type,link,notes,created_at,file_path,has_text,question_count')
+    .select('id,title,source,category,topic,type,link,notes,created_at,file_path,has_text,question_count,stage,doctor')
     .order('created_at', { ascending: false }).order('id', { ascending: false })
     .range(offset, offset + pageSize - 1)
     .then(result => { if (result.error) throw result.error; return result.data; });
@@ -3598,7 +3599,7 @@ const state = {
   selectedTopic: null,
   selectedType: null,
   search: '', filterSource: '', filterTopic: '', filterKind: '', filterCategory: '',
-  browse: { category: null, topic: null, source: null, type: null, fromSource: false }
+  browse: { category: null, topic: null, source: null, type: null, stage: null, doctor: null, fromSource: false }
 };
 
 // ---------------- Icons ----------------
@@ -4058,14 +4059,32 @@ function orderedValues(values, preferred) {
   const rank = v => { const i = preferred.indexOf(v); return i < 0 ? preferred.length : i; };
   return unique.sort((a, b) => rank(a) - rank(b) || a.localeCompare(b, 'ar'));
 }
-const BROWSE_KEY = { category: l => l.category, topic: l => l.topic || 'أخرى', source: l => l.source || 'غير محدد', type: l => l.type || 'أخرى' };
-function browsePath() {
-  // Resolve each level; a level with a single option (source or type) is skipped automatically.
+const BROWSE_KEY = { category: l => l.category, topic: l => l.topic || 'أخرى', source: l => l.source || 'غير محدد', type: l => l.type || 'أخرى', stage: l => l.stage ? String(l.stage) : 'غير محدد', doctor: l => l.doctor || 'غير محدد' };
+const STAGE_NAMES = { 1: 'الأولى', 2: 'الثانية', 3: 'الثالثة', 4: 'الرابعة', 5: 'الخامسة', 6: 'السادسة' };
+function browseLabel(level, value) {
+  if (level === 'type') return TYPE_LABELS[value] || value;
+  if (level === 'stage') return STAGE_NAMES[value] ? 'المرحلة ' + STAGE_NAMES[value] : 'مرحلة غير محددة';
+  if (level === 'doctor' && value === 'غير محدد') return 'دكاترة آخرون';
+  return value;
+}
+// Universities with stage data are browsed stage → specialty (subject for stages 1–3) → doctor → lectures.
+function universitySources() { return orderedValues(lectures.filter(l => l.stage).map(l => l.source || 'غير محدد'), []); }
+function browseLevels() {
   const b = state.browse;
-  const path = { category: null, topic: null, source: null, type: null, level: 'list', options: [],
+  if (b.fromSource && lectures.some(l => l.stage && (l.source || 'غير محدد') === b.source)) {
+    const early = b.stage && Number(b.stage) <= 3;
+    return [['stage', ['1', '2', '3', '4', '5', '6'], false], early ? ['topic', null, false] : ['category', CATEGORY_ORDER, false], ['doctor', [], true], ['type', TYPE_ORDER, true]];
+  }
+  return [['category', CATEGORY_ORDER, false], ['topic', null, false], ['source', [], true], ['type', TYPE_ORDER, true]];
+}
+function browsePath() {
+  // Resolve each level; a level with a single option (source, doctor or type) is skipped automatically.
+  const b = state.browse;
+  const path = { category: null, topic: null, source: null, type: null, stage: null, doctor: null, level: 'list', options: [],
     pool: lectures.filter(l => (!state.filterKind || materialGroup(l.type) === state.filterKind) &&
       (!b.fromSource || (l.source || 'غير محدد') === b.source)) };
-  const levels = [['category', CATEGORY_ORDER, false], ['topic', null, false], ['source', [], true], ['type', TYPE_ORDER, true]];
+  const levels = browseLevels();
+  path.keys = levels.map(([key]) => key);
   for (const [key, preferred, skipSingle] of levels) {
     const options = orderedValues(path.pool.map(BROWSE_KEY[key]), preferred || TOPICS[path.category] || []);
     if (b[key] && options.includes(b[key])) path[key] = b[key];
@@ -4081,8 +4100,8 @@ function renderBrowse() {
   const b = state.browse;
   const crumbs = [['root', 'كل التخصصات']];
   if (b.fromSource && b.source) crumbs.push(['from-source', b.source]);
-  ['category', 'topic', 'source', 'type'].forEach(key => {
-    if (path[key] && !(key === 'source' && b.fromSource)) crumbs.push([key, key === 'type' ? (TYPE_LABELS[path[key]] || path[key]) : path[key]]);
+  path.keys.forEach(key => {
+    if (path[key] && !(key === 'source' && b.fromSource)) crumbs.push([key, browseLabel(key, path[key])]);
   });
   let html = '<nav class="browse-crumbs" aria-label="مسار التصفح">' + crumbs.map(([level, label], i) =>
     i === crumbs.length - 1 && path.level === 'list'
@@ -4094,17 +4113,24 @@ function renderBrowse() {
     return html + (list.length ? renderLectureList(list) : '<div class="empty">لا توجد مواد هنا بعد.</div>');
   }
   if (!path.options.length) return html + '<div class="empty">لا توجد مواد هنا بعد.</div>';
-  const prompts = { category: 'اختر التخصص', topic: 'اختر الفرع', source: 'اختر المصدر', type: 'اختر النوع' };
+  const prompts = { category: 'اختر التخصص', topic: path.keys[0] === 'stage' ? 'اختر المادة' : 'اختر الفرع', source: 'اختر المصدر', type: 'اختر النوع', stage: 'اختر المرحلة', doctor: 'اختر الدكتور' };
+  if (path.level === 'category' && !b.fromSource) {
+    const unis = universitySources();
+    if (unis.length) html += '<p class="section-label">الجامعات</p><div class="chip-grid browse-grid uni-grid">' + unis.map(u =>
+      '<button type="button" class="chip browse-chip uni-chip" data-action="browse-uni" data-value="' + escapeHtml(u) + '" dir="auto">' + (ICONS.book || '') + '<span>' + escapeHtml(u) + '</span></button>').join('') + '</div>';
+  }
   html += '<p class="section-label">' + prompts[path.level] + '</p><div class="chip-grid browse-grid">';
   html += path.options.map(value => '<button type="button" class="chip browse-chip" data-action="browse" data-level="' + path.level + '" data-value="' + escapeHtml(value) + '" dir="auto">' +
     (path.level === 'category' && ICONS[CATEGORY_ICON[value]] ? ICONS[CATEGORY_ICON[value]] : '') +
-    '<span>' + escapeHtml(path.level === 'type' ? (TYPE_LABELS[value] || value) : value) + '</span></button>').join('');
+    '<span>' + escapeHtml(browseLabel(path.level, value)) + '</span></button>').join('');
   return html + '</div>';
 }
 function browseTo(level, value) {
-  const order = ['category', 'topic', 'source', 'type'];
   const b = state.browse;
-  if (level === 'from-source') { b.category = b.topic = b.type = null; render(); return; }
+  // Stage decides whether the next level is a specialty or a subject, so set it before reading the order.
+  if (level === 'stage' && value !== undefined) b.stage = value;
+  const order = browseLevels().map(([key]) => key);
+  if (level === 'from-source') { b.category = b.topic = b.type = b.stage = b.doctor = null; render(); return; }
   if (level === 'root') b.fromSource = false;
   const lockedSource = b.fromSource ? b.source : null;
   const i = level === 'root' ? -1 : order.indexOf(level);
@@ -4358,6 +4384,8 @@ function wireStaticEvents() {
 }
 
 function onContentClick(e) {
+  const uni = e.target.closest('[data-action="browse-uni"]');
+  if (uni) { state.browse = browseStartFor('source', uni.dataset.value); render(); return; }
   const browseChip = e.target.closest('[data-action="browse"]');
   if (browseChip) { browseTo(browseChip.dataset.level, browseChip.dataset.value); return; }
   const crumb = e.target.closest('[data-action="browse-to"]');
@@ -5644,7 +5672,7 @@ function renderSearchSuggestions(input) {
   positionSearchSuggestions();
 }
 function browseStartFor(kind, label) {
-  const start = { category: null, topic: null, source: null, type: null, fromSource: false };
+  const start = { category: null, topic: null, source: null, type: null, stage: null, doctor: null, fromSource: false };
   if (kind === 'category') start.category = label;
   else if (kind === 'source') { start.source = label; start.fromSource = true; }
   else if (kind === 'topic') {
