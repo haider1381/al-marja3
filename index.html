@@ -2402,6 +2402,9 @@ body.ai-site-open .ai-fab, body.ai-fab-hidden .ai-fab { display:none; }
 .side-video { position:relative; width:100%; aspect-ratio:16/9; border-radius:14px; overflow:hidden; background:#000; margin-bottom:10px; }
 .side-video iframe { position:absolute; inset:0; width:100%; height:100%; border:0; }
 .side-item.is-current { border-color:var(--accent); background:var(--accent-soft); }
+
+/* ---------- Doctor name beside a lecture title ---------- */
+.lecture .title .doctor-tag { display:inline-block; margin-inline-start:6px; padding:1px 9px; border-radius:999px; font-size:11px; font-weight:800; vertical-align:middle; background:rgba(255,255,255,.18); border:1px solid rgba(255,255,255,.35); }
 </style>
 <link rel="manifest" href="./manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="192x192" href="./assets/app-icon-192.png">
@@ -4191,14 +4194,14 @@ function browseLabel(level, value) {
 }
 // Universities with stage data are browsed stage → specialty (subject for stages 1–3) → doctor → lectures.
 // A university is any source with stages, or one named as a university (e.g. Mosul, whose stages aren't recorded).
+function courseSources() {
+  const unis = new Set(universitySources());
+  return orderedValues(lectures.map(l => l.source).filter(s => s && !unis.has(s)), []);
+}
 function universitySources() { return orderedValues(lectures.filter(l => l.stage || /جامعة|university/i.test(l.source || '')).map(l => l.source || 'غير محدد'), []); }
 function browseLevels() {
   const b = state.browse;
-  if (b.fromSource && lectures.some(l => l.stage && (l.source || 'غير محدد') === b.source)) {
-    const early = b.stage && Number(b.stage) <= 3;
-    return [['stage', ['1', '2', '3', '4', '5', '6'], false], early ? ['topic', null, false] : ['category', CATEGORY_ORDER, false], ['doctor', [], true], ['type', TYPE_ORDER, true]];
-  }
-  if (b.fromSource) return [['category', CATEGORY_ORDER, false], ['topic', null, false], ['source', [], true], ['type', TYPE_ORDER, true]];
+  if (b.fromSource) return [['category', CATEGORY_ORDER, false], ['topic', null, false]];
   return [['category', CATEGORY_ORDER, false], ['topic', null, false], ['hub', [], false]];
 }
 function hubOrder(pool) {
@@ -4227,7 +4230,7 @@ function renderBrowse() {
   const path = browsePath();
   lastBrowsePath = path;
   const b = state.browse;
-  const crumbs = [['root', 'كل التخصصات']];
+  const crumbs = [['root', 'المصادر']];
   if (b.fromSource && b.source) crumbs.push(['from-source', b.source]);
   path.keys.forEach(key => {
     if (path[key] && !(key === 'source' && b.fromSource)) crumbs.push([key, browseLabel(key, path[key])]);
@@ -4238,6 +4241,13 @@ function renderBrowse() {
       : '<button type="button" data-action="browse-to" data-level="' + level + '" dir="auto">' + escapeHtml(label) + '</button>'
   ).join('<span class="sep" aria-hidden="true">›</span>') + '</nav>';
   if (path.level === 'list' && path.hub) return html + renderTopicPage(path);
+  if (path.level === 'list' && b.fromSource) {
+    // A source's subspecialty: its lectures in teaching order, grouped by kind (lectures, videos, summaries…).
+    const types = orderedValues(path.pool.map(l => l.type || 'أخرى'), TYPE_ORDER);
+    if (!path.pool.length) return html + '<div class="empty">لا توجد مواد هنا بعد.</div>';
+    return html + types.map(type => '<section class="topic-section"><h4 class="topic-section-head">' + escapeHtml(TYPE_LABELS[type] || type) + '</h4>' +
+      renderLectureList(path.pool.filter(l => (l.type || 'أخرى') === type).sort(browseLectureOrder)) + '</section>').join('');
+  }
   if (path.level === 'list') {
     const list = path.pool.slice().sort(browseLectureOrder);
     return html + (list.length ? renderLectureList(list) : '<div class="empty">لا توجد مواد هنا بعد.</div>');
@@ -4246,9 +4256,9 @@ function renderBrowse() {
   if (!path.options.length) return html + '<div class="empty">لا توجد مواد هنا بعد.</div>';
   const prompts = { category: 'اختر التخصص', topic: path.keys[0] === 'stage' ? 'اختر المادة' : 'اختر الفرع', source: 'اختر المصدر', type: 'اختر النوع', stage: 'اختر المرحلة', doctor: 'اختر الدكتور' };
   if (path.level === 'category' && !b.fromSource) {
-    const unis = universitySources();
-    if (unis.length) html += '<p class="section-label">الجامعات</p><div class="chip-grid browse-grid uni-grid">' + unis.map(u =>
-      '<button type="button" class="chip browse-chip uni-chip" data-action="browse-uni" data-value="' + escapeHtml(u) + '" dir="auto">' + (ICONS.book || '') + '<span>' + escapeHtml(u) + '</span></button>').join('') + '</div>';
+    const group = (label, list, cls) => list.length ? '<p class="section-label">' + label + '</p><div class="chip-grid browse-grid ' + cls + '">' + list.map(u =>
+      '<button type="button" class="chip browse-chip uni-chip" data-action="browse-uni" data-value="' + escapeHtml(u) + '" dir="auto">' + (ICONS.book || '') + '<span>' + escapeHtml(u) + '</span></button>').join('') + '</div>' : '';
+    return html + group('الجامعات', universitySources(), 'uni-grid') + group('الكورسات', courseSources(), 'course-grid');
   }
   html += '<p class="section-label">' + prompts[path.level] + '</p><div class="chip-grid browse-grid">';
   html += path.options.map(value => '<button type="button" class="chip browse-chip" data-action="browse" data-level="' + path.level + '" data-value="' + escapeHtml(value) + '" dir="auto">' +
@@ -4486,9 +4496,9 @@ function renderLectureList(list) {
     html += `<div class="lecture${openAction ? ' openable' : ''}"${openAction ? ` data-open="${openAction}" data-id="${escapeHtml(l.id)}" role="button" tabindex="0" aria-label="${openLabel}: ${escapeHtml(l.title)}"` : ''}>
       <div class="icon">${ICONS[iconKey]}</div>
       <div class="body${openAction ? ' clickable' : ''}">
-        <p class="title">${escapeHtml(l.title)}</p>
+        <p class="title">${escapeHtml(l.title)}${l.doctor && l.doctor !== 'غير محدد' ? ` <span class="doctor-tag">${escapeHtml(l.doctor)}</span>` : ''}</p>
         <div class="meta-row">
-          <span>${escapeHtml(l.source || '')}</span>
+          <span>${escapeHtml(l.source || '')}</span>${l.stage ? `<span>·</span><span>${escapeHtml(browseLabel('stage', String(l.stage)))}</span>` : ''}
           <span>·</span>
           <span>${escapeHtml(l.topic || '')}</span>
           <span>·</span>
