@@ -4190,7 +4190,8 @@ function browseLabel(level, value) {
   return value;
 }
 // Universities with stage data are browsed stage → specialty (subject for stages 1–3) → doctor → lectures.
-function universitySources() { return orderedValues(lectures.filter(l => l.stage).map(l => l.source || 'غير محدد'), []); }
+// A university is any source with stages, or one named as a university (e.g. Mosul, whose stages aren't recorded).
+function universitySources() { return orderedValues(lectures.filter(l => l.stage || /جامعة|university/i.test(l.source || '')).map(l => l.source || 'غير محدد'), []); }
 function browseLevels() {
   const b = state.browse;
   if (b.fromSource && lectures.some(l => l.stage && (l.source || 'غير محدد') === b.source)) {
