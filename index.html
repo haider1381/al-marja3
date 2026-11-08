@@ -2384,7 +2384,8 @@ body.ai-site-open .ai-fab, body.ai-fab-hidden .ai-fab { display:none; }
 @media (min-width:900px) {
   .reader-modal { position:relative; }
   .reader-side { top:0; bottom:0; inset-inline-end:0; width:min(44%, 520px); }
-  .reader.side-open .reader-workspace, .reader.side-open .reader-related, .reader.side-open .reader-toolbar, .reader.side-open .reader-progress { margin-inline-end:min(44%, 520px); }
+  .reader.side-open .reader-workspace, .reader.side-open .reader-related, .reader.side-open .reader-toolbar, .reader.side-open .reader-progress { margin-inline-end:min(44%, 520px); width:auto; max-width:none; box-sizing:border-box; }
+  #readerOverlay .reader-modal { overflow-x:hidden; }
 }
 @media (max-width:899px) {
   .reader-side { position:fixed; inset-inline:0; bottom:0; height:min(72dvh, 640px); border-radius:22px 22px 0 0; border-inline-start:0; border-top:1px solid var(--border); box-shadow:0 -14px 34px -16px rgba(12,32,52,.4); padding-bottom:env(safe-area-inset-bottom); animation:sideUp .28s cubic-bezier(.2,.9,.3,1); }
@@ -2395,6 +2396,12 @@ body.ai-site-open .ai-fab, body.ai-fab-hidden .ai-fab { display:none; }
 }
 @keyframes sideUp { from { transform:translateY(40px); opacity:0; } }
 @media (prefers-reduced-motion: reduce) { .reader-side { animation:none; } }
+
+/* ---------- Explanation videos inside the side panel ---------- */
+.rel-videos { --rel:#d93a3a; }
+.side-video { position:relative; width:100%; aspect-ratio:16/9; border-radius:14px; overflow:hidden; background:#000; margin-bottom:10px; }
+.side-video iframe { position:absolute; inset:0; width:100%; height:100%; border:0; }
+.side-item.is-current { border-color:var(--accent); background:var(--accent-soft); }
 </style>
 <link rel="manifest" href="./manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="192x192" href="./assets/app-icon-192.png">
@@ -5386,6 +5393,7 @@ const RELATED_KINDS = [
   ['questions', 'أسئلة', '<path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3"/><path d="M12 17h.01"/><circle cx="12" cy="12" r="9"/>'],
   ['flash', 'فلاش كارد', '<rect x="3" y="6" width="14" height="14" rx="2"/><path d="M7 3h12a2 2 0 0 1 2 2v12"/>'],
   ['summary', 'ملخص', '<path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M8 13h8M8 17h5"/>'],
+  ['videos', 'فيديو', '<rect x="2.5" y="5" width="19" height="14" rx="3"/><path d="M10 9.5v5l4.5-2.5z"/>'],
   ['sources', 'مصادر أخرى', '<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>']
 ];
 let relatedLecture = null, sidePanelKind = null;
@@ -5394,7 +5402,8 @@ function relatedFor(lec) {
   return {
     questions: same.filter(l => l.type === 'أسئلة' && l.questionCount > 0),
     summary: same.filter(l => l.type === 'ملخص'),
-    sources: same.filter(l => l.type !== 'ملخص' && l.type !== 'أسئلة'),
+    videos: same.filter(l => l.type === 'فيديو' && youtubeId(l.link)),
+    sources: same.filter(l => l.type !== 'ملخص' && l.type !== 'أسئلة' && l.type !== 'فيديو'),
     flash: lec && lec.topicId && flashTopicIds.has(lec.topicId) ? [true] : []
   };
 }
@@ -5432,9 +5441,23 @@ function openSidePanel(kind) {
   if (kind === 'flash') { body.innerHTML = '<div class="mb-empty-tool">جارٍ تحميل البطاقات…</div>'; loadSideFlashcards(relatedLecture.topicId); }
   else if (kind === 'summary' && rel.summary.length === 1) openSideText(rel.summary[0].id);
   else if (kind === 'questions' && rel.questions.length === 1) openSideQuiz(rel.questions[0].id);
+  else if (kind === 'videos' && rel.videos.length === 1) openSideVideo(rel.videos[0].id);
   else body.innerHTML = '<div class="side-list">' + rel[kind].slice().sort(browseLectureOrder).map(l =>
     '<button type="button" class="side-item" data-side-open="' + escapeHtml(l.id) + '"><strong dir="auto">' + escapeHtml(l.title) + '</strong><span dir="auto">' + escapeHtml(sourceShort(l.source)) + (l.doctor && l.doctor !== 'غير محدد' ? ' · ' + escapeHtml(l.doctor) : '') + '</span></button>').join('') + '</div>';
   body.scrollTop = 0;
+}
+// Explanation videos play inside the panel (privacy-enhanced YouTube embed), beside the lecture.
+function youtubeId(link) {
+  const m = String(link || '').match(/^https:\/\/(?:www\.)?(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|shorts\/|live\/))([\w-]{11})/);
+  return m ? m[1] : null;
+}
+function openSideVideo(id) {
+  const l = lectures.find(x => x.id === id), vid = l && youtubeId(l.link);
+  if (!vid) return;
+  const rel = relatedFor(relatedLecture).videos;
+  document.getElementById('readerSideBody').innerHTML = '<div class="side-video"><iframe src="https://www.youtube-nocookie.com/embed/' + vid + '?rel=0" title="' + escapeHtml(l.title) + '" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture; fullscreen" allowfullscreen loading="lazy"></iframe></div>' +
+    '<p class="side-source" dir="auto">' + escapeHtml(l.title) + ' · ' + escapeHtml(sourceShort(l.source)) + (l.doctor && l.doctor !== 'غير محدد' ? ' · ' + escapeHtml(l.doctor) : '') + '</p>' +
+    (rel.length > 1 ? '<div class="side-list">' + rel.map(v => '<button type="button" class="side-item' + (v.id === id ? ' is-current' : '') + '" data-side-open="' + escapeHtml(v.id) + '"><strong dir="auto">▶ ' + escapeHtml(v.title) + '</strong><span dir="auto">' + escapeHtml(v.doctor && v.doctor !== 'غير محدد' ? v.doctor : sourceShort(v.source)) + '</span></button>').join('') + '</div>' : '');
 }
 async function openSideText(id) {
   const l = lectures.find(x => x.id === id); if (!l) return;
@@ -5564,6 +5587,7 @@ function wireRelatedTools() {
       const l = lectures.find(x => x.id === item.dataset.sideOpen);
       if (sidePanelKind === 'summary') openSideText(l.id);
       else if (sidePanelKind === 'questions') openSideQuiz(l.id);
+      else if (sidePanelKind === 'videos') openSideVideo(l.id);
       else { closeSidePanel(); openMaterialInReader(l.id); }
       return;
     }
