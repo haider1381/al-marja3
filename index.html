@@ -745,9 +745,30 @@
   .question-editor input[type=radio] { width:auto; }
   .question-tools { display:flex; gap:8px; margin:12px 0; flex-wrap:wrap; }
   .question-tools button, .quiz-choice, .quiz-next { border:1px solid var(--border); border-radius:8px; background:var(--surface-alt); padding:10px 12px; font-size:14px; }
-  .quiz-choice { display:block; width:100%; margin:8px 0; text-align:start; }
-  .quiz-choice.correct { border-color:var(--accent); background:var(--accent-soft); }
-  .quiz-choice.wrong { border-color:var(--accent2); background:var(--accent2-soft); }
+  /* Quiz option: the choice button, and after answering a verdict strip attached directly beneath it. */
+  .quiz-option { --ok:#2f9e57; --bad:#e0524a; --tone:var(--border); margin:10px 0; border-radius:14px; border:1.5px solid var(--tone); background:var(--surface); overflow:hidden; transition:border-color .2s ease, box-shadow .2s ease; }
+  .quiz-option .quiz-choice { display:flex; align-items:flex-start; gap:12px; width:100%; margin:0; padding:12px 14px; border:0; border-radius:0; background:transparent; text-align:start; color:var(--text); font:inherit; cursor:pointer; }
+  .quiz-option:not(.is-right):not(.is-wrong):not(.is-other):hover { border-color:var(--accent); }
+  .quiz-option .quiz-choice:disabled { cursor:default; }
+  .quiz-letter { flex:none; width:22px; height:22px; border-radius:50%; display:grid; place-items:center; font-size:10.5px; font-weight:900; background:var(--accent-soft); color:var(--accent-strong); }
+  .quiz-text { font-size:14.5px; line-height:1.6; padding-top:1px; }
+  .quiz-option.is-right { --tone:var(--ok); background:color-mix(in srgb, var(--ok) 6%, var(--surface)); }
+  .quiz-option.is-wrong { --tone:var(--bad); background:color-mix(in srgb, var(--bad) 6%, var(--surface)); }
+  .quiz-option.is-other { --tone:color-mix(in srgb, var(--text) 38%, var(--border)); }
+  .quiz-option.is-right .quiz-letter { background:var(--ok); color:#fff; }
+  .quiz-option.is-wrong .quiz-letter { background:var(--bad); color:#fff; }
+  .quiz-option.is-other .quiz-text { opacity:.82; }
+  .quiz-why { display:flex; flex-direction:column; gap:5px; margin:0; padding:9px 14px 11px; border-top:1px dashed color-mix(in srgb, var(--tone) 55%, transparent);
+    border-inline-start:3px solid var(--tone); background:linear-gradient(90deg, color-mix(in srgb, var(--tone) 11%, var(--surface)), color-mix(in srgb, var(--tone) 3%, var(--surface)));
+    animation:quizWhyIn .24s ease-out both; }
+  .quiz-why-tag { align-self:flex-start; font-size:10.5px; font-weight:800; letter-spacing:.2px; padding:2px 8px; border-radius:999px; color:#fff; background:var(--tone); }
+  .quiz-option.is-other .quiz-why-tag { background:color-mix(in srgb, var(--bad) 70%, var(--surface)); }
+  .quiz-why-text { font-size:13px; line-height:1.75; color:var(--text); }
+  .quiz-exam-tag { display:inline-block; margin:2px 0 8px; padding:2px 9px; border-radius:999px; font-size:11px; font-weight:800; color:var(--accent-strong); background:var(--accent-soft); border:1px solid color-mix(in srgb, var(--accent) 35%, transparent); }
+  .quiz-question h3 { text-align:start; line-height:1.7; }
+  .quiz-question[dir="ltr"] .quiz-why-tag { align-self:flex-start; }
+  @keyframes quizWhyIn { from { opacity:0; transform:translateY(-4px); } to { opacity:1; transform:none; } }
+  @media (prefers-reduced-motion: reduce) { .quiz-why { animation:none; } .quiz-option { transition:none; } }
   .quiz-feedback { padding:12px; background:var(--surface-alt); border-radius:8px; margin:14px 0; }
   .quiz-feedback p { margin:8px 0; }
   .quiz-body { direction:rtl; text-align:start; }
@@ -2120,10 +2141,10 @@ button,a,input,select,textarea{-webkit-tap-highlight-color:transparent;}
 
 /* ---------- Floating AI button ---------- */
 .ai-fab { position:fixed; z-index:40; left:max(18px, env(safe-area-inset-left)); bottom:calc(22px + env(safe-area-inset-bottom));
-  width:56px; height:56px; padding:0; border:0; border-radius:50%; display:grid; place-items:center; cursor:pointer;
+  width:42px; height:42px; padding:0; border:0; border-radius:50%; display:grid; place-items:center; cursor:pointer;
   background:linear-gradient(135deg,#0876cf 0%,#21a3c9 55%,#39c99b 100%); color:#ffffff;
-  box-shadow:0 10px 26px rgba(8,118,207,.35), 0 2px 6px rgba(8,30,60,.18); transition:transform .15s ease, box-shadow .15s ease; }
-.ai-fab svg { width:26px; height:26px; }
+  box-shadow:0 6px 16px rgba(8,118,207,.28), 0 1px 4px rgba(8,30,60,.16); transition:transform .15s ease, box-shadow .15s ease; }
+.ai-fab svg { width:20px; height:20px; }
 .ai-fab:hover { transform:translateY(-2px) scale(1.04); box-shadow:0 14px 32px rgba(8,118,207,.42), 0 3px 8px rgba(8,30,60,.2); }
 .ai-fab:active { transform:scale(.96); }
 .ai-fab:focus-visible { outline:3px solid #8cc8ff; outline-offset:3px; }
@@ -2131,7 +2152,7 @@ button,a,input,select,textarea{-webkit-tap-highlight-color:transparent;}
   padding:6px 10px; border-radius:8px; background:#172235; color:#ffffff; font-size:12px; font-weight:700; opacity:0; pointer-events:none; transition:opacity .15s ease; }
 .ai-fab:hover::after, .ai-fab:focus-visible::after { opacity:1; }
 @media (hover:none) { .ai-fab::after { display:none; } }
-@media (max-width:820px) { .ai-fab { bottom:calc(78px + env(safe-area-inset-bottom)); width:52px; height:52px; } }
+@media (max-width:820px) { .ai-fab { bottom:calc(78px + env(safe-area-inset-bottom)); width:40px; height:40px; } }
 body.ai-site-open .ai-fab, body.ai-fab-hidden .ai-fab { display:none; }
 @media (prefers-reduced-motion:reduce) { .ai-fab { transition:none; } .ai-fab:hover { transform:none; } }
 
@@ -5496,7 +5517,7 @@ function renderSideQuiz() {
     q.options.map((o, i) => {
       const shown = picked.has(i), ok = i === q.correctIndex;
       return '<button type="button" class="side-option' + (shown ? (ok ? ' is-right' : ' is-wrong') : '') + '" data-side-option="' + i + '" aria-expanded="' + shown + '">' +
-        '<span class="side-option-letter">' + 'ABCD'[i] + '</span><span class="side-option-text" dir="auto">' + escapeHtml(o.text) + '</span>' +
+        '<span class="side-option-letter">' + 'ABCDE'[i] + '</span><span class="side-option-text" dir="auto">' + escapeHtml(o.text) + '</span>' +
         (shown ? '<span class="side-option-why"><b>' + (ok ? 'صحيح ✓' : 'خطأ ✗') + '</b><span dir="auto">' + escapeHtml(o.explanation) + '</span></span>' : '') + '</button>';
     }).join('') +
     '<div class="side-quiz-nav"><button type="button" class="deck-pill" data-side-quiz="prev"' + (index ? '' : ' disabled') + '>السابق ›</button>' +
@@ -6172,8 +6193,9 @@ function validateQuestions(questions) {
   questions.forEach((q, i) => {
     if (!q || typeof q.prompt !== 'string' || !q.prompt.trim() || q.prompt.length > 10000)
       throw new Error('أكمل نص السؤال ' + (i + 1) + ' (حتى 10000 حرف).');
-    if (!Array.isArray(q.options) || q.options.length !== 4 || !Number.isInteger(q.correctIndex) || q.correctIndex < 0 || q.correctIndex > 3)
-      throw new Error('اختر جوابًا صحيحًا واحدًا وأربعة خيارات للسؤال ' + (i + 1));
+    // Ministerial exam questions have five options (a–e); hand-written sets have four.
+    if (!Array.isArray(q.options) || q.options.length < 4 || q.options.length > 5 || !Number.isInteger(q.correctIndex) || q.correctIndex < 0 || q.correctIndex >= q.options.length)
+      throw new Error('اختر جوابًا صحيحًا واحدًا وأربعة أو خمسة خيارات للسؤال ' + (i + 1));
     q.options.forEach(o => {
       if (!o || typeof o.text !== 'string' || !o.text.trim() || o.text.length > 5000 ||
         typeof o.explanation !== 'string' || !o.explanation.trim() || o.explanation.length > 10000)
@@ -6251,8 +6273,7 @@ function wireAuthoringEvents() {
     const choice = e.target.closest('[data-quiz-choice]');
     if (choice && quizState && quizState.answers[quizState.index] == null) {
       quizState.answers[quizState.index] = Number(choice.dataset.quizChoice);
-      renderQuiz();
-      document.getElementById('quizFeedback').focus();
+      renderQuiz(true);
       return;
     }
     const nav = e.target.closest('[data-quiz-nav]');
@@ -6321,10 +6342,17 @@ async function openQuiz(id) {
   renderQuiz();
   openReaderSurface(true);
 }
+// Ministerial questions start with an exam label line such as "[وزاري باطنية 2024]"; show it as a badge, not inside the sentence.
+function splitExamTag(prompt) {
+  const m = /^\s*\[([^\]\n]{1,80})\]\s*\n?/.exec(prompt || '');
+  return m ? { tag: m[1].trim(), text: prompt.slice(m[0].length) } : { tag: '', text: prompt || '' };
+}
+// English questions read left-to-right even though the app is Arabic.
+function textDir(s) { return /[؀-ۿ]/.test(s) ? 'rtl' : 'ltr'; }
 function quizScore(questions, answers) {
   return questions.reduce((score, q, i) => score + (answers[i] === q.correctIndex ? 1 : 0), 0);
 }
-function renderQuiz() {
+function renderQuiz(keepScroll) {
   if (!quizState) return;
   const { material, index, answers } = quizState;
   const questions = material.questions;
@@ -6338,29 +6366,33 @@ function renderQuiz() {
   const q = questions[index];
   const selected = answers[index];
   const answered = selected != null;
+  const p = splitExamTag(q.prompt), dir = textDir(p.text);
   let html = '<p class="section-label">السؤال ' + (index + 1) + ' من ' + questions.length + '</p>' +
-    '<h3 dir="auto">' + escapeHtml(q.prompt) + '</h3>';
+    (p.tag ? '<span class="quiz-exam-tag">' + escapeHtml(p.tag) + '</span>' : '') +
+    '<div class="quiz-question" dir="' + dir + '"><h3>' + escapeHtml(p.text).replace(/\n/g, '<br>') + '</h3>';
   q.options.forEach((o, i) => {
-    const cls = answered ? (i === q.correctIndex ? ' correct' : (i === selected ? ' wrong' : '')) : '';
-    html += '<button type="button" class="quiz-choice' + cls + '" data-quiz-choice="' + i + '"' +
-      (answered ? ' disabled' : '') + ' dir="auto">' + (i + 1) + '. ' + escapeHtml(o.text) + '</button>';
-  });
-  if (answered) {
-    html += '<div class="quiz-feedback" id="quizFeedback" tabindex="-1" aria-live="polite"><strong>' +
-      (selected === q.correctIndex ? 'إجابة صحيحة' : 'إجابة غير صحيحة') + '</strong><p>الجواب الصحيح: ' +
-      escapeHtml(q.options[q.correctIndex].text) + '</p>';
-    q.options.forEach((o, i) => {
-      html += '<p dir="auto"><b>' + escapeHtml(o.text) + (i === q.correctIndex ? ' — صحيح' : ' — خطأ') +
-        '</b><br>' + escapeHtml(o.explanation) + '</p>';
-    });
+    const ok = i === q.correctIndex, mine = i === selected;
+    const state = !answered ? '' : ok ? ' is-right' : mine ? ' is-wrong' : ' is-other';
+    html += '<div class="quiz-option' + state + '">' +
+      '<button type="button" class="quiz-choice" data-quiz-choice="' + i + '"' + (answered ? ' disabled' : '') + '>' +
+      '<span class="quiz-letter">' + 'ABCDE'[i] + '</span><span class="quiz-text" dir="auto">' + escapeHtml(o.text) + '</span></button>';
+    // After answering, every option carries its own verdict strip directly beneath it.
+    if (answered) {
+      const tag = ok ? (mine ? 'إجابتك صحيحة ✓' : 'الجواب الصحيح ✓') : (mine ? 'إجابتك خطأ ✗' : 'خطأ ✗');
+      html += '<div class="quiz-why"><span class="quiz-why-tag" dir="rtl">' + tag + '</span>' +
+        '<span class="quiz-why-text" dir="auto">' + escapeHtml(o.explanation) + '</span></div>';
+    }
     html += '</div>';
-  }
+  });
+  html += '</div>';
+  if (answered) html += '<p class="visually-hidden" aria-live="polite">' +
+    (selected === q.correctIndex ? 'إجابة صحيحة' : 'إجابة غير صحيحة، الجواب الصحيح: ' + escapeHtml(q.options[q.correctIndex].text)) + '</p>';
   html += '<div class="question-tools">';
   if (index > 0) html += '<button type="button" data-quiz-nav="previous">السابق</button>';
   html += '<button type="button" data-quiz-nav="next"' + (!answered ? ' disabled' : '') + '>' +
     (index === questions.length - 1 ? 'عرض النتيجة' : 'السؤال التالي') + '</button></div>';
   body.innerHTML = html;
-  document.getElementById('readerWorkspace').scrollTop = 0;
+  if (!keepScroll) document.getElementById('readerWorkspace').scrollTop = 0;
 }
 
 
