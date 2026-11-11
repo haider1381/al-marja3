@@ -744,6 +744,26 @@
   .question-editor .option-row { margin:10px 0; padding:8px; background:var(--surface-alt); border-radius:8px; }
   .question-editor input[type=radio] { width:auto; }
   .question-tools { display:flex; gap:8px; margin:12px 0; flex-wrap:wrap; }
+  .quiz-head { display:flex; align-items:center; justify-content:space-between; gap:8px; }
+  .quiz-head .section-label { margin:0; }
+  .quiz-report { display:inline-flex; align-items:center; gap:4px; min-height:32px; padding:4px 10px; border:1px solid var(--border); border-radius:999px; background:transparent; color:var(--muted, #6b7a8c); font:inherit; font-size:12px; cursor:pointer; }
+  .quiz-report svg { width:14px; height:14px; }
+  .quiz-report:hover, .quiz-report:focus-visible { color:#e0524a; border-color:#e0524a; }
+  .report-reasons { border:0; padding:0; margin:8px 0; }
+  .report-reasons legend { font-size:13px; font-weight:700; margin-bottom:4px; }
+  .report-reasons label { display:flex; align-items:center; gap:8px; min-height:40px; font-size:14px; }
+  .device-dialog .report-reasons input[type="radio"] { width:18px; height:18px; min-height:0; flex:none; margin:0; padding:0; accent-color:var(--accent, #2f6fd6); }
+  .device-dialog textarea { width:100%; padding:8px 12px; font:inherit; font-size:16px; border:1px solid var(--border); border-radius:10px; background:var(--surface); color:var(--text); resize:vertical; }
+  .reports-btn { position:relative; }
+  .reports-badge { display:inline-block; min-width:20px; padding:0 6px; border-radius:999px; background:#e0524a; color:#fff; font-size:12px; line-height:20px; text-align:center; }
+  .reports-badge[hidden] { display:none; }
+  .reports-dialog { width:min(620px, calc(100vw - 28px)); }
+  .report-item { border:1px solid var(--border); border-radius:14px; padding:10px 12px; margin:10px 0; }
+  .report-item p { margin:2px 0; }
+  .report-meta { font-weight:700; color:#e0524a; }
+  .report-where { color:var(--muted, #6b7a8c); }
+  .report-q { font-size:14px !important; }
+  .report-item .device-actions { margin-top:8px; }
   .question-tools button, .quiz-choice, .quiz-next { border:1px solid var(--border); border-radius:8px; background:var(--surface-alt); padding:10px 12px; font-size:14px; }
   /* Quiz option: the choice button, and after answering a verdict strip attached directly beneath it. */
   .quiz-option { --ok:#2f9e57; --bad:#e0524a; --tone:var(--border); margin:10px 0; border-radius:14px; border:1.5px solid var(--tone); background:var(--surface); overflow:hidden; transition:border-color .2s ease, box-shadow .2s ease; }
@@ -2695,6 +2715,10 @@ body.ai-site-open .ai-fab, body.ai-fab-hidden .ai-fab { display:none; }
       <div class="mb-library-head">
         <div><div style="color:#77879a;font-size:12px;margin-top:2px">ابحث وصنّف وافتح المواد داخل هذا القسم.</div></div>
         <div class="mb-library-actions">
+          <button class="add-btn reports-btn" id="reportsBtn" type="button" hidden>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 21V4h11l-2 4 2 4H5"/></svg>
+            بلاغات الطلاب <span class="reports-badge" id="reportsBadge" hidden>0</span>
+          </button>
           <button class="add-btn" id="openAddBtn" type="button">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
             إضافة مادة
@@ -3049,6 +3073,8 @@ body.ai-site-open .ai-fab, body.ai-fab-hidden .ai-fab { display:none; }
 <button id="focusCompact" type="button" hidden aria-label="فتح مؤقّت الدراسة"></button><div id="deviceConnection" role="status" hidden>الاتصال بالإنترنت غير متاح. يمكنك استخدام مؤقّت الدراسة؛ حفظ التغييرات يحتاج اتصالًا.</div>
 <dialog id="focusDialog" class="device-dialog" aria-labelledby="focusTitle"><div class="sp-card-head"><h2 id="focusTitle">وقت التركيز</h2><button type="button" class="mb-mini-btn" data-device-close="focusDialog" aria-label="تصغير المؤقّت">×</button></div><p>قسّم دراستك إلى جلسات قصيرة واستراحات. يبقى المؤقّت دقيقًا عند تصغيره أو العودة للتطبيق.</p><form id="focusForm"><div class="device-pair"><label>مدة الدراسة (دقيقة)<input id="focusWork" type="number" min="1" max="240" value="30" required></label><label>الراحة (دقيقة)<input id="focusRest" type="number" min="0" max="120" value="5" required></label></div><label>عدد جلسات الدراسة<input id="focusCount" type="number" min="1" max="24" value="4" required></label><label id="focusNotifyLabel" hidden><input id="focusNotify" type="checkbox"> تنبيه على الجهاز عند انتهاء الفترة الحالية</label><div class="device-actions"><button type="submit" class="mb-primary" id="focusStart">بدء جلسات التركيز</button></div></form><div id="focusRunning" hidden><output id="focusClock" dir="ltr" aria-label="الوقت المتبقي">30:00</output><p class="focus-stage" id="focusStage"></p><progress id="focusMeter" max="100" value="0" aria-label="تقدم الجلسات"></progress><div class="device-actions"><button type="button" class="mb-primary" id="focusPause">إيقاف مؤقت</button><button type="button" class="mb-primary" id="focusNext" hidden>بدء الفترة التالية</button><button type="button" class="device-danger" id="focusStop">إنهاء المؤقّت</button></div></div><p id="focusStatus" role="status"></p><p>بدء الفترة التالية يدوي، ليكون وقت الراحة تحت تحكمك. المؤقّت لا يعلّم المحاضرة كمكتملة تلقائيًا.</p></dialog>
 <dialog id="deleteAccountDialog" class="device-dialog" aria-labelledby="deleteAccountTitle"><h2 id="deleteAccountTitle">حذف حساب Medbrain</h2><p>يُحذف حسابك وملفك الشخصي ومفضلاتك وبطاقاتك وجدولك وتقدمك نهائيًا. يمكنك تصدير بياناتك من الإعدادات قبل الحذف. تبقى مواد المكتبة المشتركة.</p><p>لحماية الحساب، يلزم تسجيل دخول خلال آخر عشر دقائق. حساب إدارة المنصة يحتاج نقل مسؤوليته أولًا.</p><label for="deleteAccountConfirm">للتأكيد اكتب «حذف حسابي»<input id="deleteAccountConfirm" autocomplete="off"></label><div class="device-actions"><button type="button" class="device-danger" id="deleteAccountSubmit">حذف الحساب نهائيًا</button><button type="button" class="mb-file-btn" data-device-close="deleteAccountDialog">إلغاء</button></div><p id="deleteAccountStatus" role="status"></p></dialog>
+<dialog id="questionReportDialog" class="device-dialog" aria-labelledby="questionReportTitle"><h2 id="questionReportTitle">الإبلاغ عن مشكلة في السؤال</h2><p>يصل بلاغك إلى فريق Medbrain لمراجعة السؤال وتصحيحه.</p><form id="questionReportForm"><fieldset class="report-reasons"><legend>نوع المشكلة</legend><label><input type="radio" name="reportReason" value="wrong_answer"> الإجابة المعتمدة خاطئة</label><label><input type="radio" name="reportReason" value="wrong_question"> السؤال خاطئ أو غير واضح</label><label><input type="radio" name="reportReason" value="incomplete"> السؤال ناقص (خيار أو معلومة مفقودة)</label><label><input type="radio" name="reportReason" value="explanation"> الشرح خاطئ أو غير كافٍ</label><label><input type="radio" name="reportReason" value="other"> مشكلة أخرى</label></fieldset><label for="questionReportNote">تفاصيل (اختياري): ما الصحيح برأيك ومصدره؟<textarea id="questionReportNote" maxlength="1000" rows="3"></textarea></label><div class="device-actions"><button type="submit" class="mb-primary" id="questionReportSubmit">إرسال البلاغ</button><button type="button" class="mb-file-btn" data-device-close="questionReportDialog">إلغاء</button></div><p id="questionReportStatus" role="status"></p></form></dialog>
+<dialog id="reportsDialog" class="device-dialog reports-dialog" aria-labelledby="reportsTitle"><div class="sp-card-head"><h2 id="reportsTitle">بلاغات الطلاب</h2><button type="button" class="mb-mini-btn" data-device-close="reportsDialog" aria-label="إغلاق">×</button></div><p>البلاغات المفتوحة عن الأسئلة، الأحدث أولًا. «تمّ الإصلاح» يغلق كل البلاغات عن السؤال نفسه.</p><div id="reportsList"></div><p id="reportsStatus" role="status"></p></dialog>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.js"></script>
 <script>
@@ -3956,7 +3982,7 @@ async function syncAccess(session) {
     canWrite = data === true;
     applyAccessUI();
     await appLoad;
-    if (canWrite && version === accessVersion) render();
+    if (canWrite && version === accessVersion) { render(); loadOpenReports(true).catch(() => {}); }
   } catch (_) {
     if (version !== accessVersion) return;
     canWrite = false;
@@ -4157,6 +4183,7 @@ async function startApp(version = accessVersion) {
 function applyAccessUI() {
   document.getElementById('refreshLibraryBtn').hidden = !activeUserId;
   document.getElementById('openAddBtn').style.display = canWrite ? '' : 'none';
+  if (!canWrite) { document.getElementById('reportsBtn').hidden = true; openReports = []; }
   document.getElementById('readOnlyBadge').style.display = canWrite ? 'none' : '';
   document.getElementById('logoutBtn').style.display = '';
 }
@@ -4569,6 +4596,9 @@ function wireStaticEvents() {
   document.getElementById('content').addEventListener('keydown', onLectureCardKey);
 
   document.getElementById('openAddBtn').addEventListener('click', () => openModal());
+  document.getElementById('reportsBtn').addEventListener('click', openReportsInbox);
+  document.getElementById('reportsList').addEventListener('click', handleReportAction);
+  document.getElementById('questionReportForm').addEventListener('submit', submitQuestionReport);
   document.getElementById('cancelBtn').addEventListener('click', closeModal);
   document.getElementById('materialBackBtn').addEventListener('click', closeModal);
   document.getElementById('overlay').addEventListener('click', e => {
@@ -6270,6 +6300,7 @@ function wireAuthoringEvents() {
     renderQuestionEditors(questions);
   });
   document.getElementById('readerBody').addEventListener('click', e => {
+    if (e.target.closest('[data-quiz-report]')) { openQuestionReport(); return; }
     const choice = e.target.closest('[data-quiz-choice]');
     if (choice && quizState && quizState.answers[quizState.index] == null) {
       quizState.answers[quizState.index] = Number(choice.dataset.quizChoice);
@@ -6367,7 +6398,9 @@ function renderQuiz(keepScroll) {
   const selected = answers[index];
   const answered = selected != null;
   const p = splitExamTag(q.prompt), dir = textDir(p.text);
-  let html = '<p class="section-label">السؤال ' + (index + 1) + ' من ' + questions.length + '</p>' +
+  let html = '<div class="quiz-head"><p class="section-label">السؤال ' + (index + 1) + ' من ' + questions.length + '</p>' +
+    '<button type="button" class="quiz-report" data-quiz-report title="الإبلاغ عن خطأ في هذا السؤال" aria-label="الإبلاغ عن خطأ في هذا السؤال">' +
+    '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 21V4m0 0h11l-2 4 2 4H5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>إبلاغ</button></div>' +
     (p.tag ? '<span class="quiz-exam-tag">' + escapeHtml(p.tag) + '</span>' : '') +
     '<div class="quiz-question" dir="' + dir + '"><h3>' + escapeHtml(p.text).replace(/\n/g, '<br>') + '</h3>';
   q.options.forEach((o, i) => {
@@ -6395,6 +6428,111 @@ function renderQuiz(keepScroll) {
   if (!keepScroll) document.getElementById('readerWorkspace').scrollTop = 0;
 }
 
+// ---------------- Question reports ----------------
+// Students flag a question; editors get an inbox (button + toast on sign-in) to review and close reports.
+const REPORT_REASONS = {
+  wrong_answer: 'الإجابة المعتمدة خاطئة',
+  wrong_question: 'السؤال خاطئ أو غير واضح',
+  incomplete: 'السؤال ناقص (خيار أو معلومة مفقودة)',
+  explanation: 'الشرح خاطئ أو غير كافٍ',
+  other: 'مشكلة أخرى'
+};
+var reportTarget = null, openReports = [];
+function openQuestionReport() {
+  if (!quizState) return;
+  if (!client || !activeUserId) { showMbToast('سجّل الدخول للإبلاغ عن السؤال.'); return; }
+  const q = quizState.material.questions[quizState.index];
+  reportTarget = { lecture_id: quizState.material.id, question_index: quizState.index, question_prompt: String(q.prompt || '').slice(0, 4000) };
+  const form = document.getElementById('questionReportForm');
+  form.reset();
+  document.getElementById('questionReportStatus').textContent = '';
+  document.getElementById('questionReportSubmit').disabled = false;
+  document.getElementById('questionReportDialog').showModal();
+}
+async function submitQuestionReport(e) {
+  e.preventDefault();
+  if (!reportTarget || !activeUserId) return;
+  const form = e.target, reason = (form.querySelector('input[name="reportReason"]:checked') || {}).value;
+  const status = document.getElementById('questionReportStatus');
+  if (!reason) { status.textContent = 'اختر نوع المشكلة.'; return; }
+  const note = document.getElementById('questionReportNote').value.trim().slice(0, 1000);
+  const button = document.getElementById('questionReportSubmit');
+  button.disabled = true; status.textContent = 'جارٍ الإرسال…';
+  const { error } = await client.from('question_reports').insert({ ...reportTarget, reason, note: note || null, user_id: activeUserId });
+  if (error && error.code !== '23505') { button.disabled = false; status.textContent = 'تعذّر الإرسال. تحقق من الاتصال وأعد المحاولة.'; return; }
+  document.getElementById('questionReportDialog').close();
+  showMbToast(error ? 'بلاغك عن هذا السؤال مسجّل مسبقًا وقيد المراجعة.' : 'شكرًا، وصل بلاغك وسيُراجع السؤال.');
+}
+async function loadOpenReports(notify) {
+  const btn = document.getElementById('reportsBtn');
+  if (!canWrite || !client) { openReports = []; btn.hidden = true; return; }
+  const version = accessVersion;
+  const { data, error } = await client.from('question_reports')
+    .select('id,lecture_id,question_index,question_prompt,reason,note,created_at')
+    .eq('status', 'open').order('created_at', { ascending: false }).limit(200);
+  if (version !== accessVersion || !canWrite) return;
+  btn.hidden = false;
+  if (error) { openReports = []; renderReportsBadge(); return; }
+  openReports = data || [];
+  renderReportsBadge();
+  if (notify && openReports.length) showMbToast('لديك ' + openReports.length + ' ' + (openReports.length === 1 ? 'بلاغ جديد' : 'بلاغات جديدة') + ' عن الأسئلة.');
+}
+function renderReportsBadge() {
+  const badge = document.getElementById('reportsBadge');
+  badge.textContent = openReports.length > 99 ? '99+' : String(openReports.length);
+  badge.hidden = !openReports.length;
+}
+function renderReportsList() {
+  const list = document.getElementById('reportsList');
+  if (!openReports.length) { list.innerHTML = '<p>لا توجد بلاغات مفتوحة.</p>'; return; }
+  list.innerHTML = openReports.map(r => {
+    const lec = lectures.find(l => String(l.id) === String(r.lecture_id));
+    const p = splitExamTag(r.question_prompt);
+    return '<article class="report-item" data-report-id="' + escapeHtml(r.id) + '">' +
+      '<p class="report-meta">' + escapeHtml(REPORT_REASONS[r.reason] || r.reason) + ' · ' + escapeHtml(new Date(r.created_at).toLocaleDateString('ar-IQ')) + '</p>' +
+      '<p class="report-where">' + escapeHtml(lec ? lec.title : 'مجموعة أسئلة') + ' — السؤال ' + (r.question_index + 1) + '</p>' +
+      '<p class="report-q" dir="' + textDir(p.text) + '">' + escapeHtml(p.text.slice(0, 260)) + (p.text.length > 260 ? '…' : '') + '</p>' +
+      (r.note ? '<p class="report-note" dir="auto">ملاحظة الطالب: ' + escapeHtml(r.note) + '</p>' : '') +
+      '<div class="device-actions"><button type="button" class="mb-primary" data-report-open>فتح السؤال</button>' +
+      '<button type="button" class="mb-file-btn" data-report-edit>تعديل المجموعة</button>' +
+      '<button type="button" class="mb-file-btn" data-report-close="resolved">تمّ الإصلاح</button>' +
+      '<button type="button" class="mb-file-btn" data-report-close="dismissed">تجاهل</button></div></article>';
+  }).join('');
+}
+async function openReportsInbox() {
+  document.getElementById('reportsStatus').textContent = '';
+  await loadOpenReports(false);
+  renderReportsList();
+  document.getElementById('reportsDialog').showModal();
+}
+async function handleReportAction(e) {
+  const item = e.target.closest('[data-report-id]'), btn = e.target.closest('button');
+  if (!item || !btn) return;
+  const r = openReports.find(x => x.id === item.dataset.reportId);
+  if (!r) return;
+  const status = document.getElementById('reportsStatus');
+  if (btn.hasAttribute('data-report-open') || btn.hasAttribute('data-report-edit')) {
+    document.getElementById('reportsDialog').close();
+    if (btn.hasAttribute('data-report-edit')) { openModal(r.lecture_id); return; }
+    await openQuiz(r.lecture_id);
+    if (quizState && String(quizState.material.id) === String(r.lecture_id)) {
+      const i = quizState.material.questions.findIndex(q => q.prompt === r.question_prompt);
+      quizState.index = i >= 0 ? i : Math.min(r.question_index, quizState.material.questions.length - 1);
+      renderQuiz();
+    }
+    return;
+  }
+  const next = btn.dataset.reportClose;
+  if (!next) return;
+  btn.disabled = true;
+  const { error } = await client.from('question_reports').update({ status: next, resolved_at: new Date().toISOString() }).eq('id', r.id);
+  if (error) { btn.disabled = false; status.textContent = 'تعذّر تحديث البلاغ.'; return; }
+  // Close every open report about the same question at once.
+  const same = openReports.filter(x => x.lecture_id === r.lecture_id && x.question_prompt === r.question_prompt && x.id !== r.id).map(x => x.id);
+  if (same.length) await client.from('question_reports').update({ status: next, resolved_at: new Date().toISOString() }).in('id', same);
+  openReports = openReports.filter(x => x.id !== r.id && !same.includes(x.id));
+  renderReportsBadge(); renderReportsList();
+}
 
 // ---------------- Personal pages ----------------
 let favoriteRecords = new Map();
