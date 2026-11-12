@@ -358,32 +358,64 @@
   .browse-crumbs span[aria-current] { font-weight:700; color:var(--text); }
   .browse-crumbs .sep { color:var(--text-muted); }
   .browse-grid { gap:10px; }
-  .pv { display:flex; flex-direction:column; height:calc(100dvh - 210px); min-height:420px; border:1px solid var(--border); border-radius:14px; overflow:hidden; background:var(--surface); }
-  .pv-bar { display:flex; flex-wrap:wrap; align-items:center; gap:6px; padding:8px 10px; border-bottom:1px solid var(--border); background:var(--surface); }
-  .pv-btn { display:inline-flex; align-items:center; gap:5px; min-height:34px; padding:0 10px; border:1px solid var(--border); border-radius:10px; background:var(--surface); color:var(--text); font:inherit; font-size:13px; font-weight:700; cursor:pointer; }
-  .pv-btn svg { width:18px; height:18px; }
-  .pv-btn[aria-pressed="true"], .pv-btn[aria-expanded="true"] { background:var(--accent); border-color:var(--accent); color:#fff; }
-  .pv-colors { display:inline-flex; gap:5px; }
-  .pv-color { width:24px; height:24px; border-radius:50%; border:2px solid var(--surface); background:var(--c); box-shadow:0 0 0 1px var(--border); cursor:pointer; padding:0; }
+  .pv { position:relative; display:flex; flex-direction:column; height:100dvh; background:#eef1f5; direction:ltr; }
+  :root[data-theme="dark"] .pv { background:#161c24; }
+  .pv-tb { position:absolute; z-index:5; top:calc(10px + env(safe-area-inset-top,0px)); left:0; right:0; display:flex; align-items:center; gap:10px; padding:0 12px; pointer-events:none; }
+  .pv-pill { pointer-events:auto; display:flex; align-items:center; gap:2px; padding:4px 6px; border-radius:16px; background:var(--surface); box-shadow:0 2px 10px rgba(15,23,42,.12),0 0 0 1px rgba(15,23,42,.05); }
+  .pv-pill-center { margin:0 auto; }
+  .pv-ib { position:relative; width:40px; height:40px; display:grid; place-items:center; border:0; border-radius:11px; background:none; color:var(--text); cursor:pointer; padding:0; }
+  .pv-ib svg { width:23px; height:23px; fill:none; stroke:currentColor; stroke-width:1.6; stroke-linecap:round; stroke-linejoin:round; }
+  .pv-ib:hover { background:rgba(15,23,42,.06); }
+  .pv-ib:disabled { opacity:.35; cursor:default; background:none; }
+  .pv-ib[aria-pressed="true"] { background:rgba(31,111,235,.12); color:#1f6feb; }
+  .pv-ib .pv-swatch { position:absolute; left:10px; right:10px; bottom:4px; height:3px; border-radius:2px; background:var(--c,#111); }
+  .pv-ib.is-running { color:#1f6feb; }
+  .pv-sep { width:1px; height:24px; background:var(--border); margin:0 4px; }
+  .pv-set[hidden] { display:none; }
+  .pv-set { display:flex; align-items:center; gap:2px; }
+  .pv-title { position:absolute; z-index:4; top:calc(62px + env(safe-area-inset-top,0px)); right:16px; left:16px; text-align:right; direction:rtl; font-size:15px; font-weight:700; color:var(--text); pointer-events:none; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .pv-pop { position:absolute; z-index:6; top:calc(60px + env(safe-area-inset-top,0px)); padding:10px; border-radius:14px; background:var(--surface); box-shadow:0 10px 30px rgba(15,23,42,.18),0 0 0 1px rgba(15,23,42,.06); direction:rtl; }
+  .pv-pop[hidden] { display:none; }
+  .pv-pop-row { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+  .pv-pop-row + .pv-pop-row { margin-top:10px; }
+  .pv-color { width:28px; height:28px; border-radius:50%; border:2px solid var(--surface); background:var(--c); box-shadow:0 0 0 1px var(--border); cursor:pointer; padding:0; }
   .pv-color[aria-pressed="true"] { box-shadow:0 0 0 2px var(--text); }
-  .pv-goto { display:inline-flex; align-items:center; gap:5px; margin-inline-start:auto; }
-  .pv-goto input { width:62px; min-height:34px; padding:0 6px; border:1px solid var(--border); border-radius:10px; text-align:center; font:inherit; background:var(--surface); color:var(--text); }
-  .pv-total { font-size:13px; color:var(--text-muted); }
-  .pv-timer-menu { display:flex; flex-wrap:wrap; align-items:center; gap:6px; padding:8px 10px; border-bottom:1px solid var(--border); font-size:13px; font-weight:700; }
+  .pv-size { width:36px; height:32px; border:1px solid var(--border); border-radius:10px; background:none; display:grid; place-items:center; cursor:pointer; padding:0; }
+  .pv-size i { display:block; width:18px; border-radius:4px; background:var(--text); }
+  .pv-size[aria-pressed="true"] { border-color:#1f6feb; box-shadow:0 0 0 1px #1f6feb inset; }
+  .pv-menu button { display:flex; width:100%; align-items:center; gap:10px; min-height:40px; padding:0 10px; border:0; border-radius:10px; background:none; color:var(--text); font:inherit; font-size:14px; cursor:pointer; text-align:right; }
+  .pv-menu button:hover { background:rgba(15,23,42,.06); }
+  .pv-menu svg { width:20px; height:20px; fill:none; stroke:currentColor; stroke-width:1.6; stroke-linecap:round; stroke-linejoin:round; }
+  .pv-pagegrid { display:grid; grid-template-columns:repeat(6, 40px); gap:6px; max-height:50dvh; overflow:auto; direction:ltr; }
+  .pv-pagegrid button { height:40px; border:1px solid var(--border); border-radius:10px; background:var(--surface); color:var(--text); font:inherit; font-size:13px; font-weight:700; cursor:pointer; }
+  .pv-pagegrid button[aria-current="true"] { background:#1f6feb; border-color:#1f6feb; color:#fff; }
+  .pv-mins { display:flex; gap:8px; direction:ltr; }
+  .pv-mins button { width:46px; height:46px; border-radius:50%; border:1px solid var(--border); background:var(--surface); color:var(--text); font:inherit; font-size:15px; font-weight:800; cursor:pointer; }
+  .pv-mins button:hover { border-color:#1f6feb; color:#1f6feb; }
   .pv-stage { position:relative; flex:1; min-height:0; }
-  .pv-pages { position:absolute; inset:0; overflow:auto; direction:ltr; padding:12px; background:#e9edf2; --pvz:1; }
-  :root[data-theme="dark"] .pv-pages { background:#1b222c; }
-  .pv-page { position:relative; width:calc(var(--pvz) * 100%); max-width:calc(var(--pvz) * 980px); margin:0 auto 14px; background:#fff; box-shadow:0 2px 10px rgba(0,0,0,.12); }
+  .pv-pages { position:absolute; inset:0; overflow:auto; direction:ltr; padding:calc(96px + env(safe-area-inset-top,0px)) 12px 24px; --pvz:1; overscroll-behavior:contain; touch-action:pan-x pan-y; }
+  .pv-page { position:relative; width:calc(var(--pvz) * 100%); max-width:calc(var(--pvz) * 980px); margin:0 auto 14px; background:#fff; box-shadow:0 1px 6px rgba(0,0,0,.10); }
   .pv-page canvas { position:absolute; inset:0; width:100%; height:100%; }
+  .pv-night .pv-canvas { filter:invert(.92) hue-rotate(180deg); }
   .pv-ink { pointer-events:none; }
   .pv-drawing .pv-ink { pointer-events:auto; touch-action:none; cursor:crosshair; }
-  .pv-num { position:absolute; bottom:6px; right:8px; padding:1px 7px; border-radius:999px; background:rgba(0,0,0,.45); color:#fff; font-size:11px; pointer-events:none; }
-  .pv-countdown { position:absolute; top:10px; left:50%; transform:translateX(-50%); z-index:3; display:flex; align-items:center; gap:8px; padding:6px 8px 6px 16px; border-radius:999px; background:rgba(17,24,39,.86); color:#fff; box-shadow:0 6px 18px rgba(0,0,0,.25); pointer-events:auto; }
-  .pv-countdown output { font-size:20px; font-weight:800; font-variant-numeric:tabular-nums; letter-spacing:.5px; }
+  .pv-drawing.pv-stylus .pv-ink { touch-action:pan-x pan-y; }
+  .pv-num { position:absolute; bottom:6px; right:8px; padding:1px 7px; border-radius:999px; background:rgba(0,0,0,.4); color:#fff; font-size:11px; pointer-events:none; }
+  .pv-countdown { position:absolute; z-index:5; top:calc(64px + env(safe-area-inset-top,0px)); left:50%; transform:translateX(-50%); display:flex; align-items:center; gap:8px; padding:5px 6px 5px 14px; border-radius:999px; background:rgba(17,24,39,.86); color:#fff; box-shadow:0 6px 18px rgba(0,0,0,.25); direction:ltr; }
+  .pv-countdown output { font-size:18px; font-weight:800; font-variant-numeric:tabular-nums; letter-spacing:.5px; }
   .pv-countdown button { width:26px; height:26px; border:0; border-radius:50%; background:rgba(255,255,255,.18); color:#fff; font-size:16px; cursor:pointer; }
   .pv-countdown.is-last { background:rgba(185,28,28,.9); }
   .pv-countdown.is-done { background:rgba(22,163,74,.92); }
-  @media (max-width:640px) { .pv { height:calc(100dvh - 170px); } .pv-btn span { display:none; } .pv-goto { margin-inline-start:0; } }
+  @media (max-width:760px) {
+    .pv-tb { gap:6px; padding:0 6px; flex-wrap:wrap; justify-content:center; }
+    .pv-pill-center { order:3; margin:0; }
+    .pv-ib { width:36px; height:36px; } .pv-ib svg { width:21px; height:21px; }
+    .pv-title, .pv-pop, .pv-countdown { top:calc(112px + env(safe-area-inset-top,0px)); }
+    .pv-pages { padding-top:calc(146px + env(safe-area-inset-top,0px)); padding-inline:6px; }
+  }
+  #readerOverlay.pv-active .reader-head, #readerOverlay.pv-active .reader-toolbar, #readerOverlay.pv-active .reader-related, #readerOverlay.pv-active .reader-progress { display:none !important; }
+  #readerOverlay.pv-active .reader-workspace { overflow:hidden; }
+  #readerOverlay.pv-active .reader-layout { padding:0 !important; }
   .sq-art { width:100%; max-width:200px; height:100%; }
   .sq-group { border:1px solid var(--border); border-radius:12px; padding:10px 12px; margin:0 0 12px; display:flex; flex-wrap:wrap; gap:8px 16px; }
   .sq-group legend { font-weight:800; font-size:13px; padding:0 6px; }
@@ -2199,6 +2231,7 @@ button,a,input,select,textarea{-webkit-tap-highlight-color:transparent;}
 }
 #gateOverlay .gate-modal h2, #nameOverlay .gate-modal h2 { color:var(--gate-text) !important; }
 #gateOverlay .sub, #nameOverlay .sub { color:var(--gate-muted); }
+#nameOverlay .field select { width:100%; min-height:44px; padding:0 12px; font:inherit; font-size:16px; background:var(--gate-field); color:var(--gate-text); border:1px solid var(--gate-line); border-radius:12px; }
 #nameOverlay .field input { background:var(--gate-field); color:var(--gate-text); border-color:var(--gate-line); border-radius:12px; }
 #nameOverlay .mb-primary { background:var(--gate-accent); border:0; border-radius:12px; }
 #nameOverlay .logout-link, #nameOverlay #nameError { color:var(--gate-muted); }
@@ -2578,6 +2611,9 @@ body.ai-site-open .ai-fab, body.ai-fab-hidden .ai-fab { display:none; }
   #readerOverlay .reader-ai-rail #readerAIButton { width:52px; height:52px; }
 }
 @media (prefers-reduced-motion:reduce) { #readerOverlay.ai-reader-open .reader-ai-host { animation:none; } }
+
+.mb-lang-btn { font-family:'Nunito',sans-serif; font-weight:800; font-size:13px; letter-spacing:.3px; }
+html[lang="en"] .mb-feature-en, html[lang="en"] .sp-title small { display:none; }
 </style>
 <link rel="manifest" href="./manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="192x192" href="./assets/app-icon-192.png">
@@ -2594,7 +2630,7 @@ body.ai-site-open .ai-fab, body.ai-fab-hidden .ai-fab { display:none; }
 <div class="overlay" id="nameOverlay">
   <div class="modal gate-modal" role="dialog" aria-modal="true" aria-labelledby="nameTitle" aria-describedby="nameDescription">
     <h2 id="nameTitle">أكمل بياناتك</h2>
-    <p class="sub" id="nameDescription">اكتب اسمك وجنسك وعمرك ليظهر اسمك في حسابك ونرحّب بك بالشكل الصحيح.</p>
+    <p class="sub" id="nameDescription">اكتب اسمك وبياناتك الدراسية لتظهر في حسابك.</p>
     <form id="nameForm">
       <div class="field">
         <label for="nameFirst">الاسم الأول</label>
@@ -2611,6 +2647,10 @@ body.ai-site-open .ai-fab, body.ai-fab-hidden .ai-fab { display:none; }
       <div class="field">
         <label for="nameAge">العمر</label>
         <input type="number" id="nameAge" inputmode="numeric" min="13" max="100" step="1" required>
+      </div>
+      <div class="field">
+        <label for="nameStage">المرحلة الدراسية</label>
+        <select id="nameStage" required><option value="">— اختر —</option><option value="1">المرحلة الأولى</option><option value="2">المرحلة الثانية</option><option value="3">المرحلة الثالثة</option><option value="4">المرحلة الرابعة</option><option value="5">المرحلة الخامسة</option><option value="6">المرحلة السادسة</option><option value="7">خريج / طبيب مقيم</option></select>
       </div>
       <p id="nameError" class="save-status" role="status"></p>
       <button type="submit" class="mb-primary" id="nameSubmit">حفظ ومتابعة</button>
@@ -2743,6 +2783,9 @@ body.ai-site-open .ai-fab, body.ai-fab-hidden .ai-fab { display:none; }
         <label>العمر
           <input type="number" id="profileAge" inputmode="numeric" min="13" max="100" step="1">
         </label>
+        <label>المرحلة الدراسية
+          <select id="profileStage"><option value="">— اختر —</option><option value="1">المرحلة الأولى</option><option value="2">المرحلة الثانية</option><option value="3">المرحلة الثالثة</option><option value="4">المرحلة الرابعة</option><option value="5">المرحلة الخامسة</option><option value="6">المرحلة السادسة</option><option value="7">خريج / طبيب مقيم</option></select>
+        </label>
         <label>البريد الإلكتروني
           <input type="email" id="profileEmailField" readonly>
         </label>
@@ -2769,6 +2812,7 @@ body.ai-site-open .ai-fab, body.ai-fab-hidden .ai-fab { display:none; }
         <button class="mb-brand-home" id="brandHomeBtn" type="button" aria-label="Medbrain — الواجهة الرئيسية"><span class="mb-brand-name">Medbrain</span><small class="mb-brand-sub">MEDICAL LEARNING</small></button>
       </div>
       <div class="mb-top-actions">
+        <button class="mb-icon-btn keep-mobile mb-lang-btn" id="siteLangToggle" type="button" aria-label="English / العربية" title="English / العربية" data-no-i18n>EN</button>
         <button class="mb-icon-btn keep-mobile" id="siteThemeToggle" type="button" aria-label="تفعيل الوضع الداكن" aria-pressed="false" title="الوضع الداكن">☾</button>
         <button class="mb-avatar" id="profileBtn" type="button" aria-label="الحساب"><span id="avatarInitials">MB</span></button>
       </div>
@@ -2784,7 +2828,7 @@ body.ai-site-open .ai-fab, body.ai-fab-hidden .ai-fab { display:none; }
       <span class="mb-watermark mb-wm-heart" aria-hidden="true"><svg viewBox="0 0 80 80" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M30 31C21 34 15 43 17 54C19 66 31 75 44 73C57 71 65 60 63 46C62 38 57 32 50 30"/><path d="M37 31C36 21 40 13 49 11C56 10 61 14 60 21"/><path d="M44 13V5M50 11V3M56 13V6"/><path d="M33 31C31 24 26 20 19 20M28 35C23 29 23 20 26 12M38 40C43 50 43 59 38 67"/></svg></span>
       <span class="mb-watermark mb-wm-micro" aria-hidden="true"><svg viewBox="0 0 90 90" fill="none" stroke="currentColor" stroke-width="4"><circle cx="43" cy="45" r="17"/><path d="m31 14 9 18m20-11-8 14M15 45h11m36 0h14M26 72l8-13m25 14-9-14"/><circle cx="43" cy="45" r="4"/></svg></span>
 
-      <h1 class="mb-welcome" dir="rtl"><span id="welcomeName">أهلاً دكتور</span></h1>
+      <h1 class="mb-welcome" dir="ltr">Welcome, <span id="welcomeName">Doctor</span>!</h1>
       <div class="mb-search-row">
         <form class="search-box smart-search-form" id="homeSearchForm" role="search">
           <button type="submit" class="search-submit" aria-label="بحث"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg></button>
@@ -2958,6 +3002,7 @@ body.ai-site-open .ai-fab, body.ai-fab-hidden .ai-fab { display:none; }
  <div class="mb-personal-card device-card"><h3>بياناتك وخصوصيتك</h3><p><a href="./privacy.html" target="_blank" rel="noopener">سياسة الخصوصية</a> · <a href="./support.html" target="_blank" rel="noopener">الدعم والملاحظات</a></p><div class="mb-personal-actions"><button type="button" class="mb-file-btn" id="exportMyData">تصدير بياناتي</button><button type="button" class="device-danger" id="openDeleteAccount">حذف حسابي</button></div><p id="devicePrivacyStatus" role="status"></p><p>Medbrain منصة تعليمية للطلاب، ولا تُستخدم لتشخيص المرضى أو اتخاذ قرارات علاجية.</p></div>
  <div class="mb-personal-card mb-install-card"><img src="./assets/app-icon-192.png" alt=""><h3>Medbrain على جهازك</h3><p>أضف التطبيق إلى الشاشة الرئيسية وافتحه بأيقونة مستقلة. المحاضرات والحساب والذكاء الاصطناعي تحتاج اتصالًا بالإنترنت.</p><button type="button" class="mb-primary" data-install-app>تثبيت Medbrain</button><p id="installAppStatus" role="status"></p></div>
  <div class="mb-personal-card"><h3>المظهر والقراءة</h3>
+  <div class="mb-setting-row"><label for="settingsLang">لغة الواجهة</label><select id="settingsLang" data-no-i18n><option value="ar">العربية</option><option value="en">English</option></select></div>
   <div class="mb-setting-row"><label for="settingsTheme">مظهر التطبيق<small>يسري على الموقع وواجهة القراءة.</small></label><select id="settingsTheme"><option value="light">فاتح</option><option value="dark">داكن</option></select></div>
   <div class="mb-setting-row"><label for="settingsFont">حجم خط القراءة<small>يُحفظ لاستخدامه عند فتح المحاضرات.</small></label><select id="settingsFont"><option value="16">16</option><option value="18">18</option><option value="20">20</option><option value="22">22</option><option value="24">24</option><option value="26">26</option></select></div>
   <div class="mb-setting-row"><label for="settingsMotion">تقليل الحركة<small>تخفيف الانتقالات والحركات في الواجهة.</small></label><input id="settingsMotion" type="checkbox"></div>
@@ -3286,12 +3331,13 @@ function profileExtrasFromUser(user) {
   const meta = user && user.user_metadata || {};
   const gender = meta.gender === 'male' || meta.gender === 'female' ? meta.gender : '';
   const age = Number.isInteger(Number(meta.age)) && Number(meta.age) >= 13 && Number(meta.age) <= 100 ? Number(meta.age) : null;
-  return { gender, age };
+  const stage = Number.isInteger(Number(meta.stage)) && Number(meta.stage) >= 1 && Number(meta.stage) <= 7 ? Number(meta.stage) : null;
+  return { gender, age, stage };
 }
 function needsAccountName(user) {
   const { first, last } = namePartsFromUser(user);
-  const { gender, age } = profileExtrasFromUser(user);
-  return !!user && (!first || !last || !gender || !age);
+  const { gender, age, stage } = profileExtrasFromUser(user);
+  return !!user && (!first || !last || !gender || !age || !stage);
 }
 function syncNamePrompt() {
   const overlay = document.getElementById('nameOverlay');
@@ -3309,6 +3355,7 @@ function syncNamePrompt() {
     const extras = profileExtrasFromUser(activeUser);
     document.querySelectorAll('input[name="nameGender"]').forEach(r => { r.checked = r.value === extras.gender; });
     document.getElementById('nameAge').value = extras.age || '';
+    document.getElementById('nameStage').value = extras.stage || '';
     document.getElementById('nameError').textContent = '';
   }
   const wasOpen = overlay.classList.contains('open');
@@ -3337,16 +3384,43 @@ function paintAvatar(id, initials, url) {
     el.textContent = initials;
   }
 }
-// Every student is greeted as a doctor in Arabic: «أهلاً دكتور فلان» or «أهلاً دكتورة فلانة», from the gender chosen at sign-up.
-function doctorTitle(name, gender) {
-  const title = gender === 'female' ? 'دكتورة' : 'دكتور';
-  const n = String(name || '').trim().replace(/^(dr\.?|doctor|د\.|الدكتورة?|دكتورة?)\s*/i, '');
-  return 'أهلاً ' + title + (n && n !== 'Doctor' ? ' ' + n : '');
+// Every student is greeted «Welcome, Dr. Name!» in the original welcome font; Arabic names are written in English letters.
+const LATIN_NAMES = {"انور": "Anwar", "منصور": "Mansoor", "سرمد": "Sarmad", "نعمان": "Noaman", "رغد": "Raghad", "اياد": "Ayad", "احسان": "Ihsan", "حسنين": "Hasanain", "علياء": "Alyaa", "هاله": "Hala", "اميره": "Ameera", "ناديه": "Nadia", "سجى": "Saja", "سجي": "Saja", "شيماء": "Shaimaa", "رحاب": "Rehab", "ميس": "Mais", "هند": "Hind", "وسن": "Wasan", "ايمن": "Ayman", "اسامه": "Osama", "حمودي": "Hamoudi", "تقى": "Tuqa", "تقي": "Tuqa", "مينا": "Mina", "يحيى": "Yahya", "يحيي": "Yahya", "موسى": "Musa", "موسي": "Musa", "عيسى": "Issa", "نوح": "Nooh", "لؤي": "Luay", "قصي": "Qusay", "اوس": "Aws", "ضرغام": "Dhurgham", "همام": "Humam", "مسلم": "Muslim", "عقيل": "Aqeel", "حسام": "Hussam", "هشام": "Hisham", "وسام": "Wisam", "عماد": "Imad", "جمال": "Jamal", "كمال": "Kamal", "نزار": "Nizar", "حازم": "Hazim", "صفاء": "Safaa", "وفاء": "Wafaa", "رشا": "Rasha", "لبنى": "Lubna", "سهى": "Suha", "ندى": "Nada", "نبأ": "Naba", "بشرى": "Bushra", "يقين": "Yaqeen", "ابرار": "Abrar", "براء": "Baraa", "حنان": "Hanan", "ايلاف": "Elaf", "مروه": "Marwa", "مروة": "Marwa", "ورود": "Wurood", "زهور": "Zuhoor","حيدر": "Haider", "محمد": "Mohammed", "احمد": "Ahmed", "علي": "Ali", "حسن": "Hassan", "حسين": "Hussein", "عباس": "Abbas", "مصطفى": "Mustafa", "مصطفي": "Mustafa", "مرتضى": "Murtadha", "مرتضي": "Murtadha", "منتظر": "Muntadher", "مهدي": "Mahdi", "سجاد": "Sajjad", "كرار": "Karrar", "زين": "Zain", "زينب": "Zainab", "فاطمه": "Fatima", "مريم": "Maryam", "نور": "Noor", "نورا": "Nora", "زهراء": "Zahraa", "زهرا": "Zahraa", "رقيه": "Ruqaya", "سكينه": "Sakina", "ساره": "Sara", "سارا": "Sara", "هبه": "Hiba", "آيه": "Aya", "ايه": "Aya", "اسراء": "Israa", "اسماء": "Asmaa", "دعاء": "Duaa", "رسل": "Rusul", "ريام": "Riyam", "طيبه": "Taiba", "بنين": "Baneen", "حوراء": "Hawraa", "ملاك": "Malak", "تبارك": "Tabarak", "يوسف": "Yousif", "ابراهيم": "Ibrahim", "عمر": "Omar", "عثمان": "Othman", "خالد": "Khalid", "وليد": "Waleed", "سعد": "Saad", "سعيد": "Saeed", "كريم": "Kareem", "جعفر": "Jaafar", "صادق": "Sadiq", "باقر": "Baqir", "كاظم": "Kadhim", "رضا": "Ridha", "جواد": "Jawad", "هادي": "Hadi", "حمزه": "Hamza", "عمار": "Ammar", "ياسر": "Yasir", "ياسين": "Yaseen", "طه": "Taha", "عبدالله": "Abdullah", "عبد": "Abd", "الله": "Allah", "الرحمن": "Alrahman", "عبدالرحمن": "Abdulrahman", "امير": "Ameer", "أمير": "Ameer", "علاء": "Alaa", "ضياء": "Dhiaa", "هيثم": "Haitham", "حيدره": "Haidara", "مؤمل": "Moammal", "مقتدى": "Muqtada", "قاسم": "Qasim", "نبيل": "Nabeel", "ماجد": "Majid", "سلام": "Salam", "رائد": "Raed", "فراس": "Firas", "سيف": "Saif", "بلال": "Bilal", "انس": "Anas", "زيد": "Zaid", "زياد": "Ziad", "حارث": "Harith", "غيث": "Ghaith", "ليث": "Laith", "مهند": "Muhannad", "محمود": "Mahmoud", "حامد": "Hamid", "جاسم": "Jasim", "كامل": "Kamil", "فاضل": "Fadhil", "عادل": "Adil", "عقيل": "Aqeel", "ستار": "Sattar", "جبار": "Jabbar", "صباح": "Sabah", "رياض": "Riyadh", "نجم": "Najm", "لينا": "Lina", "رنا": "Rana", "دينا": "Dina", "هدى": "Huda", "هدي": "Huda", "شهد": "Shahad", "غدير": "Ghadeer", "آلاء": "Alaa", "الاء": "Alaa", "بتول": "Batool", "ضحى": "Duha", "ضحي": "Duha", "سلمى": "Salma", "سلمي": "Salma", "لمى": "Lama", "رهف": "Rahaf", "جنان": "Jinan", "حنين": "Haneen", "ايات": "Ayat", "زهره": "Zahra", "امنه": "Amina", "منى": "Mona", "مني": "Mona", "العبيدي": "Al-Obaidi", "الجبوري": "Al-Jubouri", "التميمي": "Al-Tamimi", "الربيعي": "Al-Rubaie", "الموسوي": "Al-Musawi", "الحسيني": "Al-Husseini", "الساعدي": "Al-Saadi", "الخفاجي": "Al-Khafaji", "الشمري": "Al-Shammari", "الدليمي": "Al-Dulaimi", "الزبيدي": "Al-Zubaidi", "الكعبي": "Al-Kaabi", "العزاوي": "Al-Azzawi", "الياسري": "Al-Yasiri", "العامري": "Al-Amiri"};
+const AR_LATIN = { 'ا':'a','أ':'a','إ':'i','آ':'aa','ب':'b','ت':'t','ث':'th','ج':'j','ح':'h','خ':'kh','د':'d','ذ':'dh','ر':'r','ز':'z','س':'s','ش':'sh','ص':'s','ض':'dh','ط':'t','ظ':'dh',
+  'ع':'a','غ':'gh','ف':'f','ق':'q','ك':'k','ل':'l','م':'m','ن':'n','ه':'h','ة':'a','و':'w','ي':'y','ى':'a','ئ':'e','ؤ':'o','ء':'' };
+function latinWord(w) {
+  const key = w.replace(/[أإآ]/g, 'ا').replace(/ة/g, 'ه').replace(/ى$/, 'ى');
+  const hit = LATIN_NAMES[w] || LATIN_NAMES[key] || LATIN_NAMES[key.replace(/ى/g, 'ي')];
+  if (hit) return hit;
+  if (key.startsWith('ال') && key.length > 3) return 'Al-' + latinWord(key.slice(2));
+  if (key.startsWith('عبد') && key.length > 4) return 'Abdul' + latinWord(key.slice(3)).toLowerCase();
+  let out = '';
+  for (let i = 0; i < w.length; i++) {
+    const ch = w[i], next = w[i + 1];
+    if (ch === 'ي' && i > 0 && i < w.length - 1) out += 'ee';
+    else if (ch === 'و' && i > 0 && i < w.length - 1) out += 'oo';
+    else if (ch === 'ي' && i === w.length - 1) out += 'i';
+    else out += AR_LATIN[ch] != null ? AR_LATIN[ch] : ch;
+    // Arabic script leaves short vowels unwritten; add an "a" between two consonants so the name stays readable.
+    const cons = /[بتثجحخدذرزسشصضطظغفقكلمنه]/;
+    if (cons.test(ch) && next && cons.test(next) && (i === 0 || i === w.length - 2)) out += 'a';
+  }
+  return out.replace(/(.)\1{2,}/g, '$1$1');
+}
+function latinName(name) {
+  const n = String(name || '').trim();
+  if (!/[\u0600-\u06FF]/.test(n)) return n;
+  return n.split(/\s+/).filter(Boolean).map(w => /[\u0600-\u06FF]/.test(w) ? latinWord(w) : w)
+    .map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+}
+function doctorTitle(name) {
+  const n = latinName(String(name || '').trim().replace(/^(dr\.?|doctor|د\.|الدكتورة?|دكتورة?)\s*/i, ''));
+  return !n || n === 'Doctor' ? 'Doctor' : 'Dr. ' + n;
 }
 function applyIdentityUI() {
   const initials = initialsForName(activeUserName);
   const textMap = {
-    welcomeName: doctorTitle(activeUserName, profileExtrasFromUser(activeUser).gender),
+    welcomeName: doctorTitle(activeUserName),
     profileAge: profileExtrasFromUser(activeUser).age ? String(profileExtrasFromUser(activeUser).age) : '',
     drawerUserName: activeUserName,
     drawerUserEmail: activeUserEmail,
@@ -3365,6 +3439,7 @@ function applyIdentityUI() {
     else el.textContent = textMap[id] || '';
   });
   const pg = document.getElementById('profileGender'); if (pg) pg.value = profileExtrasFromUser(activeUser).gender;
+  const ps = document.getElementById('profileStage'); if (ps) ps.value = profileExtrasFromUser(activeUser).stage || '';
   paintAvatar('profileBtn', initials, activeAvatarUrl);
   paintAvatar('drawerAvatar', initials, activeAvatarUrl);
   paintAvatar('accountAvatar', initials, activeAvatarUrl);
@@ -3396,7 +3471,7 @@ async function loadProfile() {
   activeAvatarUrl = profile.avatar_url || activeAvatarUrl || '';
   applyIdentityUI();
 }
-async function saveProfileName(firstName, lastName, genderValue, ageValue) {
+async function saveProfileName(firstName, lastName, genderValue, ageValue, stageValue) {
   const first = String(firstName || '').trim();
   const last = String(lastName || '').trim();
   if (!first || !last) throw new Error('اكتب الاسم الأول واسم العائلة.');
@@ -3404,6 +3479,8 @@ async function saveProfileName(firstName, lastName, genderValue, ageValue) {
   if (!gender) throw new Error('اختر الجنس: ذكر أو أنثى.');
   const age = Number(ageValue);
   if (!Number.isInteger(age) || age < 13 || age > 100) throw new Error('اكتب عمرك بالأرقام (يجب أن يكون 13 سنة أو أكثر).');
+  const stage = Number(stageValue);
+  if (!Number.isInteger(stage) || stage < 1 || stage > 7) throw new Error('اختر مرحلتك الدراسية.');
   if (first.length > 40 || last.length > 40 || (first + ' ' + last).length > 80)
     throw new Error('يجب ألا يتجاوز الاسم الكامل 80 حرفًا.');
   if (!client || !activeUserId || !activeUser) throw new Error('سجّل الدخول أولًا.');
@@ -3412,12 +3489,12 @@ async function saveProfileName(firstName, lastName, genderValue, ageValue) {
   const clean = first + ' ' + last;
   const now = new Date().toISOString();
   const saved = await client.from('profiles').upsert({
-    id: activeUserId, display_name: clean, avatar_url: activeAvatarUrl || null, gender, age, updated_at: now
+    id: activeUserId, display_name: clean, avatar_url: activeAvatarUrl || null, gender, age, stage, updated_at: now
   });
   if (saved.error) throw saved.error;
   if (version !== accessVersion || userId !== activeUserId) throw new Error('تغيّرت جلسة الدخول. حاول مجددًا.');
   const authSaved = await client.auth.updateUser({ data: {
-    first_name: first, last_name: last, gender, age,
+    first_name: first, last_name: last, gender, age, stage,
     display_name: clean, full_name: clean, avatar_url: activeAvatarUrl || null
   } });
   if (authSaved.error) throw authSaved.error;
@@ -4244,7 +4321,7 @@ function wireGateEvents() {
     button.textContent = 'جارٍ الحفظ…';
     try {
       const g = document.querySelector('input[name="nameGender"]:checked');
-      await saveProfileName(first, last, g ? g.value : '', document.getElementById('nameAge').value);
+      await saveProfileName(first, last, g ? g.value : '', document.getElementById('nameAge').value, document.getElementById('nameStage').value);
       syncNamePrompt();
       document.getElementById('profileBtn').focus();
     } catch (err) {
@@ -4647,8 +4724,11 @@ let lastBrowsePath = null;
 let browseCrumbLevels = ['root'];
 // Library back arrow: one browse level up; at the subject panels it returns home.
 function browseBack() {
-  if (currentMainView === 'library' && browseCrumbLevels.length > 1 && !state.search.trim()) { browseTo(browseCrumbLevels[browseCrumbLevels.length - 2]); return true; }
-  return false;
+  if (currentMainView !== 'library' || browseCrumbLevels.length < 2 || state.search.trim()) return false;
+  // From a subject's branch or topic, back always returns to the subject panels; inside a source it steps up one level.
+  const prev = browseCrumbLevels[browseCrumbLevels.length - 2];
+  browseTo(!state.browse.fromSource || prev === 'rootcat' || prev === 'root' ? 'root' : prev);
+  return true;
 }
 function browsePathValue(level) { return lastBrowsePath ? lastBrowsePath[level] : null; }
 
@@ -5376,7 +5456,7 @@ function wireMedbrainEvents() {
     const btn=document.getElementById('profileSaveBtn');
     btn.disabled=true; status.textContent='جارٍ الحفظ…';
     try{
-      await saveProfileName(document.getElementById('profileFirstName').value, document.getElementById('profileLastName').value, document.getElementById('profileGender').value, document.getElementById('profileAge').value);
+      await saveProfileName(document.getElementById('profileFirstName').value, document.getElementById('profileLastName').value, document.getElementById('profileGender').value, document.getElementById('profileAge').value, document.getElementById('profileStage').value);
       status.textContent='تم حفظ بياناتك.';
       showMbToast('تم تحديث الملف الشخصي.');
     }catch(err){console.error(err);status.textContent=err.message||'تعذّر حفظ الملف الشخصي.';}
@@ -5920,8 +6000,8 @@ async function openPdfInReader(id) {
 }
 // ---------------- In-site PDF viewer ----------------
 // pdf.js (loaded on first use) draws pages into canvases. Only pages near the screen are rendered and far ones are
-// released, so long files stay light on phones. Extras: pen notes saved on this device per lecture, page jump,
-// zoom, and a study countdown that floats over the lecture.
+// released, so long files stay light on phones. Floating tool pills: pen, highlighter, eraser and text notes saved on
+// this device per lecture, undo/redo, page grid, pinch zoom, night pages, and an icon-only study countdown.
 const PDFJS_SRC = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
 const PDFJS_WORKER = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 let pdfjsLoading = null, pdfView = null, pdfTimer = null;
@@ -5947,42 +6027,78 @@ async function fetchLecturePdf(id) {
   if (!response.ok) throw new Error('stream_' + response.status);
   return new Uint8Array(await response.arrayBuffer());
 }
-const PV_COLORS = ['#e5484d', '#1f6feb', '#2da44e', '#f5b400', '#111827'];
-const PV_ICONS = {
-  pen: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m4 20 4-1L19 8a2.1 2.1 0 0 0-3-3L5 16l-1 4Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>',
-  undo: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 14 4 9l5-5M4 9h10a6 6 0 0 1 0 12h-3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
-  clear: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M10 11v6m4-6v6M6 7l1 13h10l1-13M9 7V4h6v3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
-  timer: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13" r="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 9v4l3 2M9 2h6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>'
+const PV_COLORS = ['#111827', '#1f6feb', '#e5484d', '#2da44e', '#8e4ec6', '#f97316'];
+const PV_HL = ['#fde047', '#86efac', '#f9a8d4', '#93c5fd'];
+const PV_SIZES = [0.0025, 0.0045, 0.008];
+const PVI = {
+  close: '<svg viewBox="0 0 24 24"><path d="M4 12h16M14 6l6 6-6 6"/></svg>',
+  pages: '<svg viewBox="0 0 24 24"><rect x="7" y="3" width="13" height="15" rx="2"/><path d="M4 7v12a2 2 0 0 0 2 2h10"/></svg>',
+  more: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="7.5" r=".6" fill="currentColor"/><circle cx="12" cy="12" r=".6" fill="currentColor"/><circle cx="12" cy="16.5" r=".6" fill="currentColor"/></svg>',
+  timer: '<svg viewBox="0 0 24 24"><circle cx="12" cy="13.5" r="7.5"/><path d="M12 9.5v4l2.5 2M10 2.5h4M18.5 6.5l1.5-1.5"/></svg>',
+  undo: '<svg viewBox="0 0 24 24"><path d="M9 7 4.5 11.5 9 16"/><path d="M5 11.5h9.5a5 5 0 0 1 0 10H12"/></svg>',
+  redo: '<svg viewBox="0 0 24 24"><path d="M15 7l4.5 4.5L15 16"/><path d="M19 11.5H9.5a5 5 0 0 0 0 10H12"/></svg>',
+  chevL: '<svg viewBox="0 0 24 24"><path d="M14.5 6 8.5 12l6 6"/></svg>',
+  chevR: '<svg viewBox="0 0 24 24"><path d="M9.5 6l6 6-6 6"/></svg>',
+  hand: '<svg viewBox="0 0 24 24"><path d="M8 13.5V6a1.5 1.5 0 0 1 3 0v5M11 10.5V4.5a1.5 1.5 0 0 1 3 0v6M14 10.5V6a1.5 1.5 0 0 1 3 0v5.5M17 11V9a1.5 1.5 0 0 1 3 0v5a7 7 0 0 1-7 7h-1a6.5 6.5 0 0 1-5.2-2.6L4.3 15.6a1.6 1.6 0 0 1 2.5-2L8 15"/></svg>',
+  text: '<svg viewBox="0 0 24 24"><path d="M3.5 6h10M8.5 6v13M14.5 10.5h6M17.5 8v9.5a1.5 1.5 0 0 0 2.5 1"/></svg>',
+  eraser: '<svg viewBox="0 0 24 24"><path d="M14.5 4.5 20 10l-8.5 8.5H7L3.5 15z"/><path d="m9 10 5.5 5.5M11.5 18.5H20"/></svg>',
+  hl: '<svg viewBox="0 0 24 24"><path d="m14 3.5 6.5 6.5-7 7-6.5-6.5z"/><path d="M7 10.5 5 16l3 3 5.5-2M5 16l-2 3h4"/></svg>',
+  pen: '<svg viewBox="0 0 24 24"><path d="M15.5 3.5 20.5 8.5 10 19l-5.5 1 1-5.5z"/><path d="m13.5 5.5 5 5M5.5 14.5l4 4"/></svg>',
+  night: '<svg viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg>',
+  fit: '<svg viewBox="0 0 24 24"><path d="M3 12h18M7 8l-4 4 4 4M17 8l4 4-4 4"/></svg>',
+  top: '<svg viewBox="0 0 24 24"><path d="M5 4h14M12 20V8M7 13l5-5 5 5"/></svg>',
+  clear: '<svg viewBox="0 0 24 24"><path d="M4 7h16M10 11v6m4-6v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg>',
+  quiz: '<svg viewBox="0 0 24 24"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg>'
 };
 function inkKey(id) { return 'medbrain_ink_' + id; }
 function loadInk(id) { try { return JSON.parse(localStorage.getItem(inkKey(id)) || '{}') || {}; } catch (_) { return {}; } }
 function saveInk() { if (!pdfView) return; try { localStorage.setItem(inkKey(pdfView.lecId), JSON.stringify(pdfView.ink)); } catch (_) {} }
+function pvPrefs() { try { return JSON.parse(localStorage.getItem('medbrain_pv_prefs') || '{}') || {}; } catch (_) { return {}; } }
+function savePvPrefs(v) { try { localStorage.setItem('medbrain_pv_prefs', JSON.stringify({ pen: v.pen, hl: v.hl, night: v.night })); } catch (_) {} }
 function destroyPdfViewer() {
+  document.getElementById('readerOverlay').classList.remove('pv-active');
   if (!pdfView) return;
   const v = pdfView; pdfView = null;
   if (v.observer) v.observer.disconnect();
   v.rendered.forEach(n => { const c = v.pages[n - 1] && v.pages[n - 1].querySelector('.pv-canvas'); if (c) { c.width = 0; c.height = 0; } });
   try { v.doc.destroy(); } catch (_) {}
 }
+const pvBtn = (act, icon, label, extra) => '<button type="button" class="pv-ib" data-pv="' + act + '" aria-label="' + label + '" title="' + label + '"' + (extra || '') + '>' + icon + '</button>';
 async function mountPdfViewer(body, bytes, lec) {
   const lib = await loadPdfJs();
   const doc = await lib.getDocument({ data: bytes }).promise;
   destroyPdfViewer();
   const first = await doc.getPage(1);
   const vp1 = first.getViewport({ scale: 1 });
+  const prefs = pvPrefs();
+  const pen = Object.assign({ c: PV_COLORS[0], w: PV_SIZES[1] }, prefs.pen || {});
+  const hl = Object.assign({ c: PV_HL[0] }, prefs.hl || {});
   body.innerHTML = '<div class="pv" id="pdfViewer">' +
-    '<div class="pv-bar" role="toolbar" aria-label="أدوات الملف">' +
-      '<button type="button" class="pv-btn" data-pv="pen" aria-pressed="false" title="قلم للكتابة على الصفحة">' + PV_ICONS.pen + '<span>قلم</span></button>' +
-      '<span class="pv-colors" hidden>' + PV_COLORS.map((c, i) => '<button type="button" class="pv-color" data-pv-color="' + c + '" style="--c:' + c + '" aria-label="لون ' + (i + 1) + '" aria-pressed="' + (i === 0) + '"></button>').join('') + '</span>' +
-      '<button type="button" class="pv-btn" data-pv="undo" title="تراجع عن آخر خط">' + PV_ICONS.undo + '</button>' +
-      '<button type="button" class="pv-btn" data-pv="clear" title="مسح كتابة هذه الصفحة">' + PV_ICONS.clear + '</button>' +
-      '<form class="pv-goto" id="pvGoto"><label><span class="visually-hidden">رقم الصفحة</span><input id="pvPage" type="number" min="1" max="' + doc.numPages + '" value="1" inputmode="numeric"></label><span class="pv-total">/ ' + doc.numPages + '</span><button type="submit" class="pv-btn">اذهب</button></form>' +
-      '<button type="button" class="pv-btn" data-pv="zoom-out" aria-label="تصغير">−</button><button type="button" class="pv-btn" data-pv="zoom-in" aria-label="تكبير">+</button>' +
-      '<button type="button" class="pv-btn" data-pv="timer" aria-expanded="false" title="مؤقت عدّ تنازلي للمذاكرة">' + PV_ICONS.timer + '<span>مؤقت</span></button>' +
+    '<div class="pv-tb" role="toolbar" aria-label="أدوات الملف">' +
+      '<div class="pv-pill">' + pvBtn('pages', PVI.pages, 'الصفحات', ' aria-expanded="false"') + pvBtn('more', PVI.more, 'المزيد', ' aria-expanded="false"') +
+        pvBtn('timer', PVI.timer, 'مؤقت المذاكرة', ' aria-expanded="false"') + pvBtn('undo', PVI.undo, 'تراجع', ' disabled') + pvBtn('redo', PVI.redo, 'إعادة الخطوة', ' disabled') + '</div>' +
+      '<div class="pv-pill pv-pill-center">' +
+        '<div class="pv-set" id="pvSet1">' + pvBtn('set2', PVI.chevL, 'أدوات أخرى') + pvBtn('hand', PVI.hand, 'تصفح', ' aria-pressed="true"') + '<span class="pv-sep"></span>' +
+          pvBtn('text', PVI.text, 'كتابة نص', ' aria-pressed="false"') + pvBtn('eraser', PVI.eraser, 'ممحاة', ' aria-pressed="false"') +
+          '<button type="button" class="pv-ib" data-pv="hl" aria-label="قلم تظليل" title="قلم تظليل" aria-pressed="false" style="--c:' + hl.c + '">' + PVI.hl + '<span class="pv-swatch"></span></button>' +
+          '<button type="button" class="pv-ib" data-pv="pen" aria-label="قلم" title="قلم" aria-pressed="false" style="--c:' + pen.c + '">' + PVI.pen + '<span class="pv-swatch"></span></button></div>' +
+        '<div class="pv-set" id="pvSet2" hidden>' + pvBtn('set1', PVI.chevR, 'أدوات الكتابة') + pvBtn('night', PVI.night, 'الوضع الليلي للصفحات', ' aria-pressed="' + !!prefs.night + '"') +
+          pvBtn('fit', PVI.fit, 'ملاءمة العرض') + pvBtn('top', PVI.top, 'الصفحة الأولى') + '</div>' +
+      '</div>' +
+      '<div class="pv-pill">' + pvBtn('close', PVI.close, 'إغلاق') + '</div>' +
     '</div>' +
-    '<div class="pv-timer-menu" id="pvTimerMenu" hidden><span>ذاكر لمدة:</span>' + [15, 25, 45, 60, 90].map(m => '<button type="button" class="chip" data-pv-min="' + m + '">' + m + ' د</button>').join('') + '</div>' +
-    '<div class="pv-stage"><div class="pv-countdown" id="pvCountdown" hidden><output id="pvClock" dir="ltr">00:00</output><button type="button" data-pv="timer-stop" aria-label="إيقاف المؤقت">×</button></div>' +
-    '<div class="pv-pages" id="pvPages"></div></div></div>';
+    '<p class="pv-title" dir="auto">' + escapeHtml(lec.title || '') + '</p>' +
+    '<div class="pv-pop" id="pvPenPop" hidden style="left:50%;transform:translateX(-50%)"><div class="pv-pop-row">' + PV_COLORS.map(c => '<button type="button" class="pv-color" data-pv-color="' + c + '" style="--c:' + c + '" aria-label="لون" aria-pressed="' + (c === pen.c) + '"></button>').join('') + '</div>' +
+      '<div class="pv-pop-row">' + PV_SIZES.map((w, i) => '<button type="button" class="pv-size" data-pv-size="' + w + '" aria-label="سماكة ' + (i + 1) + '" aria-pressed="' + (w === pen.w) + '"><i style="height:' + (2 + i * 2) + 'px"></i></button>').join('') + '</div></div>' +
+    '<div class="pv-pop" id="pvHlPop" hidden style="left:50%;transform:translateX(-50%)"><div class="pv-pop-row">' + PV_HL.map(c => '<button type="button" class="pv-color" data-pv-hl="' + c + '" style="--c:' + c + '" aria-label="لون التظليل" aria-pressed="' + (c === hl.c) + '"></button>').join('') + '</div></div>' +
+    '<div class="pv-pop" id="pvPagesPop" hidden style="left:12px"><div class="pv-pagegrid" id="pvPageGrid"></div></div>' +
+    '<div class="pv-pop pv-menu" id="pvMorePop" hidden style="left:12px">' +
+      (topicQuizAvailable(lec.topicId) ? '<button type="button" data-pv="quiz">' + PVI.quiz + '<span>كويز سريع على الموضوع</span></button>' : '') +
+      '<button type="button" data-pv="clear-page">' + PVI.clear + '<span>مسح كتابتي في هذه الصفحة</span></button>' +
+      '<button type="button" data-pv="clear-all">' + PVI.clear + '<span>مسح كل ملاحظاتي على الملف</span></button></div>' +
+    '<div class="pv-pop" id="pvTimerPop" hidden style="left:12px"><div class="pv-mins">' + [15, 25, 45, 60, 90].map(m => '<button type="button" data-pv-min="' + m + '" aria-label="' + m + ' دقيقة">' + m + '</button>').join('') + '</div></div>' +
+    '<div class="pv-countdown" id="pvCountdown" hidden><output id="pvClock">00:00</output><button type="button" data-pv="timer-stop" aria-label="إيقاف المؤقت">×</button></div>' +
+    '<div class="pv-stage"><div class="pv-pages' + (prefs.night ? ' pv-night' : '') + '" id="pvPages"></div></div></div>';
   const wrap = document.getElementById('pvPages');
   const pages = [];
   for (let n = 1; n <= doc.numPages; n++) {
@@ -5992,7 +6108,8 @@ async function mountPdfViewer(body, bytes, lec) {
     el.innerHTML = '<canvas class="pv-canvas"></canvas><canvas class="pv-ink"></canvas><span class="pv-num">' + n + '</span>';
     wrap.appendChild(el); pages.push(el);
   }
-  pdfView = { doc, lecId: lec.id, pages, rendered: new Set(), rendering: new Map(), zoom: 1, pen: false, color: PV_COLORS[0], ink: loadInk(lec.id), visible: new Map(), current: 1 };
+  pdfView = { doc, lecId: lec.id, topicId: lec.topicId, pages, rendered: new Set(), rendering: new Map(), zoom: 1, tool: 'hand', pen, hl, night: !!prefs.night,
+    ink: loadInk(lec.id), visible: new Map(), current: 1, hist: [], redo: [] };
   pdfView.observer = new IntersectionObserver(entries => {
     if (!pdfView) return;
     entries.forEach(en => {
@@ -6003,10 +6120,10 @@ async function mountPdfViewer(body, bytes, lec) {
     let best = pdfView.current, ratio = -1;
     pdfView.visible.forEach((r, n) => { if (r > ratio) { ratio = r; best = n; } });
     pdfView.current = best;
-    const input = document.getElementById('pvPage'); if (input && document.activeElement !== input) input.value = best;
     releaseFarPages();
   }, { root: wrap, rootMargin: '600px 0px', threshold: [0, 0.25, 0.5, 0.75] });
   pages.forEach(el => pdfView.observer.observe(el));
+  document.getElementById('readerOverlay').classList.add('pv-active');
   bindPdfViewer(wrap);
   if (pdfTimer) showCountdown();
 }
@@ -6020,7 +6137,7 @@ async function renderPdfPage(n) {
     el.style.aspectRatio = base.width + ' / ' + base.height;
     const cssW = el.clientWidth || 600;
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    const vp = page.getViewport({ scale: cssW / base.width * dpr });
+    const vp = page.getViewport({ scale: Math.min(cssW / base.width * dpr, 4000 / base.width) });
     const canvas = el.querySelector('.pv-canvas'), ink = el.querySelector('.pv-ink');
     canvas.width = Math.floor(vp.width); canvas.height = Math.floor(vp.height);
     await page.render({ canvasContext: canvas.getContext('2d'), viewport: vp }).promise;
@@ -6040,78 +6157,192 @@ function releaseFarPages() {
     }
   });
 }
-function drawStroke(ctx, st, w, h) {
-  if (!st.pts.length) return;
-  ctx.strokeStyle = st.c; ctx.lineWidth = st.w * w; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
-  ctx.beginPath(); ctx.moveTo(st.pts[0][0] * w, st.pts[0][1] * h);
-  st.pts.forEach(([x, y]) => ctx.lineTo(x * w, y * h));
-  ctx.stroke();
+function rerenderPdfPages() {
+  const v = pdfView; if (!v) return;
+  v.rendered.forEach(n => v.pages[n - 1].querySelectorAll('canvas').forEach(c => { c.width = 0; c.height = 0; }));
+  v.rendered.clear();
+  v.visible.forEach((_, n) => renderPdfPage(n));
 }
-function drawInk(n) {
+// Ink items (normalised 0–1 to the page): pen {c,w,pts}, highlighter {k:'hl',c,pts}, text {k:'txt',c,x,y,s,t}.
+function drawStroke(ctx, st, w, h) {
+  if (st.k === 'txt') {
+    ctx.save(); ctx.fillStyle = st.c; ctx.font = '600 ' + Math.max(8, st.s * w) + 'px system-ui, sans-serif'; ctx.textBaseline = 'top';
+    String(st.t).split('\n').forEach((line, i) => ctx.fillText(line, st.x * w, st.y * h + i * st.s * w * 1.25));
+    ctx.restore(); return;
+  }
+  if (!st.pts || !st.pts.length) return;
+  ctx.save();
+  if (st.k === 'hl') { ctx.globalAlpha = 0.38; ctx.globalCompositeOperation = 'multiply'; }
+  ctx.strokeStyle = st.c; ctx.lineWidth = (st.k === 'hl' ? 0.02 : st.w) * w; ctx.lineCap = st.k === 'hl' ? 'butt' : 'round'; ctx.lineJoin = 'round';
+  ctx.beginPath(); ctx.moveTo(st.pts[0][0] * w, st.pts[0][1] * h);
+  if (st.pts.length === 1) ctx.lineTo(st.pts[0][0] * w + 0.1, st.pts[0][1] * h);
+  st.pts.forEach(([x, y]) => ctx.lineTo(x * w, y * h));
+  ctx.stroke(); ctx.restore();
+}
+function drawInk(n, extra) {
   const v = pdfView; if (!v) return;
   const ink = v.pages[n - 1].querySelector('.pv-ink');
+  if (!ink.width) return;
   const ctx = ink.getContext('2d'); ctx.clearRect(0, 0, ink.width, ink.height);
   (v.ink[n] || []).forEach(st => drawStroke(ctx, st, ink.width, ink.height));
+  if (extra) drawStroke(ctx, extra, ink.width, ink.height);
+}
+function pvSyncHistory() {
+  const v = pdfView; if (!v) return;
+  const viewer = document.getElementById('pdfViewer');
+  viewer.querySelector('[data-pv="undo"]').disabled = !v.hist.length;
+  viewer.querySelector('[data-pv="redo"]').disabled = !v.redo.length;
+}
+function pvCommit(op) { const v = pdfView; v.hist.push(op); if (v.hist.length > 200) v.hist.shift(); v.redo = []; saveInk(); pvSyncHistory(); }
+function pvApply(op, reverse) {
+  const v = pdfView; const list = (v.ink[op.n] = v.ink[op.n] || []);
+  const adding = op.add ? !reverse : reverse;
+  op.items.forEach(({ item, i }) => {
+    if (adding) list.splice(Math.min(i, list.length), 0, item);
+    else { const at = list.indexOf(item); if (at >= 0) list.splice(at, 1); }
+  });
+  if (!list.length) delete v.ink[op.n];
+  saveInk(); drawInk(op.n);
+}
+function pvHit(st, x, y, r) {
+  if (st.k === 'txt') return Math.abs(st.x - x) < 0.06 && y >= st.y - r && y <= st.y + st.s * 1.6;
+  return (st.pts || []).some(([px, py]) => Math.hypot(px - x, (py - y) * 1.3) < r + (st.k === 'hl' ? 0.01 : 0));
 }
 function bindPdfViewer(wrap) {
   const viewer = document.getElementById('pdfViewer');
-  let stroke = null, strokePage = 0;
+  const v0 = pdfView;
+  let stroke = null, strokePage = 0, erased = null;
   const point = (e, ink) => { const r = ink.getBoundingClientRect(); return [(e.clientX - r.left) / r.width, (e.clientY - r.top) / r.height]; };
+  const pops = ['pvPenPop', 'pvHlPop', 'pvPagesPop', 'pvMorePop', 'pvTimerPop'];
+  const closePops = except => pops.forEach(id => { if (id !== except) document.getElementById(id).hidden = true; });
+  const togglePop = id => { const el = document.getElementById(id); closePops(id); el.hidden = !el.hidden;
+    viewer.querySelectorAll('[aria-expanded]').forEach(b => b.setAttribute('aria-expanded', String(!document.getElementById({ pages: 'pvPagesPop', more: 'pvMorePop', timer: 'pvTimerPop' }[b.dataset.pv] || 'x')?.hidden))); };
+  const setTool = tool => {
+    const v = pdfView; v.tool = tool;
+    ['hand', 'text', 'eraser', 'hl', 'pen'].forEach(t => viewer.querySelector('[data-pv="' + t + '"]').setAttribute('aria-pressed', String(t === tool)));
+    wrap.classList.toggle('pv-drawing', tool !== 'hand');
+  };
   wrap.addEventListener('pointerdown', e => {
-    const ink = e.target.closest('.pv-ink'); if (!ink || !pdfView || !pdfView.pen) return;
-    e.preventDefault(); ink.setPointerCapture(e.pointerId);
+    const v = pdfView; const ink = e.target.closest('.pv-ink'); if (!ink || !v || v.tool === 'hand') return;
+    closePops();
+    if (e.pointerType === 'pen') wrap.classList.add('pv-stylus');
+    if (e.pointerType === 'touch' && wrap.classList.contains('pv-stylus')) return; // with a stylus, fingers scroll
+    if (touchCount > 1) return;
+    e.preventDefault();
     strokePage = Number(ink.parentElement.dataset.page);
-    stroke = { c: pdfView.color, w: 0.004, pts: [point(e, ink)] };
+    const [x, y] = point(e, ink);
+    if (v.tool === 'text') {
+      const t = prompt('اكتب النص:');
+      if (t && t.trim()) {
+        const item = { k: 'txt', c: v.pen.c, x: Math.round(x * 1000) / 1000, y: Math.round(y * 1000) / 1000, s: 0.022, t: t.trim().slice(0, 500) };
+        const list = (v.ink[strokePage] = v.ink[strokePage] || []);
+        list.push(item); pvCommit({ n: strokePage, add: true, items: [{ item, i: list.length - 1 }] }); drawInk(strokePage);
+      }
+      return;
+    }
+    ink.setPointerCapture(e.pointerId);
+    if (v.tool === 'eraser') { erased = []; eraseAt(x, y); return; }
+    stroke = v.tool === 'hl' ? { k: 'hl', c: v.hl.c, pts: [[x, y]] } : { c: v.pen.c, w: v.pen.w, pts: [[x, y]] };
   });
+  const eraseAt = (x, y) => {
+    const v = pdfView, list = v.ink[strokePage] || [];
+    for (let i = list.length - 1; i >= 0; i--) if (pvHit(list[i], x, y, 0.015)) { erased.push({ item: list[i], i }); list.splice(i, 1); }
+    drawInk(strokePage);
+  };
   wrap.addEventListener('pointermove', e => {
-    if (!stroke) return;
+    if (!pdfView || (!stroke && !erased)) return;
+    if (touchCount > 1) { stroke = null; erased = null; drawInk(strokePage); return; }
     const ink = pdfView.pages[strokePage - 1].querySelector('.pv-ink');
-    stroke.pts.push(point(e, ink));
-    const ctx = ink.getContext('2d'); const n = stroke.pts.length;
-    drawStroke(ctx, { c: stroke.c, w: stroke.w, pts: stroke.pts.slice(Math.max(0, n - 2)) }, ink.width, ink.height);
+    const [x, y] = point(e, ink);
+    if (erased) { eraseAt(x, y); return; }
+    stroke.pts.push([x, y]);
+    drawInk(strokePage, stroke);
   });
   const finish = () => {
-    if (!stroke || !pdfView) { stroke = null; return; }
+    const v = pdfView; if (!v) { stroke = erased = null; return; }
+    if (erased) { if (erased.length) { if (!v.ink[strokePage] || !v.ink[strokePage].length) delete v.ink[strokePage]; pvCommit({ n: strokePage, add: false, items: erased.reverse() }); } erased = null; return; }
+    if (!stroke) return;
     stroke.pts = stroke.pts.map(([x, y]) => [Math.round(x * 1000) / 1000, Math.round(y * 1000) / 1000]);
-    (pdfView.ink[strokePage] = pdfView.ink[strokePage] || []).push(stroke);
-    pdfView.lastPage = strokePage; stroke = null; saveInk();
+    const list = (v.ink[strokePage] = v.ink[strokePage] || []);
+    list.push(stroke); pvCommit({ n: strokePage, add: true, items: [{ item: stroke, i: list.length - 1 }] });
+    stroke = null; drawInk(strokePage);
   };
   wrap.addEventListener('pointerup', finish); wrap.addEventListener('pointercancel', finish);
+
+  // Two-finger pinch (and Ctrl + wheel / trackpad pinch) zooms around the fingers; pages are redrawn sharp when it stops.
+  let touchCount = 0, pinch = null, settle = null;
+  const zoomTo = (z, cx, cy) => {
+    const v = pdfView; if (!v) return;
+    z = Math.min(3, Math.max(0.6, z));
+    const r = wrap.getBoundingClientRect(), px = cx - r.left, py = cy - r.top;
+    const ax = (wrap.scrollLeft + px) / v.zoom, ay = (wrap.scrollTop + py) / v.zoom;
+    v.zoom = z; wrap.style.setProperty('--pvz', z);
+    wrap.scrollLeft = ax * z - px; wrap.scrollTop = ay * z - py;
+    clearTimeout(settle); settle = setTimeout(rerenderPdfPages, 220);
+  };
+  const dist = t => Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY);
+  wrap.addEventListener('touchstart', e => {
+    touchCount = e.touches.length;
+    if (e.touches.length === 2) pinch = { d: dist(e.touches), z: pdfView ? pdfView.zoom : 1 };
+  }, { passive: true });
+  wrap.addEventListener('touchmove', e => {
+    if (e.touches.length !== 2 || !pinch) return;
+    e.preventDefault();
+    zoomTo(pinch.z * dist(e.touches) / pinch.d, (e.touches[0].clientX + e.touches[1].clientX) / 2, (e.touches[0].clientY + e.touches[1].clientY) / 2);
+  }, { passive: false });
+  const endTouch = e => { touchCount = e.touches.length; if (e.touches.length < 2) pinch = null; };
+  wrap.addEventListener('touchend', endTouch); wrap.addEventListener('touchcancel', endTouch);
+  wrap.addEventListener('wheel', e => {
+    if (!e.ctrlKey || !pdfView) return;
+    e.preventDefault(); zoomTo(pdfView.zoom * Math.exp(-e.deltaY / 300), e.clientX, e.clientY);
+  }, { passive: false });
+
   viewer.addEventListener('click', e => {
     const v = pdfView; if (!v) return;
     const color = e.target.closest('[data-pv-color]');
-    if (color) { v.color = color.dataset.pvColor; viewer.querySelectorAll('.pv-color').forEach(b => b.setAttribute('aria-pressed', String(b === color))); return; }
+    if (color) { v.pen.c = color.dataset.pvColor; viewer.querySelectorAll('[data-pv-color]').forEach(b => b.setAttribute('aria-pressed', String(b === color)));
+      viewer.querySelector('[data-pv="pen"]').style.setProperty('--c', v.pen.c); savePvPrefs(v); return; }
+    const size = e.target.closest('[data-pv-size]');
+    if (size) { v.pen.w = Number(size.dataset.pvSize); viewer.querySelectorAll('[data-pv-size]').forEach(b => b.setAttribute('aria-pressed', String(b === size))); savePvPrefs(v); return; }
+    const hlc = e.target.closest('[data-pv-hl]');
+    if (hlc) { v.hl.c = hlc.dataset.pvHl; viewer.querySelectorAll('[data-pv-hl]').forEach(b => b.setAttribute('aria-pressed', String(b === hlc)));
+      viewer.querySelector('[data-pv="hl"]').style.setProperty('--c', v.hl.c); savePvPrefs(v); return; }
     const min = e.target.closest('[data-pv-min]');
-    if (min) { startPdfTimer(Number(min.dataset.pvMin)); document.getElementById('pvTimerMenu').hidden = true; viewer.querySelector('[data-pv="timer"]').setAttribute('aria-expanded', 'false'); return; }
+    if (min) { startPdfTimer(Number(min.dataset.pvMin)); closePops(); return; }
+    const pg = e.target.closest('[data-pv-page]');
+    if (pg) { v.pages[Number(pg.dataset.pvPage) - 1].scrollIntoView({ block: 'start' }); closePops(); return; }
     const btn = e.target.closest('[data-pv]'); if (!btn) return;
     const act = btn.dataset.pv;
-    if (act === 'pen') {
-      v.pen = !v.pen; btn.setAttribute('aria-pressed', String(v.pen));
-      wrap.classList.toggle('pv-drawing', v.pen); viewer.querySelector('.pv-colors').hidden = !v.pen;
-    } else if (act === 'undo') {
-      const n = v.ink[v.lastPage] && v.ink[v.lastPage].length ? v.lastPage : v.current;
-      if (v.ink[n] && v.ink[n].length) { v.ink[n].pop(); saveInk(); drawInk(n); }
-    } else if (act === 'clear') {
-      const n = v.current;
-      if (v.ink[n] && v.ink[n].length && confirm('مسح كل الكتابة على الصفحة ' + n + '؟')) { delete v.ink[n]; saveInk(); drawInk(n); }
-    } else if (act === 'zoom-in' || act === 'zoom-out') {
-      v.zoom = Math.min(2.5, Math.max(0.6, Math.round((v.zoom + (act === 'zoom-in' ? 0.25 : -0.25)) * 100) / 100));
-      wrap.style.setProperty('--pvz', v.zoom);
-      const keep = v.current;
-      v.rendered.forEach(n => v.pages[n - 1].querySelectorAll('canvas').forEach(c => { c.width = 0; c.height = 0; }));
-      v.rendered.clear();
-      v.pages[keep - 1].scrollIntoView({ block: 'start' });
-      v.visible.forEach((_, n) => renderPdfPage(n));
-    } else if (act === 'timer') {
-      const menu = document.getElementById('pvTimerMenu'); menu.hidden = !menu.hidden; btn.setAttribute('aria-expanded', String(!menu.hidden));
-    } else if (act === 'timer-stop') { stopPdfTimer(); }
+    if (act === 'pen' || act === 'hl') {
+      if (v.tool === act) togglePop(act === 'pen' ? 'pvPenPop' : 'pvHlPop'); else { closePops(); setTool(act); }
+    } else if (act === 'hand' || act === 'eraser' || act === 'text') { closePops(); setTool(act); }
+    else if (act === 'set2' || act === 'set1') { closePops(); document.getElementById('pvSet1').hidden = act === 'set2'; document.getElementById('pvSet2').hidden = act === 'set1'; }
+    else if (act === 'undo' || act === 'redo') {
+      const from = act === 'undo' ? v.hist : v.redo, to = act === 'undo' ? v.redo : v.hist;
+      const op = from.pop(); if (op) { pvApply(op, act === 'undo'); to.push(op); } pvSyncHistory();
+    } else if (act === 'pages') {
+      document.getElementById('pvPageGrid').innerHTML = v.pages.map((_, i) => '<button type="button" data-pv-page="' + (i + 1) + '" aria-current="' + (i + 1 === v.current) + '">' + (i + 1) + '</button>').join('');
+      togglePop('pvPagesPop');
+      const cur = document.querySelector('#pvPageGrid [aria-current="true"]'); if (cur) cur.scrollIntoView({ block: 'nearest' });
+    } else if (act === 'more') togglePop('pvMorePop');
+    else if (act === 'timer') { if (pdfTimer && !pdfTimer.done) { closePops(); return; } togglePop('pvTimerPop'); }
+    else if (act === 'timer-stop') stopPdfTimer();
+    else if (act === 'close') { closePops(); closeReader(); }
+    else if (act === 'night') { v.night = !v.night; btn.setAttribute('aria-pressed', String(v.night)); wrap.classList.toggle('pv-night', v.night); savePvPrefs(v); }
+    else if (act === 'fit') { const keep = v.current; v.zoom = 1; wrap.style.setProperty('--pvz', 1); rerenderPdfPages(); v.pages[keep - 1].scrollIntoView({ block: 'start' }); }
+    else if (act === 'top') { wrap.scrollTo({ top: 0, behavior: document.documentElement.dataset.motion === 'reduce' ? 'auto' : 'smooth' }); }
+    else if (act === 'quiz') { closePops(); const t = v.topicId; closeReader(); startTopicQuiz(t); }
+    else if (act === 'clear-page' || act === 'clear-all') {
+      closePops();
+      const nums = act === 'clear-page' ? [v.current] : Object.keys(v.ink).map(Number);
+      const has = nums.filter(n => v.ink[n] && v.ink[n].length);
+      if (!has.length) return;
+      if (!confirm(act === 'clear-page' ? 'مسح كتابتك في هذه الصفحة؟' : 'مسح كل ملاحظاتك على هذا الملف؟')) return;
+      has.forEach(n => { pvCommit({ n, add: false, items: v.ink[n].map((item, i) => ({ item, i })) }); delete v.ink[n]; drawInk(n); });
+      saveInk();
+    }
   });
-  document.getElementById('pvGoto').addEventListener('submit', e => {
-    e.preventDefault();
-    const v = pdfView; if (!v) return;
-    const n = Math.min(v.doc.numPages, Math.max(1, Number(document.getElementById('pvPage').value) || 1));
-    v.pages[n - 1].scrollIntoView({ block: 'start', behavior: document.documentElement.dataset.motion === 'reduce' ? 'auto' : 'smooth' });
-  });
+  pvSyncHistory();
 }
 // The countdown keeps its end time, so it stays right when the tab sleeps or another PDF is opened.
 function startPdfTimer(minutes) {
@@ -6123,15 +6354,17 @@ function stopPdfTimer() {
   if (pdfTimer) clearInterval(pdfTimer.tick);
   pdfTimer = null;
   const box = document.getElementById('pvCountdown'); if (box) box.hidden = true;
+  const tb = document.querySelector('#pdfViewer [data-pv="timer"]'); if (tb) tb.classList.remove('is-running');
 }
 function showCountdown() {
   const box = document.getElementById('pvCountdown'), clock = document.getElementById('pvClock');
   if (!pdfTimer) return;
   const left = Math.max(0, pdfTimer.end - Date.now());
+  const tb = document.querySelector('#pdfViewer [data-pv="timer"]'); if (tb) tb.classList.toggle('is-running', left > 0);
   if (box && clock) {
     box.hidden = false;
     const m = Math.floor(left / 60000), sec = Math.floor(left / 1000) % 60;
-    clock.textContent = left ? String(m).padStart(2, '0') + ':' + String(sec).padStart(2, '0') : 'انتهى الوقت ✓';
+    clock.textContent = left ? String(m).padStart(2, '0') + ':' + String(sec).padStart(2, '0') : '✓';
     box.classList.toggle('is-done', !left);
     box.classList.toggle('is-last', left > 0 && left <= 60000);
   }
@@ -7536,6 +7769,54 @@ function wirePersonalPages() {
   });
 }
 
+
+// ---------------- Interface language (Arabic / English) ----------------
+// The app is written in Arabic; English mode swaps interface text (not library content) from this dictionary and
+// keeps translating anything rendered later. Switching back to Arabic reloads the page.
+const I18N_EN = {"(اختياري — حتى 50 MB)": "(optional — up to 50 MB)", "(اختياري — فيديو أو ملف)": "(optional — video or file)", "(اختياري — للقراءة داخل التطبيق)": "(optional — for in-app reading)", "(اختياري)": "(optional)", "JPG / PNG / WebP — حتى 2MB بعد الضغط": "JPG / PNG / WebP — up to 2MB after compression", "Medbrain على جهازك": "Medbrain on your device", "Medbrain منصة تعليمية للطلاب، ولا تُستخدم لتشخيص المرضى أو اتخاذ قرارات علاجية.": "Medbrain is a learning platform for students. It is not for diagnosing patients or making treatment decisions.", "أحسنت! أنهيت المجموعة": "Well done! You finished the set", "أخرى": "Other", "أخطأت": "Wrong", "أدوات القراءة": "Reading tools", "أدوات جهازك": "Device tools", "أسئلة": "Questions", "أسئلة اختيار من متعدد": "Multiple-choice questions", "أسئلة مبنية على المواد التي أضفتها": "Questions built from your materials", "أسئلة مقترحة": "Suggested questions", "أسبوع / أسابيع": "week(s)", "أصبت": "Correct", "أضف التطبيق إلى الشاشة الرئيسية وافتحه بأيقونة مستقلة. المحاضرات والحساب والذكاء الاصطناعي تحتاج اتصالًا بالإنترنت.": "Add the app to your home screen and open it with its own icon. Lectures, account and AI need an internet connection.", "أعدها لي قريبًا": "Show it again soon", "أكمل بياناتك": "Complete your details", "أنثى": "Female", "أنشئ بطاقاتك الشخصية وراجعها واقلبها لرؤية الإجابة.": "Create your own cards, review them and flip to see the answer.", "أنشئ جدولك الأسبوعي وحدّد أوقات الدراسة وتابع إنجازك.": "Build your weekly plan, set study times and track your progress.", "أو بالبريد الإلكتروني": "or with email", "أي تفاصيل إضافية تريد تذكّرها…": "Any extra details to remember…", "أيام الدراسة": "Study days", "إجابة": "Answer", "إجمالي المدة": "Total duration", "إدارة ملفي الشخصي": "Manage my profile", "إرسال البلاغ": "Send report", "إرسال السؤال": "Send question", "إضافة": "Add", "إضافة بطاقة": "Add card", "إضافة سؤال": "Add question", "إضافة عنوان": "Add heading", "إضافة مادة": "Add material", "إظهار اسمي في الجدول": "Show my name on the schedule", "إظهار الإجابة": "Show answer", "إظهار كلمة المرور": "Show password", "إعادة": "Reset", "إغلاق": "Close", "إلغاء": "Cancel", "إنجاز الفصل": "Chapter progress", "إيقاف مؤقت": "Pause", "ابحث باسم المحاضرة أو الموضوع…": "Search by lecture or topic…", "ابحث داخل المفضلات…": "Search favorites…", "ابحث عن محاضرة، موضوع، مصدر أو فيديو…": "Search a lecture, topic, source or video…", "ابحث عن مصدر…": "Search a source…", "ابحث عن موضوع…": "Search a topic…", "ابدأ الأسئلة": "Start questions", "ابدأ الاختبار": "Start quiz", "ابدأ المجموعة من جديد": "Restart the set", "ابدأ مراجعة سريعة لتثبيت المعلومات.": "Start a quick review to lock in what you learned.", "اختبار عشوائي من بنك الأسئلة أو البطاقات حسب المادة.": "A random quiz from the Q Bank or flashcards by subject.", "اختبارات تفاعلية مع التصحيح والتفسيرات.": "Interactive quizzes with answers and explanations.", "اختبر نفسك": "Test yourself", "اختر المادة ونوع الاختبار. للوزاري يمكنك اختيار السنة والدور ونوع الأسئلة.": "Pick a subject and quiz type. For ministerial exams you can choose the year, round and paper type.", "اختر…": "Choose…", "اختياري": "Optional", "اسأل": "Ask", "اسألني عن المحاضرة": "Ask me about the lecture", "استعراض المواضيع": "Browse topics", "اسم العائلة": "Last name", "اشتراكي": "My subscription", "اشرح لي المحاضرة": "Explain the lecture", "اضغط لقلب البطاقة": "Tap to flip the card", "افتح الفيديوهات المحفوظة حسب تخصصك وموضوعك.": "Open saved videos by specialty and topic.", "اكتب اسمك وبياناتك الدراسية لتظهر في حسابك.": "Enter your name and study details for your account.", "اكتب سؤالك…": "Type your question…", "الأحد": "Sun", "الأربعاء": "Wed", "الأسئلة الوزارية فقط": "Ministerial questions only", "الأيام": "Days", "الإبلاغ عن مشكلة في السؤال": "Report a problem with this question", "الإعدادات": "Settings", "الاثنين": "Mon", "الاسم الأول": "First name", "الاشتراك مطلوب": "Subscription required", "الاشتراكات والأكواد": "Subscriptions and codes", "البريد الإلكتروني": "Email", "البطاقات التعليمية": "Flashcards", "التخصص": "Specialty", "الثلاثاء": "Tue", "الجمعة": "Fri", "الجنس": "Gender", "الحساب": "Account", "الخصوصية": "Privacy", "الخميس": "Thu", "الدعم": "Support", "الدعم والملاحظات": "Support and feedback", "الدور": "Round", "الدور الأول": "1st round", "الدور الثاني": "2nd round", "الرئيسية": "Home", "الرابط": "Link", "السبت": "Sat", "العمر": "Age", "العودة للرئيسية": "Back to home", "الفصل": "Chapter", "القائمة الرئيسية": "Main menu", "الكل": "All", "المادة": "Subject", "المتابعة باستخدام Google": "Continue with Google", "المحاضرات": "Lectures", "المرحلة الأولى": "1st year", "المرحلة الثانية": "2nd year", "المرحلة الثالثة": "3rd year", "المرحلة الرابعة": "4th year", "المرحلة الخامسة": "5th year", "المرحلة السادسة": "6th year", "المرحلة الدراسية": "Study year", "المصادر": "Sources", "المصدر": "Source", "المظهر والقراءة": "Appearance and reading", "المظهر والقراءة والحساب": "Appearance, reading and account", "المفضلات": "Favorites", "الملف الشخصي": "Profile", "الملف الشخصي والحساب": "Profile and account", "المواد التي حفظتها للرجوع إليها": "Materials you saved", "المواضيع": "Topics", "الموضوع": "Topic", "الوصول والخدمات المتاحة": "Access and services", "الوضع الداكن": "Dark mode", "الوضع الداكن ☾": "Dark mode ☾", "اليوم": "Today", "بتردد": "Unsure", "بحث": "Search", "بطاقات المكتبة": "Library cards", "بطاقاتي الشخصية": "My cards", "بلاغات الطلاب": "Student reports", "بنك الأسئلة": "Q Bank", "بياناتك وخصوصيتك": "Your data and privacy", "تأكيد كلمة المرور": "Confirm password", "تجريبية": "Mock", "تسجيل الخروج": "Sign out", "تصدير بياناتي": "Export my data", "تعديل الملف الشخصي": "Edit profile", "تعديل جدولي الدراسي": "Edit my schedule", "تغيير الصورة": "Change photo", "تفعيل الكود": "Activate code", "تقليل الحركة": "Reduce motion", "تخفيف الانتقالات والحركات في الواجهة.": "Fewer transitions and animations.", "جارٍ التحقق…": "Checking…", "جدول الدراسة": "Study schedule", "جدول دراسي شخصي محفوظ في حسابك": "A personal study schedule saved in your account", "جدولي": "My plan", "جدولي الدراسي": "My study schedule", "جلسات تركيز واستراحات مع مؤقّت يمكنك تصغيره أثناء القراءة.": "Focus sessions and breaks with a timer you can minimise while reading.", "حالة الاشتراك": "Subscription status", "حجم الخط": "Font size", "حجم خط القراءة": "Reading font size", "حذف الحساب": "Delete account", "حذف الحساب نهائيًا": "Delete account permanently", "حذف حسابي": "Delete my account", "حساب Medbrain": "Medbrain account", "حساب جديد": "New account", "حفظ": "Save", "حفظ التغييرات": "Save changes", "حفظ ومتابعة": "Save and continue", "خريج / طبيب مقيم": "Graduate / resident", "خلط": "Shuffle", "داكن": "Dark", "دخول": "Sign in", "دقيقة": "min", "ذكر": "Male", "رئيسية (الامتحان الوزاري)": "Main (ministerial exam)", "راجع الصعبة فقط": "Review hard ones only", "رجوع": "Back", "سؤال": "Question", "سجّل الدخول إلى عقلك الطبي ومكتبتك الدراسية.": "Sign in to your medical brain and study library.", "سنة الوزاري": "Exam year", "سياسة الخصوصية": "Privacy policy", "طول الاختبار": "Quiz length", "طويل": "Long", "عرض النتائج": "Show results", "عن Medbrain": "About Medbrain", "فاتح": "Light", "فتح القائمة": "Open menu", "فتح مؤقّت الدراسة": "Open study timer", "فلاتر البحث": "Search filters", "فيديو": "Video", "فيديوهات مقترحة": "Recommended videos", "قصير": "Short", "كل الأدوار": "All rounds", "كل الأسئلة": "All questions", "كل المواد التي لا تندرج ضمن الأقسام الرئيسية.": "Everything outside the main sections.", "كل النصوص وملفات PDF والملخصات في مكان واحد.": "All texts, PDFs and summaries in one place.", "كلمة المرور": "Password", "كود 3 أشهر": "3-month code", "كود 6 أشهر": "6-month code", "كود الاشتراك": "Subscription code", "كود سنوي": "Yearly code", "كود شهري": "Monthly code", "كيف أجبت على هذه البطاقة؟": "How did you answer this card?", "لأي مشكلة أو استفسار راسل الدعم.": "For any problem or question, message support.", "لاحقًا": "Later", "لخص المحاضرة": "Summarise the lecture", "لدي حساب": "I have an account", "للمشاكل والاستفسارات": "Problems and questions", "لوحة المسؤول": "Admin panel", "مؤقّت الدراسة ◷": "Study timer ◷", "متنوعات": "Miscellaneous", "متوسط": "Medium", "محادثة جديدة": "New chat", "محاضرة": "Lecture", "مراسلة الدعم": "Message support", "مساعدك للدراسة وفهم المحاضرات": "Your study assistant for lectures", "مسح البحث والفلاتر": "Clear search and filters", "مسح الفلاتر": "Clear filters", "مشاركة جدولي الخاص": "Share my schedule", "مشاركة نسخة من جدولك الدراسي": "Share a copy of your schedule", "معاينة الجدول ثم مشاركته": "Preview the schedule, then share", "مصدر الأسئلة": "Question source", "مظهر التطبيق": "App theme", "مهامي وخطتي الأسبوعية": "My tasks and weekly plan", "ملاحظات": "Notes", "ملخص": "Summary", "ملف PDF": "PDF file", "نسيت كلمة المرور؟": "Forgot password?", "نوع الأسئلة": "Paper type", "نوع الاختبار": "Quiz type", "نوع المادة": "Material type", "يسري على الموقع وواجهة القراءة.": "Applies to the site and the reader.", "يُحفظ لاستخدامه عند فتح المحاضرات.": "Saved for when you open lectures.", "— اختر —": "— Choose —", "الورقة كاملة": "Full paper", "الجراحة": "Surgery", "الباطنية": "Medicine", "الأطفال": "Pediatrics", "النسائية والتوليد": "OB/GYN", "الطوارئ": "Emergency", "العلوم الأساسية": "Basic Sciences", "الجامعات": "Universities", "الكورسات والمصادر": "Courses and sources", "اختر الموضوع": "Choose a topic", "اختر الفرع": "Choose a branch", "اختر التخصص": "Choose a specialty", "اختر المصدر": "Choose a source", "محاضرات": "Lectures", "ملخصات": "Summaries", "ملفات PDF": "PDF files", "فيديوهات": "Videos", "الفيديوهات": "Videos", "المكتبة": "Library", "لا توجد مواد هنا بعد.": "Nothing here yet.", "كويز سريع": "Quick quiz", "⚡ كويز سريع": "⚡ Quick quiz", "كل المواد": "All subjects", "كل السنوات": "All years", "الأسئلة الوزارية": "Ministerial questions", "اللغة": "Language", "لغة الواجهة": "Interface language", "العربية": "العربية", "مسح كتابتي في هذه الصفحة": "Clear my ink on this page", "مسح كل ملاحظاتي على الملف": "Clear all my notes on this file", "كويز سريع على الموضوع": "Quick quiz on this topic", "الصفحات": "Pages", "المزيد": "More", "مؤقت المذاكرة": "Study timer", "تراجع": "Undo", "إعادة الخطوة": "Redo", "تصفح": "Browse", "كتابة نص": "Text", "ممحاة": "Eraser", "قلم تظليل": "Highlighter", "قلم": "Pen", "أدوات أخرى": "More tools", "أدوات الكتابة": "Writing tools", "الوضع الليلي للصفحات": "Night pages", "ملاءمة العرض": "Fit width", "الصفحة الأولى": "First page"};
+let uiLang = 'ar';
+try { uiLang = localStorage.getItem('medbrain_lang') === 'en' ? 'en' : 'ar'; } catch (_) {}
+const I18N_SKIP = '[data-no-i18n], .reader-body, .pv-pages, textarea, script, style, .mb-ai-messages, .quiz-body';
+function i18nText(node) {
+  const t = node.nodeValue, k = t.trim();
+  if (!k || !/[؀-ۿ]/.test(k)) return;
+  const en = I18N_EN[k];
+  if (en) node.nodeValue = t.replace(k, en);
+}
+function i18nAttrs(el) {
+  ['aria-label', 'placeholder', 'title'].forEach(a => { const v = el.getAttribute(a); if (v && I18N_EN[v.trim()]) el.setAttribute(a, I18N_EN[v.trim()]); });
+}
+function i18nTree(root) {
+  if (uiLang !== 'en' || !root) return;
+  if (root.nodeType === 3) { if (!(root.parentElement && root.parentElement.closest(I18N_SKIP))) i18nText(root); return; }
+  if (root.nodeType !== 1 || root.closest(I18N_SKIP)) return;
+  i18nAttrs(root);
+  root.querySelectorAll('[aria-label],[placeholder],[title]').forEach(el => { if (!el.closest(I18N_SKIP)) i18nAttrs(el); });
+  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, { acceptNode: n => n.parentElement && n.parentElement.closest(I18N_SKIP) ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT });
+  const nodes = []; while (walker.nextNode()) nodes.push(walker.currentNode);
+  nodes.forEach(i18nText);
+}
+function setUiLang(lang) {
+  try { localStorage.setItem('medbrain_lang', lang); } catch (_) {}
+  if (lang === uiLang) return;
+  location.reload();
+}
+function initI18n() {
+  const btn = document.getElementById('siteLangToggle'), sel = document.getElementById('settingsLang');
+  if (btn) { btn.textContent = uiLang === 'en' ? 'ع' : 'EN'; btn.addEventListener('click', () => setUiLang(uiLang === 'en' ? 'ar' : 'en')); }
+  if (sel) { sel.value = uiLang; sel.addEventListener('change', () => setUiLang(sel.value)); }
+  if (uiLang !== 'en') return;
+  document.documentElement.lang = 'en'; document.documentElement.dir = 'ltr';
+  i18nTree(document.body);
+  let queued = new Set(), scheduled = false;
+  new MutationObserver(list => {
+    list.forEach(m => { if (m.type === 'characterData') queued.add(m.target); else m.addedNodes.forEach(n => queued.add(n)); });
+    if (scheduled) return; scheduled = true;
+    requestAnimationFrame(() => { scheduled = false; const q = queued; queued = new Set(); q.forEach(n => { if (n.isConnected) i18nTree(n); }); });
+  }).observe(document.body, { childList: true, subtree: true, characterData: true });
+}
+function safeInitI18n() { try { initI18n(); } catch (err) { console.warn('i18n init failed', err); } }
+if (typeof document !== 'undefined' && typeof document.getElementById === 'function') { if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', safeInitI18n); else safeInitI18n(); }
 
 init();
 </script>
