@@ -2836,6 +2836,13 @@ html[lang="en"] .mb-feature-en, html[lang="en"] .sp-title small { display:none; 
 .study-hl-dot { width:22px; height:22px; border-radius:50%; border:2px solid var(--surface); padding:0; cursor:pointer; box-shadow:0 0 0 1px var(--border); }
 .study-hl-dot[aria-pressed="true"] { box-shadow:0 0 0 2px var(--accent); }
 .hl-dot-y { background:#facc15; } .hl-dot-g { background:#22c55e; } .hl-dot-p { background:#ec4899; } .hl-dot-b { background:#3b82f6; } .hl-dot-o { background:#f97316; }
+
+.quiz-save { width:38px; height:38px; display:grid; place-items:center; border:1px solid var(--border); border-radius:50%; background:var(--surface); color:#94a3b8; cursor:pointer; padding:0; margin-inline-end:6px; }
+.quiz-save svg { width:20px; height:20px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linejoin:round; }
+.quiz-save[aria-pressed="true"] { color:#f5b400; border-color:#f5b400; background:#fff8e1; }
+.quiz-save[aria-pressed="true"] svg { fill:#f5b400; }
+.exam-saved { min-height:40px; padding:0 16px; border:1px solid #f5b400; border-radius:12px; background:#fff8e1; color:#a76b00; font:inherit; font-size:14px; font-weight:800; cursor:pointer; }
+:root[data-theme="dark"] .exam-saved, #readerOverlay[data-reader-theme="dark"] .quiz-save[aria-pressed="true"] { background:rgba(245,180,0,.15); }
 </style>
 <link rel="manifest" href="./manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="192x192" href="./assets/app-icon-192.png">
@@ -3510,7 +3517,7 @@ html[lang="en"] .mb-feature-en, html[lang="en"] .sp-title small { display:none; 
 <dialog id="paywallDialog" class="device-dialog" aria-labelledby="paywallTitle"><h2 id="paywallTitle">الاشتراك مطلوب</h2><p id="paywallText"></p><form id="paywallForm"><label for="paywallCode">كود الاشتراك<input id="paywallCode" dir="ltr" autocomplete="off" placeholder="MB-XXXXX-XXXXX" maxlength="20"></label><div class="device-actions"><button type="submit" class="mb-primary">تفعيل الكود</button><button type="button" class="mb-file-btn" data-device-close="paywallDialog">لاحقًا</button></div><p id="paywallStatus" role="status"></p></form><p id="paywallContact"></p></dialog>
 <dialog id="questionReportDialog" class="device-dialog" aria-labelledby="questionReportTitle"><h2 id="questionReportTitle">الإبلاغ عن مشكلة في السؤال</h2><p>يصل بلاغك إلى فريق Medbrain لمراجعة السؤال وتصحيحه.</p><form id="questionReportForm"><fieldset class="report-reasons"><legend>نوع المشكلة</legend><label><input type="radio" name="reportReason" value="wrong_answer"> الإجابة المعتمدة خاطئة</label><label><input type="radio" name="reportReason" value="wrong_question"> السؤال خاطئ أو غير واضح</label><label><input type="radio" name="reportReason" value="incomplete"> السؤال ناقص (خيار أو معلومة مفقودة)</label><label><input type="radio" name="reportReason" value="explanation"> الشرح خاطئ أو غير كافٍ</label><label><input type="radio" name="reportReason" value="other"> مشكلة أخرى</label></fieldset><label for="questionReportNote">تفاصيل (اختياري): ما الصحيح برأيك ومصدره؟<textarea id="questionReportNote" maxlength="1000" rows="3"></textarea></label><div class="device-actions"><button type="submit" class="mb-primary" id="questionReportSubmit">إرسال البلاغ</button><button type="button" class="mb-file-btn" data-device-close="questionReportDialog">إلغاء</button></div><p id="questionReportStatus" role="status"></p></form></dialog>
 <section id="labsPanel" class="labs-panel" role="dialog" aria-modal="false" aria-labelledby="labsTitle" data-no-i18n dir="ltr" hidden><div class="labs-head"><h2 id="labsTitle">Lab values</h2><button type="button" class="labs-close" data-labs-close aria-label="Close">×</button></div><div class="labs-tools"><select id="labsTab" aria-label="Lab group"><option value="blood">Blood</option><option value="heme">Hematologic</option><option value="csf">Cerebrospinal</option><option value="other">Sweat, Urine, BMI</option><option value="infl">Inflammation & Immunology</option><option value="vit">Vitamins & Minerals</option><option value="cardiac">Cardiac & Tumor markers</option></select><input type="search" id="labsSearch" class="labs-search" placeholder="Search…" autocomplete="off" aria-label="Search lab values"></div><div class="labs-body" id="labsBody"></div></section>
-<dialog id="selfQuizDialog" class="device-dialog" aria-labelledby="selfQuizTitle"><div class="sp-card-head"><h2 id="selfQuizTitle" dir="ltr">Quiz</h2><button type="button" class="mb-mini-btn" data-device-close="selfQuizDialog" aria-label="إغلاق">×</button></div><form id="selfQuizForm"><fieldset class="sq-group"><legend>نوع الاختبار</legend><label><input type="radio" name="sqMode" value="questions" checked> أسئلة اختيار من متعدد</label><label><input type="radio" name="sqMode" value="flash"> Flashcards</label></fieldset><fieldset class="sq-group"><legend>المادة</legend><div id="sqSubjects" class="sq-options"></div></fieldset><div id="sqExam"><fieldset class="sq-group"><legend>مصدر الأسئلة</legend><label><input type="radio" name="sqSource" value="all" checked> كل Q Bank</label><label><input type="radio" name="sqSource" value="files"> ملف أو عدة ملفات</label><label><input type="radio" name="sqSource" value="wizari"> وزاري أو تجريبي</label><label><input type="radio" name="sqSource" value="ai"> أسئلة جديدة بالذكاء الاصطناعي</label></fieldset><div id="sqFilesBox" hidden><fieldset class="sq-group sq-files"><legend>اختر الملفات</legend><input type="search" id="sqFileFind" class="sq-find" placeholder="ابحث عن ملف…" autocomplete="off"><div id="sqFiles" class="sq-file-list"></div></fieldset></div><div id="sqExamMore" hidden><fieldset class="sq-group"><legend>نوع الأسئلة</legend><label><input type="radio" name="sqKind" value="" checked> الكل</label><label><input type="radio" name="sqKind" value="main"> وزاري (رئيسي)</label><label><input type="radio" name="sqKind" value="mock"> تجريبي</label></fieldset><fieldset class="sq-group"><legend>السنة</legend><div id="sqYears" class="sq-options"></div></fieldset><fieldset class="sq-group"><legend>الدور</legend><label><input type="radio" name="sqRound" value="" checked> كل الأدوار</label><label><input type="radio" name="sqRound" value="1"> الدور الأول</label><label><input type="radio" name="sqRound" value="2"> الدور الثاني</label></fieldset></div><div id="sqAiBox" hidden><fieldset class="sq-group"><legend>موضوع الأسئلة</legend><input type="text" id="sqAiTopic" class="sq-find" maxlength="160" placeholder="مثال: Heart failure management" dir="auto"><p class="sq-hint">يكتب المساعد حتى 10 أسئلة جديدة بخمسة خيارات وشرح لكل خيار. راجعها كمساعدة دراسية.</p></fieldset></div></div><fieldset class="sq-group"><legend>عدد الأسئلة</legend><div class="sq-count"><input type="number" id="sqCountNum" min="1" max="300" value="20" inputmode="numeric" aria-label="عدد الأسئلة"><button type="button" data-sq-count="10">10</button><button type="button" data-sq-count="20">20</button><button type="button" data-sq-count="40">40</button><button type="button" data-sq-count="300">الكل</button></div></fieldset><div class="device-actions"><button type="submit" class="mb-primary" id="sqStart">ابدأ الاختبار</button><button type="button" class="mb-file-btn" data-device-close="selfQuizDialog">إلغاء</button></div><p id="sqStatus" role="status"></p></form></dialog>
+<dialog id="selfQuizDialog" class="device-dialog" aria-labelledby="selfQuizTitle"><div class="sp-card-head"><h2 id="selfQuizTitle" dir="ltr">Quiz</h2><button type="button" class="mb-mini-btn" data-device-close="selfQuizDialog" aria-label="إغلاق">×</button></div><form id="selfQuizForm"><fieldset class="sq-group"><legend>نوع الاختبار</legend><label><input type="radio" name="sqMode" value="questions" checked> أسئلة اختيار من متعدد</label><label><input type="radio" name="sqMode" value="flash"> Flashcards</label></fieldset><fieldset class="sq-group"><legend>المادة</legend><div id="sqSubjects" class="sq-options"></div></fieldset><div id="sqExam"><fieldset class="sq-group"><legend>مصدر الأسئلة</legend><label><input type="radio" name="sqSource" value="all" checked> كل Q Bank</label><label><input type="radio" name="sqSource" value="files"> ملف أو عدة ملفات</label><label><input type="radio" name="sqSource" value="wizari"> وزاري أو تجريبي</label><label><input type="radio" name="sqSource" value="ai"> أسئلة جديدة بالذكاء الاصطناعي</label><label><input type="radio" name="sqSource" value="saved"> ★ الأسئلة المحفوظة</label></fieldset><div id="sqFilesBox" hidden><fieldset class="sq-group sq-files"><legend>اختر الملفات</legend><input type="search" id="sqFileFind" class="sq-find" placeholder="ابحث عن ملف…" autocomplete="off"><div id="sqFiles" class="sq-file-list"></div></fieldset></div><div id="sqExamMore" hidden><fieldset class="sq-group"><legend>نوع الأسئلة</legend><label><input type="radio" name="sqKind" value="" checked> الكل</label><label><input type="radio" name="sqKind" value="main"> وزاري (رئيسي)</label><label><input type="radio" name="sqKind" value="mock"> تجريبي</label></fieldset><fieldset class="sq-group" id="sqBranchBox" hidden><legend>الفرع</legend><div id="sqBranches" class="sq-options"></div></fieldset><fieldset class="sq-group"><legend>السنة</legend><div id="sqYears" class="sq-options"></div></fieldset><fieldset class="sq-group"><legend>الدور</legend><label><input type="radio" name="sqRound" value="" checked> كل الأدوار</label><label><input type="radio" name="sqRound" value="1"> الدور الأول</label><label><input type="radio" name="sqRound" value="2"> الدور الثاني</label></fieldset></div><div id="sqAiBox" hidden><fieldset class="sq-group"><legend>موضوع الأسئلة</legend><input type="text" id="sqAiTopic" class="sq-find" maxlength="160" placeholder="مثال: Heart failure management" dir="auto"><p class="sq-hint">يكتب المساعد حتى 10 أسئلة جديدة بخمسة خيارات وشرح لكل خيار. راجعها كمساعدة دراسية.</p></fieldset></div></div><fieldset class="sq-group"><legend>عدد الأسئلة</legend><div class="sq-count"><input type="number" id="sqCountNum" min="1" max="300" value="20" inputmode="numeric" aria-label="عدد الأسئلة"><button type="button" data-sq-count="10">10</button><button type="button" data-sq-count="20">20</button><button type="button" data-sq-count="40">40</button><button type="button" data-sq-count="300">الكل</button></div></fieldset><div class="device-actions"><button type="submit" class="mb-primary" id="sqStart">ابدأ الاختبار</button><button type="button" class="mb-file-btn" data-device-close="selfQuizDialog">إلغاء</button></div><p id="sqStatus" role="status"></p></form></dialog>
 <dialog id="reportsDialog" class="device-dialog reports-dialog" aria-labelledby="reportsTitle"><div class="sp-card-head"><h2 id="reportsTitle">بلاغات الطلاب</h2><button type="button" class="mb-mini-btn" data-device-close="reportsDialog" aria-label="إغلاق">×</button></div><p>البلاغات المفتوحة عن الأسئلة، الأحدث أولًا. «تمّ الإصلاح» يغلق كل البلاغات عن السؤال نفسه.</p><div id="reportsList"></div><p id="reportsStatus" role="status"></p></dialog>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.js"></script>
@@ -4771,13 +4778,17 @@ function renderRecentStrip() {
 }
 
 // Q Bank: browse the ministerial papers by year, round and main/mock; a paper opens in order as a quiz.
-let examYearPick = '', examKindPick = '', examCatPick = '';
-try { const m = JSON.parse(localStorage.getItem('medbrain_ui_memory') || '{}') || {}; examYearPick = m.examYear || ''; examKindPick = m.examKind || ''; examCatPick = m.examCat || ''; } catch (_) {}
+let examYearPick = '', examKindPick = '', examCatPick = '', examBranchPick = '';
+try { const m = JSON.parse(localStorage.getItem('medbrain_ui_memory') || '{}') || {}; examYearPick = m.examYear || ''; examKindPick = m.examKind || ''; examCatPick = m.examCat || ''; examBranchPick = m.examBranch || ''; } catch (_) {}
 // One compact box: year, type and subject each open a vertical list; «ابدأ» opens the matching ministerial questions.
 function examDropdown(key, label, items, value) {
   const cur = items.find(([v]) => String(v) === String(value)) || items[0];
   return '<div class="dd" data-dd="' + key + '"><button type="button" class="dd-btn" data-dd-toggle="' + key + '" aria-expanded="false"><span>' + escapeHtml(cur[1]) + '</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>' +
     '<div class="dd-list" hidden role="listbox" aria-label="' + escapeHtml(label) + '">' + items.map(([v, l]) => '<button type="button" role="option" data-dd-pick="' + key + '" data-value="' + escapeHtml(String(v)) + '" aria-selected="' + (String(v) === String(cur[0])) + '">' + escapeHtml(l) + '</button>').join('') + '</div></div>';
+}
+// Branches (Cardiology, GIT…) that have ministerial questions in a subject, in the subject's usual order.
+function examBranches(cat) {
+  return orderedValues(lectures.filter(l => l.type === 'أسئلة' && l.category === cat && l.source === 'الأسئلة الوزارية').map(l => l.topic).filter(Boolean), TOPICS[cat] || []);
 }
 function renderExamBrowser() {
   if (!examPapers) { loadExamPapers().then(() => { if (currentMainView === 'library' && state.filterKind === 'questions') render(); }).catch(() => {}); return ''; }
@@ -4792,14 +4803,15 @@ function renderExamBrowser() {
     examDropdown('year', 'السنة', [['', 'كل السنوات'], ...yr], examYearPick) +
     examDropdown('kind', 'النوع', [['', 'الكل'], ['main', 'وزاري'], ['mock', 'تجريبي']], examKindPick) +
     examDropdown('cat', 'المادة', [['', 'كل المواد'], ...cats.map(c => [c, SUBJECT_AR[c] || c])], examCatPick) +
-    '<button type="button" class="exam-go" data-exam-go>ابدأ</button></div></section>';
+    (examCatPick ? examDropdown('branch', 'الفرع', [['', 'كل الفروع'], ...examBranches(examCatPick).map(b => [b, b])], examBranchPick) : '') +
+    '<button type="button" class="exam-go" data-exam-go>ابدأ</button><button type="button" class="exam-saved" data-open-saved>★ الأسئلة المحفوظة</button></div></section>';
 }
-async function openExamPaper(cat, year, round, kind) {
+async function openExamPaper(cat, year, round, kind, branch) {
   if (paywallBlocks()) return;
   try {
-    const qs = await collectExamQuestions(cat || '', year || '', round || '', kind || '', 300);
+    const qs = await collectExamQuestions(cat || '', year || '', round || '', kind || '', 300, branch || '');
     if (!qs.length) { showMbToast(kind === 'mock' ? 'لا توجد أسئلة تجريبية بهذه الاختيارات بعد.' : 'لا توجد أسئلة بهذه الاختيارات.'); return; }
-    openCustomQuiz(examQuizTitle(cat || '', year || '', round || '', kind || ''), 'Q Bank', qs);
+    openCustomQuiz(examQuizTitle(cat || '', year || '', round || '', kind || '') + (branch ? ' — ' + branch : ''), 'Q Bank', qs);
   } catch (err) { console.error(err); showMbToast('تعذّر فتح الأسئلة. تحقق من الاتصال.'); }
 }
 function render() {
@@ -5318,9 +5330,10 @@ function onContentClick(e) {
   const ddt = e.target.closest('[data-dd-toggle]');
   if (ddt) { const list = ddt.nextElementSibling, open = list.hidden; document.querySelectorAll('.dd-list').forEach(l => { l.hidden = true; }); list.hidden = !open; ddt.setAttribute('aria-expanded', String(open)); return; }
   const ddp = e.target.closest('[data-dd-pick]');
-  if (ddp) { const k = ddp.dataset.ddPick, v = ddp.dataset.value; if (k === 'year') examYearPick = v; else if (k === 'kind') examKindPick = v; else examCatPick = v;
-    saveUiMemory({ examYear: examYearPick, examKind: examKindPick, examCat: examCatPick }); render(); return; }
-  if (e.target.closest('[data-exam-go]')) { const parts = (examYearPick || '|').split('|'); openExamPaper(examCatPick, parts[0], parts[1], examKindPick); return; }
+  if (ddp) { const k = ddp.dataset.ddPick, v = ddp.dataset.value; if (k === 'year') examYearPick = v; else if (k === 'kind') examKindPick = v; else if (k === 'branch') examBranchPick = v; else { examCatPick = v; examBranchPick = ''; }
+    saveUiMemory({ examYear: examYearPick, examKind: examKindPick, examCat: examCatPick, examBranch: examBranchPick }); render(); return; }
+  if (e.target.closest('[data-open-saved]')) { openSavedQuestions(); return; }
+  if (e.target.closest('[data-exam-go]')) { const parts = (examYearPick || '|').split('|'); openExamPaper(examCatPick, parts[0], parts[1], examKindPick, examBranchPick); return; }
   const rec = e.target.closest('[data-recent]');
   if (rec) { const how = rec.dataset.how, id = rec.dataset.recent; if (how === 'pdf') openPdfInReader(id); else if (how === 'quiz') openQuiz(id); else openReader(id); return; }
   const psrc = e.target.closest('[data-action="panel-source"]');
@@ -7769,7 +7782,7 @@ function renderQuiz(keepScroll) {
   const stemHtml = stemWithMarks(p.text, quizState.hl && Array.isArray(quizState.hl[index]) ? quizState.hl[index] : null);
   let html = studyBarHtml({ pos: index + 1, total: questions.length, done: doneCount, right, wrong, highlight: true, settings: true, ai: true }) +
     '<div class="study-grid">' + studyGaugeHtml(right, wrong) + '<div class="study-main">' +
-    '<div class="quiz-head">' +
+    '<div class="quiz-head"><button type="button" class="quiz-save" data-quiz-save aria-pressed="' + isSavedQ(q, index) + '" title="' + (isSavedQ(q, index) ? 'محفوظ' : 'احفظ السؤال') + '" aria-label="احفظ السؤال للرجوع إليه"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.3 5.9.9-4.3 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"/></svg></button>' +
     '<button type="button" class="quiz-report" data-quiz-report title="الإبلاغ عن خطأ في هذا السؤال" aria-label="الإبلاغ عن خطأ في هذا السؤال">' +
     '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 21V4m0 0h11l-2 4 2 4H5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>إبلاغ</button></div>' +
     (p.tag ? '<span class="quiz-exam-tag">' + escapeHtml(p.tag) + '</span>' : '') +
@@ -7881,6 +7894,9 @@ function syncSelfQuizExam() {
   const cat = form.sqSubject ? form.sqSubject.value : '';
   if (src === 'files') renderSqFiles();
   if (src !== 'wizari') return;
+  const brs = cat ? examBranches(cat) : [], prevB = form.sqBranch ? form.sqBranch.value : '';
+  document.getElementById('sqBranchBox').hidden = !brs.length;
+  document.getElementById('sqBranches').innerHTML = ['', ...brs].map(b => '<label><input type="radio" name="sqBranch" value="' + escapeHtml(b) + '"' + (b === prevB || (!b && !brs.includes(prevB)) ? ' checked' : '') + '> ' + escapeHtml(b || 'كل الفروع') + '</label>').join('');
   const kind = form.sqKind.value;
   const prev = form.sqYear ? form.sqYear.value : '';
   const years = Array.from(new Set((examPapers || []).filter(p => (!cat || p.category === cat) && (!kind || p.mock === (kind === 'mock'))).map(p => p.year))).sort((x, y) => y - x);
@@ -7917,8 +7933,8 @@ async function generateAIQuiz(topic, cat, n) {
 function examQuizTitle(cat, year, round, kind) {
   return ['وزاري', cat ? SUBJECT_AR[cat] || cat : '', year || '', round === '2' ? '– دور ثاني' : round === '1' ? '– دور أول' : '', kind === 'mock' ? '(تجريبي)' : ''].filter(Boolean).join(' ');
 }
-async function collectExamQuestions(cat, year, round, kind, n) {
-  const { data, error } = await client.rpc('exam_questions', { p_category: cat || null, p_year: year ? Number(year) : null, p_round: round ? Number(round) : null, p_mock: kind ? kind === 'mock' : null, p_limit: n });
+async function collectExamQuestions(cat, year, round, kind, n, branch) {
+  const { data, error } = await client.rpc('exam_questions', { p_topic: branch || null, p_category: cat || null, p_year: year ? Number(year) : null, p_round: round ? Number(round) : null, p_mock: kind ? kind === 'mock' : null, p_limit: n });
   if (error) throw error;
   return (data || []).map(r => r.question && Array.isArray(r.question.options) && r.question.options[r.question.correctIndex]
     ? Object.assign({}, r.question, { _lec: r.lecture_id, _i: r.idx }) : null).filter(Boolean);
@@ -7970,9 +7986,10 @@ async function runSelfQuiz(e) {
       const src = form.sqSource.value;
       if (src === 'wizari') {
         const year = form.sqYear ? form.sqYear.value : '', round = form.sqRound.value, kind = form.sqKind.value;
-        const qs = await collectExamQuestions(cat, year, round, kind, n);
+        const branch = form.sqBranch && !document.getElementById('sqBranchBox').hidden ? form.sqBranch.value : '';
+        const qs = await collectExamQuestions(cat, year, round, kind, n, branch);
         if (!qs.length) { status.textContent = kind === 'mock' ? 'لا توجد أسئلة تجريبية بهذه الاختيارات بعد.' : 'لا توجد أسئلة وزارية بهذه الاختيارات بعد.'; return; }
-        ok = openCustomQuiz(examQuizTitle(cat, year, round, kind), 'Quiz', qs);
+        ok = openCustomQuiz(examQuizTitle(cat, year, round, kind) + (branch ? ' — ' + branch : ''), 'Quiz', qs);
       } else if (src === 'files') {
         const ids = [...sqPicked].filter(id => lectures.some(l => l.id === id));
         if (!ids.length) { status.textContent = 'اختر ملفًا واحدًا على الأقل.'; return; }
@@ -7980,6 +7997,9 @@ async function runSelfQuiz(e) {
         if (!qs.length) { status.textContent = 'لا توجد أسئلة في الملفات المختارة.'; return; }
         const first = lectures.find(l => l.id === ids[0]);
         ok = openCustomQuiz(ids.length === 1 && first ? first.title : 'Quiz — ' + ids.length + ' files', 'Quiz', qs);
+      } else if (src === 'saved') {
+        ok = await openSavedQuestions();
+        if (!ok) { status.textContent = 'لا توجد أسئلة محفوظة بعد.'; return; }
       } else if (src === 'ai') {
         const topic = document.getElementById('sqAiTopic').value.trim();
         if (!topic) { status.textContent = 'اكتب موضوع الأسئلة.'; document.getElementById('sqAiTopic').focus(); return; }
@@ -8679,6 +8699,46 @@ async function loadQuizHl() {
   keys.forEach((k, i) => { if (k && got.has(k) && Array.isArray(got.get(k))) st.hl[i] = got.get(k); });
   renderQuiz(true);
 }
+
+// Saved questions: the star in a question keeps it in the student's account to come back and answer later.
+let savedQs = null;
+async function loadSavedQs() {
+  if (savedQs) return savedQs;
+  let local = []; try { local = JSON.parse(localStorage.getItem('medbrain_saved_qs') || '[]') || []; } catch (_) {}
+  savedQs = local;
+  try { const m = await annGet(['qsaved']); const d = m.get('qsaved'); if (Array.isArray(d)) savedQs = d; } catch (_) {}
+  return savedQs;
+}
+function savedKey(q, i) {
+  const lec = q && (q._lec || (quizState && quizState.material.id !== 'self-quiz' ? quizState.material.id : ''));
+  return lec ? lec + ':' + (q._i != null ? q._i : i) : '';
+}
+function isSavedQ(q, i) { const k = savedKey(q, i); return !!k && (savedQs || []).includes(k); }
+function toggleSavedQ() {
+  if (!quizState) return;
+  const q = quizState.material.questions[quizState.index], k = savedKey(q, quizState.index);
+  if (!k) { showMbToast('لا يمكن حفظ هذا السؤال.'); return; }
+  savedQs = savedQs || [];
+  const on = !savedQs.includes(k);
+  savedQs = on ? [k, ...savedQs].slice(0, 2000) : savedQs.filter(x => x !== k);
+  try { localStorage.setItem('medbrain_saved_qs', JSON.stringify(savedQs)); } catch (_) {}
+  annSet('qsaved', savedQs);
+  const b = document.querySelector('[data-quiz-save]'); if (b) { b.setAttribute('aria-pressed', String(on)); b.title = on ? 'محفوظ' : 'احفظ السؤال'; }
+  showMbToast(on ? 'حُفظ السؤال في «الأسئلة المحفوظة».' : 'أُزيل من الأسئلة المحفوظة.');
+}
+async function openSavedQuestions() {
+  if (paywallBlocks()) return;
+  const keys = await loadSavedQs();
+  if (!keys.length) { showMbToast('لا توجد أسئلة محفوظة بعد. اضغط النجمة داخل أي سؤال لحفظه.'); return false; }
+  const byLec = new Map(); keys.forEach(k => { const [lec, i] = k.split(':'); if (!byLec.has(lec)) byLec.set(lec, []); byLec.get(lec).push(Number(i)); });
+  const list = lectures.filter(l => byLec.has(l.id));
+  await Promise.all(list.map(l => ensureLectureDetails(l).catch(() => null)));
+  const qs = [];
+  keys.forEach(k => { const [lec, i] = k.split(':'); const l = lectures.find(x => x.id === lec); const q = l && l.questions && l.questions[Number(i)];
+    if (q && Array.isArray(q.options) && q.options[q.correctIndex]) qs.push(Object.assign({}, q, { _lec: lec, _i: Number(i) })); });
+  if (!qs.length) { showMbToast('الأسئلة المحفوظة غير متاحة حاليًا.'); return false; }
+  return openCustomQuiz('الأسئلة المحفوظة', 'Q Bank', qs);
+}
 function bindStudyBar() {
   document.addEventListener('click', e => {
     const b = e.target.closest('[data-study]');
@@ -8698,6 +8758,8 @@ function bindStudyBar() {
     else if (act === 'hl') { quizHighlight = !quizHighlight; b.setAttribute('aria-pressed', String(quizHighlight));
       document.querySelectorAll('.study-hl-colors').forEach(x => { x.hidden = !quizHighlight; }); document.getElementById('readerBody').classList.toggle('quiz-highlighting', quizHighlight); }
   });
+  document.addEventListener('click', e => { if (e.target.closest('[data-quiz-save]')) toggleSavedQ(); });
+  loadSavedQs().catch(() => {});
   document.addEventListener('click', e => {
     const m = e.target.closest('#readerBody .quiz-question h3 mark.hl');
     if (!m || !quizHighlight || !quizState) return;
