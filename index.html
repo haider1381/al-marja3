@@ -2794,6 +2794,13 @@ html[lang="en"] .mb-feature-en, html[lang="en"] .sp-title small { display:none; 
 #selfQuizDialog { max-height:calc(100dvh - 32px); overflow-y:auto; }
 #selfQuizDialog input[type="radio"], #selfQuizDialog input[type="checkbox"] { width:18px !important; height:18px !important; min-height:0 !important; margin:0; flex:0 0 auto; accent-color:#0F6CBD; }
 #selfQuizDialog .sq-group label { flex-direction:row !important; gap:6px !important; font-size:14px; }
+
+.recent-strip { display:flex; align-items:stretch; gap:8px; flex-wrap:wrap; margin:0 0 14px; padding:10px 12px; border:1px solid var(--border); border-radius:14px; background:var(--surface); }
+.recent-label { flex:0 0 100%; font-size:12px; font-weight:800; color:var(--text-muted); }
+.recent-item { flex:1 1 180px; min-width:0; display:grid; gap:2px; padding:8px 12px; border:1px solid var(--border); border-radius:10px; background:var(--accent-soft); color:var(--text); text-align:start; cursor:pointer; font:inherit; }
+.recent-item:hover { border-color:var(--accent); }
+.recent-item b { font-size:13.5px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.recent-item small { font-size:11.5px; color:var(--text-muted); opacity:.8; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 </style>
 <link rel="manifest" href="./manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="192x192" href="./assets/app-icon-192.png">
@@ -4689,6 +4696,39 @@ function applyAccessUI() {
 }
 
 // ---------------- Rendering ----------------
+
+// ---------------- The site remembers what the student does ----------------
+// Recently opened lectures/PDFs/question sets, the picked source, open branches, closed panels, the flashcard subject
+// and the last Quiz choices stay on this device until the student changes them.
+const UI_MEM_KEY = 'medbrain_ui_memory', RECENT_KEY = 'medbrain_recent';
+function loadUiMemory() {
+  let m = {}; try { m = JSON.parse(localStorage.getItem(UI_MEM_KEY) || '{}') || {}; } catch (_) {}
+  if (m.panelSource && m.panelSource.src) panelSource = m.panelSource;
+  if (Array.isArray(m.closedPanels)) closedPanels = new Set(m.closedPanels);
+  if (Array.isArray(m.openBranches)) openBranches = new Set(m.openBranches);
+  if (m.deckSubject) deckSubject = m.deckSubject;
+  return m;
+}
+function saveUiMemory(extra) {
+  try {
+    const prev = JSON.parse(localStorage.getItem(UI_MEM_KEY) || '{}') || {};
+    localStorage.setItem(UI_MEM_KEY, JSON.stringify(Object.assign(prev, { panelSource, closedPanels: [...closedPanels], openBranches: [...openBranches], deckSubject }, extra || {})));
+  } catch (_) {}
+}
+function recentList() { try { return JSON.parse(localStorage.getItem(RECENT_KEY) || '[]') || []; } catch (_) { return []; } }
+function recentPush(id, how) {
+  if (!id) return;
+  const list = recentList().filter(r => r.id !== id);
+  list.unshift({ id, how, t: Date.now() });
+  try { localStorage.setItem(RECENT_KEY, JSON.stringify(list.slice(0, 12))); } catch (_) {}
+}
+function renderRecentStrip() {
+  const items = recentList().map(r => Object.assign({}, r, { l: lectures.find(x => x.id === r.id) }))
+    .filter(r => r.l && (!state.filterKind || materialGroup(r.l.type) === state.filterKind)).slice(0, 3);
+  if (!items.length) return '';
+  return '<div class="recent-strip"><span class="recent-label">آخر ما تصفحته</span>' + items.map(r =>
+    '<button type="button" class="recent-item" data-recent="' + escapeHtml(r.l.id) + '" data-how="' + escapeHtml(r.how || '') + '"><b dir="auto">' + escapeHtml(r.l.title) + '</b><small dir="auto">' + escapeHtml(r.l.source || '') + '</small></button>').join('') + '</div>';
+}
 function render() {
   document.getElementById('countLabel').textContent = lectureCountLabel(lectures.length);
   refreshFilterOptions();
@@ -4696,6 +4736,7 @@ function render() {
   document.getElementById('resetFilters').hidden = !hasFilters;
   const content = document.getElementById('content');
   const browsing = !(state.search.trim() || state.filterSource || state.filterTopic || state.filterCategory);
+  saveUiMemory();
   if (browsing) content.innerHTML = renderBrowse();
   else {
     const list = filterMaterials(lectures, state);
@@ -4807,7 +4848,7 @@ function renderBrowse() {
   const prompts = { category: 'اختر التخصص', topic: path.keys[0] === 'stage' ? 'اختر المادة' : 'اختر الفرع', source: 'اختر المصدر', type: 'اختر النوع', stage: 'اختر المرحلة', doctor: 'اختر الدكتور' };
   if (path.level === 'category' && !b.fromSource) {
     const kindPool = lectures.filter(l => !state.filterKind || materialGroup(l.type) === state.filterKind);
-    if (!b.rootCat) return html + renderSubjectPanels(kindPool);
+    if (!b.rootCat) return html + renderRecentStrip() + renderSubjectPanels(kindPool);
     const catPool = kindPool.filter(l => l.category === b.rootCat);
     const unis = new Set(universitySources());
     const srcs = orderedValues(catPool.map(l => l.source || 'غير محدد'), []);
@@ -5201,6 +5242,8 @@ function onContentClick(e) {
       lockSource: panelSource && panelSource.cat === spOpen.dataset.cat ? panelSource.src : null });
     render(); document.getElementById('content').scrollIntoView({ block: 'start', behavior: document.documentElement.dataset.motion === 'reduce' ? 'auto' : 'smooth' }); return;
   }
+  const rec = e.target.closest('[data-recent]');
+  if (rec) { const how = rec.dataset.how, id = rec.dataset.recent; if (how === 'pdf') openPdfInReader(id); else if (how === 'quiz') openQuiz(id); else openReader(id); return; }
   const psrc = e.target.closest('[data-action="panel-source"]');
   if (psrc) {
     panelSource = psrc.dataset.value ? { cat: psrc.dataset.cat, src: psrc.dataset.value } : null;
@@ -5702,7 +5745,7 @@ function wireMedbrainEvents() {
 
   document.getElementById('deckArea').addEventListener('click', e => {
     const subj = e.target.closest('[data-deck-subject]');
-    if (subj) { deckSubject = subj.dataset.deckSubject || null; renderFlashDecks(); return; }
+    if (subj) { deckSubject = subj.dataset.deckSubject || null; saveUiMemory(); renderFlashDecks(); return; }
     const open = e.target.closest('[data-deck-open]');
     if (open) { openDeck(open.dataset.deckOpen); return; }
     const rate = e.target.closest('[data-deck-rate]');
@@ -6183,6 +6226,7 @@ async function openPdfInReader(id) {
   const lec = lectures.find(l => l.id === id);
   if (!lec || !lec.filePath || !client) return;
   readerLectureId = lec.id;
+  recentPush(lec.id, 'pdf');
   quizState = null;
   const body = document.getElementById('readerBody');
   body.classList.remove('quiz-body');
@@ -6833,6 +6877,7 @@ async function openReader(id) {
   if (!lec) return;
   try { await ensureLectureDetails(lec); } catch (_) { alert('تعذّر فتح المحاضرة. تحقق من الاتصال وأعد المحاولة.'); return; }
   readerLectureId = lec.id;
+  recentPush(lec.id, 'read');
   quizState = null;
   document.getElementById('readerBody').classList.remove('quiz-body');
   document.getElementById('readerTitle').textContent = lec.title;
@@ -7576,6 +7621,7 @@ async function openStoredPdf(id, button, download = false) {
   } finally { button.disabled = false; }
 }
 async function openQuiz(id) {
+  recentPush(id, 'quiz');
   if (paywallBlocks()) return;
   destroyPdfViewer();
   const material = lectures.find(l => l.id === id);
@@ -7783,11 +7829,29 @@ function openSelfQuiz() {
   document.getElementById('sqSubjects').innerHTML = ['', ...cats].map((c, i) => '<label><input type="radio" name="sqSubject" value="' + escapeHtml(c) + '"' + (i ? '' : ' checked') + '> ' +
     escapeHtml(c ? SUBJECT_AR[c] : 'كل المواد') + '</label>').join('');
   document.getElementById('sqStatus').textContent = '';
+  restoreQuizChoices();
   syncSelfQuizExam();
   document.getElementById('selfQuizDialog').showModal();
 }
+function quizChoices() {
+  const f = document.getElementById('selfQuizForm');
+  return { mode: f.sqMode.value, subject: f.sqSubject ? f.sqSubject.value : '', source: f.sqSource.value, kind: f.sqKind.value, round: f.sqRound.value,
+    year: f.sqYear ? f.sqYear.value : '', count: document.getElementById('sqCountNum').value, topic: document.getElementById('sqAiTopic').value, files: [...sqPicked] };
+}
+function restoreQuizChoices() {
+  let q = null; try { q = (JSON.parse(localStorage.getItem(UI_MEM_KEY) || '{}') || {}).quiz; } catch (_) {}
+  if (!q) return;
+  const f = document.getElementById('selfQuizForm');
+  const set = (name, v) => { const el = f.querySelector('input[name="' + name + '"][value="' + CSS.escape(String(v || '')) + '"]'); if (el) el.checked = true; };
+  set('sqMode', q.mode); set('sqSubject', q.subject); set('sqSource', q.source); set('sqKind', q.kind); set('sqRound', q.round);
+  if (q.count) document.getElementById('sqCountNum').value = q.count;
+  if (q.topic) document.getElementById('sqAiTopic').value = q.topic;
+  if (Array.isArray(q.files)) q.files.forEach(id => sqPicked.add(id));
+  if (q.year) setTimeout(() => set('sqYear', q.year), 0);
+}
 async function runSelfQuiz(e) {
   e.preventDefault();
+  saveUiMemory({ quiz: quizChoices() });
   const form = e.target, status = document.getElementById('sqStatus'), btn = document.getElementById('sqStart');
   const mode = form.sqMode.value, cat = form.sqSubject ? form.sqSubject.value : '';
   const n = Math.max(1, Math.min(300, Math.round(Number(document.getElementById('sqCountNum').value) || 20)));
@@ -7847,6 +7911,7 @@ function bindReaderTopBar() {
   const sync = () => { out.textContent = title.textContent; };
   new MutationObserver(sync).observe(title, { childList: true, characterData: true, subtree: true }); sync();
 }
+try { loadUiMemory(); } catch (_) {}
 function bindLibraryBack() {
   bindLabs();
   bindReaderTopBar();
