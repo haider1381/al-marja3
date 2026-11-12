@@ -7690,6 +7690,19 @@ async function openStoredPdf(id, button, download = false) {
   const material = lectures.find(l => l.id === id);
   // A row is not a real button, so its disabled flag only guards against double clicks here.
   if (!client || !material || !material.filePath || button.disabled) return;
+  // Telegram-stored files: download through the stream into a file on the device.
+  if (String(material.filePath).startsWith('tg:')) {
+    button.disabled = true;
+    try {
+      const bytes = await fetchLecturePdf(material.id);
+      const url = URL.createObjectURL(new Blob([bytes], { type: 'application/pdf' }));
+      const a = document.createElement('a'); a.href = url; a.download = (material.title || 'lecture').replace(/[\/:*?"<>|]+/g, ' ').slice(0, 120) + '.pdf';
+      if (download) { document.body.appendChild(a); a.click(); a.remove(); } else window.open(url, '_blank', 'noopener');
+      setTimeout(() => URL.revokeObjectURL(url), 60000);
+    } catch (_) { alert('تعذّر فتح PDF. تحقق من الاتصال وصلاحيات الملف.'); }
+    finally { button.disabled = false; }
+    return;
+  }
   // Open during the click so mobile popup blockers do not block the later signed URL.
   // A download is served as an attachment, so it can stay in this page without a new tab.
   const tab = deviceIsNative() || download ? null : window.open('about:blank', '_blank');

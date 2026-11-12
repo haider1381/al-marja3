@@ -11,6 +11,14 @@ const URL_TTL = 300;
 
 const env = (name: string) => Deno.env.get(name) ?? '';
 const r2 = new AwsClient({ accessKeyId: env('R2_ACCESS_KEY_ID'), secretAccessKey: env('R2_SECRET_ACCESS_KEY'), service: 's3', region: 'auto' });
+// Files kept in the owner's Telegram channel have file_path "tg:<file_id>" and are fetched by the bot (≤ 20 MB).
+async function telegramFile(fileId: string): Promise<Response | null> {
+  const bot = env('TELEGRAM_BOT_TOKEN'); if (!bot) return null;
+  const info = await (await fetch('https://api.telegram.org/bot' + bot + '/getFile', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ file_id: fileId }) })).json();
+  if (!info.ok || !info.result?.file_path) return null;
+  const file = await fetch('https://api.telegram.org/file/bot' + bot + '/' + info.result.file_path);
+  return file.ok ? file : null;
+}
 const objectUrl = (key: string) => `https://${env('R2_ACCOUNT_ID')}.r2.cloudflarestorage.com/${env('R2_BUCKET')}/${key.split('/').map(encodeURIComponent).join('/')}`;
 
 Deno.serve(async (req) => {
@@ -42,6 +50,8 @@ Deno.serve(async (req) => {
       const { data: row, error } = await user.from('lectures').select('file_path,title').eq('id', body.lecture_id).maybeSingle();
       if (error) throw error;
       if (!row?.file_path) return reply(404, { error: 'no_file' });
+      // Telegram-stored files have no shareable link (it would expose the bot); the site uses «stream» for them.
+      if (row.file_path.startsWith('tg:')) return reply(409, { error: 'stream_only' });
       const head = await r2.fetch(objectUrl(row.file_path), { method: 'HEAD' });
       if (head.ok) {
         const url = new URL(objectUrl(row.file_path));
@@ -69,6 +79,12 @@ Deno.serve(async (req) => {
       if (error) throw error;
       if (!row?.file_path) return reply(404, { error: 'no_file' });
       const pdfHeaders = { ...cors, 'Content-Type': 'application/pdf', 'Cache-Control': 'private, no-store' };
+      if (row.file_path.startsWith('tg:')) {
+        const file = await telegramFile(row.file_path.slice(3));
+        if (!file || !file.body) return reply(404, { error: 'file_missing' });
+        const len = file.headers.get('content-length');
+        return new Response(file.body, { status: 200, headers: len ? { ...pdfHeaders, 'Content-Length': len } : pdfHeaders });
+      }
       const obj = await r2.fetch(objectUrl(row.file_path), { method: 'GET' });
       if (obj.ok && obj.body) {
         const len = obj.headers.get('content-length');
