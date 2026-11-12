@@ -9,6 +9,11 @@
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Lateef:wght@400&family=Patrick+Hand&display=swap" rel="stylesheet">
 <style>
+/* Arabic letters use a lighter, flowing Naskh face; Latin letters keep Cairo. */
+@font-face { font-family:'MB Arabic'; font-style:normal; font-weight:400 700; font-display:swap;
+  src:url(https://fonts.gstatic.com/s/notonaskharabic/v44/RrQKbpV-9Dd1b1OAGA6M9PkyDuVBeN2DHV20Lg.woff2) format('woff2');
+  unicode-range:U+0600-06FF, U+0750-077F, U+0870-08FF, U+200C-200E, U+FB50-FDFF, U+FE70-FEFC; }
+
   :root {
     box-sizing: border-box;
     padding-top: env(safe-area-inset-top, 0px);
@@ -26,7 +31,7 @@
     --accent2: #8B2E3C;
     --accent2-soft: #F5E3E5;
     --radius: 10px;
-    --font-ui: 'Cairo', 'Segoe UI', sans-serif;
+    --font-ui: 'MB Arabic', 'Cairo', 'Segoe UI', sans-serif;
     --font-mono: 'JetBrains Mono', 'Courier New', monospace;
   }
 
@@ -2772,6 +2777,23 @@ html[lang="en"] .mb-feature-en, html[lang="en"] .sp-title small { display:none; 
 .sp-picked button { width:30px; height:30px; border:0; border-radius:50%; background:var(--surface); color:var(--accent-strong); font-size:18px; cursor:pointer; }
 .sp-sources .chip.active { background:var(--accent); border-color:var(--accent); color:#fff; }
 .sp-body:has(.sp-picked) .sp-sources .chip:not(.active) { background:var(--surface) !important; color:var(--accent-strong) !important; border:1px solid var(--border) !important; }
+
+.sq-find { width:100%; min-height:38px; padding:0 10px; margin-bottom:8px; border:1px solid var(--border); border-radius:10px; font:inherit; font-size:14px; background:var(--surface); color:var(--text); }
+.sq-files { display:block !important; }
+.sq-file-list { max-height:220px; overflow-y:auto; display:grid; gap:4px; }
+.sq-file { display:flex !important; align-items:flex-start; gap:8px; padding:6px 8px; border-radius:8px; }
+.sq-file:hover { background:var(--accent-soft); }
+.sq-file span { display:grid; gap:2px; min-width:0; }
+.sq-file b { font-weight:700; font-size:13.5px; overflow-wrap:anywhere; }
+.sq-file small { font-size:11.5px; color:var(--text-muted); opacity:.8; }
+.sq-hint { margin:4px 0 0; font-size:12px; color:var(--text-muted); }
+.sq-count { display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
+.sq-count input { width:80px; min-height:38px; border:1px solid var(--border); border-radius:10px; text-align:center; font:inherit; font-size:16px; font-weight:800; background:var(--surface); color:var(--text); }
+.sq-count button { min-height:34px; padding:0 12px; border:1px solid var(--border); border-radius:999px; background:var(--surface); color:var(--accent-strong); font:inherit; font-size:13px; font-weight:700; cursor:pointer; }
+.sq-count button:hover { background:var(--accent-soft); }
+#selfQuizDialog { max-height:calc(100dvh - 32px); overflow-y:auto; }
+#selfQuizDialog input[type="radio"], #selfQuizDialog input[type="checkbox"] { width:18px !important; height:18px !important; min-height:0 !important; margin:0; flex:0 0 auto; accent-color:#0F6CBD; }
+#selfQuizDialog .sq-group label { flex-direction:row !important; gap:6px !important; font-size:14px; }
 </style>
 <link rel="manifest" href="./manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="192x192" href="./assets/app-icon-192.png">
@@ -3446,7 +3468,7 @@ html[lang="en"] .mb-feature-en, html[lang="en"] .sp-title small { display:none; 
 <dialog id="paywallDialog" class="device-dialog" aria-labelledby="paywallTitle"><h2 id="paywallTitle">الاشتراك مطلوب</h2><p id="paywallText"></p><form id="paywallForm"><label for="paywallCode">كود الاشتراك<input id="paywallCode" dir="ltr" autocomplete="off" placeholder="MB-XXXXX-XXXXX" maxlength="20"></label><div class="device-actions"><button type="submit" class="mb-primary">تفعيل الكود</button><button type="button" class="mb-file-btn" data-device-close="paywallDialog">لاحقًا</button></div><p id="paywallStatus" role="status"></p></form><p id="paywallContact"></p></dialog>
 <dialog id="questionReportDialog" class="device-dialog" aria-labelledby="questionReportTitle"><h2 id="questionReportTitle">الإبلاغ عن مشكلة في السؤال</h2><p>يصل بلاغك إلى فريق Medbrain لمراجعة السؤال وتصحيحه.</p><form id="questionReportForm"><fieldset class="report-reasons"><legend>نوع المشكلة</legend><label><input type="radio" name="reportReason" value="wrong_answer"> الإجابة المعتمدة خاطئة</label><label><input type="radio" name="reportReason" value="wrong_question"> السؤال خاطئ أو غير واضح</label><label><input type="radio" name="reportReason" value="incomplete"> السؤال ناقص (خيار أو معلومة مفقودة)</label><label><input type="radio" name="reportReason" value="explanation"> الشرح خاطئ أو غير كافٍ</label><label><input type="radio" name="reportReason" value="other"> مشكلة أخرى</label></fieldset><label for="questionReportNote">تفاصيل (اختياري): ما الصحيح برأيك ومصدره؟<textarea id="questionReportNote" maxlength="1000" rows="3"></textarea></label><div class="device-actions"><button type="submit" class="mb-primary" id="questionReportSubmit">إرسال البلاغ</button><button type="button" class="mb-file-btn" data-device-close="questionReportDialog">إلغاء</button></div><p id="questionReportStatus" role="status"></p></form></dialog>
 <section id="labsPanel" class="labs-panel" role="dialog" aria-modal="false" aria-labelledby="labsTitle" data-no-i18n dir="ltr" hidden><div class="labs-head"><h2 id="labsTitle">Lab values</h2><button type="button" class="labs-close" data-labs-close aria-label="Close">×</button></div><div class="labs-tools"><select id="labsTab" aria-label="Lab group"><option value="blood">Blood</option><option value="heme">Hematologic</option><option value="csf">Cerebrospinal</option><option value="other">Sweat, Urine, BMI</option><option value="infl">Inflammation & Immunology</option><option value="vit">Vitamins & Minerals</option><option value="cardiac">Cardiac & Tumor markers</option></select><input type="search" id="labsSearch" class="labs-search" placeholder="Search…" autocomplete="off" aria-label="Search lab values"></div><div class="labs-body" id="labsBody"></div></section>
-<dialog id="selfQuizDialog" class="device-dialog" aria-labelledby="selfQuizTitle"><div class="sp-card-head"><h2 id="selfQuizTitle" dir="ltr">Quiz</h2><button type="button" class="mb-mini-btn" data-device-close="selfQuizDialog" aria-label="إغلاق">×</button></div><p>اختر المادة ونوع الاختبار. للوزاري يمكنك اختيار السنة والدور ونوع الأسئلة.</p><form id="selfQuizForm"><fieldset class="sq-group"><legend>نوع الاختبار</legend><label><input type="radio" name="sqMode" value="questions" checked> أسئلة اختيار من متعدد</label><label><input type="radio" name="sqMode" value="flash"> Flashcards</label></fieldset><fieldset class="sq-group"><legend>المادة</legend><div id="sqSubjects" class="sq-options"></div></fieldset><div id="sqExam"><fieldset class="sq-group"><legend>مصدر الأسئلة</legend><label><input type="radio" name="sqSource" value="all" checked> كل الأسئلة</label><label><input type="radio" name="sqSource" value="wizari"> الأسئلة الوزارية فقط</label></fieldset><div id="sqExamMore" hidden><fieldset class="sq-group"><legend>سنة الوزاري</legend><div id="sqYears" class="sq-options"></div></fieldset><fieldset class="sq-group"><legend>الدور</legend><label><input type="radio" name="sqRound" value="" checked> كل الأدوار</label><label><input type="radio" name="sqRound" value="1"> الدور الأول</label><label><input type="radio" name="sqRound" value="2"> الدور الثاني</label></fieldset><fieldset class="sq-group"><legend>نوع الأسئلة</legend><label><input type="radio" name="sqKind" value="" checked> الكل</label><label><input type="radio" name="sqKind" value="main"> رئيسية (الامتحان الوزاري)</label><label><input type="radio" name="sqKind" value="mock"> تجريبية</label></fieldset></div></div><fieldset class="sq-group"><legend>طول الاختبار</legend><label><input type="radio" name="sqCount" value="10" checked> قصير</label><label><input type="radio" name="sqCount" value="20"> متوسط</label><label><input type="radio" name="sqCount" value="40"> طويل</label><label id="sqFullOpt" hidden><input type="radio" name="sqCount" value="300"> الورقة كاملة</label></fieldset><div class="device-actions"><button type="submit" class="mb-primary" id="sqStart">ابدأ الاختبار</button><button type="button" class="mb-file-btn" data-device-close="selfQuizDialog">إلغاء</button></div><p id="sqStatus" role="status"></p></form></dialog>
+<dialog id="selfQuizDialog" class="device-dialog" aria-labelledby="selfQuizTitle"><div class="sp-card-head"><h2 id="selfQuizTitle" dir="ltr">Quiz</h2><button type="button" class="mb-mini-btn" data-device-close="selfQuizDialog" aria-label="إغلاق">×</button></div><form id="selfQuizForm"><fieldset class="sq-group"><legend>نوع الاختبار</legend><label><input type="radio" name="sqMode" value="questions" checked> أسئلة اختيار من متعدد</label><label><input type="radio" name="sqMode" value="flash"> Flashcards</label></fieldset><fieldset class="sq-group"><legend>المادة</legend><div id="sqSubjects" class="sq-options"></div></fieldset><div id="sqExam"><fieldset class="sq-group"><legend>مصدر الأسئلة</legend><label><input type="radio" name="sqSource" value="all" checked> كل Q Bank</label><label><input type="radio" name="sqSource" value="files"> ملف أو عدة ملفات</label><label><input type="radio" name="sqSource" value="wizari"> وزاري أو تجريبي</label><label><input type="radio" name="sqSource" value="ai"> أسئلة جديدة بالذكاء الاصطناعي</label></fieldset><div id="sqFilesBox" hidden><fieldset class="sq-group sq-files"><legend>اختر الملفات</legend><input type="search" id="sqFileFind" class="sq-find" placeholder="ابحث عن ملف…" autocomplete="off"><div id="sqFiles" class="sq-file-list"></div></fieldset></div><div id="sqExamMore" hidden><fieldset class="sq-group"><legend>نوع الأسئلة</legend><label><input type="radio" name="sqKind" value="" checked> الكل</label><label><input type="radio" name="sqKind" value="main"> وزاري (رئيسي)</label><label><input type="radio" name="sqKind" value="mock"> تجريبي</label></fieldset><fieldset class="sq-group"><legend>السنة</legend><div id="sqYears" class="sq-options"></div></fieldset><fieldset class="sq-group"><legend>الدور</legend><label><input type="radio" name="sqRound" value="" checked> كل الأدوار</label><label><input type="radio" name="sqRound" value="1"> الدور الأول</label><label><input type="radio" name="sqRound" value="2"> الدور الثاني</label></fieldset></div><div id="sqAiBox" hidden><fieldset class="sq-group"><legend>موضوع الأسئلة</legend><input type="text" id="sqAiTopic" class="sq-find" maxlength="160" placeholder="مثال: Heart failure management" dir="auto"><p class="sq-hint">يكتب المساعد حتى 10 أسئلة جديدة بخمسة خيارات وشرح لكل خيار. راجعها كمساعدة دراسية.</p></fieldset></div></div><fieldset class="sq-group"><legend>عدد الأسئلة</legend><div class="sq-count"><input type="number" id="sqCountNum" min="1" max="300" value="20" inputmode="numeric" aria-label="عدد الأسئلة"><button type="button" data-sq-count="10">10</button><button type="button" data-sq-count="20">20</button><button type="button" data-sq-count="40">40</button><button type="button" data-sq-count="300">الكل</button></div></fieldset><div class="device-actions"><button type="submit" class="mb-primary" id="sqStart">ابدأ الاختبار</button><button type="button" class="mb-file-btn" data-device-close="selfQuizDialog">إلغاء</button></div><p id="sqStatus" role="status"></p></form></dialog>
 <dialog id="reportsDialog" class="device-dialog reports-dialog" aria-labelledby="reportsTitle"><div class="sp-card-head"><h2 id="reportsTitle">بلاغات الطلاب</h2><button type="button" class="mb-mini-btn" data-device-close="reportsDialog" aria-label="إغلاق">×</button></div><p>البلاغات المفتوحة عن الأسئلة، الأحدث أولًا. «تمّ الإصلاح» يغلق كل البلاغات عن السؤال نفسه.</p><div id="reportsList"></div><p id="reportsStatus" role="status"></p></dialog>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.js"></script>
@@ -7704,16 +7726,46 @@ async function loadExamPapers() {
 function syncSelfQuizExam() {
   const form = document.getElementById('selfQuizForm');
   const questions = form.sqMode.value === 'questions';
-  const wizari = questions && form.sqSource.value === 'wizari';
+  const src = questions ? form.sqSource.value : '';
   document.getElementById('sqExam').hidden = !questions;
-  document.getElementById('sqExamMore').hidden = !wizari;
-  document.getElementById('sqFullOpt').hidden = !wizari;
-  if (!wizari && form.sqCount.value === '300') form.querySelector('input[name="sqCount"][value="10"]').checked = true;
-  if (!wizari) return;
+  document.getElementById('sqExamMore').hidden = src !== 'wizari';
+  document.getElementById('sqFilesBox').hidden = src !== 'files';
+  document.getElementById('sqAiBox').hidden = src !== 'ai';
   const cat = form.sqSubject ? form.sqSubject.value : '';
+  if (src === 'files') renderSqFiles();
+  if (src !== 'wizari') return;
+  const kind = form.sqKind.value;
   const prev = form.sqYear ? form.sqYear.value : '';
-  const years = Array.from(new Set((examPapers || []).filter(p => !cat || p.category === cat).map(p => p.year))).sort((a, b) => b - a);
+  const years = Array.from(new Set((examPapers || []).filter(p => (!cat || p.category === cat) && (!kind || p.mock === (kind === 'mock'))).map(p => p.year))).sort((x, y) => y - x);
   document.getElementById('sqYears').innerHTML = ['', ...years].map(y => '<label><input type="radio" name="sqYear" value="' + y + '"' + (String(y) === String(prev) || (!y && !years.includes(Number(prev))) ? ' checked' : '') + '> ' + (y || 'كل السنوات') + '</label>').join('');
+}
+// Question files (one or many) for the chosen subject, searchable; picks stay ticked while searching.
+const sqPicked = new Set();
+function renderSqFiles() {
+  const form = document.getElementById('selfQuizForm');
+  const cat = form.sqSubject ? form.sqSubject.value : '';
+  const q = normalizeSearch(document.getElementById('sqFileFind').value || '');
+  const files = questionPool(l => !cat || l.category === cat).sort((x, y) => String(x.title).localeCompare(String(y.title)));
+  const shown = files.filter(l => !q || normalizeSearch(l.title + ' ' + (l.source || '')).includes(q));
+  document.getElementById('sqFiles').innerHTML = shown.length ? shown.map(l => '<label class="sq-file"><input type="checkbox" value="' + escapeHtml(l.id) + '"' + (sqPicked.has(l.id) ? ' checked' : '') + '><span><b dir="auto">' + escapeHtml(l.title) + '</b><small dir="auto">' + escapeHtml(l.source || '') + '</small></span></label>').join('')
+    : '<p class="sq-hint">لا توجد ملفات أسئلة هنا.</p>';
+}
+async function collectFromFiles(ids, n) {
+  const list = lectures.filter(l => ids.includes(l.id));
+  await Promise.all(list.map(l => ensureLectureDetails(l).catch(() => null)));
+  const all = [];
+  list.forEach(l => (l.questions || []).forEach((q, i) => { if (q && Array.isArray(q.options) && q.options[q.correctIndex]) all.push(Object.assign({}, q, { _lec: l.id, _i: i })); }));
+  return shuffledCopy(all).slice(0, n);
+}
+async function generateAIQuiz(topic, cat, n) {
+  const { data, error } = await client.auth.getSession();
+  if (error || !data.session?.access_token) throw new Error('سجّل الدخول أولًا.');
+  const response = await fetch(SUPABASE_URL + '/functions/v1/medbrain-ai', { method: 'POST',
+    headers: { 'Content-Type': 'application/json', apikey: SUPABASE_KEY, Authorization: 'Bearer ' + data.session.access_token },
+    body: JSON.stringify({ action: 'quiz', topic, subject: cat || '', count: Math.min(10, Math.max(3, n)) }) });
+  const result = await response.json().catch(() => null);
+  if (!response.ok) throw new Error(result?.message || 'تعذّر إنشاء الأسئلة. حاول لاحقًا.');
+  return (result.questions || []).map(q => Object.assign({}, q, { _ai: true }));
 }
 function examQuizTitle(cat, year, round, kind) {
   return ['وزاري', cat ? SUBJECT_AR[cat] || cat : '', year || '', round === '2' ? '– دور ثاني' : round === '1' ? '– دور أول' : '', kind === 'mock' ? '(تجريبي)' : ''].filter(Boolean).join(' ');
@@ -7737,7 +7789,8 @@ function openSelfQuiz() {
 async function runSelfQuiz(e) {
   e.preventDefault();
   const form = e.target, status = document.getElementById('sqStatus'), btn = document.getElementById('sqStart');
-  const mode = form.sqMode.value, cat = form.sqSubject ? form.sqSubject.value : '', n = Number(form.sqCount.value) || 10;
+  const mode = form.sqMode.value, cat = form.sqSubject ? form.sqSubject.value : '';
+  const n = Math.max(1, Math.min(300, Math.round(Number(document.getElementById('sqCountNum').value) || 20)));
   const label = cat ? SUBJECT_AR[cat] || cat : 'كل المواد';
   btn.disabled = true; status.textContent = 'جارٍ تجهيز الاختبار…';
   try {
@@ -7749,19 +7802,34 @@ async function runSelfQuiz(e) {
       const result = await client.from('library_flashcards').select('id,ord,kind,front,back,extra').in('deck_id', ids).limit(600);
       ok = startCustomDeck('Quiz — ' + label, shuffledCopy(result.data || []).slice(0, n));
     } else {
-      if (form.sqSource.value === 'wizari') {
+      const src = form.sqSource.value;
+      if (src === 'wizari') {
         const year = form.sqYear ? form.sqYear.value : '', round = form.sqRound.value, kind = form.sqKind.value;
         const qs = await collectExamQuestions(cat, year, round, kind, n);
         if (!qs.length) { status.textContent = kind === 'mock' ? 'لا توجد أسئلة تجريبية بهذه الاختيارات بعد.' : 'لا توجد أسئلة وزارية بهذه الاختيارات بعد.'; return; }
-        ok = openCustomQuiz(examQuizTitle(cat, year, round, kind), n >= 300 ? 'الورقة كاملة بترتيب عشوائي' : 'أسئلة وزارية عشوائية', qs);
+        ok = openCustomQuiz(examQuizTitle(cat, year, round, kind), 'Quiz', qs);
+      } else if (src === 'files') {
+        const ids = [...sqPicked].filter(id => lectures.some(l => l.id === id));
+        if (!ids.length) { status.textContent = 'اختر ملفًا واحدًا على الأقل.'; return; }
+        const qs = await collectFromFiles(ids, n);
+        if (!qs.length) { status.textContent = 'لا توجد أسئلة في الملفات المختارة.'; return; }
+        const first = lectures.find(l => l.id === ids[0]);
+        ok = openCustomQuiz(ids.length === 1 && first ? first.title : 'Quiz — ' + ids.length + ' files', 'Quiz', qs);
+      } else if (src === 'ai') {
+        const topic = document.getElementById('sqAiTopic').value.trim();
+        if (!topic) { status.textContent = 'اكتب موضوع الأسئلة.'; document.getElementById('sqAiTopic').focus(); return; }
+        status.textContent = 'يكتب المساعد الأسئلة… قد يستغرق ذلك نصف دقيقة.';
+        const qs = await generateAIQuiz(topic, cat, n);
+        if (!qs.length) { status.textContent = 'لم تصل أسئلة صالحة. جرّب موضوعًا أوضح.'; return; }
+        ok = openCustomQuiz('AI Quiz — ' + topic, 'Quiz', qs);
       } else {
         const pool = questionPool(l => !cat || l.category === cat);
         if (!pool.length) { status.textContent = 'لا توجد أسئلة لهذه المادة بعد.'; return; }
-        ok = openCustomQuiz('Quiz — ' + label, 'أسئلة عشوائية مختلطة', await collectQuestions(pool, n));
+        ok = openCustomQuiz('Quiz — ' + label, 'Quiz', n >= 60 ? await collectFromFiles(pool.map(l => l.id), n) : await collectQuestions(pool, n));
       }
     }
     if (ok) document.getElementById('selfQuizDialog').close();
-  } catch (err) { console.error(err); status.textContent = 'تعذّر تجهيز الاختبار. تحقق من الاتصال وأعد المحاولة.'; }
+  } catch (err) { console.error(err); status.textContent = err && err.message && /[؀-ۿ]/.test(err.message) ? err.message : 'تعذّر تجهيز الاختبار. تحقق من الاتصال وأعد المحاولة.'; }
   finally { btn.disabled = false; }
 }
 
@@ -7789,7 +7857,12 @@ function bindSelfQuizUI() {
   bindLibraryBack();
   document.getElementById('selfQuizCard').addEventListener('click', openSelfQuiz);
   document.getElementById('selfQuizForm').addEventListener('submit', runSelfQuiz);
-  document.getElementById('selfQuizForm').addEventListener('change', e => { if (['sqMode', 'sqSource', 'sqSubject'].includes(e.target.name)) syncSelfQuizExam(); });
+  document.getElementById('selfQuizForm').addEventListener('change', e => {
+    if (['sqMode', 'sqSource', 'sqSubject', 'sqKind'].includes(e.target.name)) syncSelfQuizExam();
+    if (e.target.closest('#sqFiles') && e.target.type === 'checkbox') { if (e.target.checked) sqPicked.add(e.target.value); else sqPicked.delete(e.target.value); }
+  });
+  document.getElementById('sqFileFind').addEventListener('input', renderSqFiles);
+  document.getElementById('selfQuizForm').addEventListener('click', e => { const c = e.target.closest('[data-sq-count]'); if (c) document.getElementById('sqCountNum').value = c.dataset.sqCount; });
   document.addEventListener('click', e => {
     const t = e.target.closest('[data-topic-quiz]');
     if (t) { e.preventDefault(); startTopicQuiz(t.dataset.topicQuiz); }
@@ -8353,10 +8426,11 @@ function i18nText(node) {
   const t = node.nodeValue, k = t.trim();
   if (!k || !/[؀-ۿ]/.test(k)) return;
   const en = I18N_EN[k];
-  if (en) node.nodeValue = t.replace(k, en);
+  if (en) { if (node.__ar == null) node.__ar = t; node.nodeValue = t.replace(k, en); i18nTouched.add(node); }
 }
+const i18nTouched = new Set();
 function i18nAttrs(el) {
-  ['aria-label', 'placeholder', 'title'].forEach(a => { const v = el.getAttribute(a); if (v && I18N_EN[v.trim()]) el.setAttribute(a, I18N_EN[v.trim()]); });
+  ['aria-label', 'placeholder', 'title'].forEach(a => { const v = el.getAttribute(a); if (v && I18N_EN[v.trim()]) { el.__arAttr = el.__arAttr || {}; if (el.__arAttr[a] == null) el.__arAttr[a] = v; el.setAttribute(a, I18N_EN[v.trim()]); i18nTouched.add(el); } });
 }
 function i18nTree(root) {
   if (uiLang !== 'en' || !root) return;
@@ -8368,24 +8442,40 @@ function i18nTree(root) {
   const nodes = []; while (walker.nextNode()) nodes.push(walker.currentNode);
   nodes.forEach(i18nText);
 }
+let i18nObserver = null;
+// Switching language keeps the student on the same screen: English is applied in place, Arabic restores the originals.
 function setUiLang(lang) {
   try { localStorage.setItem('medbrain_lang', lang); } catch (_) {}
   if (lang === uiLang) return;
-  location.reload();
+  uiLang = lang;
+  const btn = document.getElementById('siteLangToggle'), sel = document.getElementById('settingsLang');
+  if (btn) btn.textContent = lang === 'en' ? 'ع' : 'EN';
+  if (sel) sel.value = lang;
+  if (lang === 'en') { applyEnglish(); return; }
+  if (i18nObserver) { i18nObserver.disconnect(); i18nObserver = null; }
+  i18nTouched.forEach(n => {
+    if (n.nodeType === 3 && n.__ar != null) { n.nodeValue = n.__ar; n.__ar = null; }
+    if (n.nodeType === 1 && n.__arAttr) { Object.entries(n.__arAttr).forEach(([a, v]) => n.setAttribute(a, v)); n.__arAttr = null; }
+  });
+  i18nTouched.clear();
+  document.documentElement.lang = 'ar'; document.documentElement.dir = 'rtl';
+}
+function applyEnglish() {
+  document.documentElement.lang = 'en'; document.documentElement.dir = 'ltr';
+  i18nTree(document.body);
+  let queued = new Set(), scheduled = false;
+  i18nObserver = new MutationObserver(list => {
+    list.forEach(m => { if (m.type === 'characterData') queued.add(m.target); else m.addedNodes.forEach(n => queued.add(n)); });
+    if (scheduled) return; scheduled = true;
+    requestAnimationFrame(() => { scheduled = false; const q = queued; queued = new Set(); q.forEach(n => { if (n.isConnected) i18nTree(n); }); });
+  });
+  i18nObserver.observe(document.body, { childList: true, subtree: true, characterData: true });
 }
 function initI18n() {
   const btn = document.getElementById('siteLangToggle'), sel = document.getElementById('settingsLang');
   if (btn) { btn.textContent = uiLang === 'en' ? 'ع' : 'EN'; btn.addEventListener('click', () => setUiLang(uiLang === 'en' ? 'ar' : 'en')); }
   if (sel) { sel.value = uiLang; sel.addEventListener('change', () => setUiLang(sel.value)); }
-  if (uiLang !== 'en') return;
-  document.documentElement.lang = 'en'; document.documentElement.dir = 'ltr';
-  i18nTree(document.body);
-  let queued = new Set(), scheduled = false;
-  new MutationObserver(list => {
-    list.forEach(m => { if (m.type === 'characterData') queued.add(m.target); else m.addedNodes.forEach(n => queued.add(n)); });
-    if (scheduled) return; scheduled = true;
-    requestAnimationFrame(() => { scheduled = false; const q = queued; queued = new Set(); q.forEach(n => { if (n.isConnected) i18nTree(n); }); });
-  }).observe(document.body, { childList: true, subtree: true, characterData: true });
+  if (uiLang === 'en') applyEnglish();
 }
 function safeInitI18n() { try { initI18n(); } catch (err) { console.warn('i18n init failed', err); } }
 if (typeof document !== 'undefined' && typeof document.getElementById === 'function') { if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', safeInitI18n); else safeInitI18n(); }

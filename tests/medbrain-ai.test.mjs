@@ -31,3 +31,16 @@ assert.equal(result.status,200);assert.equal(result.data.answer,state.answer);as
 assert(providerCalls[0].messages.at(-1).content.includes('Full original text'));assert.equal(providerCalls[0].messages[1].content,'previous');assert(!JSON.stringify(result.data).includes('test-server-key'));
 const excerpt=selectExcerpt('intro '.repeat(1000)+'SpecialTerm explanation '.repeat(400),'SpecialTerm');assert(excerpt.partial);assert(excerpt.text.includes('SpecialTerm'));assert(excerpt.text.length<4700);
 console.log('PASS backend: auth, CORS, validation, RLS client, quota rejection, provider errors, history roles, lecture excerpts, no secret exposure.');
+// AI quiz: topic validation, quota, JSON cleaning (5 options, valid key), bad items dropped.
+{
+ const { cleanQuiz } = await import('data:text/javascript;base64,'+Buffer.from(source).toString('base64'));
+ const good={prompt:'Q?',options:['a','b','c','d','e'].map(t=>({text:t,explanation:'why '+t})),correctIndex:2};
+ const out=cleanQuiz(JSON.stringify({questions:[good,{prompt:'bad',options:[{text:'x'}],correctIndex:0},{...good,correctIndex:9}]}),5);
+ assert.equal(out.length,1); assert.equal(out[0].options.length,5); assert.equal(out[0].correctIndex,2);
+ assert.equal(cleanQuiz('not json',5).length,0);
+ reset(); assert.equal((await call({action:'quiz',topic:''})).status,400);
+ reset(); state.allowed=false; assert.equal((await call({action:'quiz',topic:'Heart failure'})).status,429);
+ reset(); state.answer=JSON.stringify({questions:[good,good,good]}); const r=await call({action:'quiz',topic:'Heart failure',count:3,subject:'Medicine'});
+ assert.equal(r.status,200); assert.equal(r.data.questions.length,3); assert.equal(providerCalls[0].response_format.type,'json_object');
+ console.log('PASS ai quiz');
+}
