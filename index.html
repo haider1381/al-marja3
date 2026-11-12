@@ -2755,6 +2755,15 @@ html[lang="en"] .mb-feature-en, html[lang="en"] .sp-title small { display:none; 
 .tx-drawing .tx-ink { pointer-events:auto; touch-action:none; cursor:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16'%3E%3Ccircle cx='8' cy='8' r='3' fill='%230F6CBD' stroke='white' stroke-width='1.5'/%3E%3C/svg%3E") 8 8, default; }
 #readerBody[data-tool="text"] .tx-ink { cursor:text; }
 @media (max-width:760px) { #readerOverlay.tx-active .reader-workspace { padding-top:calc(150px + env(safe-area-inset-top,0px)); } }
+
+.pv-alpha-row { margin-top:10px; justify-content:center; }
+.pv-alpha, .pv-linemode { display:flex; flex-direction:column; align-items:center; gap:4px; min-width:58px; padding:6px 8px; border:1px solid var(--border); border-radius:10px; background:var(--surface); color:var(--text); font:inherit; font-size:11.5px; font-weight:700; cursor:pointer; }
+.pv-alpha i { display:block; width:34px; height:12px; border-radius:3px; background:#f5c400; }
+.pv-alpha[aria-pressed="true"], .pv-linemode[aria-pressed="true"] { border-color:#0F6CBD; box-shadow:inset 0 0 0 1px #0F6CBD; color:#0F6CBD; }
+.pv-linemode { min-width:96px; }
+.pv-linemode i { display:block; width:56px; height:14px; position:relative; }
+.pv-linemode .lm-band { background:rgba(245,196,0,.45); border-radius:3px; }
+.pv-linemode .lm-under { border-bottom:2.5px solid #0F6CBD; }
 </style>
 <link rel="manifest" href="./manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="192x192" href="./assets/app-icon-192.png">
@@ -5897,7 +5906,8 @@ function openAIChat(lectureId = null){
   const panel=document.getElementById('globalAIDialog');
   if(!isAIChatOpen())aiReturnFocus=document.activeElement;
   const reader=document.getElementById('readerOverlay');
-  const inReader=!!selected&&reader.classList.contains('open')&&!reader.classList.contains('reader-quiz');
+  // Inside an open lecture (text or PDF) the assistant floats over the reader; otherwise it opens on the site.
+  const inReader=reader.classList.contains('open');
   document.getElementById(inReader?'readerAIHost':'siteAIHost').append(panel);
   document.body.classList.toggle('ai-site-open',!inReader);
   reader.classList.toggle('ai-reader-open',inReader);
@@ -6218,11 +6228,28 @@ const PVI = {
   zoomOut: '<svg viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5" class="ic-soft"/><path d="m15.5 15.5 4.5 4.5M7.8 10.5h5.4"/></svg>',
   zoomIn: '<svg viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5" class="ic-soft"/><path d="m15.5 15.5 4.5 4.5M7.8 10.5h5.4M10.5 7.8v5.4"/></svg>'
 };
+// Highlighter strength (light / medium / strong) and the straight-line tool (a level highlight band or an underline
+// that stays perfectly horizontal while the hand moves across a sentence).
+const HL_ALPHAS = [[0.2, 'خفيف'], [0.38, 'متوسط'], [0.6, 'قوي']];
+const LINE_ICON = '<svg viewBox="0 0 24 24"><rect x="3" y="8" width="18" height="7" rx="2.5" class="ic-soft"/><path d="M3 19.5h18"/><path d="M7 11.5h10"/></svg>';
+function hlAlphaRow(prefix, a) {
+  return '<div class="pv-pop-row pv-alpha-row">' + HL_ALPHAS.map(([v, l]) => '<button type="button" class="pv-alpha" data-' + prefix + '-alpha="' + v + '" aria-pressed="' + (Math.abs(v - (a || 0.38)) < 0.01) + '"><i style="opacity:' + Math.min(1, v * 1.6) + '"></i><span>' + l + '</span></button>').join('') + '</div>';
+}
+function linePopHtml(prefix, mode) {
+  return '<div class="pv-pop-row pv-line-row"><button type="button" class="pv-linemode" data-' + prefix + '-line="band" aria-pressed="' + (mode !== 'under') + '"><i class="lm-band"></i><span>تظليل مستقيم</span></button>' +
+    '<button type="button" class="pv-linemode" data-' + prefix + '-line="under" aria-pressed="' + (mode === 'under') + '"><i class="lm-under"></i><span>خط تحت الجملة</span></button></div>';
+}
+function newStroke(v, x, y) {
+  if (v.tool === 'hl') return { k: 'hl', c: v.hl.c, a: v.hl.a || 0.38, pts: [[x, y]] };
+  if (v.tool === 'line') return v.line === 'under' ? { c: v.pen.c, w: 0.0028, st: 1, pts: [[x, y], [x, y]] } : { k: 'hl', c: v.hl.c, a: v.hl.a || 0.38, st: 1, pts: [[x, y], [x, y]] };
+  return { c: v.pen.c, w: v.pen.w, pts: [[x, y]] };
+}
+function extendStroke(st, x, y) { if (st.st) st.pts[1] = [x, st.pts[0][1]]; else st.pts.push([x, y]); }
 function inkKey(id) { return 'medbrain_ink_' + id; }
 function loadInk(id) { try { return JSON.parse(localStorage.getItem(inkKey(id)) || '{}') || {}; } catch (_) { return {}; } }
 function saveInk() { if (!pdfView) return; try { localStorage.setItem(inkKey(pdfView.lecId), JSON.stringify(pdfView.ink)); } catch (_) {} }
 function pvPrefs() { try { return JSON.parse(localStorage.getItem('medbrain_pv_prefs') || '{}') || {}; } catch (_) { return {}; } }
-function savePvPrefs(v) { try { localStorage.setItem('medbrain_pv_prefs', JSON.stringify({ pen: v.pen, hl: v.hl, night: v.night })); } catch (_) {} }
+function savePvPrefs(v) { try { localStorage.setItem('medbrain_pv_prefs', JSON.stringify({ pen: v.pen, hl: v.hl, night: v.night, line: v.line || 'band' })); } catch (_) {} }
 function destroyPdfViewer() {
   document.getElementById('readerOverlay').classList.remove('pv-active');
   if (!pdfView) return;
@@ -6240,7 +6267,7 @@ async function mountPdfViewer(body, bytes, lec) {
   const vp1 = first.getViewport({ scale: 1 });
   const prefs = pvPrefs();
   const pen = Object.assign({ c: PV_COLORS[0], w: PV_SIZES[1] }, prefs.pen || {});
-  const hl = Object.assign({ c: PV_HL[0] }, prefs.hl || {});
+  const hl = Object.assign({ c: PV_HL[0], a: 0.38 }, prefs.hl || {});
   body.innerHTML = '<div class="pv" id="pdfViewer">' +
     '<div class="pv-tb" role="toolbar" aria-label="أدوات الملف">' +
       '<div class="pv-pill">' + pvBtn('pages', PVI.pages, 'الصفحات', ' aria-expanded="false"') + pvBtn('more', PVI.more, 'المزيد', ' aria-expanded="false"') +
@@ -6249,6 +6276,7 @@ async function mountPdfViewer(body, bytes, lec) {
         '<div class="pv-set" id="pvSet1">' + pvBtn('set2', PVI.chevL, 'أدوات أخرى') + pvBtn('hand', PVI.hand, 'تصفح', ' aria-pressed="true"') + '<span class="pv-sep"></span>' +
           pvBtn('text', PVI.text, 'كتابة نص', ' aria-pressed="false"') + pvBtn('eraser', PVI.eraser, 'ممحاة', ' aria-pressed="false"') +
           '<button type="button" class="pv-ib" data-pv="hl" aria-label="قلم تظليل" title="قلم تظليل" aria-pressed="false" style="--c:' + hl.c + '">' + PVI.hl + '</button>' +
+          pvBtn('line', LINE_ICON, 'خط مستقيم', ' aria-pressed="false"') +
           '<button type="button" class="pv-ib" data-pv="pen" aria-label="قلم" title="قلم" aria-pressed="false" style="--c:' + pen.c + '">' + PVI.pen + '</button></div>' +
         '<div class="pv-set" id="pvSet2" hidden>' + pvBtn('set1', PVI.chevR, 'أدوات الكتابة') + pvBtn('night', PVI.night, 'الوضع الليلي للصفحات', ' aria-pressed="' + !!prefs.night + '"') +
           pvBtn('fit', PVI.fit, 'ملاءمة العرض') + pvBtn('top', PVI.top, 'الصفحة الأولى') + '</div>' +
@@ -6258,7 +6286,8 @@ async function mountPdfViewer(body, bytes, lec) {
     '<p class="pv-title" dir="auto">' + escapeHtml(lec.title || '') + '</p>' +
     '<div class="pv-pop" id="pvPenPop" hidden style="left:50%;transform:translateX(-50%)"><div class="pv-pop-row">' + PV_COLORS.map(c => '<button type="button" class="pv-color" data-pv-color="' + c + '" style="--c:' + c + '" aria-label="لون" aria-pressed="' + (c === pen.c) + '"></button>').join('') + '</div>' +
       '<div class="pv-pop-row">' + PV_SIZES.map((w, i) => '<button type="button" class="pv-size" data-pv-size="' + w + '" aria-label="سماكة ' + (i + 1) + '" aria-pressed="' + (w === pen.w) + '"><i style="height:' + (2 + i * 2) + 'px"></i></button>').join('') + '</div></div>' +
-    '<div class="pv-pop" id="pvHlPop" hidden style="left:50%;transform:translateX(-50%)"><div class="pv-pop-row">' + PV_HL.map(c => '<button type="button" class="pv-color" data-pv-hl="' + c + '" style="--c:' + c + '" aria-label="لون التظليل" aria-pressed="' + (c === hl.c) + '"></button>').join('') + '</div></div>' +
+    '<div class="pv-pop" id="pvHlPop" hidden style="left:50%;transform:translateX(-50%)"><div class="pv-pop-row">' + PV_HL.map(c => '<button type="button" class="pv-color" data-pv-hl="' + c + '" style="--c:' + c + '" aria-label="لون التظليل" aria-pressed="' + (c === hl.c) + '"></button>').join('') + '</div>' + hlAlphaRow('pv', hl.a) + '</div>' +
+    '<div class="pv-pop" id="pvLinePop" hidden style="left:50%;transform:translateX(-50%)">' + linePopHtml('pv', prefs.line) + '</div>' +
     '<div class="pv-pop" id="pvPagesPop" hidden style="left:12px"><div class="pv-pagegrid" id="pvPageGrid"></div></div>' +
     '<div class="pv-pop pv-menu" id="pvMorePop" hidden style="left:12px">' +
       (topicQuizAvailable(lec.topicId) ? '<button type="button" data-pv="quiz">' + PVI.quiz + '<span>Quick Quiz</span></button>' : '') +
@@ -6276,7 +6305,7 @@ async function mountPdfViewer(body, bytes, lec) {
     el.innerHTML = '<canvas class="pv-canvas"></canvas><canvas class="pv-ink"></canvas><span class="pv-num">' + n + '</span>';
     wrap.appendChild(el); pages.push(el);
   }
-  pdfView = { doc, lecId: lec.id, topicId: lec.topicId, pages, rendered: new Set(), rendering: new Map(), zoom: 1, tool: 'hand', pen, hl, night: !!prefs.night,
+  pdfView = { doc, lecId: lec.id, topicId: lec.topicId, pages, rendered: new Set(), rendering: new Map(), zoom: 1, tool: 'hand', pen, hl, line: prefs.line || 'band', night: !!prefs.night,
     ink: loadInk(lec.id), visible: new Map(), current: 1, hist: [], redo: [] };
   pdfView.observer = new IntersectionObserver(entries => {
     if (!pdfView) return;
@@ -6340,7 +6369,7 @@ function drawStroke(ctx, st, w, h) {
   }
   if (!st.pts || !st.pts.length) return;
   ctx.save();
-  if (st.k === 'hl') { ctx.globalAlpha = 0.38; ctx.globalCompositeOperation = 'multiply'; }
+  if (st.k === 'hl') { ctx.globalAlpha = st.a || 0.38; ctx.globalCompositeOperation = 'multiply'; }
   ctx.strokeStyle = st.c; ctx.lineWidth = (st.k === 'hl' ? 0.02 : st.w) * w; ctx.lineCap = st.k === 'hl' ? 'butt' : 'round'; ctx.lineJoin = 'round';
   ctx.beginPath(); ctx.moveTo(st.pts[0][0] * w, st.pts[0][1] * h);
   if (st.pts.length === 1) ctx.lineTo(st.pts[0][0] * w + 0.1, st.pts[0][1] * h);
@@ -6456,7 +6485,7 @@ function mountTextTools(lec) {
   let items = []; try { items = JSON.parse(localStorage.getItem(txKey(lec.id)) || '[]') || []; } catch (_) {}
   const prefs = pvPrefs();
   const pen = Object.assign({ c: PV_COLORS[0], w: PV_SIZES[1] }, prefs.pen || {});
-  const hl = Object.assign({ c: PV_HL[0] }, prefs.hl || {});
+  const hl = Object.assign({ c: PV_HL[0], a: 0.38 }, prefs.hl || {});
   const b = (act, icon, label, extra) => '<button type="button" class="pv-ib" data-tx="' + act + '" aria-label="' + label + '" title="' + label + '"' + (extra || '') + '>' + icon + '</button>';
   const bar = document.createElement('div');
   bar.id = 'txTools'; bar.className = 'tx-tools';
@@ -6468,6 +6497,7 @@ function mountTextTools(lec) {
       '<div class="pv-set" id="txSet1">' + b('set2', PVI.chevL, 'أدوات أخرى') + b('hand', PVI.hand, 'تصفح', ' aria-pressed="true"') + '<span class="pv-sep"></span>' +
         b('text', PVI.text, 'كتابة نص', ' aria-pressed="false"') + b('eraser', PVI.eraser, 'ممحاة', ' aria-pressed="false"') +
         '<button type="button" class="pv-ib" data-tx="hl" aria-label="قلم تظليل" title="قلم تظليل" aria-pressed="false" style="--c:' + hl.c + '">' + PVI.hl + '</button>' +
+        b('line', LINE_ICON, 'خط مستقيم', ' aria-pressed="false"') +
         '<button type="button" class="pv-ib" data-tx="pen" aria-label="قلم" title="قلم" aria-pressed="false" style="--c:' + pen.c + '">' + PVI.pen + '</button></div>' +
       '<div class="pv-set" id="txSet2" hidden>' + b('set1', PVI.chevR, 'أدوات الكتابة') + b('night', PVI.night, 'الوضع الداكن') + b('fit', PVI.fit, 'حجم الخط الافتراضي') + b('top', PVI.top, 'بداية النص') + '</div>' +
     '</div>' +
@@ -6475,7 +6505,8 @@ function mountTextTools(lec) {
     '<p class="pv-title" dir="auto">' + escapeHtml(lec.title || '') + '</p>' +
     '<div class="pv-pop" id="txPenPop" hidden style="left:50%;transform:translateX(-50%)"><div class="pv-pop-row">' + PV_COLORS.map(c => '<button type="button" class="pv-color" data-tx-color="' + c + '" style="--c:' + c + '" aria-label="لون" aria-pressed="' + (c === pen.c) + '"></button>').join('') + '</div>' +
       '<div class="pv-pop-row">' + PV_SIZES.map((w, i) => '<button type="button" class="pv-size" data-tx-size="' + w + '" aria-label="سماكة ' + (i + 1) + '" aria-pressed="' + (w === pen.w) + '"><i style="height:' + (2 + i * 2) + 'px"></i></button>').join('') + '</div></div>' +
-    '<div class="pv-pop" id="txHlPop" hidden style="left:50%;transform:translateX(-50%)"><div class="pv-pop-row">' + PV_HL.map(c => '<button type="button" class="pv-color" data-tx-hl="' + c + '" style="--c:' + c + '" aria-label="لون التظليل" aria-pressed="' + (c === hl.c) + '"></button>').join('') + '</div></div>' +
+    '<div class="pv-pop" id="txHlPop" hidden style="left:50%;transform:translateX(-50%)"><div class="pv-pop-row">' + PV_HL.map(c => '<button type="button" class="pv-color" data-tx-hl="' + c + '" style="--c:' + c + '" aria-label="لون التظليل" aria-pressed="' + (c === hl.c) + '"></button>').join('') + '</div>' + hlAlphaRow('tx', hl.a) + '</div>' +
+    '<div class="pv-pop" id="txLinePop" hidden style="left:50%;transform:translateX(-50%)">' + linePopHtml('tx', prefs.line) + '</div>' +
     '<div class="pv-pop pv-menu" id="txPagesPop" hidden style="left:12px"></div>' +
     '<div class="pv-pop pv-menu" id="txMorePop" hidden style="left:12px">' +
       (topicQuizAvailable(lec.topicId) ? '<button type="button" data-tx="quiz">' + PVI.quiz + '<span>Quick Quiz</span></button>' : '') +
@@ -6489,7 +6520,7 @@ function mountTextTools(lec) {
   const canvas = document.createElement('canvas');
   canvas.className = 'tx-ink';
   body.appendChild(canvas);
-  txView = { lecId: lec.id, topicId: lec.topicId, items, pen, hl, tool: 'hand', hist: [], redo: [], canvas };
+  txView = { lecId: lec.id, topicId: lec.topicId, items, pen, hl, line: prefs.line || 'band', tool: 'hand', hist: [], redo: [], canvas };
   document.getElementById('readerOverlay').classList.add('tx-active');
   txView.ro = new ResizeObserver(() => txSize()); txView.ro.observe(body);
   txSize();
@@ -6498,7 +6529,7 @@ function mountTextTools(lec) {
 }
 function bindTextTools(bar, body) {
   const v0 = txView, canvas = v0.canvas;
-  const pops = ['txPenPop', 'txHlPop', 'txPagesPop', 'txMorePop', 'txTimerPop'];
+  const pops = ['txPenPop', 'txHlPop', 'txLinePop', 'txPagesPop', 'txMorePop', 'txTimerPop'];
   const closePops = except => pops.forEach(id => { if (id !== except) document.getElementById(id).hidden = true; });
   const togglePop = id => { const el = document.getElementById(id); closePops(id); el.hidden = !el.hidden; };
   const syncHist = () => { if (!txView) return; bar.querySelector('[data-tx="undo"]').disabled = !txView.hist.length; bar.querySelector('[data-tx="redo"]').disabled = !txView.redo.length; };
@@ -6507,7 +6538,7 @@ function bindTextTools(bar, body) {
     op.items.forEach(({ item, i }) => { if (add) txView.items.splice(Math.min(i, txView.items.length), 0, item); else { const at = txView.items.indexOf(item); if (at >= 0) txView.items.splice(at, 1); } });
     txSave(); txDraw(); };
   const setTool = tool => { txView.tool = tool;
-    ['hand', 'text', 'eraser', 'hl', 'pen'].forEach(t => bar.querySelector('[data-tx="' + t + '"]').setAttribute('aria-pressed', String(t === tool)));
+    ['hand', 'text', 'eraser', 'hl', 'line', 'pen'].forEach(t => bar.querySelector('[data-tx="' + t + '"]').setAttribute('aria-pressed', String(t === tool)));
     body.classList.toggle('tx-drawing', tool !== 'hand'); body.dataset.tool = tool; };
   const pt = e => { const r = canvas.getBoundingClientRect(); return [(e.clientX - r.left) / r.width, (e.clientY - r.top) / r.width]; };
   let stroke = null, erased = null;
@@ -6531,10 +6562,10 @@ function bindTextTools(bar, body) {
     }
     canvas.setPointerCapture(e.pointerId);
     if (v.tool === 'eraser') { erased = []; eraseAt(x, y); return; }
-    stroke = v.tool === 'hl' ? { k: 'hl', c: v.hl.c, pts: [[x, y]] } : { c: v.pen.c, w: v.pen.w, pts: [[x, y]] };
+    stroke = newStroke(v, x, y);
   });
   canvas.addEventListener('pointermove', e => { if (!txView) return; const [x, y] = pt(e);
-    if (erased) { eraseAt(x, y); return; } if (!stroke) return; stroke.pts.push([x, y]); txDraw(stroke); });
+    if (erased) { eraseAt(x, y); return; } if (!stroke) return; extendStroke(stroke, x, y); txDraw(stroke); });
   const finish = () => { const v = txView; if (!v) return;
     if (erased) { if (erased.length) commit({ add: false, items: erased.reverse() }); erased = null; return; }
     if (!stroke) return; stroke.pts = stroke.pts.map(([x, y]) => [Math.round(x * 1000) / 1000, Math.round(y * 1000) / 1000]);
@@ -6546,16 +6577,20 @@ function bindTextTools(bar, body) {
   bar.addEventListener('click', e => {
     const v = txView; if (!v) return;
     const color = e.target.closest('[data-tx-color]');
-    if (color) { v.pen.c = color.dataset.txColor; bar.querySelectorAll('[data-tx-color]').forEach(x => x.setAttribute('aria-pressed', String(x === color))); bar.querySelector('[data-tx="pen"]').style.setProperty('--c', v.pen.c); savePvPrefs({ pen: v.pen, hl: v.hl, night: pvPrefs().night }); return; }
+    if (color) { v.pen.c = color.dataset.txColor; bar.querySelectorAll('[data-tx-color]').forEach(x => x.setAttribute('aria-pressed', String(x === color))); bar.querySelector('[data-tx="pen"]').style.setProperty('--c', v.pen.c); savePvPrefs({ pen: v.pen, hl: v.hl, night: pvPrefs().night, line: v.line }); return; }
     const size = e.target.closest('[data-tx-size]');
-    if (size) { v.pen.w = Number(size.dataset.txSize); bar.querySelectorAll('[data-tx-size]').forEach(x => x.setAttribute('aria-pressed', String(x === size))); savePvPrefs({ pen: v.pen, hl: v.hl, night: pvPrefs().night }); return; }
+    if (size) { v.pen.w = Number(size.dataset.txSize); bar.querySelectorAll('[data-tx-size]').forEach(x => x.setAttribute('aria-pressed', String(x === size))); savePvPrefs({ pen: v.pen, hl: v.hl, night: pvPrefs().night, line: v.line }); return; }
     const hlc = e.target.closest('[data-tx-hl]');
-    if (hlc) { v.hl.c = hlc.dataset.txHl; bar.querySelectorAll('[data-tx-hl]').forEach(x => x.setAttribute('aria-pressed', String(x === hlc))); bar.querySelector('[data-tx="hl"]').style.setProperty('--c', v.hl.c); savePvPrefs({ pen: v.pen, hl: v.hl, night: pvPrefs().night }); return; }
+    if (hlc) { v.hl.c = hlc.dataset.txHl; bar.querySelectorAll('[data-tx-hl]').forEach(x => x.setAttribute('aria-pressed', String(x === hlc))); bar.querySelector('[data-tx="hl"]').style.setProperty('--c', v.hl.c); savePvPrefs({ pen: v.pen, hl: v.hl, night: pvPrefs().night, line: v.line }); return; }
+    const al = e.target.closest('[data-tx-alpha]');
+    if (al) { v.hl.a = Number(al.dataset.txAlpha); bar.querySelectorAll('[data-tx-alpha]').forEach(x => x.setAttribute('aria-pressed', String(x === al))); savePvPrefs({ pen: v.pen, hl: v.hl, night: pvPrefs().night, line: v.line }); return; }
+    const lm = e.target.closest('[data-tx-line]');
+    if (lm) { v.line = lm.dataset.txLine; bar.querySelectorAll('[data-tx-line]').forEach(x => x.setAttribute('aria-pressed', String(x === lm))); savePvPrefs({ pen: v.pen, hl: v.hl, night: pvPrefs().night, line: v.line }); closePops(); return; }
     const head = e.target.closest('[data-tx-head]');
     if (head) { const h = document.getElementById(head.dataset.txHead); if (h) h.scrollIntoView({ block: 'start', behavior: 'smooth' }); closePops(); return; }
     const btn = e.target.closest('[data-tx]'); if (!btn) return;
     const act = btn.dataset.tx;
-    if (act === 'pen' || act === 'hl') { if (v.tool === act) togglePop(act === 'pen' ? 'txPenPop' : 'txHlPop'); else { closePops(); setTool(act); } }
+    if (act === 'pen' || act === 'hl' || act === 'line') { if (v.tool === act) togglePop(act === 'pen' ? 'txPenPop' : act === 'hl' ? 'txHlPop' : 'txLinePop'); else { closePops(); setTool(act); } }
     else if (act === 'hand' || act === 'eraser' || act === 'text') { closePops(); setTool(act); }
     else if (act === 'set2' || act === 'set1') { closePops(); swapPvSets(act === 'set2' ? 'txSet1' : 'txSet2', act === 'set2' ? 'txSet2' : 'txSet1'); }
     else if (act === 'undo' || act === 'redo') { const from = act === 'undo' ? v.hist : v.redo, to = act === 'undo' ? v.redo : v.hist; const op = from.pop(); if (op) { apply(op, act === 'undo'); to.push(op); } syncHist(); }
@@ -6583,13 +6618,13 @@ function bindPdfViewer(wrap) {
   const v0 = pdfView;
   let stroke = null, strokePage = 0, erased = null;
   const point = (e, ink) => { const r = ink.getBoundingClientRect(); return [(e.clientX - r.left) / r.width, (e.clientY - r.top) / r.height]; };
-  const pops = ['pvPenPop', 'pvHlPop', 'pvPagesPop', 'pvMorePop', 'pvTimerPop'];
+  const pops = ['pvPenPop', 'pvHlPop', 'pvLinePop', 'pvPagesPop', 'pvMorePop', 'pvTimerPop'];
   const closePops = except => pops.forEach(id => { if (id !== except) document.getElementById(id).hidden = true; });
   const togglePop = id => { const el = document.getElementById(id); closePops(id); el.hidden = !el.hidden;
     viewer.querySelectorAll('[aria-expanded]').forEach(b => b.setAttribute('aria-expanded', String(!document.getElementById({ pages: 'pvPagesPop', more: 'pvMorePop', timer: 'pvTimerPop' }[b.dataset.pv] || 'x')?.hidden))); };
   const setTool = tool => {
     const v = pdfView; v.tool = tool;
-    ['hand', 'text', 'eraser', 'hl', 'pen'].forEach(t => viewer.querySelector('[data-pv="' + t + '"]').setAttribute('aria-pressed', String(t === tool)));
+    ['hand', 'text', 'eraser', 'hl', 'line', 'pen'].forEach(t => viewer.querySelector('[data-pv="' + t + '"]').setAttribute('aria-pressed', String(t === tool)));
     wrap.classList.toggle('pv-drawing', tool !== 'hand');
     wrap.dataset.tool = tool;
   };
@@ -6605,7 +6640,7 @@ function bindPdfViewer(wrap) {
     if (v.tool === 'text') { openPvTextBox(ink.parentElement, strokePage, x, y); return; }
     ink.setPointerCapture(e.pointerId);
     if (v.tool === 'eraser') { erased = []; eraseAt(x, y); return; }
-    stroke = v.tool === 'hl' ? { k: 'hl', c: v.hl.c, pts: [[x, y]] } : { c: v.pen.c, w: v.pen.w, pts: [[x, y]] };
+    stroke = newStroke(v, x, y);
   });
   const eraseAt = (x, y) => {
     const v = pdfView, list = v.ink[strokePage] || [];
@@ -6618,7 +6653,7 @@ function bindPdfViewer(wrap) {
     const ink = pdfView.pages[strokePage - 1].querySelector('.pv-ink');
     const [x, y] = point(e, ink);
     if (erased) { eraseAt(x, y); return; }
-    stroke.pts.push([x, y]);
+    extendStroke(stroke, x, y);
     drawInk(strokePage, stroke);
   });
   const finish = () => {
@@ -6678,14 +6713,18 @@ function bindPdfViewer(wrap) {
     const hlc = e.target.closest('[data-pv-hl]');
     if (hlc) { v.hl.c = hlc.dataset.pvHl; viewer.querySelectorAll('[data-pv-hl]').forEach(b => b.setAttribute('aria-pressed', String(b === hlc)));
       viewer.querySelector('[data-pv="hl"]').style.setProperty('--c', v.hl.c); savePvPrefs(v); return; }
+    const al = e.target.closest('[data-pv-alpha]');
+    if (al) { v.hl.a = Number(al.dataset.pvAlpha); viewer.querySelectorAll('[data-pv-alpha]').forEach(x => x.setAttribute('aria-pressed', String(x === al))); savePvPrefs(v); return; }
+    const lm = e.target.closest('[data-pv-line]');
+    if (lm) { v.line = lm.dataset.pvLine; viewer.querySelectorAll('[data-pv-line]').forEach(x => x.setAttribute('aria-pressed', String(x === lm))); savePvPrefs(v); closePops(); return; }
     const min = e.target.closest('[data-pv-min]');
     if (min) { startPdfTimer(Number(min.dataset.pvMin)); closePops(); return; }
     const pg = e.target.closest('[data-pv-page]');
     if (pg) { v.pages[Number(pg.dataset.pvPage) - 1].scrollIntoView({ block: 'start' }); closePops(); return; }
     const btn = e.target.closest('[data-pv]'); if (!btn) return;
     const act = btn.dataset.pv;
-    if (act === 'pen' || act === 'hl') {
-      if (v.tool === act) togglePop(act === 'pen' ? 'pvPenPop' : 'pvHlPop'); else { closePops(); setTool(act); }
+    if (act === 'pen' || act === 'hl' || act === 'line') {
+      if (v.tool === act) togglePop(act === 'pen' ? 'pvPenPop' : act === 'hl' ? 'pvHlPop' : 'pvLinePop'); else { closePops(); setTool(act); }
     } else if (act === 'hand' || act === 'eraser' || act === 'text') { closePops(); setTool(act); }
     else if (act === 'zoom-in' || act === 'zoom-out') { const r = wrap.getBoundingClientRect(); zoomTo(v.zoom * (act === 'zoom-in' ? 1.2 : 1 / 1.2), r.left + r.width / 2, r.top + r.height / 3); }
     else if (act === 'set2' || act === 'set1') { closePops(); swapPvSets(act === 'set2' ? 'pvSet1' : 'pvSet2', act === 'set2' ? 'pvSet2' : 'pvSet1'); }
