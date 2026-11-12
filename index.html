@@ -2674,6 +2674,44 @@ html[lang="en"] .mb-feature-en, html[lang="en"] .sp-title small { display:none; 
 .quiz-question { font-size:var(--quiz-fs, 1em); }
 .quiz-question mark.hl, .quiz-why-text mark.hl { background:#fde68a; color:inherit; border-radius:2px; padding:0 1px; }
 .quiz-highlighting .quiz-question h3 { cursor:text; }
+
+/* Reader: the old title row and text toolbar give way to small floating icon pills (same look as the PDF viewer). */
+#readerOverlay .reader-head, #readerOverlay .reader-toolbar { display:none !important; }
+.rd-tb { position:sticky; top:0; z-index:8; display:flex; align-items:center; gap:10px; padding:calc(8px + env(safe-area-inset-top,0px)) 12px 8px; background:transparent; pointer-events:none; flex-shrink:0; }
+.rd-tb .pv-pill { pointer-events:auto; }
+.rd-title { flex:1; min-width:0; margin:0; text-align:center; font-size:14px; font-weight:700; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; direction:rtl; }
+#readerOverlay.reader-quiz .rd-text-only, #readerOverlay.pdf-mode .rd-text-only { display:none; }
+#readerOverlay.pv-active .rd-tb { display:none; }
+.rd-tb .pv-ib[aria-pressed="true"] { background:rgba(31,111,235,.12); color:#1f6feb; }
+.rd-text-only { display:contents; }
+/* Clear, visible back arrow on library pages. */
+.mb-page-back { width:44px !important; height:44px !important; border:0 !important; border-radius:50% !important; background:var(--accent,#0F6CBD) !important; color:#fff !important;
+  font-size:26px !important; line-height:1; box-shadow:0 4px 12px rgba(15,108,189,.3); cursor:pointer; flex-shrink:0; }
+.mb-page-back:hover { filter:brightness(1.08); }
+/* PDF pages start smaller than the screen; pinch to enlarge. */
+.pv-page { width:calc(var(--pvz) * 82%) !important; max-width:calc(var(--pvz) * 720px) !important; }
+@media (max-width:640px) { .pv-page { width:calc(var(--pvz) * 94%) !important; } }
+.pv-loading { display:grid; place-items:center; height:60dvh; }
+.pv-loading span { width:38px; height:38px; border-radius:50%; border:3px solid var(--accent-soft,#EAF4FF); border-top-color:var(--accent,#0F6CBD); animation:pvspin .8s linear infinite; }
+@keyframes pvspin { to { transform:rotate(360deg); } }
+/* Lab values: compact corner window that leaves the lecture visible. */
+.labs-panel { width:min(330px, calc(100vw - 24px)) !important; height:min(400px, calc(100dvh - 140px)) !important; top:auto !important; bottom:calc(86px + env(safe-area-inset-bottom,0px)) !important; right:max(12px,env(safe-area-inset-right)) !important; left:auto !important; border-radius:12px !important; }
+.labs-head { padding:7px 36px !important; }
+.labs-head h2 { font-size:14px !important; }
+.labs-close { width:28px !important; height:28px !important; font-size:18px !important; }
+.labs-tools { padding:8px 10px 4px !important; gap:6px !important; }
+.labs-tools select, .labs-search { min-height:32px !important; font-size:12.5px !important; padding:0 8px !important; }
+.labs-body { padding:2px 10px 10px !important; }
+.labs-table { font-size:11.5px !important; }
+.labs-table th { padding:7px 4px 6px !important; font-size:11.5px !important; }
+.labs-table td { padding:5px 4px !important; }
+@media (max-width:640px) { .labs-panel { width:min(300px, calc(100vw - 24px)) !important; height:min(360px, 52dvh) !important; } }
+
+.pv-pill-center { overflow:hidden; }
+.pv-roll-out { animation:pvRollOut .26s cubic-bezier(.55,0,.75,.4) both; }
+.pv-roll-in { animation:pvRollIn .34s cubic-bezier(.2,.7,.3,1) both; }
+@keyframes pvRollOut { 0% { transform:none; opacity:1; } 50% { transform:translate(22px,-7px) rotate(35deg); opacity:.7; } 100% { transform:translate(60px,4px) rotate(90deg); opacity:0; } }
+@keyframes pvRollIn { 0% { transform:translate(-60px,4px) rotate(-90deg); opacity:0; } 55% { transform:translate(-18px,-7px) rotate(-25deg); opacity:.8; } 100% { transform:none; opacity:1; } }
 </style>
 <link rel="manifest" href="./manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="192x192" href="./assets/app-icon-192.png">
@@ -2914,15 +2952,15 @@ html[lang="en"] .mb-feature-en, html[lang="en"] .sp-title small { display:none; 
       </button>
 
       <button type="button" class="mb-feature" data-dashboard-kind="questions">
-        <div class="mb-feature-top"><div><h3 class="mb-feature-title">بنك الأسئلة</h3><span class="mb-feature-en">QBank</span></div><span class="mb-feature-count" id="cardQuestions" hidden></span></div>
+        <div class="mb-feature-top"><div><h3 class="mb-feature-title" dir="ltr">Q Bank</h3></div><span class="mb-feature-count" id="cardQuestions" hidden></span></div>
         <div class="mb-art"><img class="mb-art-image" src="assets/medbrain/qbank.webp?v=4" alt="" loading="eager"></div>
         <p class="mb-feature-note">اختبارات تفاعلية مع التصحيح والتفسيرات.</p>
       </button>
 
       <button type="button" class="mb-feature" id="selfQuizCard" aria-haspopup="dialog">
-        <div class="mb-feature-top"><div><h3 class="mb-feature-title">اختبر نفسك</h3><span class="mb-feature-en">Quiz</span></div></div>
+        <div class="mb-feature-top"><div><h3 class="mb-feature-title" dir="ltr">Quiz</h3></div></div>
         <div class="mb-art"><svg class="sq-art" viewBox="0 0 160 120" aria-hidden="true"><rect x="34" y="18" width="92" height="88" rx="14" fill="#eef5ff" stroke="#4f5960" stroke-width="3"/><rect x="62" y="10" width="36" height="16" rx="6" fill="#81d6c7" stroke="#4f5960" stroke-width="3"/><path d="M50 46h14M50 66h14M50 86h14" stroke="#4f5960" stroke-width="3" stroke-linecap="round"/><path d="m74 44 6 6 12-12" fill="none" stroke="#39c99b" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><path d="m74 64 6 6 12-12" fill="none" stroke="#39c99b" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><path d="m76 82 12 12m0-12-12 12" stroke="#ef8b9c" stroke-width="5" stroke-linecap="round"/><circle cx="122" cy="88" r="20" fill="#f5c449" stroke="#4f5960" stroke-width="3"/><path d="M122 76v12l8 5" fill="none" stroke="#4f5960" stroke-width="3" stroke-linecap="round"/></svg></div>
-        <p class="mb-feature-note">اختبار عشوائي من بنك الأسئلة أو البطاقات حسب المادة.</p>
+        <p class="mb-feature-note">اختبار عشوائي من Q Bank أو Flashcards حسب المادة.</p>
       </button>
 
       <button type="button" class="mb-feature" data-dashboard-kind="videos">
@@ -2932,7 +2970,7 @@ html[lang="en"] .mb-feature-en, html[lang="en"] .sp-title small { display:none; 
       </button>
 
       <button type="button" class="mb-feature" data-tool-view="flashcards">
-        <div class="mb-feature-top"><div><h3 class="mb-feature-title">البطاقات التعليمية</h3><span class="mb-feature-en">Flashcards</span></div><span class="mb-feature-count" id="cardFlashcards" hidden></span></div>
+        <div class="mb-feature-top"><div><h3 class="mb-feature-title" dir="ltr">Flashcards</h3></div><span class="mb-feature-count" id="cardFlashcards" hidden></span></div>
         <div class="mb-art"><img class="mb-art-image" src="assets/medbrain/flashcards.webp?v=4" alt="" loading="eager"></div>
         <p class="mb-feature-note">أنشئ بطاقاتك الشخصية وراجعها واقلبها لرؤية الإجابة.</p>
       </button>
@@ -3259,6 +3297,7 @@ html[lang="en"] .mb-feature-en, html[lang="en"] .sp-title small { display:none; 
 <!-- Lecture Reader -->
 <div class="overlay reader" id="readerOverlay">
   <div class="reader-modal" role="dialog" aria-modal="true" aria-labelledby="readerTitle">
+    <div class="rd-tb" id="readerTopBar" role="toolbar" aria-label="أدوات القراءة" dir="ltr"><div class="pv-pill"><button type="button" class="pv-ib" data-rd="timer" aria-label="مؤقّت الدراسة" title="مؤقّت الدراسة"><svg viewBox="0 0 24 24"><circle cx="12" cy="13.5" r="7.5"/><path d="M12 9.5v4l2.5 2M10 2.5h4M18.5 6.5l1.5-1.5"/></svg></button><button type="button" class="pv-ib" data-rd="dark" aria-label="الوضع الداكن" title="الوضع الداكن"><svg viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg></button><span class="rd-text-only"><button type="button" class="pv-ib" data-rd="minus" aria-label="تصغير الخط" title="تصغير الخط"><svg viewBox="0 0 24 24"><path d="M4 18 8.5 6h1L14 18M5.5 14h6M16 12h5"/></svg></button><button type="button" class="pv-ib" data-rd="plus" aria-label="تكبير الخط" title="تكبير الخط"><svg viewBox="0 0 24 24"><path d="M3 18 7.5 6h1L13 18M4.5 14h6M15.5 12h6M18.5 9v6"/></svg></button><button type="button" class="pv-ib" data-rd="top" aria-label="بداية النص" title="بداية النص"><svg viewBox="0 0 24 24"><path d="M5 4h14M12 20V8M7 13l5-5 5 5"/></svg></button></span><button type="button" class="pv-ib" data-open-labs aria-label="Lab values" title="Lab values"><svg viewBox="0 0 24 24"><path d="M9 3h6M10 3v6l-5.2 9.2A2 2 0 0 0 6.5 21h11a2 2 0 0 0 1.7-2.8L14 9V3"/><path d="M7.2 15h9.6"/></svg></button></div><p class="rd-title" id="readerBarTitle" dir="auto"></p><div class="pv-pill"><button type="button" class="pv-ib" data-rd="close" aria-label="إغلاق" title="إغلاق"><svg viewBox="0 0 24 24"><path d="M4 12h16M14 6l6 6-6 6"/></svg></button></div></div>
     <div class="reader-head">
       <div>
         <p class="reader-brand" dir="ltr">MEDBRAIN · READER</p>
@@ -3347,7 +3386,7 @@ html[lang="en"] .mb-feature-en, html[lang="en"] .sp-title small { display:none; 
 <dialog id="paywallDialog" class="device-dialog" aria-labelledby="paywallTitle"><h2 id="paywallTitle">الاشتراك مطلوب</h2><p id="paywallText"></p><form id="paywallForm"><label for="paywallCode">كود الاشتراك<input id="paywallCode" dir="ltr" autocomplete="off" placeholder="MB-XXXXX-XXXXX" maxlength="20"></label><div class="device-actions"><button type="submit" class="mb-primary">تفعيل الكود</button><button type="button" class="mb-file-btn" data-device-close="paywallDialog">لاحقًا</button></div><p id="paywallStatus" role="status"></p></form><p id="paywallContact"></p></dialog>
 <dialog id="questionReportDialog" class="device-dialog" aria-labelledby="questionReportTitle"><h2 id="questionReportTitle">الإبلاغ عن مشكلة في السؤال</h2><p>يصل بلاغك إلى فريق Medbrain لمراجعة السؤال وتصحيحه.</p><form id="questionReportForm"><fieldset class="report-reasons"><legend>نوع المشكلة</legend><label><input type="radio" name="reportReason" value="wrong_answer"> الإجابة المعتمدة خاطئة</label><label><input type="radio" name="reportReason" value="wrong_question"> السؤال خاطئ أو غير واضح</label><label><input type="radio" name="reportReason" value="incomplete"> السؤال ناقص (خيار أو معلومة مفقودة)</label><label><input type="radio" name="reportReason" value="explanation"> الشرح خاطئ أو غير كافٍ</label><label><input type="radio" name="reportReason" value="other"> مشكلة أخرى</label></fieldset><label for="questionReportNote">تفاصيل (اختياري): ما الصحيح برأيك ومصدره؟<textarea id="questionReportNote" maxlength="1000" rows="3"></textarea></label><div class="device-actions"><button type="submit" class="mb-primary" id="questionReportSubmit">إرسال البلاغ</button><button type="button" class="mb-file-btn" data-device-close="questionReportDialog">إلغاء</button></div><p id="questionReportStatus" role="status"></p></form></dialog>
 <section id="labsPanel" class="labs-panel" role="dialog" aria-modal="false" aria-labelledby="labsTitle" data-no-i18n dir="ltr" hidden><div class="labs-head"><h2 id="labsTitle">Lab values</h2><button type="button" class="labs-close" data-labs-close aria-label="Close">×</button></div><div class="labs-tools"><select id="labsTab" aria-label="Lab group"><option value="blood">Blood</option><option value="heme">Hematologic</option><option value="csf">Cerebrospinal</option><option value="other">Sweat, Urine, BMI</option><option value="infl">Inflammation & Immunology</option><option value="vit">Vitamins & Minerals</option><option value="cardiac">Cardiac & Tumor markers</option></select><input type="search" id="labsSearch" class="labs-search" placeholder="Search…" autocomplete="off" aria-label="Search lab values"></div><div class="labs-body" id="labsBody"></div></section>
-<dialog id="selfQuizDialog" class="device-dialog" aria-labelledby="selfQuizTitle"><div class="sp-card-head"><h2 id="selfQuizTitle">اختبر نفسك</h2><button type="button" class="mb-mini-btn" data-device-close="selfQuizDialog" aria-label="إغلاق">×</button></div><p>اختر المادة ونوع الاختبار. للوزاري يمكنك اختيار السنة والدور ونوع الأسئلة.</p><form id="selfQuizForm"><fieldset class="sq-group"><legend>نوع الاختبار</legend><label><input type="radio" name="sqMode" value="questions" checked> أسئلة اختيار من متعدد</label><label><input type="radio" name="sqMode" value="flash"> بطاقات تعليمية</label></fieldset><fieldset class="sq-group"><legend>المادة</legend><div id="sqSubjects" class="sq-options"></div></fieldset><div id="sqExam"><fieldset class="sq-group"><legend>مصدر الأسئلة</legend><label><input type="radio" name="sqSource" value="all" checked> كل الأسئلة</label><label><input type="radio" name="sqSource" value="wizari"> الأسئلة الوزارية فقط</label></fieldset><div id="sqExamMore" hidden><fieldset class="sq-group"><legend>سنة الوزاري</legend><div id="sqYears" class="sq-options"></div></fieldset><fieldset class="sq-group"><legend>الدور</legend><label><input type="radio" name="sqRound" value="" checked> كل الأدوار</label><label><input type="radio" name="sqRound" value="1"> الدور الأول</label><label><input type="radio" name="sqRound" value="2"> الدور الثاني</label></fieldset><fieldset class="sq-group"><legend>نوع الأسئلة</legend><label><input type="radio" name="sqKind" value="" checked> الكل</label><label><input type="radio" name="sqKind" value="main"> رئيسية (الامتحان الوزاري)</label><label><input type="radio" name="sqKind" value="mock"> تجريبية</label></fieldset></div></div><fieldset class="sq-group"><legend>طول الاختبار</legend><label><input type="radio" name="sqCount" value="10" checked> قصير</label><label><input type="radio" name="sqCount" value="20"> متوسط</label><label><input type="radio" name="sqCount" value="40"> طويل</label><label id="sqFullOpt" hidden><input type="radio" name="sqCount" value="300"> الورقة كاملة</label></fieldset><div class="device-actions"><button type="submit" class="mb-primary" id="sqStart">ابدأ الاختبار</button><button type="button" class="mb-file-btn" data-device-close="selfQuizDialog">إلغاء</button></div><p id="sqStatus" role="status"></p></form></dialog>
+<dialog id="selfQuizDialog" class="device-dialog" aria-labelledby="selfQuizTitle"><div class="sp-card-head"><h2 id="selfQuizTitle" dir="ltr">Quiz</h2><button type="button" class="mb-mini-btn" data-device-close="selfQuizDialog" aria-label="إغلاق">×</button></div><p>اختر المادة ونوع الاختبار. للوزاري يمكنك اختيار السنة والدور ونوع الأسئلة.</p><form id="selfQuizForm"><fieldset class="sq-group"><legend>نوع الاختبار</legend><label><input type="radio" name="sqMode" value="questions" checked> أسئلة اختيار من متعدد</label><label><input type="radio" name="sqMode" value="flash"> Flashcards</label></fieldset><fieldset class="sq-group"><legend>المادة</legend><div id="sqSubjects" class="sq-options"></div></fieldset><div id="sqExam"><fieldset class="sq-group"><legend>مصدر الأسئلة</legend><label><input type="radio" name="sqSource" value="all" checked> كل الأسئلة</label><label><input type="radio" name="sqSource" value="wizari"> الأسئلة الوزارية فقط</label></fieldset><div id="sqExamMore" hidden><fieldset class="sq-group"><legend>سنة الوزاري</legend><div id="sqYears" class="sq-options"></div></fieldset><fieldset class="sq-group"><legend>الدور</legend><label><input type="radio" name="sqRound" value="" checked> كل الأدوار</label><label><input type="radio" name="sqRound" value="1"> الدور الأول</label><label><input type="radio" name="sqRound" value="2"> الدور الثاني</label></fieldset><fieldset class="sq-group"><legend>نوع الأسئلة</legend><label><input type="radio" name="sqKind" value="" checked> الكل</label><label><input type="radio" name="sqKind" value="main"> رئيسية (الامتحان الوزاري)</label><label><input type="radio" name="sqKind" value="mock"> تجريبية</label></fieldset></div></div><fieldset class="sq-group"><legend>طول الاختبار</legend><label><input type="radio" name="sqCount" value="10" checked> قصير</label><label><input type="radio" name="sqCount" value="20"> متوسط</label><label><input type="radio" name="sqCount" value="40"> طويل</label><label id="sqFullOpt" hidden><input type="radio" name="sqCount" value="300"> الورقة كاملة</label></fieldset><div class="device-actions"><button type="submit" class="mb-primary" id="sqStart">ابدأ الاختبار</button><button type="button" class="mb-file-btn" data-device-close="selfQuizDialog">إلغاء</button></div><p id="sqStatus" role="status"></p></form></dialog>
 <dialog id="reportsDialog" class="device-dialog reports-dialog" aria-labelledby="reportsTitle"><div class="sp-card-head"><h2 id="reportsTitle">بلاغات الطلاب</h2><button type="button" class="mb-mini-btn" data-device-close="reportsDialog" aria-label="إغلاق">×</button></div><p>البلاغات المفتوحة عن الأسئلة، الأحدث أولًا. «تمّ الإصلاح» يغلق كل البلاغات عن السؤال نفسه.</p><div id="reportsList"></div><p id="reportsStatus" role="status"></p></dialog>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.js"></script>
@@ -3405,7 +3444,8 @@ function needsAccountName(user) {
 }
 function syncNamePrompt() {
   const overlay = document.getElementById('nameOverlay');
-  if (!activeUserId || !needsAccountName(activeUser)) {
+  // Ask only after the saved profile has been read, so a student who already answered is never asked again.
+  if (!activeUserId || profileCheckedFor !== activeUserId || !needsAccountName(activeUser)) {
     overlay.classList.remove('open');
     delete overlay.dataset.userId;
     return;
@@ -3515,11 +3555,25 @@ function updateUserIdentity(user) {
   activeAvatarUrl = user && user.user_metadata && user.user_metadata.avatar_url ? user.user_metadata.avatar_url : '';
   applyIdentityUI();
 }
+let profileCheckedFor = null;
 async function loadProfile() {
   if (!client || !activeUserId || !activeUser) return;
-  const result = await client.from('profiles').select('id,display_name,avatar_url').eq('id', activeUserId).maybeSingle();
-  if (result.error) throw result.error;
+  const uid = activeUserId;
+  const result = await client.from('profiles').select('id,display_name,avatar_url,gender,age,stage').eq('id', activeUserId).maybeSingle();
+  if (result.error) { profileCheckedFor = uid; syncNamePrompt(); throw result.error; }
   let profile = result.data;
+  // The stored session can carry older account data; the profile row is the saved truth for these answers.
+  if (profile && activeUser && uid === activeUserId) {
+    const meta = activeUser.user_metadata = Object.assign({}, activeUser.user_metadata || {});
+    if (!meta.gender && profile.gender) meta.gender = profile.gender;
+    if (!meta.age && profile.age) meta.age = profile.age;
+    if (!meta.stage && profile.stage) meta.stage = profile.stage;
+    const parts = String(profile.display_name || '').trim().split(/\s+/);
+    if ((!meta.first_name || !meta.last_name) && parts.length >= 2) { meta.first_name = meta.first_name || parts[0]; meta.last_name = meta.last_name || parts.slice(1).join(' '); }
+    const missing = ['gender','age','stage','first_name','last_name'].some(k => !meta[k]);
+    if (missing) { const fresh = await client.auth.getUser(); if (!fresh.error && fresh.data.user && fresh.data.user.id === uid) Object.keys(fresh.data.user.user_metadata || {}).forEach(k => { if (!meta[k]) meta[k] = fresh.data.user.user_metadata[k]; }); }
+  }
+  if (uid === activeUserId) { profileCheckedFor = uid; syncNamePrompt(); }
   if (!profile) {
     const seed = {
       id: activeUserId,
@@ -4009,7 +4063,7 @@ function showMainView(view, kind='', scrollBehavior='smooth') {
     const labels={
       lectures:['المحاضرات','النصوص وملفات PDF والملخصات الطبية.'],
       videos:['الفيديوهات','الفيديوهات الطبية المحفوظة حسب الموضوع والمصدر.'],
-      questions:['بنك الأسئلة','مجموعات MCQ والأسئلة التفاعلية.'],
+      questions:['Q Bank','مجموعات MCQ والأسئلة التفاعلية.'],
       other:['متنوعات','المواد الطبية الأخرى.'],
       '':['المكتبة','كل مواد Medbrain في مكان واحد.']
     };
@@ -4749,7 +4803,7 @@ function renderTopicPage(path) {
   const pick = b.hubSource && sources.includes(b.hubSource) ? b.hubSource : null;
   const pool = pick ? path.pool.filter(l => (l.source || 'غير محدد') === pick) : path.pool;
   let html = '<div class="topic-head"><h3 dir="auto">' + escapeHtml(topicName(path.hub, path.pool)) + '</h3><span dir="auto">' + escapeHtml([path.category, path.topic].filter(Boolean).join(' · ')) + '</span></div>';
-  if (topicQuizAvailable(path.hub)) html += '<button type="button" class="topic-quiz-btn" data-topic-quiz="' + escapeHtml(path.hub) + '">⚡ كويز سريع على هذا الموضوع</button>';
+  if (topicQuizAvailable(path.hub)) html += '<button type="button" class="topic-quiz-btn" data-topic-quiz="' + escapeHtml(path.hub) + '">⚡ Quick Quiz</button>';
   if (sources.length > 1) html += '<p class="section-label">المصادر التي كتبت عن هذا الموضوع</p><div class="chip-grid source-filter">' +
     ['', ...sources].map(src => '<button type="button" class="chip' + ((src || null) === pick ? ' active' : '') + '" data-action="hub-source" data-value="' + escapeHtml(src) + '" aria-pressed="' + ((src || null) === pick) + '" dir="auto">' + escapeHtml(src ? sourceShort(src) : 'كل المصادر') + '</button>').join('') + '</div>';
   const types = orderedValues(pool.map(l => l.type || 'أخرى'), TYPE_ORDER);
@@ -5599,7 +5653,7 @@ function wireMedbrainEvents() {
 // ---------------- Reader ----------------
 let readerReturnFocus = null;
 let readerBodyOverflow = '';
-let readerFontSize = 18;
+let readerFontSize = 16;
 let readerTheme = 'light';
 try {
   const savedTheme = localStorage.getItem('medbrain_theme') || localStorage.getItem('medbrain_reader_theme');
@@ -5632,12 +5686,12 @@ function applyReaderTheme() {
 }
 try {
   const stored = Number(localStorage.getItem('medbrain_reader_font'));
-  if (stored >= 16 && stored <= 26) readerFontSize = stored;
+  if (stored >= 13 && stored <= 26) readerFontSize = stored;
 } catch (_) {}
 function applyReaderFont() {
   document.getElementById('readerBody').style.setProperty('--reader-font-size', readerFontSize + 'px');
   document.getElementById('readerFontValue').value = readerFontSize;
-  document.getElementById('readerFontMinus').disabled = readerFontSize <= 16;
+  document.getElementById('readerFontMinus').disabled = readerFontSize <= 13;
   document.getElementById('readerFontPlus').disabled = readerFontSize >= 26;
   syncSettingsControls();
 }
@@ -5926,7 +5980,7 @@ function renderRelatedBar(lec) {
   bar.innerHTML = (kinds.length || quiz ? '<span class="reader-related-label">مرتبط بهذا الموضوع</span>' : '') + kinds.map(([k, label, icon]) =>
     '<button type="button" class="related-btn rel-' + k + '" data-related="' + k + '" aria-pressed="' + (sidePanelKind === k) + '">' +
     '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + icon + '</svg><span>' + label + '</span></button>').join('') +
-    (quiz ? '<button type="button" class="related-btn rel-quiz" data-topic-quiz="' + escapeHtml(lec.topicId) + '"><span aria-hidden="true">⚡</span><span>كويز سريع</span></button>' : '');
+    (quiz ? '<button type="button" class="related-btn rel-quiz" data-topic-quiz="' + escapeHtml(lec.topicId) + '"><span aria-hidden="true">⚡</span><span>Quick Quiz</span></button>' : '');
   if (sidePanelKind && !rel[sidePanelKind].length) closeSidePanel();
 }
 function closeSidePanel() {
@@ -6043,7 +6097,7 @@ async function openPdfInReader(id) {
   document.getElementById('readerTime').textContent = 'ملف PDF';
   document.getElementById('readerLayout').classList.add('no-outline');
   document.getElementById('readerOverlay').classList.add('pdf-mode');
-  body.innerHTML = '<div class="mb-empty-tool">جارٍ فتح الملف…</div>';
+  body.innerHTML = '<div class="pv-loading" aria-label="جارٍ فتح الملف"><span></span></div>';
   renderRelatedBar(lec);
   openReaderSurface();
   destroyPdfViewer();
@@ -6161,7 +6215,7 @@ async function mountPdfViewer(body, bytes, lec) {
     '<div class="pv-pop" id="pvHlPop" hidden style="left:50%;transform:translateX(-50%)"><div class="pv-pop-row">' + PV_HL.map(c => '<button type="button" class="pv-color" data-pv-hl="' + c + '" style="--c:' + c + '" aria-label="لون التظليل" aria-pressed="' + (c === hl.c) + '"></button>').join('') + '</div></div>' +
     '<div class="pv-pop" id="pvPagesPop" hidden style="left:12px"><div class="pv-pagegrid" id="pvPageGrid"></div></div>' +
     '<div class="pv-pop pv-menu" id="pvMorePop" hidden style="left:12px">' +
-      (topicQuizAvailable(lec.topicId) ? '<button type="button" data-pv="quiz">' + PVI.quiz + '<span>كويز سريع على الموضوع</span></button>' : '') +
+      (topicQuizAvailable(lec.topicId) ? '<button type="button" data-pv="quiz">' + PVI.quiz + '<span>Quick Quiz</span></button>' : '') +
       '<button type="button" data-pv="clear-page">' + PVI.clear + '<span>مسح كتابتي في هذه الصفحة</span></button>' +
       '<button type="button" data-pv="clear-all">' + PVI.clear + '<span>مسح كل ملاحظاتي على الملف</span></button></div>' +
     '<div class="pv-pop" id="pvTimerPop" hidden style="left:12px"><div class="pv-mins">' + [15, 25, 45, 60, 90].map(m => '<button type="button" data-pv-min="' + m + '" aria-label="' + m + ' دقيقة">' + m + '</button>').join('') + '</div></div>' +
@@ -6276,6 +6330,22 @@ function pvHit(st, x, y, r) {
   if (st.k === 'txt') return Math.abs(st.x - x) < 0.06 && y >= st.y - r && y <= st.y + st.s * 1.6;
   return (st.pts || []).some(([px, py]) => Math.hypot(px - x, (py - y) * 1.3) < r + (st.k === 'hl' ? 0.01 : 0));
 }
+// Switching tool sets: the current icons roll away to the right along a small arc, the other set rolls in from the left.
+function swapPvSets(outId, inId) {
+  const out = document.getElementById(outId), inn = document.getElementById(inId);
+  if (!out || !inn || out.classList.contains('pv-rolling')) return;
+  if (document.documentElement.dataset.motion === 'reduce' || matchMedia('(prefers-reduced-motion: reduce)').matches) { out.hidden = true; inn.hidden = false; return; }
+  const btns = el => Array.from(el.children);
+  out.classList.add('pv-rolling');
+  btns(out).forEach((b, i, all) => { b.style.animationDelay = ((all.length - 1 - i) * 22) + 'ms'; b.classList.add('pv-roll-out'); });
+  setTimeout(() => {
+    btns(out).forEach(b => { b.classList.remove('pv-roll-out'); b.style.animationDelay = ''; });
+    out.hidden = true; out.classList.remove('pv-rolling');
+    inn.hidden = false;
+    btns(inn).forEach((b, i) => { b.style.animationDelay = (i * 22) + 'ms'; b.classList.add('pv-roll-in'); });
+    setTimeout(() => btns(inn).forEach(b => { b.classList.remove('pv-roll-in'); b.style.animationDelay = ''; }), 520);
+  }, 300);
+}
 function bindPdfViewer(wrap) {
   const viewer = document.getElementById('pdfViewer');
   const v0 = pdfView;
@@ -6384,7 +6454,7 @@ function bindPdfViewer(wrap) {
     if (act === 'pen' || act === 'hl') {
       if (v.tool === act) togglePop(act === 'pen' ? 'pvPenPop' : 'pvHlPop'); else { closePops(); setTool(act); }
     } else if (act === 'hand' || act === 'eraser' || act === 'text') { closePops(); setTool(act); }
-    else if (act === 'set2' || act === 'set1') { closePops(); document.getElementById('pvSet1').hidden = act === 'set2'; document.getElementById('pvSet2').hidden = act === 'set1'; }
+    else if (act === 'set2' || act === 'set1') { closePops(); swapPvSets(act === 'set2' ? 'pvSet1' : 'pvSet2', act === 'set2' ? 'pvSet2' : 'pvSet1'); }
     else if (act === 'undo' || act === 'redo') {
       const from = act === 'undo' ? v.hist : v.redo, to = act === 'undo' ? v.redo : v.hist;
       const op = from.pop(); if (op) { pvApply(op, act === 'undo'); to.push(op); } pvSyncHistory();
@@ -6512,7 +6582,7 @@ function wireReaderTools() {
   });
   [['readerFontMinus', -1], ['readerFontPlus', 1], ['readerFontReset', 0]].forEach(([id, delta]) => {
     document.getElementById(id).addEventListener('click', () => {
-      readerFontSize = delta ? Math.max(16, Math.min(26, readerFontSize + delta)) : 18;
+      readerFontSize = delta ? Math.max(13, Math.min(26, readerFontSize + delta)) : 16;
       applyReaderFont();
       try { localStorage.setItem('medbrain_reader_font', readerFontSize); } catch (_) {}
       updateReaderProgress();
@@ -7323,10 +7393,10 @@ async function startTopicQuiz(topicId) {
   if (paywallBlocks()) return;
   const name = topicName(topicId);
   const pool = questionPool(l => l.topicId === topicId);
-  if (pool.length) { openCustomQuiz('كويز سريع — ' + name, 'أسئلة عشوائية من هذا الموضوع', await collectQuestions(pool, 10)); return; }
+  if (pool.length) { openCustomQuiz('Quick Quiz — ' + name, 'أسئلة عشوائية من هذا الموضوع', await collectQuestions(pool, 10)); return; }
   const result = await client.from('library_flashcard_topics').select('library_flashcards(id,kind,front,back,extra)').eq('topic_id', topicId).limit(80);
   const cards = result.error ? [] : (result.data || []).map(r => r.library_flashcards).filter(Boolean);
-  startCustomDeck('كويز سريع — ' + name, shuffledCopy(cards).slice(0, 15));
+  startCustomDeck('Quick Quiz — ' + name, shuffledCopy(cards).slice(0, 15));
 }
 // Ministerial papers (subject × year × round × main/mock) come from the question labels, see exam_papers().
 let examPapers = null;
@@ -7382,7 +7452,7 @@ async function runSelfQuiz(e) {
       const ids = shuffledCopy((decks.data || []).filter(d => !cat || d.category === cat).map(d => d.id)).slice(0, 8);
       if (!ids.length) { status.textContent = 'لا توجد بطاقات لهذه المادة بعد.'; return; }
       const result = await client.from('library_flashcards').select('id,ord,kind,front,back,extra').in('deck_id', ids).limit(600);
-      ok = startCustomDeck('اختبر نفسك — ' + label, shuffledCopy(result.data || []).slice(0, n));
+      ok = startCustomDeck('Quiz — ' + label, shuffledCopy(result.data || []).slice(0, n));
     } else {
       if (form.sqSource.value === 'wizari') {
         const year = form.sqYear ? form.sqYear.value : '', round = form.sqRound.value, kind = form.sqKind.value;
@@ -7392,15 +7462,30 @@ async function runSelfQuiz(e) {
       } else {
         const pool = questionPool(l => !cat || l.category === cat);
         if (!pool.length) { status.textContent = 'لا توجد أسئلة لهذه المادة بعد.'; return; }
-        ok = openCustomQuiz('اختبر نفسك — ' + label, 'أسئلة عشوائية مختلطة', await collectQuestions(pool, n));
+        ok = openCustomQuiz('Quiz — ' + label, 'أسئلة عشوائية مختلطة', await collectQuestions(pool, n));
       }
     }
     if (ok) document.getElementById('selfQuizDialog').close();
   } catch (err) { console.error(err); status.textContent = 'تعذّر تجهيز الاختبار. تحقق من الاتصال وأعد المحاولة.'; }
   finally { btn.disabled = false; }
 }
+
+function bindReaderTopBar() {
+  const bar = document.getElementById('readerTopBar'); if (!bar) return;
+  bar.addEventListener('click', e => {
+    const b = e.target.closest('[data-rd]'); if (!b) return;
+    const map = { dark: 'readerThemeToggle', minus: 'readerFontMinus', plus: 'readerFontPlus', top: 'readerToTop', close: 'readerCloseBtn' };
+    if (b.dataset.rd === 'timer') { const t = document.querySelector('.reader-toolbar [data-open-focus]'); if (t) t.click(); return; }
+    const target = document.getElementById(map[b.dataset.rd]); if (target) target.click();
+    if (b.dataset.rd === 'dark') b.setAttribute('aria-pressed', String(document.getElementById('readerThemeToggle').getAttribute('aria-pressed') === 'true'));
+  });
+  const title = document.getElementById('readerTitle'), out = document.getElementById('readerBarTitle');
+  const sync = () => { out.textContent = title.textContent; };
+  new MutationObserver(sync).observe(title, { childList: true, characterData: true, subtree: true }); sync();
+}
 function bindLibraryBack() {
   bindLabs();
+  bindReaderTopBar();
   bindStudyBar();
   document.getElementById('libraryBack').addEventListener('click', e => { if (browseBack()) { e.preventDefault(); e.stopImmediatePropagation(); } }, true);
 }
@@ -7964,7 +8049,7 @@ function bindStudyBar() {
 // ---------------- Interface language (Arabic / English) ----------------
 // The app is written in Arabic; English mode swaps interface text (not library content) from this dictionary and
 // keeps translating anything rendered later. Switching back to Arabic reloads the page.
-const I18N_EN = {"(اختياري — حتى 50 MB)": "(optional — up to 50 MB)", "(اختياري — فيديو أو ملف)": "(optional — video or file)", "(اختياري — للقراءة داخل التطبيق)": "(optional — for in-app reading)", "(اختياري)": "(optional)", "JPG / PNG / WebP — حتى 2MB بعد الضغط": "JPG / PNG / WebP — up to 2MB after compression", "Medbrain على جهازك": "Medbrain on your device", "Medbrain منصة تعليمية للطلاب، ولا تُستخدم لتشخيص المرضى أو اتخاذ قرارات علاجية.": "Medbrain is a learning platform for students. It is not for diagnosing patients or making treatment decisions.", "أحسنت! أنهيت المجموعة": "Well done! You finished the set", "أخرى": "Other", "أخطأت": "Wrong", "أدوات القراءة": "Reading tools", "أدوات جهازك": "Device tools", "أسئلة": "Questions", "أسئلة اختيار من متعدد": "Multiple-choice questions", "أسئلة مبنية على المواد التي أضفتها": "Questions built from your materials", "أسئلة مقترحة": "Suggested questions", "أسبوع / أسابيع": "week(s)", "أصبت": "Correct", "أضف التطبيق إلى الشاشة الرئيسية وافتحه بأيقونة مستقلة. المحاضرات والحساب والذكاء الاصطناعي تحتاج اتصالًا بالإنترنت.": "Add the app to your home screen and open it with its own icon. Lectures, account and AI need an internet connection.", "أعدها لي قريبًا": "Show it again soon", "أكمل بياناتك": "Complete your details", "أنثى": "Female", "أنشئ بطاقاتك الشخصية وراجعها واقلبها لرؤية الإجابة.": "Create your own cards, review them and flip to see the answer.", "أنشئ جدولك الأسبوعي وحدّد أوقات الدراسة وتابع إنجازك.": "Build your weekly plan, set study times and track your progress.", "أو بالبريد الإلكتروني": "or with email", "أي تفاصيل إضافية تريد تذكّرها…": "Any extra details to remember…", "أيام الدراسة": "Study days", "إجابة": "Answer", "إجمالي المدة": "Total duration", "إدارة ملفي الشخصي": "Manage my profile", "إرسال البلاغ": "Send report", "إرسال السؤال": "Send question", "إضافة": "Add", "إضافة بطاقة": "Add card", "إضافة سؤال": "Add question", "إضافة عنوان": "Add heading", "إضافة مادة": "Add material", "إظهار اسمي في الجدول": "Show my name on the schedule", "إظهار الإجابة": "Show answer", "إظهار كلمة المرور": "Show password", "إعادة": "Reset", "إغلاق": "Close", "إلغاء": "Cancel", "إنجاز الفصل": "Chapter progress", "إيقاف مؤقت": "Pause", "ابحث باسم المحاضرة أو الموضوع…": "Search by lecture or topic…", "ابحث داخل المفضلات…": "Search favorites…", "ابحث عن محاضرة، موضوع، مصدر أو فيديو…": "Search a lecture, topic, source or video…", "ابحث عن مصدر…": "Search a source…", "ابحث عن موضوع…": "Search a topic…", "ابدأ الأسئلة": "Start questions", "ابدأ الاختبار": "Start quiz", "ابدأ المجموعة من جديد": "Restart the set", "ابدأ مراجعة سريعة لتثبيت المعلومات.": "Start a quick review to lock in what you learned.", "اختبار عشوائي من بنك الأسئلة أو البطاقات حسب المادة.": "A random quiz from the Q Bank or flashcards by subject.", "اختبارات تفاعلية مع التصحيح والتفسيرات.": "Interactive quizzes with answers and explanations.", "اختبر نفسك": "Test yourself", "اختر المادة ونوع الاختبار. للوزاري يمكنك اختيار السنة والدور ونوع الأسئلة.": "Pick a subject and quiz type. For ministerial exams you can choose the year, round and paper type.", "اختر…": "Choose…", "اختياري": "Optional", "اسأل": "Ask", "اسألني عن المحاضرة": "Ask me about the lecture", "استعراض المواضيع": "Browse topics", "اسم العائلة": "Last name", "اشتراكي": "My subscription", "اشرح لي المحاضرة": "Explain the lecture", "اضغط لقلب البطاقة": "Tap to flip the card", "افتح الفيديوهات المحفوظة حسب تخصصك وموضوعك.": "Open saved videos by specialty and topic.", "اكتب اسمك وبياناتك الدراسية لتظهر في حسابك.": "Enter your name and study details for your account.", "اكتب سؤالك…": "Type your question…", "الأحد": "Sun", "الأربعاء": "Wed", "الأسئلة الوزارية فقط": "Ministerial questions only", "الأيام": "Days", "الإبلاغ عن مشكلة في السؤال": "Report a problem with this question", "الإعدادات": "Settings", "الاثنين": "Mon", "الاسم الأول": "First name", "الاشتراك مطلوب": "Subscription required", "الاشتراكات والأكواد": "Subscriptions and codes", "البريد الإلكتروني": "Email", "البطاقات التعليمية": "Flashcards", "التخصص": "Specialty", "الثلاثاء": "Tue", "الجمعة": "Fri", "الجنس": "Gender", "الحساب": "Account", "الخصوصية": "Privacy", "الخميس": "Thu", "الدعم": "Support", "الدعم والملاحظات": "Support and feedback", "الدور": "Round", "الدور الأول": "1st round", "الدور الثاني": "2nd round", "الرئيسية": "Home", "الرابط": "Link", "السبت": "Sat", "العمر": "Age", "العودة للرئيسية": "Back to home", "الفصل": "Chapter", "القائمة الرئيسية": "Main menu", "الكل": "All", "المادة": "Subject", "المتابعة باستخدام Google": "Continue with Google", "المحاضرات": "Lectures", "المرحلة الأولى": "1st year", "المرحلة الثانية": "2nd year", "المرحلة الثالثة": "3rd year", "المرحلة الرابعة": "4th year", "المرحلة الخامسة": "5th year", "المرحلة السادسة": "6th year", "المرحلة الدراسية": "Study year", "المصادر": "Sources", "المصدر": "Source", "المظهر والقراءة": "Appearance and reading", "المظهر والقراءة والحساب": "Appearance, reading and account", "المفضلات": "Favorites", "الملف الشخصي": "Profile", "الملف الشخصي والحساب": "Profile and account", "المواد التي حفظتها للرجوع إليها": "Materials you saved", "المواضيع": "Topics", "الموضوع": "Topic", "الوصول والخدمات المتاحة": "Access and services", "الوضع الداكن": "Dark mode", "الوضع الداكن ☾": "Dark mode ☾", "اليوم": "Today", "بتردد": "Unsure", "بحث": "Search", "بطاقات المكتبة": "Library cards", "بطاقاتي الشخصية": "My cards", "بلاغات الطلاب": "Student reports", "بنك الأسئلة": "Q Bank", "بياناتك وخصوصيتك": "Your data and privacy", "تأكيد كلمة المرور": "Confirm password", "تجريبية": "Mock", "تسجيل الخروج": "Sign out", "تصدير بياناتي": "Export my data", "تعديل الملف الشخصي": "Edit profile", "تعديل جدولي الدراسي": "Edit my schedule", "تغيير الصورة": "Change photo", "تفعيل الكود": "Activate code", "تقليل الحركة": "Reduce motion", "تخفيف الانتقالات والحركات في الواجهة.": "Fewer transitions and animations.", "جارٍ التحقق…": "Checking…", "جدول الدراسة": "Study schedule", "جدول دراسي شخصي محفوظ في حسابك": "A personal study schedule saved in your account", "جدولي": "My plan", "جدولي الدراسي": "My study schedule", "جلسات تركيز واستراحات مع مؤقّت يمكنك تصغيره أثناء القراءة.": "Focus sessions and breaks with a timer you can minimise while reading.", "حالة الاشتراك": "Subscription status", "حجم الخط": "Font size", "حجم خط القراءة": "Reading font size", "حذف الحساب": "Delete account", "حذف الحساب نهائيًا": "Delete account permanently", "حذف حسابي": "Delete my account", "حساب Medbrain": "Medbrain account", "حساب جديد": "New account", "حفظ": "Save", "حفظ التغييرات": "Save changes", "حفظ ومتابعة": "Save and continue", "خريج / طبيب مقيم": "Graduate / resident", "خلط": "Shuffle", "داكن": "Dark", "دخول": "Sign in", "دقيقة": "min", "ذكر": "Male", "رئيسية (الامتحان الوزاري)": "Main (ministerial exam)", "راجع الصعبة فقط": "Review hard ones only", "رجوع": "Back", "سؤال": "Question", "سجّل الدخول إلى عقلك الطبي ومكتبتك الدراسية.": "Sign in to your medical brain and study library.", "سنة الوزاري": "Exam year", "سياسة الخصوصية": "Privacy policy", "طول الاختبار": "Quiz length", "طويل": "Long", "عرض النتائج": "Show results", "عن Medbrain": "About Medbrain", "فاتح": "Light", "فتح القائمة": "Open menu", "فتح مؤقّت الدراسة": "Open study timer", "فلاتر البحث": "Search filters", "فيديو": "Video", "فيديوهات مقترحة": "Recommended videos", "قصير": "Short", "كل الأدوار": "All rounds", "كل الأسئلة": "All questions", "كل المواد التي لا تندرج ضمن الأقسام الرئيسية.": "Everything outside the main sections.", "كل النصوص وملفات PDF والملخصات في مكان واحد.": "All texts, PDFs and summaries in one place.", "كلمة المرور": "Password", "كود 3 أشهر": "3-month code", "كود 6 أشهر": "6-month code", "كود الاشتراك": "Subscription code", "كود سنوي": "Yearly code", "كود شهري": "Monthly code", "كيف أجبت على هذه البطاقة؟": "How did you answer this card?", "لأي مشكلة أو استفسار راسل الدعم.": "For any problem or question, message support.", "لاحقًا": "Later", "لخص المحاضرة": "Summarise the lecture", "لدي حساب": "I have an account", "للمشاكل والاستفسارات": "Problems and questions", "لوحة المسؤول": "Admin panel", "مؤقّت الدراسة ◷": "Study timer ◷", "متنوعات": "Miscellaneous", "متوسط": "Medium", "محادثة جديدة": "New chat", "محاضرة": "Lecture", "مراسلة الدعم": "Message support", "مساعدك للدراسة وفهم المحاضرات": "Your study assistant for lectures", "مسح البحث والفلاتر": "Clear search and filters", "مسح الفلاتر": "Clear filters", "مشاركة جدولي الخاص": "Share my schedule", "مشاركة نسخة من جدولك الدراسي": "Share a copy of your schedule", "معاينة الجدول ثم مشاركته": "Preview the schedule, then share", "مصدر الأسئلة": "Question source", "مظهر التطبيق": "App theme", "مهامي وخطتي الأسبوعية": "My tasks and weekly plan", "ملاحظات": "Notes", "ملخص": "Summary", "ملف PDF": "PDF file", "نسيت كلمة المرور؟": "Forgot password?", "نوع الأسئلة": "Paper type", "نوع الاختبار": "Quiz type", "نوع المادة": "Material type", "يسري على الموقع وواجهة القراءة.": "Applies to the site and the reader.", "يُحفظ لاستخدامه عند فتح المحاضرات.": "Saved for when you open lectures.", "— اختر —": "— Choose —", "الورقة كاملة": "Full paper", "الجراحة": "Surgery", "الباطنية": "Medicine", "الأطفال": "Pediatrics", "النسائية والتوليد": "OB/GYN", "الطوارئ": "Emergency", "العلوم الأساسية": "Basic Sciences", "الجامعات": "Universities", "الكورسات والمصادر": "Courses and sources", "اختر الموضوع": "Choose a topic", "اختر الفرع": "Choose a branch", "اختر التخصص": "Choose a specialty", "اختر المصدر": "Choose a source", "محاضرات": "Lectures", "ملخصات": "Summaries", "ملفات PDF": "PDF files", "فيديوهات": "Videos", "الفيديوهات": "Videos", "المكتبة": "Library", "لا توجد مواد هنا بعد.": "Nothing here yet.", "كويز سريع": "Quick quiz", "⚡ كويز سريع": "⚡ Quick quiz", "كل المواد": "All subjects", "كل السنوات": "All years", "الأسئلة الوزارية": "Ministerial questions", "اللغة": "Language", "لغة الواجهة": "Interface language", "العربية": "العربية", "مسح كتابتي في هذه الصفحة": "Clear my ink on this page", "مسح كل ملاحظاتي على الملف": "Clear all my notes on this file", "كويز سريع على الموضوع": "Quick quiz on this topic", "الصفحات": "Pages", "المزيد": "More", "مؤقت المذاكرة": "Study timer", "تراجع": "Undo", "إعادة الخطوة": "Redo", "تصفح": "Browse", "كتابة نص": "Text", "ممحاة": "Eraser", "قلم تظليل": "Highlighter", "قلم": "Pen", "أدوات أخرى": "More tools", "أدوات الكتابة": "Writing tools", "الوضع الليلي للصفحات": "Night pages", "ملاءمة العرض": "Fit width", "الصفحة الأولى": "First page"};
+const I18N_EN = {"(اختياري — حتى 50 MB)": "(optional — up to 50 MB)", "(اختياري — فيديو أو ملف)": "(optional — video or file)", "(اختياري — للقراءة داخل التطبيق)": "(optional — for in-app reading)", "(اختياري)": "(optional)", "JPG / PNG / WebP — حتى 2MB بعد الضغط": "JPG / PNG / WebP — up to 2MB after compression", "Medbrain على جهازك": "Medbrain on your device", "Medbrain منصة تعليمية للطلاب، ولا تُستخدم لتشخيص المرضى أو اتخاذ قرارات علاجية.": "Medbrain is a learning platform for students. It is not for diagnosing patients or making treatment decisions.", "أحسنت! أنهيت المجموعة": "Well done! You finished the set", "أخرى": "Other", "أخطأت": "Wrong", "أدوات القراءة": "Reading tools", "أدوات جهازك": "Device tools", "أسئلة": "Questions", "أسئلة اختيار من متعدد": "Multiple-choice questions", "أسئلة مبنية على المواد التي أضفتها": "Questions built from your materials", "أسئلة مقترحة": "Suggested questions", "أسبوع / أسابيع": "week(s)", "أصبت": "Correct", "أضف التطبيق إلى الشاشة الرئيسية وافتحه بأيقونة مستقلة. المحاضرات والحساب والذكاء الاصطناعي تحتاج اتصالًا بالإنترنت.": "Add the app to your home screen and open it with its own icon. Lectures, account and AI need an internet connection.", "أعدها لي قريبًا": "Show it again soon", "أكمل بياناتك": "Complete your details", "أنثى": "Female", "أنشئ بطاقاتك الشخصية وراجعها واقلبها لرؤية الإجابة.": "Create your own cards, review them and flip to see the answer.", "أنشئ جدولك الأسبوعي وحدّد أوقات الدراسة وتابع إنجازك.": "Build your weekly plan, set study times and track your progress.", "أو بالبريد الإلكتروني": "or with email", "أي تفاصيل إضافية تريد تذكّرها…": "Any extra details to remember…", "أيام الدراسة": "Study days", "إجابة": "Answer", "إجمالي المدة": "Total duration", "إدارة ملفي الشخصي": "Manage my profile", "إرسال البلاغ": "Send report", "إرسال السؤال": "Send question", "إضافة": "Add", "إضافة بطاقة": "Add card", "إضافة سؤال": "Add question", "إضافة عنوان": "Add heading", "إضافة مادة": "Add material", "إظهار اسمي في الجدول": "Show my name on the schedule", "إظهار الإجابة": "Show answer", "إظهار كلمة المرور": "Show password", "إعادة": "Reset", "إغلاق": "Close", "إلغاء": "Cancel", "إنجاز الفصل": "Chapter progress", "إيقاف مؤقت": "Pause", "ابحث باسم المحاضرة أو الموضوع…": "Search by lecture or topic…", "ابحث داخل المفضلات…": "Search favorites…", "ابحث عن محاضرة، موضوع، مصدر أو فيديو…": "Search a lecture, topic, source or video…", "ابحث عن مصدر…": "Search a source…", "ابحث عن موضوع…": "Search a topic…", "ابدأ الأسئلة": "Start questions", "ابدأ الاختبار": "Start quiz", "ابدأ المجموعة من جديد": "Restart the set", "ابدأ مراجعة سريعة لتثبيت المعلومات.": "Start a quick review to lock in what you learned.", "اختبار عشوائي من بنك الأسئلة أو البطاقات حسب المادة.": "A random quiz from the Q Bank or flashcards by subject.", "اختبارات تفاعلية مع التصحيح والتفسيرات.": "Interactive quizzes with answers and explanations.", "اختبر نفسك": "Test yourself", "اختر المادة ونوع الاختبار. للوزاري يمكنك اختيار السنة والدور ونوع الأسئلة.": "Pick a subject and quiz type. For ministerial exams you can choose the year, round and paper type.", "اختر…": "Choose…", "اختياري": "Optional", "اسأل": "Ask", "اسألني عن المحاضرة": "Ask me about the lecture", "استعراض المواضيع": "Browse topics", "اسم العائلة": "Last name", "اشتراكي": "My subscription", "اشرح لي المحاضرة": "Explain the lecture", "اضغط لقلب البطاقة": "Tap to flip the card", "افتح الفيديوهات المحفوظة حسب تخصصك وموضوعك.": "Open saved videos by specialty and topic.", "اكتب اسمك وبياناتك الدراسية لتظهر في حسابك.": "Enter your name and study details for your account.", "اكتب سؤالك…": "Type your question…", "الأحد": "Sun", "الأربعاء": "Wed", "الأسئلة الوزارية فقط": "Ministerial questions only", "الأيام": "Days", "الإبلاغ عن مشكلة في السؤال": "Report a problem with this question", "الإعدادات": "Settings", "الاثنين": "Mon", "الاسم الأول": "First name", "الاشتراك مطلوب": "Subscription required", "الاشتراكات والأكواد": "Subscriptions and codes", "البريد الإلكتروني": "Email", "البطاقات التعليمية": "Flashcards", "التخصص": "Specialty", "الثلاثاء": "Tue", "الجمعة": "Fri", "الجنس": "Gender", "الحساب": "Account", "الخصوصية": "Privacy", "الخميس": "Thu", "الدعم": "Support", "الدعم والملاحظات": "Support and feedback", "الدور": "Round", "الدور الأول": "1st round", "الدور الثاني": "2nd round", "الرئيسية": "Home", "الرابط": "Link", "السبت": "Sat", "العمر": "Age", "العودة للرئيسية": "Back to home", "الفصل": "Chapter", "القائمة الرئيسية": "Main menu", "الكل": "All", "المادة": "Subject", "المتابعة باستخدام Google": "Continue with Google", "المحاضرات": "Lectures", "المرحلة الأولى": "1st year", "المرحلة الثانية": "2nd year", "المرحلة الثالثة": "3rd year", "المرحلة الرابعة": "4th year", "المرحلة الخامسة": "5th year", "المرحلة السادسة": "6th year", "المرحلة الدراسية": "Study year", "المصادر": "Sources", "المصدر": "Source", "المظهر والقراءة": "Appearance and reading", "المظهر والقراءة والحساب": "Appearance, reading and account", "المفضلات": "Favorites", "الملف الشخصي": "Profile", "الملف الشخصي والحساب": "Profile and account", "المواد التي حفظتها للرجوع إليها": "Materials you saved", "المواضيع": "Topics", "الموضوع": "Topic", "الوصول والخدمات المتاحة": "Access and services", "الوضع الداكن": "Dark mode", "الوضع الداكن ☾": "Dark mode ☾", "اليوم": "Today", "بتردد": "Unsure", "بحث": "Search", "بطاقات المكتبة": "Library cards", "بطاقاتي الشخصية": "My cards", "بلاغات الطلاب": "Student reports", "Q Bank": "Q Bank", "بياناتك وخصوصيتك": "Your data and privacy", "تأكيد كلمة المرور": "Confirm password", "تجريبية": "Mock", "تسجيل الخروج": "Sign out", "تصدير بياناتي": "Export my data", "تعديل الملف الشخصي": "Edit profile", "تعديل جدولي الدراسي": "Edit my schedule", "تغيير الصورة": "Change photo", "تفعيل الكود": "Activate code", "تقليل الحركة": "Reduce motion", "تخفيف الانتقالات والحركات في الواجهة.": "Fewer transitions and animations.", "جارٍ التحقق…": "Checking…", "جدول الدراسة": "Study schedule", "جدول دراسي شخصي محفوظ في حسابك": "A personal study schedule saved in your account", "جدولي": "My plan", "جدولي الدراسي": "My study schedule", "جلسات تركيز واستراحات مع مؤقّت يمكنك تصغيره أثناء القراءة.": "Focus sessions and breaks with a timer you can minimise while reading.", "حالة الاشتراك": "Subscription status", "حجم الخط": "Font size", "حجم خط القراءة": "Reading font size", "حذف الحساب": "Delete account", "حذف الحساب نهائيًا": "Delete account permanently", "حذف حسابي": "Delete my account", "حساب Medbrain": "Medbrain account", "حساب جديد": "New account", "حفظ": "Save", "حفظ التغييرات": "Save changes", "حفظ ومتابعة": "Save and continue", "خريج / طبيب مقيم": "Graduate / resident", "خلط": "Shuffle", "داكن": "Dark", "دخول": "Sign in", "دقيقة": "min", "ذكر": "Male", "رئيسية (الامتحان الوزاري)": "Main (ministerial exam)", "راجع الصعبة فقط": "Review hard ones only", "رجوع": "Back", "سؤال": "Question", "سجّل الدخول إلى عقلك الطبي ومكتبتك الدراسية.": "Sign in to your medical brain and study library.", "سنة الوزاري": "Exam year", "سياسة الخصوصية": "Privacy policy", "طول الاختبار": "Quiz length", "طويل": "Long", "عرض النتائج": "Show results", "عن Medbrain": "About Medbrain", "فاتح": "Light", "فتح القائمة": "Open menu", "فتح مؤقّت الدراسة": "Open study timer", "فلاتر البحث": "Search filters", "فيديو": "Video", "فيديوهات مقترحة": "Recommended videos", "قصير": "Short", "كل الأدوار": "All rounds", "كل الأسئلة": "All questions", "كل المواد التي لا تندرج ضمن الأقسام الرئيسية.": "Everything outside the main sections.", "كل النصوص وملفات PDF والملخصات في مكان واحد.": "All texts, PDFs and summaries in one place.", "كلمة المرور": "Password", "كود 3 أشهر": "3-month code", "كود 6 أشهر": "6-month code", "كود الاشتراك": "Subscription code", "كود سنوي": "Yearly code", "كود شهري": "Monthly code", "كيف أجبت على هذه البطاقة؟": "How did you answer this card?", "لأي مشكلة أو استفسار راسل الدعم.": "For any problem or question, message support.", "لاحقًا": "Later", "لخص المحاضرة": "Summarise the lecture", "لدي حساب": "I have an account", "للمشاكل والاستفسارات": "Problems and questions", "لوحة المسؤول": "Admin panel", "مؤقّت الدراسة ◷": "Study timer ◷", "متنوعات": "Miscellaneous", "متوسط": "Medium", "محادثة جديدة": "New chat", "محاضرة": "Lecture", "مراسلة الدعم": "Message support", "مساعدك للدراسة وفهم المحاضرات": "Your study assistant for lectures", "مسح البحث والفلاتر": "Clear search and filters", "مسح الفلاتر": "Clear filters", "مشاركة جدولي الخاص": "Share my schedule", "مشاركة نسخة من جدولك الدراسي": "Share a copy of your schedule", "معاينة الجدول ثم مشاركته": "Preview the schedule, then share", "مصدر الأسئلة": "Question source", "مظهر التطبيق": "App theme", "مهامي وخطتي الأسبوعية": "My tasks and weekly plan", "ملاحظات": "Notes", "ملخص": "Summary", "ملف PDF": "PDF file", "نسيت كلمة المرور؟": "Forgot password?", "نوع الأسئلة": "Paper type", "نوع الاختبار": "Quiz type", "نوع المادة": "Material type", "يسري على الموقع وواجهة القراءة.": "Applies to the site and the reader.", "يُحفظ لاستخدامه عند فتح المحاضرات.": "Saved for when you open lectures.", "— اختر —": "— Choose —", "الورقة كاملة": "Full paper", "الجراحة": "Surgery", "الباطنية": "Medicine", "الأطفال": "Pediatrics", "النسائية والتوليد": "OB/GYN", "الطوارئ": "Emergency", "العلوم الأساسية": "Basic Sciences", "الجامعات": "Universities", "الكورسات والمصادر": "Courses and sources", "اختر الموضوع": "Choose a topic", "اختر الفرع": "Choose a branch", "اختر التخصص": "Choose a specialty", "اختر المصدر": "Choose a source", "محاضرات": "Lectures", "ملخصات": "Summaries", "ملفات PDF": "PDF files", "فيديوهات": "Videos", "الفيديوهات": "Videos", "المكتبة": "Library", "لا توجد مواد هنا بعد.": "Nothing here yet.", "كويز سريع": "Quick quiz", "⚡ كويز سريع": "⚡ Quick quiz", "كل المواد": "All subjects", "كل السنوات": "All years", "الأسئلة الوزارية": "Ministerial questions", "اللغة": "Language", "لغة الواجهة": "Interface language", "العربية": "العربية", "مسح كتابتي في هذه الصفحة": "Clear my ink on this page", "مسح كل ملاحظاتي على الملف": "Clear all my notes on this file", "Quick Quiz": "Quick quiz on this topic", "الصفحات": "Pages", "المزيد": "More", "مؤقت المذاكرة": "Study timer", "تراجع": "Undo", "إعادة الخطوة": "Redo", "تصفح": "Browse", "كتابة نص": "Text", "ممحاة": "Eraser", "قلم تظليل": "Highlighter", "قلم": "Pen", "أدوات أخرى": "More tools", "أدوات الكتابة": "Writing tools", "الوضع الليلي للصفحات": "Night pages", "ملاءمة العرض": "Fit width", "الصفحة الأولى": "First page"};
 let uiLang = 'ar';
 try { uiLang = localStorage.getItem('medbrain_lang') === 'en' ? 'en' : 'ar'; } catch (_) {}
 const I18N_SKIP = '[data-no-i18n], .reader-body, .pv-pages, textarea, script, style, .mb-ai-messages, .quiz-body';
