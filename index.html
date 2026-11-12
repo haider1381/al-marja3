@@ -2802,16 +2802,19 @@ html[lang="en"] .mb-feature-en, html[lang="en"] .sp-title small { display:none; 
 .recent-item b { font-size:13.5px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .recent-item small { font-size:11.5px; color:var(--text-muted); opacity:.8; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 
-.exam-browser { margin:0 0 16px; padding:14px 16px; border:1px solid var(--border); border-radius:16px; background:var(--surface); }
-.exam-head h3 { margin:0 0 10px; font-size:16px; font-weight:800; color:var(--accent-strong); }
-.exam-filters { display:grid; gap:8px; margin-bottom:12px; }
-.exam-filters .chip.active { background:var(--accent); border-color:var(--accent); color:#fff; }
-.exam-papers { display:grid; grid-template-columns:repeat(auto-fill, minmax(170px, 1fr)); gap:8px; }
-.exam-paper { display:grid; gap:3px; padding:12px 14px; border:1px solid var(--border); border-radius:12px; background:var(--accent-soft); color:var(--text); font:inherit; text-align:start; cursor:pointer; }
-.exam-paper:hover { border-color:var(--accent); }
-.exam-paper b { font-size:15px; font-weight:800; color:var(--accent-strong); }
-.exam-paper span { font-size:12.5px; color:var(--text-muted); }
-.exam-filters .chip:not(.active) { background:var(--surface) !important; color:var(--accent-strong) !important; border:1px solid var(--border) !important; }
+.exam-browser { margin:0 0 16px; padding:12px 14px; border:1px solid var(--border); border-radius:16px; background:var(--surface); }
+.exam-browser h3 { margin:0 0 10px; font-size:15px; font-weight:800; color:var(--accent-strong); }
+.exam-row { display:flex; flex-wrap:wrap; gap:8px; align-items:center; }
+.dd { position:relative; }
+.dd-btn { display:inline-flex; align-items:center; gap:8px; min-height:40px; padding:0 12px 0 14px; border:1px solid var(--border); border-radius:12px; background:var(--surface); color:var(--text); font:inherit; font-size:14px; font-weight:700; cursor:pointer; }
+.dd-btn svg { width:16px; height:16px; fill:none; stroke:var(--accent); stroke-width:2.2; stroke-linecap:round; stroke-linejoin:round; transition:transform .15s; }
+.dd-btn[aria-expanded="true"] svg { transform:rotate(180deg); }
+.dd-list { position:absolute; z-index:40; top:calc(100% + 6px); inset-inline-start:0; min-width:100%; max-height:260px; overflow-y:auto; display:flex; flex-direction:column; padding:6px; border-radius:12px; background:var(--surface); box-shadow:0 12px 30px rgba(8,30,60,.18),0 0 0 1px var(--border); }
+.dd-list[hidden] { display:none; }
+.dd-list button { min-height:36px; padding:0 12px; border:0; border-radius:8px; background:none; color:var(--text); font:inherit; font-size:14px; text-align:start; white-space:nowrap; cursor:pointer; }
+.dd-list button:hover { background:var(--accent-soft); }
+.dd-list button[aria-selected="true"] { background:var(--accent); color:#fff; }
+.exam-go { min-height:40px; padding:0 20px; border:0; border-radius:12px; background:var(--accent); color:#fff; font:inherit; font-size:14px; font-weight:800; cursor:pointer; }
 </style>
 <link rel="manifest" href="./manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="192x192" href="./assets/app-icon-192.png">
@@ -4742,30 +4745,36 @@ function renderRecentStrip() {
 }
 
 // Q Bank: browse the ministerial papers by year, round and main/mock; a paper opens in order as a quiz.
-let examYearPick = '', examKindPick = '';
-try { const m = JSON.parse(localStorage.getItem('medbrain_ui_memory') || '{}') || {}; examYearPick = m.examYear || ''; examKindPick = m.examKind || ''; } catch (_) {}
+let examYearPick = '', examKindPick = '', examCatPick = '';
+try { const m = JSON.parse(localStorage.getItem('medbrain_ui_memory') || '{}') || {}; examYearPick = m.examYear || ''; examKindPick = m.examKind || ''; examCatPick = m.examCat || ''; } catch (_) {}
+// One compact box: year, type and subject each open a vertical list; «ابدأ» opens the matching ministerial questions.
+function examDropdown(key, label, items, value) {
+  const cur = items.find(([v]) => String(v) === String(value)) || items[0];
+  return '<div class="dd" data-dd="' + key + '"><button type="button" class="dd-btn" data-dd-toggle="' + key + '" aria-expanded="false"><span>' + escapeHtml(cur[1]) + '</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>' +
+    '<div class="dd-list" hidden role="listbox" aria-label="' + escapeHtml(label) + '">' + items.map(([v, l]) => '<button type="button" role="option" data-dd-pick="' + key + '" data-value="' + escapeHtml(String(v)) + '" aria-selected="' + (String(v) === String(cur[0])) + '">' + escapeHtml(l) + '</button>').join('') + '</div></div>';
+}
 function renderExamBrowser() {
   if (!examPapers) { loadExamPapers().then(() => { if (currentMainView === 'library' && state.filterKind === 'questions') render(); }).catch(() => {}); return ''; }
   if (!examPapers.length) return '';
-  const years = Array.from(new Set(examPapers.map(p => p.year))).sort((a, b) => b - a);
-  const hasMock = examPapers.some(p => p.mock);
-  const papers = examPapers.filter(p => (!examYearPick || String(p.year) === String(examYearPick)) && (!examKindPick || p.mock === (examKindPick === 'mock')))
-    .sort((a, b) => b.year - a.year || SUBJECT_ORDER.indexOf(a.category) - SUBJECT_ORDER.indexOf(b.category) || a.round - b.round);
-  const chip = (attr, v, label, on) => '<button type="button" class="chip' + (on ? ' active' : '') + '" ' + attr + '="' + v + '" aria-pressed="' + on + '">' + label + '</button>';
-  return '<section class="exam-browser"><div class="exam-head"><h3>الأسئلة الوزارية</h3></div>' +
-    '<div class="exam-filters"><div class="chip-grid">' + chip('data-exam-year', '', 'كل السنوات', !examYearPick) + years.map(y => chip('data-exam-year', y, y, String(y) === String(examYearPick))).join('') + '</div>' +
-    '<div class="chip-grid">' + chip('data-exam-kind', '', 'الكل', !examKindPick) + chip('data-exam-kind', 'main', 'وزاري', examKindPick === 'main') + chip('data-exam-kind', 'mock', 'تجريبي', examKindPick === 'mock') + '</div></div>' +
-    (papers.length ? '<div class="exam-papers">' + papers.map(p => '<button type="button" class="exam-paper" data-exam-paper="' + escapeHtml(JSON.stringify([p.category, p.year, p.round, p.mock])) + '">' +
-      '<b>' + escapeHtml(SUBJECT_AR[p.category] || p.category) + '</b><span>' + p.year + (p.round === 2 ? ' · الدور الثاني' : ' · الدور الأول') + (p.mock ? ' · تجريبي' : '') + '</span></button>').join('') + '</div>'
-      : '<p class="sq-hint">' + (examKindPick === 'mock' ? 'لا توجد أسئلة تجريبية بهذه الاختيارات بعد.' : 'لا توجد أوراق بهذه الاختيارات.') + '</p>') + '</section>';
+  const yr = [], seen = new Set();
+  examPapers.slice().sort((a, b) => b.year - a.year || a.round - b.round).forEach(p => {
+    const k = p.year + '|' + p.round; if (seen.has(k)) return; seen.add(k);
+    yr.push([k, p.year + (p.round === 2 ? ' · الدور الثاني' : '')]);
+  });
+  const cats = orderedValues(examPapers.map(p => p.category), SUBJECT_ORDER);
+  return '<section class="exam-browser"><h3>الأسئلة الوزارية</h3><div class="exam-row">' +
+    examDropdown('year', 'السنة', [['', 'كل السنوات'], ...yr], examYearPick) +
+    examDropdown('kind', 'النوع', [['', 'الكل'], ['main', 'وزاري'], ['mock', 'تجريبي']], examKindPick) +
+    examDropdown('cat', 'المادة', [['', 'كل المواد'], ...cats.map(c => [c, SUBJECT_AR[c] || c])], examCatPick) +
+    '<button type="button" class="exam-go" data-exam-go>ابدأ</button></div></section>';
 }
-async function openExamPaper(cat, year, round, mock) {
+async function openExamPaper(cat, year, round, kind) {
   if (paywallBlocks()) return;
   try {
-    const qs = await collectExamQuestions(cat, String(year), String(round), mock ? 'mock' : 'main', 300);
-    if (!qs.length) { showMbToast('لا توجد أسئلة في هذه الورقة.'); return; }
-    openCustomQuiz(examQuizTitle(cat, String(year), String(round), mock ? 'mock' : ''), 'Q Bank', qs);
-  } catch (err) { console.error(err); showMbToast('تعذّر فتح الورقة. تحقق من الاتصال.'); }
+    const qs = await collectExamQuestions(cat || '', year || '', round || '', kind || '', 300);
+    if (!qs.length) { showMbToast(kind === 'mock' ? 'لا توجد أسئلة تجريبية بهذه الاختيارات بعد.' : 'لا توجد أسئلة بهذه الاختيارات.'); return; }
+    openCustomQuiz(examQuizTitle(cat || '', year || '', round || '', kind || ''), 'Q Bank', qs);
+  } catch (err) { console.error(err); showMbToast('تعذّر فتح الأسئلة. تحقق من الاتصال.'); }
 }
 function render() {
   document.getElementById('countLabel').textContent = lectureCountLabel(lectures.length);
@@ -5280,9 +5289,12 @@ function onContentClick(e) {
       lockSource: panelSource && panelSource.cat === spOpen.dataset.cat ? panelSource.src : null });
     render(); document.getElementById('content').scrollIntoView({ block: 'start', behavior: document.documentElement.dataset.motion === 'reduce' ? 'auto' : 'smooth' }); return;
   }
-  const ey = e.target.closest('[data-exam-year]'), ek = e.target.closest('[data-exam-kind]'), ep = e.target.closest('[data-exam-paper]');
-  if (ey || ek) { if (ey) examYearPick = ey.dataset.examYear; if (ek) examKindPick = ek.dataset.examKind; saveUiMemory({ examYear: examYearPick, examKind: examKindPick }); render(); return; }
-  if (ep) { const [c, y, r, m] = JSON.parse(ep.dataset.examPaper); openExamPaper(c, y, r, m); return; }
+  const ddt = e.target.closest('[data-dd-toggle]');
+  if (ddt) { const list = ddt.nextElementSibling, open = list.hidden; document.querySelectorAll('.dd-list').forEach(l => { l.hidden = true; }); list.hidden = !open; ddt.setAttribute('aria-expanded', String(open)); return; }
+  const ddp = e.target.closest('[data-dd-pick]');
+  if (ddp) { const k = ddp.dataset.ddPick, v = ddp.dataset.value; if (k === 'year') examYearPick = v; else if (k === 'kind') examKindPick = v; else examCatPick = v;
+    saveUiMemory({ examYear: examYearPick, examKind: examKindPick, examCat: examCatPick }); render(); return; }
+  if (e.target.closest('[data-exam-go]')) { const parts = (examYearPick || '|').split('|'); openExamPaper(examCatPick, parts[0], parts[1], examKindPick); return; }
   const rec = e.target.closest('[data-recent]');
   if (rec) { const how = rec.dataset.how, id = rec.dataset.recent; if (how === 'pdf') openPdfInReader(id); else if (how === 'quiz') openQuiz(id); else openReader(id); return; }
   const psrc = e.target.closest('[data-action="panel-source"]');
@@ -7970,6 +7982,7 @@ function bindOutsideClose() {
   document.addEventListener('pointerdown', e => {
     const t = e.target;
     if (!t.closest('.pv-pop') && !t.closest('[data-pv],[data-tx]') && !t.closest('.pv-textbox')) document.querySelectorAll('.pv-pop').forEach(p => { p.hidden = true; });
+    if (!t.closest('.dd')) document.querySelectorAll('.dd-list').forEach(l => { l.hidden = true; });
     const sp = document.getElementById('studyPop');
     if (sp && !sp.hidden && !t.closest('.study-pop') && !t.closest('[data-study="settings"]')) sp.hidden = true;
   }, true);
