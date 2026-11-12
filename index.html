@@ -420,8 +420,13 @@
   .sp-sources-label { font-size:12.5px; font-weight:800; color:var(--text-muted); margin-inline-end:4px; }
   @media (max-width:640px) { .sp-branches { grid-template-columns:1fr; } .sp-head { padding:14px; gap:10px; } .sp-organs { gap:14px; } .sp-organ { width:32px; height:32px; } .sp-body { padding:12px 14px 16px; } }
   .subject-strips { display:grid; grid-template-columns:1fr; gap:12px; width:100%; margin:8px 0 18px; grid-column:1 / -1; }
-  .mb-support-tg { display:inline-grid; place-items:center; color:#229ED9; text-decoration:none; }
-  .mb-support-tg svg { width:22px; height:22px; }
+  .mb-drawer .mb-nav .mb-support-nav { display:flex; align-items:center; gap:12px; padding:12px; min-height:54px; border-radius:10px; color:var(--text); text-decoration:none; font-weight:700; font-size:14px; }
+  .mb-drawer .mb-nav .mb-support-nav:hover { background:var(--surface-2, rgba(34,158,217,.08)); }
+  .mb-support-nav svg { width:20px; height:20px; color:#229ED9; flex-shrink:0; }
+  .mb-support-nav span { display:grid; gap:4px; }
+  .mb-support-nav small { font-size:10px; font-weight:400; color:var(--text-muted); }
+  .mb-support-link { display:inline-flex; align-items:center; gap:8px; text-decoration:none; }
+  .mb-support-link svg { width:18px; height:18px; color:#229ED9; }
   .deck-subject-back { grid-column:1 / -1; justify-self:start; }
   .subject-strip { display:flex; align-items:center; gap:14px; width:100%; min-height:78px; padding:16px 20px; border:1px solid var(--border); border-radius:16px; background:var(--surface); color:var(--text); font:inherit; text-align:start; cursor:pointer; transition:border-color .2s, box-shadow .2s; }
   .subject-strip:hover, .subject-strip:focus-visible { border-color:var(--accent); box-shadow:0 2px 10px rgba(0,0,0,.06); }
@@ -2197,6 +2202,10 @@ button,a,input,select,textarea{-webkit-tap-highlight-color:transparent;}
 #nameOverlay .field input { background:var(--gate-field); color:var(--gate-text); border-color:var(--gate-line); border-radius:12px; }
 #nameOverlay .mb-primary { background:var(--gate-accent); border:0; border-radius:12px; }
 #nameOverlay .logout-link, #nameOverlay #nameError { color:var(--gate-muted); }
+#nameOverlay .gender-field { border:0; padding:0; margin:0 0 12px; display:flex; gap:10px; flex-wrap:wrap; }
+#nameOverlay .gender-field legend { padding:0; margin-bottom:6px; font-size:13px; font-weight:700; color:var(--gate-text); }
+#nameOverlay .gender-opt { flex:1; display:flex; align-items:center; justify-content:center; gap:8px; min-height:44px; border:1px solid var(--gate-line); border-radius:12px; background:var(--gate-field); color:var(--gate-text); cursor:pointer; font-weight:700; }
+#nameOverlay .gender-opt:has(input:checked) { border-color:var(--gate-accent); box-shadow:0 0 0 2px var(--gate-accent) inset; }
 .gate-brand { text-align:center; margin-bottom:18px; }
 .gate-logo { width:58px; height:58px; margin:0 auto 10px; display:grid; place-items:center; border-radius:18px;
   background:linear-gradient(145deg,#e8f4fd,#e6f8f1); box-shadow:inset 0 0 0 1px rgba(8,118,207,.12); }
@@ -2534,6 +2543,41 @@ body.ai-site-open .ai-fab, body.ai-fab-hidden .ai-fab { display:none; }
 
 /* ---------- Doctor name beside a lecture title ---------- */
 .lecture .title .doctor-tag { display:inline-block; margin-inline-start:6px; padding:1px 9px; border-radius:999px; font-size:11px; font-weight:800; vertical-align:middle; background:rgba(255,255,255,.18); border:1px solid rgba(255,255,255,.35); }
+
+/* Reader takes the whole screen; MidBrain AI is a round button at the bottom-right that opens a tall
+   floating panel centred on the right edge, over the lecture (it never shrinks the page). */
+#readerOverlay .reader-brand { display:none; }
+#readerOverlay .reader-head { padding:calc(8px + env(safe-area-inset-top,0px)) max(14px,env(safe-area-inset-right,0px)) 8px; gap:10px; align-items:center; }
+#readerOverlay .reader-head h2 { font-size:clamp(15px,1.6vw,19px); line-height:1.35; }
+#readerOverlay .reader-meta { margin-top:2px; font-size:11px; }
+#readerOverlay .reader-close { width:36px; height:36px; }
+#readerOverlay .reader-layout, #readerOverlay .reader-layout.no-outline,
+#readerOverlay.ai-reader-open .reader-layout { display:block; grid-template-columns:none; grid-template-rows:none; height:auto; padding:18px max(16px,3vw) 90px; gap:0; }
+#readerOverlay .reader-body { max-width:860px; margin:0 auto; }
+#readerOverlay.pdf-mode .reader-layout { padding:0 0 80px; }
+#readerOverlay.pdf-mode .reader-body { max-width:none; }
+#readerOverlay.ai-reader-open .reader-workspace { overflow:auto; }
+#readerOverlay.ai-reader-open .reader-body { height:auto; overflow:visible; padding:0; }
+#readerOverlay .reader-ai-rail { position:static; min-width:0; background:none; }
+#readerOverlay .reader-ai-rail #readerAIButton { position:fixed; z-index:62; right:max(18px,env(safe-area-inset-right)); left:auto;
+  bottom:calc(18px + env(safe-area-inset-bottom)); width:56px; height:56px; min-height:0; padding:0; border-radius:50%;
+  display:grid; place-items:center; background:linear-gradient(135deg,#1593e6,#0a63b8); color:#fff; border:0;
+  box-shadow:0 10px 26px rgba(8,118,207,.38),0 2px 6px rgba(8,30,60,.2); font-size:0; }
+#readerOverlay .reader-ai-rail #readerAIButton span { display:none; }
+#readerOverlay .reader-ai-rail #readerAIButton svg { width:24px; height:24px; }
+#readerOverlay .reader-ai-rail #readerAIButton:focus-visible { outline:3px solid #8cc8ff; outline-offset:3px; }
+#readerOverlay .reader-ai-host { display:none; }
+#readerOverlay.ai-reader-open .reader-ai-host { display:block; position:fixed; z-index:61; right:max(12px,env(safe-area-inset-right)); left:auto;
+  top:50%; transform:translateY(-50%); width:min(380px,calc(100vw - 24px)); height:min(640px,calc(100dvh - 120px)); max-height:none; margin:0;
+  border-radius:18px; box-shadow:0 22px 60px rgba(8,30,60,.32),0 4px 14px rgba(8,30,60,.16); background:var(--surface);
+  animation:aiPanelIn .18s ease-out; }
+#readerOverlay.ai-reader-open .reader-ai-host .mb-ai-dialog { height:100%; border-radius:18px; overflow:hidden; }
+@keyframes aiPanelIn { from { opacity:0; transform:translateY(-50%) scale(.96); } to { opacity:1; transform:translateY(-50%); } }
+@media (max-width:700px) {
+  #readerOverlay.ai-reader-open .reader-ai-host { top:auto; bottom:calc(84px + env(safe-area-inset-bottom)); transform:none; height:min(66dvh,560px); animation:none; }
+  #readerOverlay .reader-ai-rail #readerAIButton { width:52px; height:52px; }
+}
+@media (prefers-reduced-motion:reduce) { #readerOverlay.ai-reader-open .reader-ai-host { animation:none; } }
 </style>
 <link rel="manifest" href="./manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="192x192" href="./assets/app-icon-192.png">
@@ -2549,8 +2593,8 @@ body.ai-site-open .ai-fab, body.ai-fab-hidden .ai-fab { display:none; }
 
 <div class="overlay" id="nameOverlay">
   <div class="modal gate-modal" role="dialog" aria-modal="true" aria-labelledby="nameTitle" aria-describedby="nameDescription">
-    <h2 id="nameTitle">أكمل اسمك</h2>
-    <p class="sub" id="nameDescription">اكتب اسمك الأول واسم العائلة ليظهرا في حسابك.</p>
+    <h2 id="nameTitle">أكمل بياناتك</h2>
+    <p class="sub" id="nameDescription">اكتب اسمك وجنسك وعمرك ليظهر اسمك في حسابك ونرحّب بك بالشكل الصحيح.</p>
     <form id="nameForm">
       <div class="field">
         <label for="nameFirst">الاسم الأول</label>
@@ -2559,6 +2603,14 @@ body.ai-site-open .ai-fab, body.ai-fab-hidden .ai-fab { display:none; }
       <div class="field">
         <label for="nameLast">اسم العائلة</label>
         <input type="text" id="nameLast" autocomplete="family-name" maxlength="40" dir="auto" required>
+      </div>
+      <fieldset class="field gender-field"><legend>الجنس</legend>
+        <label class="gender-opt"><input type="radio" name="nameGender" value="male" required> ذكر</label>
+        <label class="gender-opt"><input type="radio" name="nameGender" value="female"> أنثى</label>
+      </fieldset>
+      <div class="field">
+        <label for="nameAge">العمر</label>
+        <input type="number" id="nameAge" inputmode="numeric" min="13" max="100" step="1" required>
       </div>
       <p id="nameError" class="save-status" role="status"></p>
       <button type="submit" class="mb-primary" id="nameSubmit">حفظ ومتابعة</button>
@@ -2633,6 +2685,7 @@ body.ai-site-open .ai-fab, body.ai-fab-hidden .ai-fab { display:none; }
 <button type="button" data-tool-view="schedule"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="5" width="16" height="15" rx="3"/><path d="M8 3v4m8-4v4M4 10h16m-7 5 2 2 4-4"/></svg><span>جدولي الدراسي<small>مهامي وخطتي الأسبوعية</small></span></button>
 <button type="button" data-tool-view="favorites"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m19 21-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg><span>المفضلات<small>المواد التي حفظتها للرجوع إليها</small></span></button>
 <button type="button" class="mb-settings-nav" data-tool-view="settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="m9 3-1 3-3 1-2 3 2 2-1 3 3 2 3-1 2 2 3-1 1-3 3-1 2-3-2-2 1-3-3-2-3 1-2-2z"/></svg><span>الإعدادات<small>المظهر والقراءة والحساب</small></span></button>
+<a class="mb-support-nav js-support-tg" href="https://t.me/ha_hayder" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M21.9 4.3 18.7 19.4c-.2 1-.9 1.3-1.8.8l-4.9-3.6-2.4 2.3c-.3.3-.5.5-1 .5l.3-5 9.1-8.2c.4-.4-.1-.6-.6-.2L6.2 13.1l-4.8-1.5c-1-.3-1.1-1 .2-1.5L20.5 2.8c.9-.3 1.6.2 1.4 1.5Z"/></svg><span>مراسلة الدعم<small>للمشاكل والاستفسارات</small></span></a>
 </nav>
 
   </aside>
@@ -2684,6 +2737,12 @@ body.ai-site-open .ai-fab, body.ai-fab-hidden .ai-fab { display:none; }
         <label>اسم العائلة
           <input type="text" id="profileLastName" maxlength="40" autocomplete="family-name" dir="auto" required>
         </label>
+        <label>الجنس
+          <select id="profileGender"><option value="">— اختر —</option><option value="male">ذكر</option><option value="female">أنثى</option></select>
+        </label>
+        <label>العمر
+          <input type="number" id="profileAge" inputmode="numeric" min="13" max="100" step="1">
+        </label>
         <label>البريد الإلكتروني
           <input type="email" id="profileEmailField" readonly>
         </label>
@@ -2710,7 +2769,6 @@ body.ai-site-open .ai-fab, body.ai-fab-hidden .ai-fab { display:none; }
         <button class="mb-brand-home" id="brandHomeBtn" type="button" aria-label="Medbrain — الواجهة الرئيسية"><span class="mb-brand-name">Medbrain</span><small class="mb-brand-sub">MEDICAL LEARNING</small></button>
       </div>
       <div class="mb-top-actions">
-        <a class="mb-icon-btn keep-mobile mb-support-tg" id="supportTelegram" href="https://t.me/ha_hayder" target="_blank" rel="noopener noreferrer" aria-label="مراسلة الدعم على تيليجرام" title="مراسلة الدعم"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M21.9 4.3 18.7 19.4c-.2 1-.9 1.3-1.8.8l-4.9-3.6-2.4 2.3c-.3.3-.5.5-1 .5l.3-5 9.1-8.2c.4-.4-.1-.6-.6-.2L6.2 13.1l-4.8-1.5c-1-.3-1.1-1 .2-1.5L20.5 2.8c.9-.3 1.6.2 1.4 1.5Z"/></svg></a>
         <button class="mb-icon-btn keep-mobile" id="siteThemeToggle" type="button" aria-label="تفعيل الوضع الداكن" aria-pressed="false" title="الوضع الداكن">☾</button>
         <button class="mb-avatar" id="profileBtn" type="button" aria-label="الحساب"><span id="avatarInitials">MB</span></button>
       </div>
@@ -2726,7 +2784,7 @@ body.ai-site-open .ai-fab, body.ai-fab-hidden .ai-fab { display:none; }
       <span class="mb-watermark mb-wm-heart" aria-hidden="true"><svg viewBox="0 0 80 80" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M30 31C21 34 15 43 17 54C19 66 31 75 44 73C57 71 65 60 63 46C62 38 57 32 50 30"/><path d="M37 31C36 21 40 13 49 11C56 10 61 14 60 21"/><path d="M44 13V5M50 11V3M56 13V6"/><path d="M33 31C31 24 26 20 19 20M28 35C23 29 23 20 26 12M38 40C43 50 43 59 38 67"/></svg></span>
       <span class="mb-watermark mb-wm-micro" aria-hidden="true"><svg viewBox="0 0 90 90" fill="none" stroke="currentColor" stroke-width="4"><circle cx="43" cy="45" r="17"/><path d="m31 14 9 18m20-11-8 14M15 45h11m36 0h14M26 72l8-13m25 14-9-14"/><circle cx="43" cy="45" r="4"/></svg></span>
 
-      <h1 class="mb-welcome" dir="ltr">Welcome, <span id="welcomeName" dir="auto">Doctor</span>!</h1>
+      <h1 class="mb-welcome" dir="rtl"><span id="welcomeName">أهلاً دكتور</span></h1>
       <div class="mb-search-row">
         <form class="search-box smart-search-form" id="homeSearchForm" role="search">
           <button type="submit" class="search-submit" aria-label="بحث"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg></button>
@@ -2803,12 +2861,12 @@ body.ai-site-open .ai-fab, body.ai-fab-hidden .ai-fab { display:none; }
     <section class="mb-library mb-page-view" id="librarySection">
       <div class="mb-page-toolbar">
         <div class="mb-page-title-wrap">
-          <button class="mb-page-back" type="button" data-tool-view="home" aria-label="رجوع">‹</button>
-          <div><h2 class="mb-page-title" id="libraryTitle">المحاضرات</h2><p class="mb-page-subtitle" id="librarySubtitle">مكتبتك الطبية مرتبة حسب المصدر والموضوع.</p></div>
+          <button class="mb-page-back" type="button" id="libraryBack" data-tool-view="home" aria-label="رجوع">‹</button>
+          <div><h2 class="mb-page-title" id="libraryTitle">المحاضرات</h2></div>
         </div>
       </div>
       <div class="mb-library-head">
-        <div><div style="color:#77879a;font-size:12px;margin-top:2px">ابحث وصنّف وافتح المواد داخل هذا القسم.</div></div>
+        <div></div>
         <div class="mb-library-actions">
           <button class="add-btn reports-btn" id="reportsBtn" type="button" hidden>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 21V4h11l-2 4 2 4H5"/></svg>
@@ -2847,7 +2905,7 @@ body.ai-site-open .ai-fab, body.ai-fab-hidden .ai-fab { display:none; }
       </div>
       <div class="library-results-tools">
         <button type="button" class="back-chip filter-reset" id="resetFilters" hidden>مسح البحث والفلاتر</button>
-        <span id="librarySearchHint">المواد المتوفرة في المكتبة</span>
+        <span id="librarySearchHint"></span>
       </div>
       <div class="segmented" id="modeToggle" data-mode="source" hidden>
         <div class="highlight"></div>
@@ -2855,13 +2913,12 @@ body.ai-site-open .ai-fab, body.ai-fab-hidden .ai-fab { display:none; }
         <button type="button" data-mode="topic">حسب الموضوع</button>
       </div>
 
-      <button type="button" class="back-chip" id="refreshLibraryBtn">تحديث المكتبة</button>
       <div id="content" aria-live="polite"></div>
     </section>
 
 
 <section class="mb-tool-page mb-page-view mb-personal-page" id="subscriptionSection">
-<div class="mb-page-toolbar"><div class="mb-page-title-wrap"><button class="mb-page-back" type="button" data-tool-view="home" aria-label="العودة للرئيسية">‹</button><div><h2 class="mb-page-title">اشتراكي</h2><p class="mb-page-subtitle">حسابك والخدمات المتاحة لك في Medbrain.</p></div></div></div>
+<div class="mb-page-toolbar"><div class="mb-page-title-wrap"><button class="mb-page-back" type="button" data-tool-view="home" aria-label="العودة للرئيسية">‹</button><div><h2 class="mb-page-title">اشتراكي</h2></div></div></div>
 <div class="mb-personal-grid">
  <article class="mb-personal-card"><span class="mb-personal-pill">الوصول الحالي</span><h3 style="margin-top:16px">حساب Medbrain</h3><p id="subscriptionIdentity" dir="auto"></p><ul><li>قراءة المحاضرات والملخصات وفتح ملفات PDF</li><li>جدول دراسي شخصي محفوظ في حسابك</li><li>حفظ المواد في المفضلات</li><li>مشاركة نسخة من جدولك الدراسي</li></ul><button type="button" class="mb-primary" data-nav="account">إدارة ملفي الشخصي</button></article>
  <article class="mb-personal-card"><h3>حالة الاشتراك</h3><p id="subStatus">جارٍ التحقق…</p><form id="subRedeemForm" class="sub-redeem" hidden><label for="subRedeemCode">كود الاشتراك</label><div class="sub-row"><input id="subRedeemCode" dir="ltr" autocomplete="off" placeholder="MB-XXXXX-XXXXX" maxlength="20"><button type="submit" class="mb-primary">تفعيل الكود</button></div><p id="subRedeemStatus" role="status"></p></form><p id="subContact" hidden></p></article>
@@ -2876,7 +2933,7 @@ body.ai-site-open .ai-fab, body.ai-fab-hidden .ai-fab { display:none; }
 </div>
 </section>
 <section class="mb-tool-page mb-page-view mb-personal-page" id="shareScheduleSection">
-<div class="mb-page-toolbar"><div class="mb-page-title-wrap"><button class="mb-page-back" type="button" data-tool-view="home" aria-label="العودة للرئيسية">‹</button><div><h2 class="mb-page-title">مشاركة جدولي الخاص</h2><p class="mb-page-subtitle">اختر ما تريد مشاركته، وراجع المعاينة قبل الإرسال.</p></div></div></div>
+<div class="mb-page-toolbar"><div class="mb-page-title-wrap"><button class="mb-page-back" type="button" data-tool-view="home" aria-label="العودة للرئيسية">‹</button><div><h2 class="mb-page-title">مشاركة جدولي الخاص</h2></div></div></div>
 <div class="mb-personal-grid">
  <div class="mb-personal-card"><h3>خيارات المشاركة</h3><div class="mb-share-options">
   <fieldset style="border:0;padding:0;margin:0"><legend style="margin-bottom:10px">الأيام</legend><div id="shareDays" class="mb-share-days"></div></fieldset>
@@ -2890,12 +2947,12 @@ body.ai-site-open .ai-fab, body.ai-fab-hidden .ai-fab { display:none; }
 </div>
 </section>
 <section class="mb-tool-page mb-page-view mb-personal-page" id="favoritesSection">
-<div class="mb-page-toolbar"><div class="mb-page-title-wrap"><button class="mb-page-back" type="button" data-tool-view="home" aria-label="العودة للرئيسية">‹</button><div><h2 class="mb-page-title">المفضلات</h2><p class="mb-page-subtitle">موادك المحفوظة في حسابك، لتعود إليها من أي جهاز.</p></div></div></div>
+<div class="mb-page-toolbar"><div class="mb-page-title-wrap"><button class="mb-page-back" type="button" data-tool-view="home" aria-label="العودة للرئيسية">‹</button><div><h2 class="mb-page-title">المفضلات</h2></div></div></div>
 <div class="mb-favorite-tools"><input class="mb-personal-input" id="favoritesSearch" type="search" placeholder="ابحث داخل المفضلات…" aria-label="البحث داخل المفضلات"><select class="mb-personal-input" id="favoritesSort" aria-label="ترتيب المفضلات"><option value="latest">الأحدث حفظًا</option><option value="title">حسب العنوان</option></select><button type="button" class="mb-file-btn" id="refreshFavoritesBtn">تحديث</button></div>
 <div class="mb-personal-status" id="favoritesStatus" role="status"></div><div id="favoritesContent" class="mb-favorite-content"></div>
 </section>
 <section class="mb-tool-page mb-page-view mb-personal-page" id="settingsSection">
-<div class="mb-page-toolbar"><div class="mb-page-title-wrap"><button class="mb-page-back" type="button" data-tool-view="home" aria-label="العودة للرئيسية">‹</button><div><h2 class="mb-page-title">الإعدادات</h2><p class="mb-page-subtitle">اضبط تجربة Medbrain بما يناسبك.</p></div></div></div>
+<div class="mb-page-toolbar"><div class="mb-page-title-wrap"><button class="mb-page-back" type="button" data-tool-view="home" aria-label="العودة للرئيسية">‹</button><div><h2 class="mb-page-title">الإعدادات</h2></div></div></div>
 <div class="mb-personal-grid">
  <div class="mb-personal-card device-card"><h3>أدوات جهازك</h3><p>جلسات تركيز واستراحات مع مؤقّت يمكنك تصغيره أثناء القراءة.</p><button type="button" class="mb-primary" data-open-focus>فتح مؤقّت الدراسة</button></div>
  <div class="mb-personal-card device-card"><h3>بياناتك وخصوصيتك</h3><p><a href="./privacy.html" target="_blank" rel="noopener">سياسة الخصوصية</a> · <a href="./support.html" target="_blank" rel="noopener">الدعم والملاحظات</a></p><div class="mb-personal-actions"><button type="button" class="mb-file-btn" id="exportMyData">تصدير بياناتي</button><button type="button" class="device-danger" id="openDeleteAccount">حذف حسابي</button></div><p id="devicePrivacyStatus" role="status"></p><p>Medbrain منصة تعليمية للطلاب، ولا تُستخدم لتشخيص المرضى أو اتخاذ قرارات علاجية.</p></div>
@@ -2907,12 +2964,13 @@ body.ai-site-open .ai-fab, body.ai-fab-hidden .ai-fab { display:none; }
   <div class="mb-personal-status" id="settingsStatus" role="status"></div>
  </div>
  <div class="mb-personal-card"><h3>الحساب</h3><p id="settingsIdentity" dir="auto"></p><div class="mb-personal-actions"><button type="button" class="mb-primary" data-nav="account">تعديل الملف الشخصي</button><button type="button" class="mb-file-btn" id="logoutBtn">تسجيل الخروج</button></div><p>تفضيلات المظهر والقراءة تُحفظ على هذا الجهاز.</p></div>
+ <div class="mb-personal-card"><h3>الدعم</h3><p>لأي مشكلة أو استفسار راسل الدعم.</p><a class="mb-file-btn mb-support-link js-support-tg" href="https://t.me/ha_hayder" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M21.9 4.3 18.7 19.4c-.2 1-.9 1.3-1.8.8l-4.9-3.6-2.4 2.3c-.3.3-.5.5-1 .5l.3-5 9.1-8.2c.4-.4-.1-.6-.6-.2L6.2 13.1l-4.8-1.5c-1-.3-1.1-1 .2-1.5L20.5 2.8c.9-.3 1.6.2 1.4 1.5Z"/></svg><span>مراسلة الدعم</span></a></div>
 </div>
 </section>
 
 
     <section class="mb-tool-page mb-page-view mb-personal-page" id="scheduleSection">
- <div class="mb-page-toolbar"><div class="mb-page-title-wrap"><button class="mb-page-back" type="button" data-tool-view="home" aria-label="رجوع">‹</button><div><h2 class="mb-page-title">جدول الدراسة</h2><p class="mb-page-subtitle">مادتك، فصولك، وجلساتك — خطة محفوظة في حسابك.</p></div></div></div>
+ <div class="mb-page-toolbar"><div class="mb-page-title-wrap"><button class="mb-page-back" type="button" data-tool-view="home" aria-label="رجوع">‹</button><div><h2 class="mb-page-title">جدول الدراسة</h2></div></div></div>
  <div class="sp-selectors mb-personal-card">
   <label for="studySubject">المادة الأساسية<select id="studySubject"><option value="Medicine">Medicine</option><option value="Surgery">Surgery</option><option value="Pediatrics">Paediatric</option><option value="OB/GYN">OB/GYN</option></select></label>
   <label for="studyChapter">الفصل<select id="studyChapter"></select></label>
@@ -2957,7 +3015,7 @@ body.ai-site-open .ai-fab, body.ai-fab-hidden .ai-fab { display:none; }
       <div class="mb-page-toolbar">
         <div class="mb-page-title-wrap">
           <button class="mb-page-back" type="button" data-tool-view="home" aria-label="رجوع">‹</button>
-          <div><h2 class="mb-page-title">Flashcards</h2><p class="mb-page-subtitle">راجع بطاقات المكتبة أو اصنع بطاقاتك، واضغط البطاقة لقلبها ورؤية الإجابة.</p></div>
+          <div><h2 class="mb-page-title">Flashcards</h2></div>
         </div>
       </div>
       <section class="deck-area" id="deckArea" aria-labelledby="deckAreaTitle">
@@ -3180,7 +3238,7 @@ body.ai-site-open .ai-fab, body.ai-fab-hidden .ai-fab { display:none; }
 <dialog id="deleteAccountDialog" class="device-dialog" aria-labelledby="deleteAccountTitle"><h2 id="deleteAccountTitle">حذف حساب Medbrain</h2><p>يُحذف حسابك وملفك الشخصي ومفضلاتك وبطاقاتك وجدولك وتقدمك نهائيًا. يمكنك تصدير بياناتك من الإعدادات قبل الحذف. تبقى مواد المكتبة المشتركة.</p><p>لحماية الحساب، يلزم تسجيل دخول خلال آخر عشر دقائق. حساب إدارة المنصة يحتاج نقل مسؤوليته أولًا.</p><label for="deleteAccountConfirm">للتأكيد اكتب «حذف حسابي»<input id="deleteAccountConfirm" autocomplete="off"></label><div class="device-actions"><button type="button" class="device-danger" id="deleteAccountSubmit">حذف الحساب نهائيًا</button><button type="button" class="mb-file-btn" data-device-close="deleteAccountDialog">إلغاء</button></div><p id="deleteAccountStatus" role="status"></p></dialog>
 <dialog id="paywallDialog" class="device-dialog" aria-labelledby="paywallTitle"><h2 id="paywallTitle">الاشتراك مطلوب</h2><p id="paywallText"></p><form id="paywallForm"><label for="paywallCode">كود الاشتراك<input id="paywallCode" dir="ltr" autocomplete="off" placeholder="MB-XXXXX-XXXXX" maxlength="20"></label><div class="device-actions"><button type="submit" class="mb-primary">تفعيل الكود</button><button type="button" class="mb-file-btn" data-device-close="paywallDialog">لاحقًا</button></div><p id="paywallStatus" role="status"></p></form><p id="paywallContact"></p></dialog>
 <dialog id="questionReportDialog" class="device-dialog" aria-labelledby="questionReportTitle"><h2 id="questionReportTitle">الإبلاغ عن مشكلة في السؤال</h2><p>يصل بلاغك إلى فريق Medbrain لمراجعة السؤال وتصحيحه.</p><form id="questionReportForm"><fieldset class="report-reasons"><legend>نوع المشكلة</legend><label><input type="radio" name="reportReason" value="wrong_answer"> الإجابة المعتمدة خاطئة</label><label><input type="radio" name="reportReason" value="wrong_question"> السؤال خاطئ أو غير واضح</label><label><input type="radio" name="reportReason" value="incomplete"> السؤال ناقص (خيار أو معلومة مفقودة)</label><label><input type="radio" name="reportReason" value="explanation"> الشرح خاطئ أو غير كافٍ</label><label><input type="radio" name="reportReason" value="other"> مشكلة أخرى</label></fieldset><label for="questionReportNote">تفاصيل (اختياري): ما الصحيح برأيك ومصدره؟<textarea id="questionReportNote" maxlength="1000" rows="3"></textarea></label><div class="device-actions"><button type="submit" class="mb-primary" id="questionReportSubmit">إرسال البلاغ</button><button type="button" class="mb-file-btn" data-device-close="questionReportDialog">إلغاء</button></div><p id="questionReportStatus" role="status"></p></form></dialog>
-<dialog id="selfQuizDialog" class="device-dialog" aria-labelledby="selfQuizTitle"><div class="sp-card-head"><h2 id="selfQuizTitle">اختبر نفسك</h2><button type="button" class="mb-mini-btn" data-device-close="selfQuizDialog" aria-label="إغلاق">×</button></div><p>اختر المادة ونوع الاختبار، ونخلط لك أسئلة عشوائية لتقيس مستواك.</p><form id="selfQuizForm"><fieldset class="sq-group"><legend>نوع الاختبار</legend><label><input type="radio" name="sqMode" value="questions" checked> أسئلة اختيار من متعدد</label><label><input type="radio" name="sqMode" value="flash"> بطاقات تعليمية</label></fieldset><fieldset class="sq-group"><legend>المادة</legend><div id="sqSubjects" class="sq-options"></div></fieldset><fieldset class="sq-group"><legend>طول الاختبار</legend><label><input type="radio" name="sqCount" value="10" checked> قصير (10)</label><label><input type="radio" name="sqCount" value="20"> متوسط (20)</label><label><input type="radio" name="sqCount" value="40"> طويل (40)</label></fieldset><div class="device-actions"><button type="submit" class="mb-primary" id="sqStart">ابدأ الاختبار</button><button type="button" class="mb-file-btn" data-device-close="selfQuizDialog">إلغاء</button></div><p id="sqStatus" role="status"></p></form></dialog>
+<dialog id="selfQuizDialog" class="device-dialog" aria-labelledby="selfQuizTitle"><div class="sp-card-head"><h2 id="selfQuizTitle">اختبر نفسك</h2><button type="button" class="mb-mini-btn" data-device-close="selfQuizDialog" aria-label="إغلاق">×</button></div><p>اختر المادة ونوع الاختبار. للوزاري يمكنك اختيار السنة والدور ونوع الأسئلة.</p><form id="selfQuizForm"><fieldset class="sq-group"><legend>نوع الاختبار</legend><label><input type="radio" name="sqMode" value="questions" checked> أسئلة اختيار من متعدد</label><label><input type="radio" name="sqMode" value="flash"> بطاقات تعليمية</label></fieldset><fieldset class="sq-group"><legend>المادة</legend><div id="sqSubjects" class="sq-options"></div></fieldset><div id="sqExam"><fieldset class="sq-group"><legend>مصدر الأسئلة</legend><label><input type="radio" name="sqSource" value="all" checked> كل الأسئلة</label><label><input type="radio" name="sqSource" value="wizari"> الأسئلة الوزارية فقط</label></fieldset><div id="sqExamMore" hidden><fieldset class="sq-group"><legend>سنة الوزاري</legend><div id="sqYears" class="sq-options"></div></fieldset><fieldset class="sq-group"><legend>الدور</legend><label><input type="radio" name="sqRound" value="" checked> كل الأدوار</label><label><input type="radio" name="sqRound" value="1"> الدور الأول</label><label><input type="radio" name="sqRound" value="2"> الدور الثاني</label></fieldset><fieldset class="sq-group"><legend>نوع الأسئلة</legend><label><input type="radio" name="sqKind" value="" checked> الكل</label><label><input type="radio" name="sqKind" value="main"> رئيسية (الامتحان الوزاري)</label><label><input type="radio" name="sqKind" value="mock"> تجريبية</label></fieldset></div></div><fieldset class="sq-group"><legend>طول الاختبار</legend><label><input type="radio" name="sqCount" value="10" checked> قصير</label><label><input type="radio" name="sqCount" value="20"> متوسط</label><label><input type="radio" name="sqCount" value="40"> طويل</label><label id="sqFullOpt" hidden><input type="radio" name="sqCount" value="300"> الورقة كاملة</label></fieldset><div class="device-actions"><button type="submit" class="mb-primary" id="sqStart">ابدأ الاختبار</button><button type="button" class="mb-file-btn" data-device-close="selfQuizDialog">إلغاء</button></div><p id="sqStatus" role="status"></p></form></dialog>
 <dialog id="reportsDialog" class="device-dialog reports-dialog" aria-labelledby="reportsTitle"><div class="sp-card-head"><h2 id="reportsTitle">بلاغات الطلاب</h2><button type="button" class="mb-mini-btn" data-device-close="reportsDialog" aria-label="إغلاق">×</button></div><p>البلاغات المفتوحة عن الأسئلة، الأحدث أولًا. «تمّ الإصلاح» يغلق كل البلاغات عن السؤال نفسه.</p><div id="reportsList"></div><p id="reportsStatus" role="status"></p></dialog>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.js"></script>
@@ -3224,9 +3282,16 @@ function namePartsFromUser(user) {
     last: typeof meta.last_name === 'string' ? meta.last_name.trim() : ''
   };
 }
+function profileExtrasFromUser(user) {
+  const meta = user && user.user_metadata || {};
+  const gender = meta.gender === 'male' || meta.gender === 'female' ? meta.gender : '';
+  const age = Number.isInteger(Number(meta.age)) && Number(meta.age) >= 13 && Number(meta.age) <= 100 ? Number(meta.age) : null;
+  return { gender, age };
+}
 function needsAccountName(user) {
   const { first, last } = namePartsFromUser(user);
-  return !!user && (!first || !last);
+  const { gender, age } = profileExtrasFromUser(user);
+  return !!user && (!first || !last || !gender || !age);
 }
 function syncNamePrompt() {
   const overlay = document.getElementById('nameOverlay');
@@ -3241,6 +3306,9 @@ function syncNamePrompt() {
     const parts = namePartsFromUser(activeUser);
     document.getElementById('nameFirst').value = parts.first;
     document.getElementById('nameLast').value = parts.last;
+    const extras = profileExtrasFromUser(activeUser);
+    document.querySelectorAll('input[name="nameGender"]').forEach(r => { r.checked = r.value === extras.gender; });
+    document.getElementById('nameAge').value = extras.age || '';
     document.getElementById('nameError').textContent = '';
   }
   const wasOpen = overlay.classList.contains('open');
@@ -3269,16 +3337,17 @@ function paintAvatar(id, initials, url) {
     el.textContent = initials;
   }
 }
-// Every student is greeted as a doctor: «Welcome, Dr. Name!» (no double title if they typed one).
-function doctorTitle(name) {
-  const n = String(name || '').trim();
-  if (!n || n === 'Doctor') return 'Doctor';
-  return /^(dr\.?|doctor|د\.|دكتور|الدكتور|د\s)/i.test(n) ? n : 'Dr. ' + n;
+// Every student is greeted as a doctor in Arabic: «أهلاً دكتور فلان» or «أهلاً دكتورة فلانة», from the gender chosen at sign-up.
+function doctorTitle(name, gender) {
+  const title = gender === 'female' ? 'دكتورة' : 'دكتور';
+  const n = String(name || '').trim().replace(/^(dr\.?|doctor|د\.|الدكتورة?|دكتورة?)\s*/i, '');
+  return 'أهلاً ' + title + (n && n !== 'Doctor' ? ' ' + n : '');
 }
 function applyIdentityUI() {
   const initials = initialsForName(activeUserName);
   const textMap = {
-    welcomeName: doctorTitle(activeUserName),
+    welcomeName: doctorTitle(activeUserName, profileExtrasFromUser(activeUser).gender),
+    profileAge: profileExtrasFromUser(activeUser).age ? String(profileExtrasFromUser(activeUser).age) : '',
     drawerUserName: activeUserName,
     drawerUserEmail: activeUserEmail,
     profileMenuName: activeUserName,
@@ -3295,6 +3364,7 @@ function applyIdentityUI() {
     if (el.tagName === 'INPUT') el.value = textMap[id] || '';
     else el.textContent = textMap[id] || '';
   });
+  const pg = document.getElementById('profileGender'); if (pg) pg.value = profileExtrasFromUser(activeUser).gender;
   paintAvatar('profileBtn', initials, activeAvatarUrl);
   paintAvatar('drawerAvatar', initials, activeAvatarUrl);
   paintAvatar('accountAvatar', initials, activeAvatarUrl);
@@ -3326,10 +3396,14 @@ async function loadProfile() {
   activeAvatarUrl = profile.avatar_url || activeAvatarUrl || '';
   applyIdentityUI();
 }
-async function saveProfileName(firstName, lastName) {
+async function saveProfileName(firstName, lastName, genderValue, ageValue) {
   const first = String(firstName || '').trim();
   const last = String(lastName || '').trim();
   if (!first || !last) throw new Error('اكتب الاسم الأول واسم العائلة.');
+  const gender = genderValue === 'male' || genderValue === 'female' ? genderValue : '';
+  if (!gender) throw new Error('اختر الجنس: ذكر أو أنثى.');
+  const age = Number(ageValue);
+  if (!Number.isInteger(age) || age < 13 || age > 100) throw new Error('اكتب عمرك بالأرقام (يجب أن يكون 13 سنة أو أكثر).');
   if (first.length > 40 || last.length > 40 || (first + ' ' + last).length > 80)
     throw new Error('يجب ألا يتجاوز الاسم الكامل 80 حرفًا.');
   if (!client || !activeUserId || !activeUser) throw new Error('سجّل الدخول أولًا.');
@@ -3338,12 +3412,12 @@ async function saveProfileName(firstName, lastName) {
   const clean = first + ' ' + last;
   const now = new Date().toISOString();
   const saved = await client.from('profiles').upsert({
-    id: activeUserId, display_name: clean, avatar_url: activeAvatarUrl || null, updated_at: now
+    id: activeUserId, display_name: clean, avatar_url: activeAvatarUrl || null, gender, age, updated_at: now
   });
   if (saved.error) throw saved.error;
   if (version !== accessVersion || userId !== activeUserId) throw new Error('تغيّرت جلسة الدخول. حاول مجددًا.');
   const authSaved = await client.auth.updateUser({ data: {
-    first_name: first, last_name: last,
+    first_name: first, last_name: last, gender, age,
     display_name: clean, full_name: clean, avatar_url: activeAvatarUrl || null
   } });
   if (authSaved.error) throw authSaved.error;
@@ -3796,7 +3870,6 @@ function showMainView(view, kind='', scrollBehavior='smooth') {
     };
     const meta=labels[kind]||labels[''];
     document.getElementById('libraryTitle').textContent=meta[0];
-    document.getElementById('librarySubtitle').textContent=meta[1];
   }
   window.scrollTo({top:0,behavior:document.documentElement.dataset.motion==='reduce'?'instant':scrollBehavior});
 }
@@ -4170,7 +4243,8 @@ function wireGateEvents() {
     error.textContent = '';
     button.textContent = 'جارٍ الحفظ…';
     try {
-      await saveProfileName(first, last);
+      const g = document.querySelector('input[name="nameGender"]:checked');
+      await saveProfileName(first, last, g ? g.value : '', document.getElementById('nameAge').value);
       syncNamePrompt();
       document.getElementById('profileBtn').focus();
     } catch (err) {
@@ -4183,7 +4257,7 @@ function wireGateEvents() {
   document.getElementById('nameLogout').addEventListener('click', () => document.getElementById('logoutBtn').click());
   document.getElementById('nameOverlay').addEventListener('keydown', e => {
     if (isAIChatOpen() || e.key !== 'Tab') return;
-    const controls = Array.from(e.currentTarget.querySelectorAll('input,button')).filter(el => !el.disabled);
+    const controls = Array.from(e.currentTarget.querySelectorAll('input,button')).filter(el => !el.disabled && !(el.type === 'radio' && !el.checked && el.name && e.currentTarget.querySelector('input[name="' + el.name + '"]:checked')));
     if (!controls.length) { e.preventDefault(); return; }
     const first = controls[0], last = controls[controls.length - 1];
     if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
@@ -4326,7 +4400,7 @@ async function startApp(version = accessVersion) {
   }
 }
 function applyAccessUI() {
-  document.getElementById('refreshLibraryBtn').hidden = !activeUserId;
+  
   document.getElementById('openAddBtn').style.display = canWrite ? '' : 'none';
   if (!canWrite) { document.getElementById('reportsBtn').hidden = true; openReports = []; }
   document.getElementById('readOnlyBadge').style.display = canWrite ? 'none' : '';
@@ -4432,11 +4506,8 @@ function renderBrowse() {
   path.keys.forEach(key => {
     if (path[key] && !(key === 'source' && b.fromSource)) crumbs.push([key, browseLabel(key, path[key])]);
   });
-  let html = '<nav class="browse-crumbs" aria-label="مسار التصفح">' + crumbs.map(([level, label], i) =>
-    i === crumbs.length - 1 && path.level === 'list'
-      ? '<span aria-current="page" dir="auto">' + escapeHtml(label) + '</span>'
-      : '<button type="button" data-action="browse-to" data-level="' + level + '" dir="auto">' + escapeHtml(label) + '</button>'
-  ).join('<span class="sep" aria-hidden="true">›</span>') + '</nav>';
+  browseCrumbLevels = crumbs.map(([level]) => level);
+  let html = '';
   if (path.level === 'list' && path.hub) return html + renderTopicPage(path);
   if (path.level === 'list' && b.fromSource) {
     // A source's subspecialty: its lectures in teaching order, grouped by kind (lectures, videos, summaries…).
@@ -4573,6 +4644,12 @@ function browseTo(level, value) {
   document.getElementById('content').scrollIntoView({ block: 'start', behavior: document.documentElement.dataset.motion === 'reduce' ? 'auto' : 'smooth' });
 }
 let lastBrowsePath = null;
+let browseCrumbLevels = ['root'];
+// Library back arrow: one browse level up; at the subject panels it returns home.
+function browseBack() {
+  if (currentMainView === 'library' && browseCrumbLevels.length > 1 && !state.search.trim()) { browseTo(browseCrumbLevels[browseCrumbLevels.length - 2]); return true; }
+  return false;
+}
 function browsePathValue(level) { return lastBrowsePath ? lastBrowsePath[level] : null; }
 
 function renderSearchResults(q) {
@@ -5299,8 +5376,8 @@ function wireMedbrainEvents() {
     const btn=document.getElementById('profileSaveBtn');
     btn.disabled=true; status.textContent='جارٍ الحفظ…';
     try{
-      await saveProfileName(document.getElementById('profileFirstName').value, document.getElementById('profileLastName').value);
-      status.textContent='تم حفظ الاسم.';
+      await saveProfileName(document.getElementById('profileFirstName').value, document.getElementById('profileLastName').value, document.getElementById('profileGender').value, document.getElementById('profileAge').value);
+      status.textContent='تم حفظ بياناتك.';
       showMbToast('تم تحديث الملف الشخصي.');
     }catch(err){console.error(err);status.textContent=err.message||'تعذّر حفظ الملف الشخصي.';}
     finally{btn.disabled=false;}
@@ -5601,6 +5678,7 @@ function restoreReaderAnchor(anchor){
 }
 
 function fitReaderAIPanel(){
+  return; // the reader AI panel is a fixed floating window now (see CSS).
   if(window.innerWidth<=700||!document.getElementById('readerOverlay').classList.contains('ai-reader-open'))return;
   const host=document.getElementById('readerAIHost');
   host.style.setProperty('--ai-reader-height',Math.max(180,window.innerHeight-host.getBoundingClientRect().top-16)+'px');
@@ -6450,10 +6528,11 @@ function refreshFilterOptions() {
   renderFilterLists(opts);
   const count=[state.filterCategory,state.filterTopic,state.filterSource,state.filterKind].filter(Boolean).length;
   const badge=document.getElementById('filterActiveCount');
-  badge.hidden=!count;badge.textContent=count;
+  badge.hidden=true;badge.textContent='';
   const homeBadge=document.querySelector('.home-filter-count');
-  if(homeBadge){homeBadge.hidden=!count;homeBadge.textContent=count;}
-  document.getElementById('librarySearchHint').textContent=state.search.trim()?'النتائج مرتبة حسب الأقرب لعنوان البحث':'المواد المتوفرة في المكتبة';
+  if(homeBadge){homeBadge.hidden=true;homeBadge.textContent='';}
+  document.querySelectorAll('#homeFilterBtn,#libraryFilterBtn').forEach(b=>b.classList.toggle('has-filters',!!count));
+  
 }
 function chooseFilterValue(key, value) {
   state[key] = state[key] === value ? '' : value;
@@ -6722,14 +6801,7 @@ function renderQuestionEditors(questions) {
   document.getElementById('questionEditors').innerHTML = questions.map(questionEditorHtml).join('');
 }
 function wireAuthoringEvents() {
-  document.getElementById('refreshLibraryBtn').addEventListener('click', async e => {
-    if (!client || !activeUserId) return;
-    const button = e.currentTarget;
-    button.disabled = true;
-    button.textContent = 'جارٍ تحديث المكتبة…';
-    try { await startApp(); }
-    finally { button.disabled = false; button.textContent = 'تحديث المكتبة'; }
-  });
+
   document.getElementById('libraryFilterPopover').addEventListener('click', e => {
     const choice = e.target.closest('[data-filter-key] [data-value]');
     if (choice) chooseFilterValue(choice.closest('[data-filter-key]').dataset.filterKey, choice.dataset.value);
@@ -6948,12 +7020,45 @@ async function startTopicQuiz(topicId) {
   const cards = result.error ? [] : (result.data || []).map(r => r.library_flashcards).filter(Boolean);
   startCustomDeck('كويز سريع — ' + name, shuffledCopy(cards).slice(0, 15));
 }
+// Ministerial papers (subject × year × round × main/mock) come from the question labels, see exam_papers().
+let examPapers = null;
+async function loadExamPapers() {
+  if (examPapers) return examPapers;
+  const { data, error } = await client.rpc('exam_papers');
+  examPapers = error ? [] : (data || []);
+  return examPapers;
+}
+function syncSelfQuizExam() {
+  const form = document.getElementById('selfQuizForm');
+  const questions = form.sqMode.value === 'questions';
+  const wizari = questions && form.sqSource.value === 'wizari';
+  document.getElementById('sqExam').hidden = !questions;
+  document.getElementById('sqExamMore').hidden = !wizari;
+  document.getElementById('sqFullOpt').hidden = !wizari;
+  if (!wizari && form.sqCount.value === '300') form.querySelector('input[name="sqCount"][value="10"]').checked = true;
+  if (!wizari) return;
+  const cat = form.sqSubject ? form.sqSubject.value : '';
+  const prev = form.sqYear ? form.sqYear.value : '';
+  const years = Array.from(new Set((examPapers || []).filter(p => !cat || p.category === cat).map(p => p.year))).sort((a, b) => b - a);
+  document.getElementById('sqYears').innerHTML = ['', ...years].map(y => '<label><input type="radio" name="sqYear" value="' + y + '"' + (String(y) === String(prev) || (!y && !years.includes(Number(prev))) ? ' checked' : '') + '> ' + (y || 'كل السنوات') + '</label>').join('');
+}
+function examQuizTitle(cat, year, round, kind) {
+  return ['وزاري', cat ? SUBJECT_AR[cat] || cat : '', year || '', round === '2' ? '– دور ثاني' : round === '1' ? '– دور أول' : '', kind === 'mock' ? '(تجريبي)' : ''].filter(Boolean).join(' ');
+}
+async function collectExamQuestions(cat, year, round, kind, n) {
+  const { data, error } = await client.rpc('exam_questions', { p_category: cat || null, p_year: year ? Number(year) : null, p_round: round ? Number(round) : null, p_mock: kind ? kind === 'mock' : null, p_limit: n });
+  if (error) throw error;
+  return (data || []).map(r => r.question && Array.isArray(r.question.options) && r.question.options[r.question.correctIndex]
+    ? Object.assign({}, r.question, { _lec: r.lecture_id, _i: r.idx }) : null).filter(Boolean);
+}
 function openSelfQuiz() {
   if (paywallBlocks()) return;
+  loadExamPapers().then(syncSelfQuizExam).catch(() => {});
   const cats = orderedValues(lectures.map(l => l.category).filter(Boolean), SUBJECT_ORDER).filter(c => SUBJECT_AR[c]);
   document.getElementById('sqSubjects').innerHTML = ['', ...cats].map((c, i) => '<label><input type="radio" name="sqSubject" value="' + escapeHtml(c) + '"' + (i ? '' : ' checked') + '> ' +
     escapeHtml(c ? SUBJECT_AR[c] : 'كل المواد') + '</label>').join('');
   document.getElementById('sqStatus').textContent = '';
+  syncSelfQuizExam();
   document.getElementById('selfQuizDialog').showModal();
 }
 async function runSelfQuiz(e) {
@@ -6971,17 +7076,29 @@ async function runSelfQuiz(e) {
       const result = await client.from('library_flashcards').select('id,ord,kind,front,back,extra').in('deck_id', ids).limit(600);
       ok = startCustomDeck('اختبر نفسك — ' + label, shuffledCopy(result.data || []).slice(0, n));
     } else {
-      const pool = questionPool(l => !cat || l.category === cat);
-      if (!pool.length) { status.textContent = 'لا توجد أسئلة لهذه المادة بعد.'; return; }
-      ok = openCustomQuiz('اختبر نفسك — ' + label, 'أسئلة عشوائية مختلطة', await collectQuestions(pool, n));
+      if (form.sqSource.value === 'wizari') {
+        const year = form.sqYear ? form.sqYear.value : '', round = form.sqRound.value, kind = form.sqKind.value;
+        const qs = await collectExamQuestions(cat, year, round, kind, n);
+        if (!qs.length) { status.textContent = kind === 'mock' ? 'لا توجد أسئلة تجريبية بهذه الاختيارات بعد.' : 'لا توجد أسئلة وزارية بهذه الاختيارات بعد.'; return; }
+        ok = openCustomQuiz(examQuizTitle(cat, year, round, kind), n >= 300 ? 'الورقة كاملة بترتيب عشوائي' : 'أسئلة وزارية عشوائية', qs);
+      } else {
+        const pool = questionPool(l => !cat || l.category === cat);
+        if (!pool.length) { status.textContent = 'لا توجد أسئلة لهذه المادة بعد.'; return; }
+        ok = openCustomQuiz('اختبر نفسك — ' + label, 'أسئلة عشوائية مختلطة', await collectQuestions(pool, n));
+      }
     }
     if (ok) document.getElementById('selfQuizDialog').close();
   } catch (err) { console.error(err); status.textContent = 'تعذّر تجهيز الاختبار. تحقق من الاتصال وأعد المحاولة.'; }
   finally { btn.disabled = false; }
 }
+function bindLibraryBack() {
+  document.getElementById('libraryBack').addEventListener('click', e => { if (browseBack()) { e.preventDefault(); e.stopImmediatePropagation(); } }, true);
+}
 function bindSelfQuizUI() {
+  bindLibraryBack();
   document.getElementById('selfQuizCard').addEventListener('click', openSelfQuiz);
   document.getElementById('selfQuizForm').addEventListener('submit', runSelfQuiz);
+  document.getElementById('selfQuizForm').addEventListener('change', e => { if (['sqMode', 'sqSource', 'sqSubject'].includes(e.target.name)) syncSelfQuizExam(); });
   document.addEventListener('click', e => {
     const t = e.target.closest('[data-topic-quiz]');
     if (t) { e.preventDefault(); startTopicQuiz(t.dataset.topicQuiz); }
@@ -6999,7 +7116,11 @@ function telegramLink(t) {
   const url = /^https?:\/\//i.test(v) ? v : 'https://t.me/' + v.replace(/^@/, '');
   return /^https:\/\/(t\.me|telegram\.me)\//i.test(url) ? url : '';
 }
+// Apple 3.1.1 / Google Play payments: the native app must not sell or unlock content with outside codes,
+// nor point students to an outside purchase. There, the app only reflects the account's existing access.
+function storeBuild() { return typeof deviceIsNative === 'function' && deviceIsNative(); }
 function contactHtml() {
+  if (storeBuild()) return '';
   const url = accessState && telegramLink(accessState.telegram);
   return url ? 'للحصول على كود اشتراك أو تجديده راسلني على تيليجرام: <a href="' + escapeHtml(url) + '" target="_blank" rel="noopener noreferrer" dir="ltr">' + escapeHtml(accessState.telegram) + '</a>'
              : 'للحصول على كود اشتراك أو تجديده تواصل مع إدارة Medbrain.';
@@ -7011,7 +7132,7 @@ async function loadAccessState(promptIfNeeded) {
   if (version !== accessVersion) return;
   accessState = error ? null : data;
   const tgUrl = accessState && telegramLink(accessState.telegram);
-  if (tgUrl) document.getElementById('supportTelegram').href = tgUrl;
+  if (tgUrl) document.querySelectorAll('.js-support-tg').forEach(a => { a.href = tgUrl; });
   renderSubscriptionPage();
   // First time only: a student who never redeemed a code is asked once after signing in.
   if (promptIfNeeded && accessState && accessState.paywall && !accessState.active && !accessState.ever_subscribed) openPaywall();
@@ -7026,6 +7147,11 @@ function openPaywall() {
     ? 'انتهى اشتراكك' + (accessState.expires_at ? ' بتاريخ ' + fmtDate(accessState.expires_at) : '') + '. لمتابعة الوصول إلى المحاضرات والأسئلة والبطاقات، جدّد اشتراكك وأدخل الكود الجديد هنا.'
     : 'المحاضرات والأسئلة والبطاقات متاحة للمشتركين. أدخل كود الاشتراك الخاص بك مرة واحدة، ولن يُطلب منك مجددًا حتى نهاية مدة الاشتراك.';
   document.getElementById('paywallContact').innerHTML = contactHtml();
+  document.getElementById('paywallForm').hidden = storeBuild();
+  if (storeBuild()) {
+    document.getElementById('paywallTitle').textContent = 'المحتوى غير متاح لهذا الحساب';
+    document.getElementById('paywallText').textContent = 'المحاضرات والأسئلة والبطاقات غير مفعّلة لحسابك حاليًا. يمكنك متابعة استخدام جدولك ومفضلاتك ومؤقّت الدراسة.';
+  }
   document.getElementById('paywallStatus').textContent = '';
   document.getElementById('paywallCode').value = '';
   const dlg = document.getElementById('paywallDialog'); if (!dlg.open) dlg.showModal();
@@ -7055,8 +7181,9 @@ function renderSubscriptionPage() {
       : !s.paywall ? 'الوصول مجاني حاليًا لجميع الحسابات.'
       : s.ever_subscribed ? 'انتهى اشتراكك' + (s.expires_at ? ' بتاريخ ' + fmtDate(s.expires_at) : '') + '. أدخل كودًا جديدًا للتجديد.'
       : 'لا يوجد اشتراك فعّال. أدخل كود الاشتراك للوصول إلى المحتوى.';
-    form.hidden = !s.paywall && !active;
-    contact.hidden = !s.paywall; contact.innerHTML = contactHtml();
+    form.hidden = storeBuild() || (!s.paywall && !active);
+    contact.hidden = storeBuild() || !s.paywall; contact.innerHTML = contactHtml();
+    if (storeBuild() && !active && s.paywall) status.textContent = 'المحتوى غير مفعّل لهذا الحساب حاليًا.';
   }
   const admin = document.getElementById('subAdmin');
   admin.hidden = !(s && s.owner);
