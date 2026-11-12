@@ -6170,7 +6170,9 @@ const PVI = {
   fit: '<svg viewBox="0 0 24 24"><path d="M3 12h18M7 8l-4 4 4 4M17 8l4 4-4 4"/></svg>',
   top: '<svg viewBox="0 0 24 24"><path d="M5 4h14M12 20V8M7 13l5-5 5 5"/></svg>',
   clear: '<svg viewBox="0 0 24 24"><path d="M4 7h16M10 11v6m4-6v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg>',
-  quiz: '<svg viewBox="0 0 24 24"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg>'
+  quiz: '<svg viewBox="0 0 24 24"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg>',
+  zoomOut: '<svg viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m15.5 15.5 5 5M7.5 10.5h6"/></svg>',
+  zoomIn: '<svg viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m15.5 15.5 5 5M7.5 10.5h6M10.5 7.5v6"/></svg>'
 };
 function inkKey(id) { return 'medbrain_ink_' + id; }
 function loadInk(id) { try { return JSON.parse(localStorage.getItem(inkKey(id)) || '{}') || {}; } catch (_) { return {}; } }
@@ -6198,7 +6200,7 @@ async function mountPdfViewer(body, bytes, lec) {
   body.innerHTML = '<div class="pv" id="pdfViewer">' +
     '<div class="pv-tb" role="toolbar" aria-label="أدوات الملف">' +
       '<div class="pv-pill">' + pvBtn('pages', PVI.pages, 'الصفحات', ' aria-expanded="false"') + pvBtn('more', PVI.more, 'المزيد', ' aria-expanded="false"') +
-        pvBtn('timer', PVI.timer, 'مؤقت المذاكرة', ' aria-expanded="false"') + '<button type="button" class="pv-ib" data-open-labs aria-label="Reference values" title="Reference values"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M9 3h6M10 3v6l-5 9a2 2 0 0 0 1.7 3h10.6a2 2 0 0 0 1.7-3l-5-9V3\"/><path d=\"M7.5 14h9\"/></svg></button>' + pvBtn('undo', PVI.undo, 'تراجع', ' disabled') + pvBtn('redo', PVI.redo, 'إعادة الخطوة', ' disabled') + '</div>' +
+        pvBtn('timer', PVI.timer, 'مؤقت المذاكرة', ' aria-expanded="false"') + '<button type="button" class="pv-ib" data-open-labs aria-label="Reference values" title="Reference values"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M9 3h6M10 3v6l-5 9a2 2 0 0 0 1.7 3h10.6a2 2 0 0 0 1.7-3l-5-9V3\"/><path d=\"M7.5 14h9\"/></svg></button>' + pvBtn('zoom-out', PVI.zoomOut, 'تصغير') + pvBtn('zoom-in', PVI.zoomIn, 'تكبير') + pvBtn('undo', PVI.undo, 'تراجع', ' disabled') + pvBtn('redo', PVI.redo, 'إعادة الخطوة', ' disabled') + '</div>' +
       '<div class="pv-pill pv-pill-center">' +
         '<div class="pv-set" id="pvSet1">' + pvBtn('set2', PVI.chevL, 'أدوات أخرى') + pvBtn('hand', PVI.hand, 'تصفح', ' aria-pressed="true"') + '<span class="pv-sep"></span>' +
           pvBtn('text', PVI.text, 'كتابة نص', ' aria-pressed="false"') + pvBtn('eraser', PVI.eraser, 'ممحاة', ' aria-pressed="false"') +
@@ -6454,6 +6456,7 @@ function bindPdfViewer(wrap) {
     if (act === 'pen' || act === 'hl') {
       if (v.tool === act) togglePop(act === 'pen' ? 'pvPenPop' : 'pvHlPop'); else { closePops(); setTool(act); }
     } else if (act === 'hand' || act === 'eraser' || act === 'text') { closePops(); setTool(act); }
+    else if (act === 'zoom-in' || act === 'zoom-out') { const r = wrap.getBoundingClientRect(); zoomTo(v.zoom * (act === 'zoom-in' ? 1.2 : 1 / 1.2), r.left + r.width / 2, r.top + r.height / 3); }
     else if (act === 'set2' || act === 'set1') { closePops(); swapPvSets(act === 'set2' ? 'pvSet1' : 'pvSet2', act === 'set2' ? 'pvSet2' : 'pvSet1'); }
     else if (act === 'undo' || act === 'redo') {
       const from = act === 'undo' ? v.hist : v.redo, to = act === 'undo' ? v.redo : v.hist;
