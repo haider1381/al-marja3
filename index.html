@@ -2318,6 +2318,8 @@ body.ai-site-open .ai-fab, body.ai-fab-hidden .ai-fab { display:none; }
 
 /* ---------- Library flashcard decks: colorful card piles and a 3D flip study card ---------- */
 .deck-area { margin:4px 0 22px; }
+.deck-rate-ask { margin:10px 0 4px; text-align:center; font-weight:800; font-size:15px; color:var(--text); }
+.deck-score { margin:6px 0 12px; font-size:15px; color:var(--text); } .deck-score b { color:var(--accent); font-size:18px; }
 .deck-area-head { display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; margin:18px 0 12px; }
 .deck-area-title { margin:0; font-size:17px; font-weight:800; color:var(--text); }
 .deck-area-sub { font-size:12.5px; color:var(--text-muted); font-weight:700; }
@@ -2939,16 +2941,18 @@ body.ai-site-open .ai-fab, body.ai-fab-hidden .ai-fab { display:none; }
           <div class="deck-controls" id="deckFlipRow">
             <button type="button" class="deck-flip-btn" data-deck-action="flip">إظهار الإجابة</button>
           </div>
+          <p class="deck-rate-ask" id="deckRateAsk" hidden>كيف أجبت على هذه البطاقة؟</p>
           <div class="deck-rate" id="deckRateRow" hidden>
-            <button type="button" class="rate-btn rate-hard" data-deck-rate="hard"><b>صعبة</b><small>أعدها لي قريبًا</small></button>
-            <button type="button" class="rate-btn rate-good" data-deck-rate="good"><b>جيدة</b><small>تذكرتها بجهد</small></button>
-            <button type="button" class="rate-btn rate-easy" data-deck-rate="easy"><b>سهلة</b><small>أتقنتها</small></button>
+            <button type="button" class="rate-btn rate-hard" data-deck-rate="hard"><b>أخطأت</b><small>أعدها لي قريبًا</small></button>
+            <button type="button" class="rate-btn rate-good" data-deck-rate="good"><b>بتردد</b><small>تذكرتها بجهد</small></button>
+            <button type="button" class="rate-btn rate-easy" data-deck-rate="easy"><b>أصبت</b><small>عرفتها فورًا</small></button>
           </div>
-          <p class="deck-keys">المسافة لقلب البطاقة · 1 صعبة · 2 جيدة · 3 سهلة</p>
+          <p class="deck-keys">المسافة لقلب البطاقة · 1 أخطأت · 2 بتردد · 3 أصبت</p>
           <div class="deck-done" id="deckDone" hidden>
             <div class="deck-done-badge" aria-hidden="true">✓</div>
             <h4>أحسنت! أنهيت المجموعة</h4>
             <p id="deckDoneText"></p>
+            <p class="deck-score" id="deckScore" hidden></p>
             <div class="deck-done-actions">
               <button type="button" class="deck-flip-btn" data-deck-action="again-hard" id="deckAgainHard">راجع الصعبة فقط</button>
               <button type="button" class="deck-pill" data-deck-action="reset">ابدأ المجموعة من جديد</button>
@@ -3474,6 +3478,7 @@ function shuffleQueue() { for (let i = deckQueue.length - 1; i > 0; i--) { const
 async function openDeck(id) {
   const index = (flashDecks || []).findIndex(d => d.id === id); if (index < 0) return;
   activeDeck = flashDecks[index];
+  deckSession = { right: 0, unsure: 0, wrong: 0 };
   const [c1, c2] = DECK_THEMES[index % DECK_THEMES.length];
   const study = document.getElementById('deckStudy');
   study.style.setProperty('--c1', c1); study.style.setProperty('--c2', c2);
@@ -3508,12 +3513,19 @@ function showDeckCard() {
   document.getElementById('deckStage').hidden = done;
   document.getElementById('deckFlipRow').hidden = done;
   document.getElementById('deckRateRow').hidden = true;
+  document.getElementById('deckRateAsk').hidden = true;
   document.querySelector('.deck-keys').hidden = done;
   document.getElementById('deckDone').hidden = !done;
   updateDeckStats();
   if (done) {
     document.getElementById('deckDoneText').textContent = deckProgress.hard.length ? 'بقيت لديك بطاقات صعبة، راجعها لتثبيتها.' : 'أتقنت كل بطاقات هذه المجموعة.';
     document.getElementById('deckAgainHard').hidden = !deckProgress.hard.length;
+    // Self-graded result of this sitting, as a percentage only.
+    const answered = deckSession.right + deckSession.unsure + deckSession.wrong, score = document.getElementById('deckScore');
+    score.hidden = !answered;
+    if (answered) score.innerHTML = 'أجبت صحيحًا عن <b>' + Math.round(deckSession.right / answered * 100) + '%</b> من البطاقات' +
+      (deckSession.unsure ? '، وبتردد عن ' + Math.round(deckSession.unsure / answered * 100) + '%' : '') + '.';
+    deckSession = { right: 0, unsure: 0, wrong: 0 };
     return;
   }
   const c = deckCards[deckQueue[0]];
@@ -3530,10 +3542,13 @@ function flipDeckCard() {
   document.getElementById('deckCard').classList.toggle('is-flipped', deckFlipped);
   document.getElementById('deckFlipRow').hidden = deckFlipped;
   document.getElementById('deckRateRow').hidden = !deckFlipped;
+  document.getElementById('deckRateAsk').hidden = !deckFlipped;
 }
+var deckSession = { right: 0, unsure: 0, wrong: 0 };
 function rateDeckCard(rate) {
   if (!deckFlipped || !deckQueue.length) return;
   const idx = deckQueue.shift(), id = deckCards[idx].id;
+  deckSession[rate === 'hard' ? 'wrong' : rate === 'good' ? 'unsure' : 'right']++;
   const hard = new Set(deckProgress.hard), known = new Set(deckProgress.known);
   if (rate === 'hard') { hard.add(id); known.delete(id); deckQueue.splice(Math.min(deckQueue.length, 4), 0, idx); }
   else { known.add(id); if (rate === 'easy') hard.delete(id); }
