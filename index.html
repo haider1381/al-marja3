@@ -358,6 +358,13 @@
   .browse-crumbs span[aria-current] { font-weight:700; color:var(--text); }
   .browse-crumbs .sep { color:var(--text-muted); }
   .browse-grid { gap:10px; }
+  .sq-art { width:100%; max-width:200px; height:100%; }
+  .sq-group { border:1px solid var(--border); border-radius:12px; padding:10px 12px; margin:0 0 12px; display:flex; flex-wrap:wrap; gap:8px 16px; }
+  .sq-group legend { font-weight:800; font-size:13px; padding:0 6px; }
+  .sq-group label, .sq-options label { display:inline-flex; align-items:center; gap:6px; font-size:14px; cursor:pointer; }
+  .sq-options { display:flex; flex-wrap:wrap; gap:8px 16px; }
+  .topic-quiz-btn { display:inline-flex; align-items:center; gap:6px; margin:4px 0 14px; padding:10px 18px; border:0; border-radius:999px; background:linear-gradient(135deg,#5b8def,#3a64c8); color:#fff; font:inherit; font-weight:800; cursor:pointer; box-shadow:0 6px 16px -8px #3a64c8; }
+  .topic-quiz-btn:hover, .topic-quiz-btn:focus-visible { filter:brightness(1.08); }
   .subject-panels { display:grid; gap:16px; margin:8px 0 18px; }
   .subject-panel { border:1px solid var(--border); border-radius:18px; background:var(--surface); overflow:hidden; }
   .sp-head { display:flex; align-items:center; gap:14px; width:100%; padding:16px 20px; border:0; background:none; color:var(--text); font:inherit; text-align:start; cursor:pointer; }
@@ -2723,6 +2730,12 @@ body.ai-site-open .ai-fab, body.ai-fab-hidden .ai-fab { display:none; }
         <p class="mb-feature-note">اختبارات تفاعلية مع التصحيح والتفسيرات.</p>
       </button>
 
+      <button type="button" class="mb-feature" id="selfQuizCard" aria-haspopup="dialog">
+        <div class="mb-feature-top"><div><h3 class="mb-feature-title">اختبر نفسك</h3><span class="mb-feature-en">Quiz</span></div></div>
+        <div class="mb-art"><svg class="sq-art" viewBox="0 0 160 120" aria-hidden="true"><rect x="34" y="18" width="92" height="88" rx="14" fill="#eef5ff" stroke="#4f5960" stroke-width="3"/><rect x="62" y="10" width="36" height="16" rx="6" fill="#81d6c7" stroke="#4f5960" stroke-width="3"/><path d="M50 46h14M50 66h14M50 86h14" stroke="#4f5960" stroke-width="3" stroke-linecap="round"/><path d="m74 44 6 6 12-12" fill="none" stroke="#39c99b" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><path d="m74 64 6 6 12-12" fill="none" stroke="#39c99b" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><path d="m76 82 12 12m0-12-12 12" stroke="#ef8b9c" stroke-width="5" stroke-linecap="round"/><circle cx="122" cy="88" r="20" fill="#f5c449" stroke="#4f5960" stroke-width="3"/><path d="M122 76v12l8 5" fill="none" stroke="#4f5960" stroke-width="3" stroke-linecap="round"/></svg></div>
+        <p class="mb-feature-note">اختبار عشوائي من بنك الأسئلة أو البطاقات حسب المادة.</p>
+      </button>
+
       <button type="button" class="mb-feature" data-dashboard-kind="videos">
         <div class="mb-feature-top"><div><h3 class="mb-feature-title">فيديوهات مقترحة</h3><span class="mb-feature-en">Recommended Videos</span></div><span class="mb-feature-count" id="cardVideos" hidden></span></div>
         <div class="mb-art"><img class="mb-art-image" src="assets/medbrain/recommended.webp?v=4" alt="" loading="eager"></div>
@@ -3141,6 +3154,7 @@ body.ai-site-open .ai-fab, body.ai-fab-hidden .ai-fab { display:none; }
 <dialog id="deleteAccountDialog" class="device-dialog" aria-labelledby="deleteAccountTitle"><h2 id="deleteAccountTitle">حذف حساب Medbrain</h2><p>يُحذف حسابك وملفك الشخصي ومفضلاتك وبطاقاتك وجدولك وتقدمك نهائيًا. يمكنك تصدير بياناتك من الإعدادات قبل الحذف. تبقى مواد المكتبة المشتركة.</p><p>لحماية الحساب، يلزم تسجيل دخول خلال آخر عشر دقائق. حساب إدارة المنصة يحتاج نقل مسؤوليته أولًا.</p><label for="deleteAccountConfirm">للتأكيد اكتب «حذف حسابي»<input id="deleteAccountConfirm" autocomplete="off"></label><div class="device-actions"><button type="button" class="device-danger" id="deleteAccountSubmit">حذف الحساب نهائيًا</button><button type="button" class="mb-file-btn" data-device-close="deleteAccountDialog">إلغاء</button></div><p id="deleteAccountStatus" role="status"></p></dialog>
 <dialog id="paywallDialog" class="device-dialog" aria-labelledby="paywallTitle"><h2 id="paywallTitle">الاشتراك مطلوب</h2><p id="paywallText"></p><form id="paywallForm"><label for="paywallCode">كود الاشتراك<input id="paywallCode" dir="ltr" autocomplete="off" placeholder="MB-XXXXX-XXXXX" maxlength="20"></label><div class="device-actions"><button type="submit" class="mb-primary">تفعيل الكود</button><button type="button" class="mb-file-btn" data-device-close="paywallDialog">لاحقًا</button></div><p id="paywallStatus" role="status"></p></form><p id="paywallContact"></p></dialog>
 <dialog id="questionReportDialog" class="device-dialog" aria-labelledby="questionReportTitle"><h2 id="questionReportTitle">الإبلاغ عن مشكلة في السؤال</h2><p>يصل بلاغك إلى فريق Medbrain لمراجعة السؤال وتصحيحه.</p><form id="questionReportForm"><fieldset class="report-reasons"><legend>نوع المشكلة</legend><label><input type="radio" name="reportReason" value="wrong_answer"> الإجابة المعتمدة خاطئة</label><label><input type="radio" name="reportReason" value="wrong_question"> السؤال خاطئ أو غير واضح</label><label><input type="radio" name="reportReason" value="incomplete"> السؤال ناقص (خيار أو معلومة مفقودة)</label><label><input type="radio" name="reportReason" value="explanation"> الشرح خاطئ أو غير كافٍ</label><label><input type="radio" name="reportReason" value="other"> مشكلة أخرى</label></fieldset><label for="questionReportNote">تفاصيل (اختياري): ما الصحيح برأيك ومصدره؟<textarea id="questionReportNote" maxlength="1000" rows="3"></textarea></label><div class="device-actions"><button type="submit" class="mb-primary" id="questionReportSubmit">إرسال البلاغ</button><button type="button" class="mb-file-btn" data-device-close="questionReportDialog">إلغاء</button></div><p id="questionReportStatus" role="status"></p></form></dialog>
+<dialog id="selfQuizDialog" class="device-dialog" aria-labelledby="selfQuizTitle"><div class="sp-card-head"><h2 id="selfQuizTitle">اختبر نفسك</h2><button type="button" class="mb-mini-btn" data-device-close="selfQuizDialog" aria-label="إغلاق">×</button></div><p>اختر المادة ونوع الاختبار، ونخلط لك أسئلة عشوائية لتقيس مستواك.</p><form id="selfQuizForm"><fieldset class="sq-group"><legend>نوع الاختبار</legend><label><input type="radio" name="sqMode" value="questions" checked> أسئلة اختيار من متعدد</label><label><input type="radio" name="sqMode" value="flash"> بطاقات تعليمية</label></fieldset><fieldset class="sq-group"><legend>المادة</legend><div id="sqSubjects" class="sq-options"></div></fieldset><fieldset class="sq-group"><legend>طول الاختبار</legend><label><input type="radio" name="sqCount" value="10" checked> قصير (10)</label><label><input type="radio" name="sqCount" value="20"> متوسط (20)</label><label><input type="radio" name="sqCount" value="40"> طويل (40)</label></fieldset><div class="device-actions"><button type="submit" class="mb-primary" id="sqStart">ابدأ الاختبار</button><button type="button" class="mb-file-btn" data-device-close="selfQuizDialog">إلغاء</button></div><p id="sqStatus" role="status"></p></form></dialog>
 <dialog id="reportsDialog" class="device-dialog reports-dialog" aria-labelledby="reportsTitle"><div class="sp-card-head"><h2 id="reportsTitle">بلاغات الطلاب</h2><button type="button" class="mb-mini-btn" data-device-close="reportsDialog" aria-label="إغلاق">×</button></div><p>البلاغات المفتوحة عن الأسئلة، الأحدث أولًا. «تمّ الإصلاح» يغلق كل البلاغات عن السؤال نفسه.</p><div id="reportsList"></div><p id="reportsStatus" role="status"></p></dialog>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.js"></script>
@@ -4493,6 +4507,7 @@ function renderTopicPage(path) {
   const pick = b.hubSource && sources.includes(b.hubSource) ? b.hubSource : null;
   const pool = pick ? path.pool.filter(l => (l.source || 'غير محدد') === pick) : path.pool;
   let html = '<div class="topic-head"><h3 dir="auto">' + escapeHtml(topicName(path.hub, path.pool)) + '</h3><span dir="auto">' + escapeHtml([path.category, path.topic].filter(Boolean).join(' · ')) + '</span></div>';
+  if (topicQuizAvailable(path.hub)) html += '<button type="button" class="topic-quiz-btn" data-topic-quiz="' + escapeHtml(path.hub) + '">⚡ كويز سريع على هذا الموضوع</button>';
   if (sources.length > 1) html += '<p class="section-label">المصادر التي كتبت عن هذا الموضوع</p><div class="chip-grid source-filter">' +
     ['', ...sources].map(src => '<button type="button" class="chip' + ((src || null) === pick ? ' active' : '') + '" data-action="hub-source" data-value="' + escapeHtml(src) + '" aria-pressed="' + ((src || null) === pick) + '" dir="auto">' + escapeHtml(src ? sourceShort(src) : 'كل المصادر') + '</button>').join('') + '</div>';
   const types = orderedValues(pool.map(l => l.type || 'أخرى'), TYPE_ORDER);
@@ -4754,7 +4769,7 @@ function wireStaticEvents() {
 
   document.getElementById('openAddBtn').addEventListener('click', () => openModal());
   document.getElementById('reportsBtn').addEventListener('click', openReportsInbox);
-  bindSubscriptionUI();
+  bindSubscriptionUI(); bindSelfQuizUI();
   document.getElementById('reportsList').addEventListener('click', handleReportAction);
   document.getElementById('questionReportForm').addEventListener('submit', submitQuestionReport);
   document.getElementById('cancelBtn').addEventListener('click', closeModal);
@@ -5654,10 +5669,12 @@ function renderRelatedBar(lec) {
   const bar = document.getElementById('readerRelated');
   const rel = relatedFor(lec);
   const kinds = RELATED_KINDS.filter(([k]) => rel[k].length);
-  bar.hidden = !kinds.length;
-  bar.innerHTML = kinds.length ? '<span class="reader-related-label">مرتبط بهذا الموضوع</span>' + kinds.map(([k, label, icon]) =>
+  const quiz = lec && lec.type !== 'أسئلة' && topicQuizAvailable(lec.topicId);
+  bar.hidden = !kinds.length && !quiz;
+  bar.innerHTML = (kinds.length || quiz ? '<span class="reader-related-label">مرتبط بهذا الموضوع</span>' : '') + kinds.map(([k, label, icon]) =>
     '<button type="button" class="related-btn rel-' + k + '" data-related="' + k + '" aria-pressed="' + (sidePanelKind === k) + '">' +
-    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + icon + '</svg><span>' + label + '</span></button>').join('') : '';
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + icon + '</svg><span>' + label + '</span></button>').join('') +
+    (quiz ? '<button type="button" class="related-btn rel-quiz" data-topic-quiz="' + escapeHtml(lec.topicId) + '"><span aria-hidden="true">⚡</span><span>كويز سريع</span></button>' : '');
   if (sidePanelKind && !rel[sidePanelKind].length) closeSidePanel();
 }
 function closeSidePanel() {
@@ -6611,6 +6628,105 @@ function renderQuiz(keepScroll) {
   if (!keepScroll) document.getElementById('readerWorkspace').scrollTop = 0;
 }
 
+// ---------------- Self-test quizzes ----------------
+// «اختبر نفسك» mixes random questions (or library flashcards) from a subject; every topic and lecture also offers a
+// quick quiz built from the ministerial questions and flashcards linked to the same topic.
+function shuffledCopy(list) { const a = list.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+async function collectQuestions(pool, n) {
+  const picks = shuffledCopy(pool).slice(0, Math.max(6, Math.ceil(n / 3)));
+  await Promise.all(picks.map(l => ensureLectureDetails(l).catch(() => null)));
+  const all = [];
+  picks.forEach(l => (l.questions || []).forEach((q, i) => {
+    if (q && Array.isArray(q.options) && q.options.length >= 2 && q.options[q.correctIndex]) all.push(Object.assign({}, q, { _lec: l.id, _i: i }));
+  }));
+  return shuffledCopy(all).slice(0, n);
+}
+function openCustomQuiz(title, meta, questions) {
+  if (!questions.length) { alert('لا توجد أسئلة كافية هنا بعد.'); return false; }
+  const material = { id: 'self-quiz', title, source: '', topic: '', questions };
+  quizState = { material, index: 0, answers: [] };
+  document.getElementById('readerOverlay').classList.remove('pdf-mode');
+  closeSidePanel();
+  document.getElementById('readerRelated').hidden = true;
+  document.getElementById('readerTitle').textContent = title;
+  document.getElementById('readerMeta').textContent = meta;
+  document.getElementById('readerBody').classList.add('quiz-body');
+  document.getElementById('readerLayout').classList.add('no-outline');
+  renderQuiz();
+  openReaderSurface(true);
+  return true;
+}
+function startCustomDeck(title, cards) {
+  if (!cards.length) { alert('لا توجد بطاقات كافية هنا بعد.'); return false; }
+  closeReader && document.getElementById('readerOverlay').classList.contains('open') && closeReader();
+  showMainView('flashcards');
+  activeDeck = { id: 'self-quiz', title };
+  deckSession = { right: 0, unsure: 0, wrong: 0 };
+  const study = document.getElementById('deckStudy');
+  study.style.setProperty('--c1', '#5b8def'); study.style.setProperty('--c2', '#3a64c8');
+  document.getElementById('deckGrid').hidden = true;
+  study.hidden = false;
+  document.getElementById('deckStudyTitle').textContent = title;
+  document.getElementById('deckStudySource').textContent = 'اختبار ذاتي';
+  deckCards = cards;
+  deckProgress = { known: [], hard: [] };
+  document.querySelector('[data-deck-action="shuffle"]').setAttribute('aria-pressed', 'false');
+  buildDeckQueue(false);
+  showDeckCard();
+  setTimeout(() => study.scrollIntoView({ block: 'start', behavior: document.documentElement.dataset.motion === 'reduce' ? 'auto' : 'smooth' }), 60);
+  return true;
+}
+function questionPool(filter) { return lectures.filter(l => l.type === 'أسئلة' && l.questionCount > 0 && filter(l)); }
+function topicQuizAvailable(topicId) { return !!topicId && (questionPool(l => l.topicId === topicId).length > 0 || flashTopicIds.has(topicId)); }
+async function startTopicQuiz(topicId) {
+  if (paywallBlocks()) return;
+  const name = topicName(topicId);
+  const pool = questionPool(l => l.topicId === topicId);
+  if (pool.length) { openCustomQuiz('كويز سريع — ' + name, 'أسئلة عشوائية من هذا الموضوع', await collectQuestions(pool, 10)); return; }
+  const result = await client.from('library_flashcard_topics').select('library_flashcards(id,kind,front,back,extra)').eq('topic_id', topicId).limit(80);
+  const cards = result.error ? [] : (result.data || []).map(r => r.library_flashcards).filter(Boolean);
+  startCustomDeck('كويز سريع — ' + name, shuffledCopy(cards).slice(0, 15));
+}
+function openSelfQuiz() {
+  if (paywallBlocks()) return;
+  const cats = orderedValues(lectures.map(l => l.category).filter(Boolean), SUBJECT_ORDER).filter(c => SUBJECT_AR[c]);
+  document.getElementById('sqSubjects').innerHTML = ['', ...cats].map((c, i) => '<label><input type="radio" name="sqSubject" value="' + escapeHtml(c) + '"' + (i ? '' : ' checked') + '> ' +
+    escapeHtml(c ? SUBJECT_AR[c] : 'كل المواد') + '</label>').join('');
+  document.getElementById('sqStatus').textContent = '';
+  document.getElementById('selfQuizDialog').showModal();
+}
+async function runSelfQuiz(e) {
+  e.preventDefault();
+  const form = e.target, status = document.getElementById('sqStatus'), btn = document.getElementById('sqStart');
+  const mode = form.sqMode.value, cat = form.sqSubject ? form.sqSubject.value : '', n = Number(form.sqCount.value) || 10;
+  const label = cat ? SUBJECT_AR[cat] || cat : 'كل المواد';
+  btn.disabled = true; status.textContent = 'جارٍ تجهيز الاختبار…';
+  try {
+    let ok;
+    if (mode === 'flash') {
+      const decks = await client.from('flashcard_decks').select('id,category');
+      const ids = shuffledCopy((decks.data || []).filter(d => !cat || d.category === cat).map(d => d.id)).slice(0, 8);
+      if (!ids.length) { status.textContent = 'لا توجد بطاقات لهذه المادة بعد.'; return; }
+      const result = await client.from('library_flashcards').select('id,ord,kind,front,back,extra').in('deck_id', ids).limit(600);
+      ok = startCustomDeck('اختبر نفسك — ' + label, shuffledCopy(result.data || []).slice(0, n));
+    } else {
+      const pool = questionPool(l => !cat || l.category === cat);
+      if (!pool.length) { status.textContent = 'لا توجد أسئلة لهذه المادة بعد.'; return; }
+      ok = openCustomQuiz('اختبر نفسك — ' + label, 'أسئلة عشوائية مختلطة', await collectQuestions(pool, n));
+    }
+    if (ok) document.getElementById('selfQuizDialog').close();
+  } catch (err) { console.error(err); status.textContent = 'تعذّر تجهيز الاختبار. تحقق من الاتصال وأعد المحاولة.'; }
+  finally { btn.disabled = false; }
+}
+function bindSelfQuizUI() {
+  document.getElementById('selfQuizCard').addEventListener('click', openSelfQuiz);
+  document.getElementById('selfQuizForm').addEventListener('submit', runSelfQuiz);
+  document.addEventListener('click', e => {
+    const t = e.target.closest('[data-topic-quiz]');
+    if (t) { e.preventDefault(); startTopicQuiz(t.dataset.topicQuiz); }
+  });
+}
+
 // ---------------- Subscription codes & paywall ----------------
 // The owner turns the paywall on from «اشتراكي». While it is off everyone has access. With it on, a student
 // redeems a personal code once; the server (RLS has_access) hides library content until a code is active.
@@ -6755,7 +6871,7 @@ function openQuestionReport() {
   if (!quizState) return;
   if (!client || !activeUserId) { showMbToast('سجّل الدخول للإبلاغ عن السؤال.'); return; }
   const q = quizState.material.questions[quizState.index];
-  reportTarget = { lecture_id: quizState.material.id, question_index: quizState.index, question_prompt: String(q.prompt || '').slice(0, 4000) };
+  reportTarget = { lecture_id: q._lec || quizState.material.id, question_index: q._lec ? q._i : quizState.index, question_prompt: String(q.prompt || '').slice(0, 4000) };
   const form = document.getElementById('questionReportForm');
   form.reset();
   document.getElementById('questionReportStatus').textContent = '';
