@@ -358,13 +358,16 @@
   .browse-crumbs span[aria-current] { font-weight:700; color:var(--text); }
   .browse-crumbs .sep { color:var(--text-muted); }
   .browse-grid { gap:10px; }
-  .subject-strips { display:grid; gap:10px; margin:8px 0 16px; }
-  .subject-strip { display:flex; align-items:center; gap:12px; width:100%; padding:14px 16px; border:1px solid var(--border); border-radius:16px; background:var(--surface); color:var(--text); font:inherit; text-align:start; cursor:pointer; transition:border-color .2s, box-shadow .2s; }
+  .subject-strips { display:grid; grid-template-columns:1fr; gap:12px; width:100%; margin:8px 0 18px; grid-column:1 / -1; }
+  .mb-support-tg { display:inline-grid; place-items:center; color:#229ED9; text-decoration:none; }
+  .mb-support-tg svg { width:22px; height:22px; }
+  .deck-subject-back { grid-column:1 / -1; justify-self:start; }
+  .subject-strip { display:flex; align-items:center; gap:14px; width:100%; min-height:78px; padding:16px 20px; border:1px solid var(--border); border-radius:16px; background:var(--surface); color:var(--text); font:inherit; text-align:start; cursor:pointer; transition:border-color .2s, box-shadow .2s; }
   .subject-strip:hover, .subject-strip:focus-visible { border-color:var(--accent); box-shadow:0 2px 10px rgba(0,0,0,.06); }
-  .subject-strip-icon { flex:none; width:44px; height:44px; display:grid; place-items:center; border-radius:12px; background:color-mix(in srgb, var(--accent) 12%, var(--surface)); color:var(--accent); }
+  .subject-strip-icon { flex:none; width:52px; height:52px; display:grid; place-items:center; border-radius:12px; background:color-mix(in srgb, var(--accent) 12%, var(--surface)); color:var(--accent); }
   .subject-strip-icon svg { width:24px; height:24px; }
   .subject-strip-main { flex:1; min-width:0; display:grid; gap:2px; }
-  .subject-strip-name { font-weight:800; font-size:16px; }
+  .subject-strip-name { font-weight:800; font-size:17px; }
   .subject-strip-sub { font-size:12px; opacity:.75; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   .source-strip .subject-strip-icon { width:36px; height:36px; }
   .browse-chip { padding:11px 16px; font-size:14px; cursor:pointer; }
@@ -2644,6 +2647,7 @@ body.ai-site-open .ai-fab, body.ai-fab-hidden .ai-fab { display:none; }
         <button class="mb-brand-home" id="brandHomeBtn" type="button" aria-label="Medbrain — الواجهة الرئيسية"><span class="mb-brand-name">Medbrain</span><small class="mb-brand-sub">MEDICAL LEARNING</small></button>
       </div>
       <div class="mb-top-actions">
+        <a class="mb-icon-btn keep-mobile mb-support-tg" id="supportTelegram" href="https://t.me/ha_hayder" target="_blank" rel="noopener noreferrer" aria-label="مراسلة الدعم على تيليجرام" title="مراسلة الدعم"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M21.9 4.3 18.7 19.4c-.2 1-.9 1.3-1.8.8l-4.9-3.6-2.4 2.3c-.3.3-.5.5-1 .5l.3-5 9.1-8.2c.4-.4-.1-.6-.6-.2L6.2 13.1l-4.8-1.5c-1-.3-1.1-1 .2-1.5L20.5 2.8c.9-.3 1.6.2 1.4 1.5Z"/></svg></a>
         <button class="mb-icon-btn keep-mobile" id="siteThemeToggle" type="button" aria-label="تفعيل الوضع الداكن" aria-pressed="false" title="الوضع الداكن">☾</button>
         <button class="mb-avatar" id="profileBtn" type="button" aria-label="الحساب"><span id="avatarInitials">MB</span></button>
       </div>
@@ -3372,12 +3376,29 @@ async function loadFlashDecks() {
   renderFlashDecks();
   if (typeof renderMedbrainWidgets === 'function') renderMedbrainWidgets();
 }
+var deckSubject = null;
 function deckShort(title) { return (String(title).match(/[A-Za-z]+/g) || [title]).map(w => w.slice(0, 1)).join('').slice(0, 3).toUpperCase(); }
 function renderFlashDecks() {
   const grid = document.getElementById('deckGrid'); if (!grid) return;
   if (flashDecks === null) { loadFlashDecks(); return; }
   if (!flashDecks.length) { grid.innerHTML = '<div class="mb-empty-tool">لا توجد مجموعات بطاقات في المكتبة بعد.</div>'; return; }
-  grid.innerHTML = flashDecks.map((d, i) => {
+  // Subjects first as full-width strips (Surgery, Medicine, Pediatrics, OB/GYN…), then that subject's decks.
+  const cats = orderedValues(flashDecks.map(d => d.category || 'أخرى'), SUBJECT_ORDER);
+  if (deckSubject && !cats.includes(deckSubject)) deckSubject = null;
+  if (!deckSubject && cats.length > 1) {
+    grid.innerHTML = '<div class="subject-strips">' + cats.map(c => {
+      const srcs = orderedValues(flashDecks.filter(d => (d.category || 'أخرى') === c).map(d => d.source).filter(Boolean), []);
+      return '<button type="button" class="subject-strip" data-deck-subject="' + escapeHtml(c) + '">' +
+        '<span class="subject-strip-icon">' + (ICONS[CATEGORY_ICON[c]] || ICONS.book || '') + '</span>' +
+        '<span class="subject-strip-main"><span class="subject-strip-name">' + escapeHtml(SUBJECT_AR[c] || c) + '</span>' +
+        '<span class="subject-strip-sub" dir="auto">' + escapeHtml(srcs.slice(0, 4).join(' · ')) + '</span></span>' +
+        '<span class="topic-row-arrow" aria-hidden="true">‹</span></button>';
+    }).join('') + '</div>';
+    return;
+  }
+  const shown = deckSubject ? flashDecks.filter(d => (d.category || 'أخرى') === deckSubject) : flashDecks;
+  grid.innerHTML = (deckSubject && cats.length > 1 ? '<button type="button" class="back-chip deck-subject-back" data-deck-subject="">' + ICONS.back + ' ' + escapeHtml(SUBJECT_AR[deckSubject] || deckSubject) + '</button>' : '') + shown.map(d => {
+    const i = flashDecks.indexOf(d);
     const [c1, c2] = DECK_THEMES[i % DECK_THEMES.length];
     const known = Math.min(deckStore(d.id).known.length, d.card_count || 0);
     const pct = d.card_count ? Math.round(known / d.card_count * 100) : 0;
@@ -5181,6 +5202,8 @@ function wireMedbrainEvents() {
   });
 
   document.getElementById('deckArea').addEventListener('click', e => {
+    const subj = e.target.closest('[data-deck-subject]');
+    if (subj) { deckSubject = subj.dataset.deckSubject || null; renderFlashDecks(); return; }
     const open = e.target.closest('[data-deck-open]');
     if (open) { openDeck(open.dataset.deckOpen); return; }
     const rate = e.target.closest('[data-deck-rate]');
@@ -6523,6 +6546,8 @@ async function loadAccessState(promptIfNeeded) {
   const { data, error } = await client.rpc('my_access');
   if (version !== accessVersion) return;
   accessState = error ? null : data;
+  const tgUrl = accessState && telegramLink(accessState.telegram);
+  if (tgUrl) document.getElementById('supportTelegram').href = tgUrl;
   renderSubscriptionPage();
   // First time only: a student who never redeemed a code is asked once after signing in.
   if (promptIfNeeded && accessState && accessState.paywall && !accessState.active && !accessState.ever_subscribed) openPaywall();
