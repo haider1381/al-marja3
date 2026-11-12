@@ -358,6 +358,32 @@
   .browse-crumbs span[aria-current] { font-weight:700; color:var(--text); }
   .browse-crumbs .sep { color:var(--text-muted); }
   .browse-grid { gap:10px; }
+  .pv { display:flex; flex-direction:column; height:calc(100dvh - 210px); min-height:420px; border:1px solid var(--border); border-radius:14px; overflow:hidden; background:var(--surface); }
+  .pv-bar { display:flex; flex-wrap:wrap; align-items:center; gap:6px; padding:8px 10px; border-bottom:1px solid var(--border); background:var(--surface); }
+  .pv-btn { display:inline-flex; align-items:center; gap:5px; min-height:34px; padding:0 10px; border:1px solid var(--border); border-radius:10px; background:var(--surface); color:var(--text); font:inherit; font-size:13px; font-weight:700; cursor:pointer; }
+  .pv-btn svg { width:18px; height:18px; }
+  .pv-btn[aria-pressed="true"], .pv-btn[aria-expanded="true"] { background:var(--accent); border-color:var(--accent); color:#fff; }
+  .pv-colors { display:inline-flex; gap:5px; }
+  .pv-color { width:24px; height:24px; border-radius:50%; border:2px solid var(--surface); background:var(--c); box-shadow:0 0 0 1px var(--border); cursor:pointer; padding:0; }
+  .pv-color[aria-pressed="true"] { box-shadow:0 0 0 2px var(--text); }
+  .pv-goto { display:inline-flex; align-items:center; gap:5px; margin-inline-start:auto; }
+  .pv-goto input { width:62px; min-height:34px; padding:0 6px; border:1px solid var(--border); border-radius:10px; text-align:center; font:inherit; background:var(--surface); color:var(--text); }
+  .pv-total { font-size:13px; color:var(--text-muted); }
+  .pv-timer-menu { display:flex; flex-wrap:wrap; align-items:center; gap:6px; padding:8px 10px; border-bottom:1px solid var(--border); font-size:13px; font-weight:700; }
+  .pv-stage { position:relative; flex:1; min-height:0; }
+  .pv-pages { position:absolute; inset:0; overflow:auto; direction:ltr; padding:12px; background:#e9edf2; --pvz:1; }
+  :root[data-theme="dark"] .pv-pages { background:#1b222c; }
+  .pv-page { position:relative; width:calc(var(--pvz) * 100%); max-width:calc(var(--pvz) * 980px); margin:0 auto 14px; background:#fff; box-shadow:0 2px 10px rgba(0,0,0,.12); }
+  .pv-page canvas { position:absolute; inset:0; width:100%; height:100%; }
+  .pv-ink { pointer-events:none; }
+  .pv-drawing .pv-ink { pointer-events:auto; touch-action:none; cursor:crosshair; }
+  .pv-num { position:absolute; bottom:6px; right:8px; padding:1px 7px; border-radius:999px; background:rgba(0,0,0,.45); color:#fff; font-size:11px; pointer-events:none; }
+  .pv-countdown { position:absolute; top:10px; left:50%; transform:translateX(-50%); z-index:3; display:flex; align-items:center; gap:8px; padding:6px 8px 6px 16px; border-radius:999px; background:rgba(17,24,39,.86); color:#fff; box-shadow:0 6px 18px rgba(0,0,0,.25); pointer-events:auto; }
+  .pv-countdown output { font-size:20px; font-weight:800; font-variant-numeric:tabular-nums; letter-spacing:.5px; }
+  .pv-countdown button { width:26px; height:26px; border:0; border-radius:50%; background:rgba(255,255,255,.18); color:#fff; font-size:16px; cursor:pointer; }
+  .pv-countdown.is-last { background:rgba(185,28,28,.9); }
+  .pv-countdown.is-done { background:rgba(22,163,74,.92); }
+  @media (max-width:640px) { .pv { height:calc(100dvh - 170px); } .pv-btn span { display:none; } .pv-goto { margin-inline-start:0; } }
   .sq-art { width:100%; max-width:200px; height:100%; }
   .sq-group { border:1px solid var(--border); border-radius:12px; padding:10px 12px; margin:0 0 12px; display:flex; flex-wrap:wrap; gap:8px 16px; }
   .sq-group legend { font-weight:800; font-size:13px; padding:0 6px; }
@@ -5794,6 +5820,14 @@ async function openPdfInReader(id) {
   body.innerHTML = '<div class="mb-empty-tool">جارٍ فتح الملف…</div>';
   renderRelatedBar(lec);
   openReaderSurface();
+  destroyPdfViewer();
+  try {
+    const bytes = await fetchLecturePdf(lec.id);
+    if (readerLectureId !== lec.id) return;
+    await mountPdfViewer(body, bytes, lec);
+    return;
+  } catch (err) { console.warn('in-site PDF viewer unavailable, falling back', err); }
+  if (readerLectureId !== lec.id) return;
   try {
     const { url } = await callLectureFile('open', JSON.stringify({ lecture_id: lec.id }), 'application/json');
     if (!safeExternalLink(url) || readerLectureId !== lec.id) return;
@@ -5806,8 +5840,232 @@ async function openPdfInReader(id) {
     body.innerHTML = '<div class="mb-empty-tool">تعذّر فتح PDF. تحقق من الاتصال وأعد المحاولة.</div>';
   }
 }
+// ---------------- In-site PDF viewer ----------------
+// pdf.js (loaded on first use) draws pages into canvases. Only pages near the screen are rendered and far ones are
+// released, so long files stay light on phones. Extras: pen notes saved on this device per lecture, page jump,
+// zoom, and a study countdown that floats over the lecture.
+const PDFJS_SRC = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+const PDFJS_WORKER = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+let pdfjsLoading = null, pdfView = null, pdfTimer = null;
+function loadPdfJs() {
+  if (window.pdfjsLib) return Promise.resolve(window.pdfjsLib);
+  if (!pdfjsLoading) pdfjsLoading = new Promise((resolve, reject) => {
+    const sc = document.createElement('script');
+    sc.src = PDFJS_SRC; sc.crossOrigin = 'anonymous';
+    sc.onload = () => { window.pdfjsLib.GlobalWorkerOptions.workerSrc = PDFJS_WORKER; resolve(window.pdfjsLib); };
+    sc.onerror = () => { pdfjsLoading = null; reject(new Error('pdfjs_load_failed')); };
+    document.head.appendChild(sc);
+  });
+  return pdfjsLoading;
+}
+async function fetchLecturePdf(id) {
+  const { data, error } = await client.auth.getSession();
+  if (error || !data.session?.access_token) throw new Error('sign_in_required');
+  const [response] = await Promise.all([fetch(SUPABASE_URL + '/functions/v1/lecture-file?action=stream', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', apikey: SUPABASE_KEY, Authorization: 'Bearer ' + data.session.access_token },
+    body: JSON.stringify({ lecture_id: id })
+  }), loadPdfJs()]);
+  if (!response.ok) throw new Error('stream_' + response.status);
+  return new Uint8Array(await response.arrayBuffer());
+}
+const PV_COLORS = ['#e5484d', '#1f6feb', '#2da44e', '#f5b400', '#111827'];
+const PV_ICONS = {
+  pen: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m4 20 4-1L19 8a2.1 2.1 0 0 0-3-3L5 16l-1 4Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>',
+  undo: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 14 4 9l5-5M4 9h10a6 6 0 0 1 0 12h-3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  clear: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M10 11v6m4-6v6M6 7l1 13h10l1-13M9 7V4h6v3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  timer: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13" r="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 9v4l3 2M9 2h6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>'
+};
+function inkKey(id) { return 'medbrain_ink_' + id; }
+function loadInk(id) { try { return JSON.parse(localStorage.getItem(inkKey(id)) || '{}') || {}; } catch (_) { return {}; } }
+function saveInk() { if (!pdfView) return; try { localStorage.setItem(inkKey(pdfView.lecId), JSON.stringify(pdfView.ink)); } catch (_) {} }
+function destroyPdfViewer() {
+  if (!pdfView) return;
+  const v = pdfView; pdfView = null;
+  if (v.observer) v.observer.disconnect();
+  v.rendered.forEach(n => { const c = v.pages[n - 1] && v.pages[n - 1].querySelector('.pv-canvas'); if (c) { c.width = 0; c.height = 0; } });
+  try { v.doc.destroy(); } catch (_) {}
+}
+async function mountPdfViewer(body, bytes, lec) {
+  const lib = await loadPdfJs();
+  const doc = await lib.getDocument({ data: bytes }).promise;
+  destroyPdfViewer();
+  const first = await doc.getPage(1);
+  const vp1 = first.getViewport({ scale: 1 });
+  body.innerHTML = '<div class="pv" id="pdfViewer">' +
+    '<div class="pv-bar" role="toolbar" aria-label="أدوات الملف">' +
+      '<button type="button" class="pv-btn" data-pv="pen" aria-pressed="false" title="قلم للكتابة على الصفحة">' + PV_ICONS.pen + '<span>قلم</span></button>' +
+      '<span class="pv-colors" hidden>' + PV_COLORS.map((c, i) => '<button type="button" class="pv-color" data-pv-color="' + c + '" style="--c:' + c + '" aria-label="لون ' + (i + 1) + '" aria-pressed="' + (i === 0) + '"></button>').join('') + '</span>' +
+      '<button type="button" class="pv-btn" data-pv="undo" title="تراجع عن آخر خط">' + PV_ICONS.undo + '</button>' +
+      '<button type="button" class="pv-btn" data-pv="clear" title="مسح كتابة هذه الصفحة">' + PV_ICONS.clear + '</button>' +
+      '<form class="pv-goto" id="pvGoto"><label><span class="visually-hidden">رقم الصفحة</span><input id="pvPage" type="number" min="1" max="' + doc.numPages + '" value="1" inputmode="numeric"></label><span class="pv-total">/ ' + doc.numPages + '</span><button type="submit" class="pv-btn">اذهب</button></form>' +
+      '<button type="button" class="pv-btn" data-pv="zoom-out" aria-label="تصغير">−</button><button type="button" class="pv-btn" data-pv="zoom-in" aria-label="تكبير">+</button>' +
+      '<button type="button" class="pv-btn" data-pv="timer" aria-expanded="false" title="مؤقت عدّ تنازلي للمذاكرة">' + PV_ICONS.timer + '<span>مؤقت</span></button>' +
+    '</div>' +
+    '<div class="pv-timer-menu" id="pvTimerMenu" hidden><span>ذاكر لمدة:</span>' + [15, 25, 45, 60, 90].map(m => '<button type="button" class="chip" data-pv-min="' + m + '">' + m + ' د</button>').join('') + '</div>' +
+    '<div class="pv-stage"><div class="pv-countdown" id="pvCountdown" hidden><output id="pvClock" dir="ltr">00:00</output><button type="button" data-pv="timer-stop" aria-label="إيقاف المؤقت">×</button></div>' +
+    '<div class="pv-pages" id="pvPages"></div></div></div>';
+  const wrap = document.getElementById('pvPages');
+  const pages = [];
+  for (let n = 1; n <= doc.numPages; n++) {
+    const el = document.createElement('div');
+    el.className = 'pv-page'; el.dataset.page = n;
+    el.style.aspectRatio = vp1.width + ' / ' + vp1.height;
+    el.innerHTML = '<canvas class="pv-canvas"></canvas><canvas class="pv-ink"></canvas><span class="pv-num">' + n + '</span>';
+    wrap.appendChild(el); pages.push(el);
+  }
+  pdfView = { doc, lecId: lec.id, pages, rendered: new Set(), rendering: new Map(), zoom: 1, pen: false, color: PV_COLORS[0], ink: loadInk(lec.id), visible: new Map(), current: 1 };
+  pdfView.observer = new IntersectionObserver(entries => {
+    if (!pdfView) return;
+    entries.forEach(en => {
+      const n = Number(en.target.dataset.page);
+      if (en.isIntersecting) { pdfView.visible.set(n, en.intersectionRatio); renderPdfPage(n); }
+      else pdfView.visible.delete(n);
+    });
+    let best = pdfView.current, ratio = -1;
+    pdfView.visible.forEach((r, n) => { if (r > ratio) { ratio = r; best = n; } });
+    pdfView.current = best;
+    const input = document.getElementById('pvPage'); if (input && document.activeElement !== input) input.value = best;
+    releaseFarPages();
+  }, { root: wrap, rootMargin: '600px 0px', threshold: [0, 0.25, 0.5, 0.75] });
+  pages.forEach(el => pdfView.observer.observe(el));
+  bindPdfViewer(wrap);
+  if (pdfTimer) showCountdown();
+}
+async function renderPdfPage(n) {
+  const v = pdfView; if (!v || v.rendered.has(n) || v.rendering.has(n)) return;
+  const el = v.pages[n - 1];
+  const job = (async () => {
+    const page = await v.doc.getPage(n);
+    if (pdfView !== v) return;
+    const base = page.getViewport({ scale: 1 });
+    el.style.aspectRatio = base.width + ' / ' + base.height;
+    const cssW = el.clientWidth || 600;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const vp = page.getViewport({ scale: cssW / base.width * dpr });
+    const canvas = el.querySelector('.pv-canvas'), ink = el.querySelector('.pv-ink');
+    canvas.width = Math.floor(vp.width); canvas.height = Math.floor(vp.height);
+    await page.render({ canvasContext: canvas.getContext('2d'), viewport: vp }).promise;
+    ink.width = canvas.width; ink.height = canvas.height;
+    drawInk(n);
+    v.rendered.add(n);
+  })().catch(() => {}).finally(() => v.rendering.delete(n));
+  v.rendering.set(n, job);
+}
+function releaseFarPages() {
+  const v = pdfView; if (!v) return;
+  v.rendered.forEach(n => {
+    if (Math.abs(n - v.current) > 4) {
+      const el = v.pages[n - 1];
+      el.querySelectorAll('canvas').forEach(c => { c.width = 0; c.height = 0; });
+      v.rendered.delete(n);
+    }
+  });
+}
+function drawStroke(ctx, st, w, h) {
+  if (!st.pts.length) return;
+  ctx.strokeStyle = st.c; ctx.lineWidth = st.w * w; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+  ctx.beginPath(); ctx.moveTo(st.pts[0][0] * w, st.pts[0][1] * h);
+  st.pts.forEach(([x, y]) => ctx.lineTo(x * w, y * h));
+  ctx.stroke();
+}
+function drawInk(n) {
+  const v = pdfView; if (!v) return;
+  const ink = v.pages[n - 1].querySelector('.pv-ink');
+  const ctx = ink.getContext('2d'); ctx.clearRect(0, 0, ink.width, ink.height);
+  (v.ink[n] || []).forEach(st => drawStroke(ctx, st, ink.width, ink.height));
+}
+function bindPdfViewer(wrap) {
+  const viewer = document.getElementById('pdfViewer');
+  let stroke = null, strokePage = 0;
+  const point = (e, ink) => { const r = ink.getBoundingClientRect(); return [(e.clientX - r.left) / r.width, (e.clientY - r.top) / r.height]; };
+  wrap.addEventListener('pointerdown', e => {
+    const ink = e.target.closest('.pv-ink'); if (!ink || !pdfView || !pdfView.pen) return;
+    e.preventDefault(); ink.setPointerCapture(e.pointerId);
+    strokePage = Number(ink.parentElement.dataset.page);
+    stroke = { c: pdfView.color, w: 0.004, pts: [point(e, ink)] };
+  });
+  wrap.addEventListener('pointermove', e => {
+    if (!stroke) return;
+    const ink = pdfView.pages[strokePage - 1].querySelector('.pv-ink');
+    stroke.pts.push(point(e, ink));
+    const ctx = ink.getContext('2d'); const n = stroke.pts.length;
+    drawStroke(ctx, { c: stroke.c, w: stroke.w, pts: stroke.pts.slice(Math.max(0, n - 2)) }, ink.width, ink.height);
+  });
+  const finish = () => {
+    if (!stroke || !pdfView) { stroke = null; return; }
+    stroke.pts = stroke.pts.map(([x, y]) => [Math.round(x * 1000) / 1000, Math.round(y * 1000) / 1000]);
+    (pdfView.ink[strokePage] = pdfView.ink[strokePage] || []).push(stroke);
+    pdfView.lastPage = strokePage; stroke = null; saveInk();
+  };
+  wrap.addEventListener('pointerup', finish); wrap.addEventListener('pointercancel', finish);
+  viewer.addEventListener('click', e => {
+    const v = pdfView; if (!v) return;
+    const color = e.target.closest('[data-pv-color]');
+    if (color) { v.color = color.dataset.pvColor; viewer.querySelectorAll('.pv-color').forEach(b => b.setAttribute('aria-pressed', String(b === color))); return; }
+    const min = e.target.closest('[data-pv-min]');
+    if (min) { startPdfTimer(Number(min.dataset.pvMin)); document.getElementById('pvTimerMenu').hidden = true; viewer.querySelector('[data-pv="timer"]').setAttribute('aria-expanded', 'false'); return; }
+    const btn = e.target.closest('[data-pv]'); if (!btn) return;
+    const act = btn.dataset.pv;
+    if (act === 'pen') {
+      v.pen = !v.pen; btn.setAttribute('aria-pressed', String(v.pen));
+      wrap.classList.toggle('pv-drawing', v.pen); viewer.querySelector('.pv-colors').hidden = !v.pen;
+    } else if (act === 'undo') {
+      const n = v.ink[v.lastPage] && v.ink[v.lastPage].length ? v.lastPage : v.current;
+      if (v.ink[n] && v.ink[n].length) { v.ink[n].pop(); saveInk(); drawInk(n); }
+    } else if (act === 'clear') {
+      const n = v.current;
+      if (v.ink[n] && v.ink[n].length && confirm('مسح كل الكتابة على الصفحة ' + n + '؟')) { delete v.ink[n]; saveInk(); drawInk(n); }
+    } else if (act === 'zoom-in' || act === 'zoom-out') {
+      v.zoom = Math.min(2.5, Math.max(0.6, Math.round((v.zoom + (act === 'zoom-in' ? 0.25 : -0.25)) * 100) / 100));
+      wrap.style.setProperty('--pvz', v.zoom);
+      const keep = v.current;
+      v.rendered.forEach(n => v.pages[n - 1].querySelectorAll('canvas').forEach(c => { c.width = 0; c.height = 0; }));
+      v.rendered.clear();
+      v.pages[keep - 1].scrollIntoView({ block: 'start' });
+      v.visible.forEach((_, n) => renderPdfPage(n));
+    } else if (act === 'timer') {
+      const menu = document.getElementById('pvTimerMenu'); menu.hidden = !menu.hidden; btn.setAttribute('aria-expanded', String(!menu.hidden));
+    } else if (act === 'timer-stop') { stopPdfTimer(); }
+  });
+  document.getElementById('pvGoto').addEventListener('submit', e => {
+    e.preventDefault();
+    const v = pdfView; if (!v) return;
+    const n = Math.min(v.doc.numPages, Math.max(1, Number(document.getElementById('pvPage').value) || 1));
+    v.pages[n - 1].scrollIntoView({ block: 'start', behavior: document.documentElement.dataset.motion === 'reduce' ? 'auto' : 'smooth' });
+  });
+}
+// The countdown keeps its end time, so it stays right when the tab sleeps or another PDF is opened.
+function startPdfTimer(minutes) {
+  stopPdfTimer();
+  pdfTimer = { end: Date.now() + minutes * 60000, done: false, tick: setInterval(showCountdown, 1000) };
+  showCountdown();
+}
+function stopPdfTimer() {
+  if (pdfTimer) clearInterval(pdfTimer.tick);
+  pdfTimer = null;
+  const box = document.getElementById('pvCountdown'); if (box) box.hidden = true;
+}
+function showCountdown() {
+  const box = document.getElementById('pvCountdown'), clock = document.getElementById('pvClock');
+  if (!pdfTimer) return;
+  const left = Math.max(0, pdfTimer.end - Date.now());
+  if (box && clock) {
+    box.hidden = false;
+    const m = Math.floor(left / 60000), sec = Math.floor(left / 1000) % 60;
+    clock.textContent = left ? String(m).padStart(2, '0') + ':' + String(sec).padStart(2, '0') : 'انتهى الوقت ✓';
+    box.classList.toggle('is-done', !left);
+    box.classList.toggle('is-last', left > 0 && left <= 60000);
+  }
+  if (!left && !pdfTimer.done) {
+    pdfTimer.done = true; clearInterval(pdfTimer.tick);
+    try { navigator.vibrate && navigator.vibrate([200, 100, 200]); } catch (_) {}
+  }
+}
+
 async function openReader(id) {
   if (paywallBlocks()) return;
+  destroyPdfViewer();
   const lec = lectures.find(l => l.id === id);
   if (!lec) return;
   try { await ensureLectureDetails(lec); } catch (_) { alert('تعذّر فتح المحاضرة. تحقق من الاتصال وأعد المحاولة.'); return; }
@@ -5825,6 +6083,7 @@ async function openReader(id) {
   openReaderSurface();
 }
 function closeReader() {
+  destroyPdfViewer();
   closeAIChat(false);
   closeSidePanel();
   readerLectureId=null;
@@ -6559,6 +6818,7 @@ async function openStoredPdf(id, button, download = false) {
 }
 async function openQuiz(id) {
   if (paywallBlocks()) return;
+  destroyPdfViewer();
   const material = lectures.find(l => l.id === id);
   if (!material) return;
   try { await ensureLectureDetails(material); } catch (_) { alert('تعذّر فتح الأسئلة. تحقق من الاتصال وأعد المحاولة.'); return; }
@@ -6642,6 +6902,7 @@ async function collectQuestions(pool, n) {
   return shuffledCopy(all).slice(0, n);
 }
 function openCustomQuiz(title, meta, questions) {
+  destroyPdfViewer();
   if (!questions.length) { alert('لا توجد أسئلة كافية هنا بعد.'); return false; }
   const material = { id: 'self-quiz', title, source: '', topic: '', questions };
   quizState = { material, index: 0, answers: [] };

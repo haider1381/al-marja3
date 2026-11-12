@@ -60,6 +60,25 @@ Deno.serve(async (req) => {
       return reply(200, { url: legacy.data.signedUrl, expires_in: URL_TTL });
     }
 
+    // stream: the same RLS check as open, but the bytes come back through this function so the in-site
+    // viewer (pdf.js) can read them — the R2 bucket itself does not send CORS headers.
+    if (action === 'stream') {
+      const body = await req.json().catch(() => null);
+      if (!body || typeof body.lecture_id !== 'string' || !UUID.test(body.lecture_id)) return reply(400, { error: 'invalid_lecture' });
+      const { data: row, error } = await user.from('lectures').select('file_path').eq('id', body.lecture_id).maybeSingle();
+      if (error) throw error;
+      if (!row?.file_path) return reply(404, { error: 'no_file' });
+      const pdfHeaders = { ...cors, 'Content-Type': 'application/pdf', 'Cache-Control': 'private, no-store' };
+      const obj = await r2.fetch(objectUrl(row.file_path), { method: 'GET' });
+      if (obj.ok && obj.body) {
+        const len = obj.headers.get('content-length');
+        return new Response(obj.body, { status: 200, headers: len ? { ...pdfHeaders, 'Content-Length': len } : pdfHeaders });
+      }
+      const legacy = await user.storage.from('lecture-files').download(row.file_path);
+      if (legacy.error || !legacy.data) return reply(404, { error: 'file_missing' });
+      return new Response(legacy.data, { status: 200, headers: pdfHeaders });
+    }
+
     if (action === 'upload') {
       const { data: editor, error } = await user.rpc('is_editor');
       if (error) throw error;
