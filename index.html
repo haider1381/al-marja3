@@ -358,6 +358,15 @@
   .browse-crumbs span[aria-current] { font-weight:700; color:var(--text); }
   .browse-crumbs .sep { color:var(--text-muted); }
   .browse-grid { gap:10px; }
+  .subject-strips { display:grid; gap:10px; margin:8px 0 16px; }
+  .subject-strip { display:flex; align-items:center; gap:12px; width:100%; padding:14px 16px; border:1px solid var(--border); border-radius:16px; background:var(--surface); color:var(--text); font:inherit; text-align:start; cursor:pointer; transition:border-color .2s, box-shadow .2s; }
+  .subject-strip:hover, .subject-strip:focus-visible { border-color:var(--accent); box-shadow:0 2px 10px rgba(0,0,0,.06); }
+  .subject-strip-icon { flex:none; width:44px; height:44px; display:grid; place-items:center; border-radius:12px; background:color-mix(in srgb, var(--accent) 12%, var(--surface)); color:var(--accent); }
+  .subject-strip-icon svg { width:24px; height:24px; }
+  .subject-strip-main { flex:1; min-width:0; display:grid; gap:2px; }
+  .subject-strip-name { font-weight:800; font-size:16px; }
+  .subject-strip-sub { font-size:12px; opacity:.75; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .source-strip .subject-strip-icon { width:36px; height:36px; }
   .browse-chip { padding:11px 16px; font-size:14px; cursor:pointer; }
   .browse-chip svg { width:16px; height:16px; color:var(--accent); }
   .back-chip {
@@ -4235,6 +4244,9 @@ function render() {
 
 // ---------------- Browsing: specialty → branch → source → type → ordered lectures ----------------
 const CATEGORY_ORDER = ['Medicine', 'Surgery', 'Pediatrics', 'OB/GYN', 'Emergency', 'Basic Sciences'];
+// Subject strips on the library root, top to bottom as requested: Surgery, Medicine, Pediatrics, OB/GYN, then the rest.
+const SUBJECT_ORDER = ['Surgery', 'Medicine', 'Pediatrics', 'OB/GYN', 'Emergency', 'Basic Sciences'];
+const SUBJECT_AR = { 'Surgery': 'الجراحة', 'Medicine': 'الباطنية', 'Pediatrics': 'الأطفال', 'OB/GYN': 'النسائية والتوليد', 'Emergency': 'الطوارئ', 'Basic Sciences': 'العلوم الأساسية' };
 const TYPE_LABELS = { 'محاضرة': 'محاضرات', 'ملخص': 'ملخصات', 'ملف PDF': 'ملفات PDF', 'فيديو': 'فيديوهات', 'أسئلة': 'أسئلة', 'أخرى': 'أخرى' };
 const TYPE_ORDER = ['محاضرة', 'ملف PDF', 'ملخص', 'أسئلة', 'فيديو', 'أخرى'];
 // Introductory material (introduction, anatomy, basics, physiology…) comes first in every list.
@@ -4304,7 +4316,8 @@ function renderBrowse() {
   const path = browsePath();
   lastBrowsePath = path;
   const b = state.browse;
-  const crumbs = [['root', 'المصادر']];
+  const crumbs = [['root', 'المواد']];
+  if (b.rootCat) crumbs.push(['rootcat', SUBJECT_AR[b.rootCat] || b.rootCat]);
   if (b.fromSource && b.source) crumbs.push(['from-source', b.source]);
   path.keys.forEach(key => {
     if (path[key] && !(key === 'source' && b.fromSource)) crumbs.push([key, browseLabel(key, path[key])]);
@@ -4330,9 +4343,28 @@ function renderBrowse() {
   if (!path.options.length) return html + '<div class="empty">لا توجد مواد هنا بعد.</div>';
   const prompts = { category: 'اختر التخصص', topic: path.keys[0] === 'stage' ? 'اختر المادة' : 'اختر الفرع', source: 'اختر المصدر', type: 'اختر النوع', stage: 'اختر المرحلة', doctor: 'اختر الدكتور' };
   if (path.level === 'category' && !b.fromSource) {
-    const group = (label, list, cls) => list.length ? '<p class="section-label">' + label + '</p><div class="chip-grid browse-grid ' + cls + '">' + list.map(u =>
-      '<button type="button" class="chip browse-chip uni-chip" data-action="browse-uni" data-value="' + escapeHtml(u) + '" dir="auto">' + (ICONS.book || '') + '<span>' + escapeHtml(u) + '</span></button>').join('') + '</div>' : '';
-    return html + group('الجامعات', universitySources(), 'uni-grid') + group('الكورسات', courseSources(), 'course-grid');
+    const kindPool = lectures.filter(l => !state.filterKind || materialGroup(l.type) === state.filterKind);
+    if (!b.rootCat) {
+      const cats = orderedValues(kindPool.map(l => l.category).filter(Boolean), SUBJECT_ORDER);
+      if (!cats.length) return html + '<div class="empty">لا توجد مواد هنا بعد.</div>';
+      return html + '<p class="section-label">اختر المادة</p><div class="subject-strips">' + cats.map(c => {
+        const srcs = orderedValues(kindPool.filter(l => l.category === c).map(l => sourceShort(l.source)), []);
+        return '<button type="button" class="subject-strip" data-action="browse-rootcat" data-value="' + escapeHtml(c) + '">' +
+          '<span class="subject-strip-icon">' + (ICONS[CATEGORY_ICON[c]] || ICONS.book || '') + '</span>' +
+          '<span class="subject-strip-main"><span class="subject-strip-name">' + escapeHtml(SUBJECT_AR[c] || c) + '</span>' +
+          '<span class="subject-strip-sub" dir="auto">' + escapeHtml(srcs.slice(0, 4).join(' · ') + (srcs.length > 4 ? ' …' : '')) + '</span></span>' +
+          '<span class="topic-row-arrow" aria-hidden="true">‹</span></button>';
+      }).join('') + '</div>';
+    }
+    const catPool = kindPool.filter(l => l.category === b.rootCat);
+    const unis = new Set(universitySources());
+    const srcs = orderedValues(catPool.map(l => l.source || 'غير محدد'), []);
+    const strip = u => '<button type="button" class="subject-strip source-strip" data-action="browse-uni" data-value="' + escapeHtml(u) + '">' +
+      '<span class="subject-strip-icon">' + (ICONS.book || '') + '</span><span class="subject-strip-main"><span class="subject-strip-name" dir="auto">' + escapeHtml(u) + '</span></span>' +
+      '<span class="topic-row-arrow" aria-hidden="true">‹</span></button>';
+    const group = (label, list) => list.length ? '<p class="section-label">' + label + '</p><div class="subject-strips">' + list.map(strip).join('') + '</div>' : '';
+    if (!srcs.length) return html + '<div class="empty">لا توجد مواد هنا بعد.</div>';
+    return html + group('الجامعات', srcs.filter(x => unis.has(x))) + group('الكورسات والمصادر', srcs.filter(x => !unis.has(x)));
   }
   html += '<p class="section-label">' + prompts[path.level] + '</p><div class="chip-grid browse-grid">';
   html += path.options.map(value => '<button type="button" class="chip browse-chip" data-action="browse" data-level="' + path.level + '" data-value="' + escapeHtml(value) + '" dir="auto">' +
@@ -4385,7 +4417,8 @@ function browseTo(level, value) {
   const order = browseLevels().map(([key]) => key);
   b.hubSource = null;
   if (level === 'from-source') { b.category = b.topic = b.type = b.stage = b.doctor = b.hub = null; render(); return; }
-  if (level === 'root') b.fromSource = false;
+  if (level === 'root') { b.fromSource = false; b.rootCat = null; }
+  if (level === 'rootcat') { Object.assign(b, { fromSource: false, source: null, category: null, topic: null, type: null, stage: null, doctor: null, hub: null }); render(); return; }
   const lockedSource = b.fromSource ? b.source : null;
   const i = level === 'root' ? -1 : order.indexOf(level);
   if (value !== undefined) b[level] = value;
@@ -4656,7 +4689,15 @@ function onContentClick(e) {
   const toTopic = e.target.closest('[data-action="open-topic"]');
   if (toTopic) { e.stopPropagation(); openTopicHub(toTopic.dataset.topic); return; }
   const uni = e.target.closest('[data-action="browse-uni"]');
-  if (uni) { state.browse = browseStartFor('source', uni.dataset.value); render(); return; }
+  if (uni) {
+    const rootCat = state.browse.rootCat || null;
+    state.browse = browseStartFor('source', uni.dataset.value);
+    // Coming from a subject: open that source directly at the subject's subspecialties.
+    if (rootCat) { state.browse.rootCat = rootCat; state.browse.category = rootCat; }
+    render(); return;
+  }
+  const rootCatBtn = e.target.closest('[data-action="browse-rootcat"]');
+  if (rootCatBtn) { state.browse = browseStartFor('category-root', ''); state.browse.rootCat = rootCatBtn.dataset.value; render(); return; }
   const browseChip = e.target.closest('[data-action="browse"]');
   if (browseChip) { browseTo(browseChip.dataset.level, browseChip.dataset.value); return; }
   const crumb = e.target.closest('[data-action="browse-to"]');
@@ -4768,6 +4809,8 @@ function goToLibraryKind(kind) {
   state.filterSource = '';
   state.filterTopic = '';
   state.filterKind = kind || '';
+  // Each card (lectures, question bank, videos) opens at the subject list, not wherever the last card was left.
+  state.browse = browseStartFor('', '');
   state.selectedSource = state.selectedSourceCategory = state.selectedSourceTopic = state.selectedSourceType = null;
   state.selectedCategory = state.selectedTopic = state.selectedType = null;
   const search = document.getElementById('searchInput');
