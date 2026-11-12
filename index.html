@@ -2663,7 +2663,7 @@ body.ai-site-open .ai-fab, body.ai-fab-hidden .ai-fab { display:none; }
       <span class="mb-watermark mb-wm-heart" aria-hidden="true"><svg viewBox="0 0 80 80" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M30 31C21 34 15 43 17 54C19 66 31 75 44 73C57 71 65 60 63 46C62 38 57 32 50 30"/><path d="M37 31C36 21 40 13 49 11C56 10 61 14 60 21"/><path d="M44 13V5M50 11V3M56 13V6"/><path d="M33 31C31 24 26 20 19 20M28 35C23 29 23 20 26 12M38 40C43 50 43 59 38 67"/></svg></span>
       <span class="mb-watermark mb-wm-micro" aria-hidden="true"><svg viewBox="0 0 90 90" fill="none" stroke="currentColor" stroke-width="4"><circle cx="43" cy="45" r="17"/><path d="m31 14 9 18m20-11-8 14M15 45h11m36 0h14M26 72l8-13m25 14-9-14"/><circle cx="43" cy="45" r="4"/></svg></span>
 
-      <h1 class="mb-welcome" dir="ltr">Welcome, <span id="welcomeName">Doctor</span>!</h1>
+      <h1 class="mb-welcome" dir="ltr">Welcome, <span id="welcomeName" dir="auto">Doctor</span>!</h1>
       <div class="mb-search-row">
         <form class="search-box smart-search-form" id="homeSearchForm" role="search">
           <button type="submit" class="search-submit" aria-label="بحث"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg></button>
@@ -3197,10 +3197,16 @@ function paintAvatar(id, initials, url) {
     el.textContent = initials;
   }
 }
+// Every student is greeted as a doctor: «Welcome, Dr. Name!» (no double title if they typed one).
+function doctorTitle(name) {
+  const n = String(name || '').trim();
+  if (!n || n === 'Doctor') return 'Doctor';
+  return /^(dr\.?|doctor|د\.|دكتور|الدكتور|د\s)/i.test(n) ? n : 'Dr. ' + n;
+}
 function applyIdentityUI() {
   const initials = initialsForName(activeUserName);
   const textMap = {
-    welcomeName: activeUserName,
+    welcomeName: doctorTitle(activeUserName),
     drawerUserName: activeUserName,
     drawerUserEmail: activeUserEmail,
     profileMenuName: activeUserName,
