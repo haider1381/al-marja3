@@ -2818,6 +2818,24 @@ html[lang="en"] .mb-feature-en, html[lang="en"] .sp-title small { display:none; 
 
 .study-ai { display:inline-flex; align-items:center; gap:6px; min-height:36px; margin-inline-start:6px; padding:0 12px; border:0; border-radius:999px; background:linear-gradient(135deg,#1593e6,#0a63b8); color:#fff; font:inherit; font-size:13px; font-weight:800; cursor:pointer; box-shadow:0 4px 12px rgba(8,118,207,.3); }
 .study-ai svg { width:17px; height:17px; fill:none; stroke:currentColor; stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round; }
+
+/* Question highlight colours — light shades by day, translucent glows at night so the text stays readable. */
+.quiz-question mark.hl { color:#1f2937; border-radius:3px; padding:0 2px; }
+.quiz-question mark.hl, .quiz-question mark.hl-y { background:#fde68a; }
+.quiz-question mark.hl-g { background:#bbf7d0; }
+.quiz-question mark.hl-p { background:#fbcfe8; }
+.quiz-question mark.hl-b { background:#bfdbfe; }
+.quiz-question mark.hl-o { background:#fed7aa; }
+#readerOverlay[data-reader-theme="dark"] .quiz-question mark.hl, :root[data-theme="dark"] .quiz-question mark.hl { color:inherit; background:rgba(250,204,21,.32); box-shadow:inset 0 -2px 0 rgba(250,204,21,.8); }
+#readerOverlay[data-reader-theme="dark"] .quiz-question mark.hl-g, :root[data-theme="dark"] .quiz-question mark.hl-g { background:rgba(34,197,94,.30); box-shadow:inset 0 -2px 0 rgba(74,222,128,.85); }
+#readerOverlay[data-reader-theme="dark"] .quiz-question mark.hl-p, :root[data-theme="dark"] .quiz-question mark.hl-p { background:rgba(236,72,153,.30); box-shadow:inset 0 -2px 0 rgba(244,114,182,.85); }
+#readerOverlay[data-reader-theme="dark"] .quiz-question mark.hl-b, :root[data-theme="dark"] .quiz-question mark.hl-b { background:rgba(59,130,246,.34); box-shadow:inset 0 -2px 0 rgba(96,165,250,.9); }
+#readerOverlay[data-reader-theme="dark"] .quiz-question mark.hl-o, :root[data-theme="dark"] .quiz-question mark.hl-o { background:rgba(249,115,22,.32); box-shadow:inset 0 -2px 0 rgba(251,146,60,.85); }
+.study-hl-colors { display:inline-flex; gap:5px; margin-inline-start:4px; padding:4px 6px; border-radius:999px; background:var(--accent-soft); }
+.study-hl-colors[hidden] { display:none; }
+.study-hl-dot { width:22px; height:22px; border-radius:50%; border:2px solid var(--surface); padding:0; cursor:pointer; box-shadow:0 0 0 1px var(--border); }
+.study-hl-dot[aria-pressed="true"] { box-shadow:0 0 0 2px var(--accent); }
+.hl-dot-y { background:#facc15; } .hl-dot-g { background:#22c55e; } .hl-dot-p { background:#ec4899; } .hl-dot-b { background:#3b82f6; } .hl-dot-o { background:#f97316; }
 </style>
 <link rel="manifest" href="./manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="192x192" href="./assets/app-icon-192.png">
@@ -8493,6 +8511,10 @@ const STUDY_ICONS = {
   gear: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>'
 };
 let quizHighlight = false;
+// Highlight colours for question text; each has a light-mode and a dark-mode shade so the words stay readable.
+const QUIZ_HL = [['y', 'أصفر'], ['g', 'أخضر'], ['p', 'وردي'], ['b', 'أزرق'], ['o', 'برتقالي']];
+let quizHlColor = 'y';
+try { quizHlColor = localStorage.getItem('medbrain_quiz_hl') || 'y'; } catch (_) {}
 let studyFont = 1;
 try { studyFont = Number(localStorage.getItem('medbrain_quiz_fs')) || 1; } catch (_) {}
 function fullscreenOk() { return !!(document.fullscreenEnabled && document.documentElement.requestFullscreen); }
@@ -8505,7 +8527,8 @@ function studyBarHtml(o) {
   const pct = o.total ? Math.round(o.done / o.total * 100) : 0;
   return '<div class="study-wrap"><div class="study-bar"><div class="study-tools">' +
     '<button type="button" class="study-ib is-lab" data-open-labs aria-pressed="' + !document.getElementById('labsPanel').hidden + '" aria-label="Show lab values" title="Show lab values">' + STUDY_ICONS.lab + '</button>' +
-    (o.highlight ? '<button type="button" class="study-ib" data-study="hl" aria-pressed="' + quizHighlight + '" aria-label="Highlight mode" title="Highlight mode">' + STUDY_ICONS.hl + '</button>' : '') +
+    (o.highlight ? '<button type="button" class="study-ib" data-study="hl" aria-pressed="' + quizHighlight + '" aria-label="Highlight mode" title="Highlight mode">' + STUDY_ICONS.hl + '</button>' +
+      '<span class="study-hl-colors"' + (quizHighlight ? '' : ' hidden') + '>' + QUIZ_HL.map(([c, l]) => '<button type="button" class="study-hl-dot hl-dot-' + c + '" data-study-hl="' + c + '" aria-label="' + l + '" aria-pressed="' + (c === quizHlColor) + '"></button>').join('') + '</span>' : '') +
     (fullscreenOk() ? '<button type="button" class="study-ib" data-study="full" aria-label="Full screen" title="Full screen">' + STUDY_ICONS.full + '</button>' : '') +
     (o.ai ? '<button type="button" class="study-ai" data-study="ai" aria-label="اسأل MidBrain AI عن هذا السؤال" title="اسأل MidBrain AI عن هذا السؤال"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 3l2.2 6.8L19 12l-6.8 2.2L10 21l-2.2-6.8L1 12l6.8-2.2L10 3z"/><path d="M20 2v6M17 5h6"/></svg><span>اسأل AI</span></button>' : '') +
     '</div><div class="study-mid"><div class="study-count">' + Math.min(o.pos, o.total) + ' of ' + o.total + '</div>' +
@@ -8531,8 +8554,9 @@ function applyQuizHighlight() {
   const stem = document.querySelector('#readerBody .quiz-question h3'); if (!stem) return;
   const range = sel.getRangeAt(0);
   if (!stem.contains(range.commonAncestorContainer)) return;
-  try { const mark = document.createElement('mark'); mark.className = 'hl'; range.surroundContents(mark); }
-  catch (_) { const mark = document.createElement('mark'); mark.className = 'hl'; mark.appendChild(range.extractContents()); range.insertNode(mark); }
+  const cls = 'hl hl-' + quizHlColor;
+  try { const mark = document.createElement('mark'); mark.className = cls; range.surroundContents(mark); }
+  catch (_) { const mark = document.createElement('mark'); mark.className = cls; mark.appendChild(range.extractContents()); range.insertNode(mark); }
   sel.removeAllRanges();
   (quizState.hl = quizState.hl || {})[quizState.index] = stem.innerHTML;
 }
@@ -8556,6 +8580,9 @@ function askAIAboutQuestion() {
 function bindStudyBar() {
   document.addEventListener('click', e => {
     const b = e.target.closest('[data-study]');
+    const hc = e.target.closest('[data-study-hl]');
+    if (hc) { quizHlColor = hc.dataset.studyHl; try { localStorage.setItem('medbrain_quiz_hl', quizHlColor); } catch (_) {}
+      document.querySelectorAll('[data-study-hl]').forEach(x => x.setAttribute('aria-pressed', String(x === hc))); return; }
     const fs = e.target.closest('[data-study-fs]');
     const pop = document.getElementById('studyPop');
     if (fs) { studyFont = Number(fs.dataset.studyFs); try { localStorage.setItem('medbrain_quiz_fs', String(studyFont)); } catch (_) {}
@@ -8566,7 +8593,8 @@ function bindStudyBar() {
     if (act === 'full') toggleFullscreen();
     else if (act === 'settings' && pop) { pop.hidden = !pop.hidden; b.setAttribute('aria-expanded', String(!pop.hidden)); }
     else if (act === 'ai') askAIAboutQuestion();
-    else if (act === 'hl') { quizHighlight = !quizHighlight; b.setAttribute('aria-pressed', String(quizHighlight)); document.getElementById('readerBody').classList.toggle('quiz-highlighting', quizHighlight); }
+    else if (act === 'hl') { quizHighlight = !quizHighlight; b.setAttribute('aria-pressed', String(quizHighlight));
+      document.querySelectorAll('.study-hl-colors').forEach(x => { x.hidden = !quizHighlight; }); document.getElementById('readerBody').classList.toggle('quiz-highlighting', quizHighlight); }
   });
   document.addEventListener('click', e => {
     const m = e.target.closest('#readerBody .quiz-question h3 mark.hl');
