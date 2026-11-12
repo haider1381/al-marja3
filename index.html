@@ -2764,6 +2764,14 @@ html[lang="en"] .mb-feature-en, html[lang="en"] .sp-title small { display:none; 
 .pv-linemode i { display:block; width:56px; height:14px; position:relative; }
 .pv-linemode .lm-band { background:rgba(245,196,0,.45); border-radius:3px; }
 .pv-linemode .lm-under { border-bottom:2.5px solid #0F6CBD; }
+
+.pv-title small { display:block; margin-top:2px; font-size:12px; font-weight:500; color:var(--text-muted); opacity:.75; }
+.lecture .meta-row .lec-source { opacity:.7; }
+.sp-picked { display:flex; align-items:center; gap:8px; margin:0 0 12px; padding:8px 12px; border-radius:12px; background:var(--accent-soft); color:var(--accent-strong); font-weight:800; }
+.sp-picked span { flex:1; }
+.sp-picked button { width:30px; height:30px; border:0; border-radius:50%; background:var(--surface); color:var(--accent-strong); font-size:18px; cursor:pointer; }
+.sp-sources .chip.active { background:var(--accent); border-color:var(--accent); color:#fff; }
+.sp-body:has(.sp-picked) .sp-sources .chip:not(.active) { background:var(--surface) !important; color:var(--accent-strong) !important; border:1px solid var(--border) !important; }
 </style>
 <link rel="manifest" href="./manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="192x192" href="./assets/app-icon-192.png">
@@ -4735,6 +4743,7 @@ function browsePath() {
   const b = state.browse;
   const path = { category: null, topic: null, source: null, type: null, stage: null, doctor: null, hub: null, level: 'list', options: [],
     pool: lectures.filter(l => (!state.filterKind || materialGroup(l.type) === state.filterKind) &&
+      (!b.lockSource || (l.source || 'غير محدد') === b.lockSource) &&
       (!b.fromSource || (l.source || 'غير محدد') === b.source)) };
   const levels = browseLevels();
   path.keys = levels.map(([key]) => key);
@@ -4800,20 +4809,25 @@ function sourceShort(src) { return String(src || 'غير محدد').replace(/^م
 // empty middle — never behind or over text.
 const SUBJECT_ORGANS = { 'Surgery': ['stomach', 'liver'], 'Medicine': ['heart', 'lungs'], 'Pediatrics': ['brain', 'dna'], 'OB/GYN': ['kidney', 'dna'], 'Emergency': ['heart', 'skull'], 'Basic Sciences': ['dna', 'brain'] };
 var closedPanels = new Set(), openBranches = new Set();
+// A source picked inside a subject panel keeps the same panel layout, showing only that source's branches and topics.
+var panelSource = null;
 function organInline(name) {
   return '<span class="sp-organ" aria-hidden="true" style="color:' + ORGAN_COLORS[name] + '"><svg viewBox="0 0 80 80" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">' + ORGAN_PATHS[name] + '</svg></span>';
 }
 function renderSubjectPanels(kindPool) {
+  const allPool = kindPool;
+  if (panelSource) kindPool = kindPool.filter(l => l.category === panelSource.cat && (l.source || 'غير محدد') === panelSource.src);
+  if (panelSource && !kindPool.length) { panelSource = null; kindPool = allPool; }
   const cats = orderedValues(kindPool.map(l => l.category).filter(Boolean), SUBJECT_ORDER);
   if (!cats.length) return '<div class="empty">لا توجد مواد هنا بعد.</div>';
   return '<div class="subject-panels">' + cats.map(cat => {
     const pool = kindPool.filter(l => l.category === cat);
     const open = !closedPanels.has(cat);
     const branches = orderedValues(pool.map(BROWSE_KEY.topic), TOPICS[cat] || []);
-    const sources = orderedValues(pool.map(l => l.source || 'غير محدد'), []);
+    const sources = orderedValues(allPool.filter(l => l.category === cat).map(l => l.source || 'غير محدد'), []);
     let body = '';
     if (open) {
-      body = '<div class="sp-body"><div class="sp-branches">' + branches.map(br => {
+      body = '<div class="sp-body">' + (panelSource ? '<div class="sp-picked"><span dir="auto">' + escapeHtml(sourceShort(panelSource.src)) + '</span><button type="button" data-action="panel-source" data-cat="' + escapeHtml(cat) + '" data-value="" aria-label="عرض كل المصادر">×</button></div>' : '') + '<div class="sp-branches">' + branches.map(br => {
         const key = cat + '|' + br, exp = openBranches.has(key);
         const hubs = exp ? hubOrder(pool.filter(l => BROWSE_KEY.topic(l) === br)) : [];
         return '<div class="sp-branch' + (exp ? ' open' : '') + '">' +
@@ -4822,7 +4836,7 @@ function renderSubjectPanels(kindPool) {
           (exp ? '<div class="sp-topics">' + hubs.map(h => '<button type="button" class="sp-topic" data-action="sp-open" data-cat="' + escapeHtml(cat) + '" data-branch="' + escapeHtml(br) + '" data-hub="' + escapeHtml(h) + '" dir="auto">' + escapeHtml(topicName(h, pool)) + '</button>').join('') + '</div>' : '') +
           '</div>';
       }).join('') + '</div>' +
-      (sources.length ? '<div class="sp-sources"><span class="sp-sources-label">المصادر</span>' + sources.map(src => '<button type="button" class="chip" data-action="browse-uni" data-cat="' + escapeHtml(cat) + '" data-value="' + escapeHtml(src) + '" dir="auto">' + escapeHtml(sourceShort(src)) + '</button>').join('') + '</div>' : '') +
+      (sources.length ? '<div class="sp-sources"><span class="sp-sources-label">المصادر</span>' + sources.map(src => '<button type="button" class="chip' + (panelSource && panelSource.src === src ? ' active' : '') + '" data-action="panel-source" data-cat="' + escapeHtml(cat) + '" data-value="' + escapeHtml(panelSource && panelSource.src === src ? '' : src) + '" aria-pressed="' + !!(panelSource && panelSource.src === src) + '" dir="auto">' + escapeHtml(sourceShort(src)) + '</button>').join('') + '</div>' : '') +
       '</div>';
     }
     const organs = SUBJECT_ORGANS[cat] || ['heart', 'brain'];
@@ -5075,11 +5089,7 @@ function renderLectureList(list) {
       <div class="body${openAction ? ' clickable' : ''}">
         <p class="title">${escapeHtml(l.title)}${l.doctor && l.doctor !== 'غير محدد' ? ` <span class="doctor-tag">${escapeHtml(l.doctor)}</span>` : ''}</p>
         <div class="meta-row">
-          <span>${escapeHtml(l.source || '')}</span>${l.stage ? `<span>·</span><span>${escapeHtml(browseLabel('stage', String(l.stage)))}</span>` : ''}
-          <span>·</span>
-          <span>${escapeHtml(l.topic || '')}</span>
-          <span>·</span>
-          <span>${escapeHtml(l.type || '')}</span>
+          <span class="lec-source">${escapeHtml(l.source || '')}</span>
         </div>
         ${l.notes ? `<p class="notes">${escapeHtml(l.notes)}</p>` : ''}
       </div>
@@ -5165,8 +5175,16 @@ function onContentClick(e) {
   const spOpen = e.target.closest('[data-action="sp-open"]');
   if (spOpen) {
     state.browse = browseStartFor('category-root', '');
-    Object.assign(state.browse, { rootCat: spOpen.dataset.cat, category: spOpen.dataset.cat, topic: spOpen.dataset.branch, hub: spOpen.dataset.hub || null });
+    Object.assign(state.browse, { rootCat: spOpen.dataset.cat, category: spOpen.dataset.cat, topic: spOpen.dataset.branch, hub: spOpen.dataset.hub || null,
+      lockSource: panelSource && panelSource.cat === spOpen.dataset.cat ? panelSource.src : null });
     render(); document.getElementById('content').scrollIntoView({ block: 'start', behavior: document.documentElement.dataset.motion === 'reduce' ? 'auto' : 'smooth' }); return;
+  }
+  const psrc = e.target.closest('[data-action="panel-source"]');
+  if (psrc) {
+    panelSource = psrc.dataset.value ? { cat: psrc.dataset.cat, src: psrc.dataset.value } : null;
+    if (panelSource) { closedPanels.delete(panelSource.cat); }
+    state.browse = browseStartFor('category-root', ''); render();
+    document.getElementById('content').scrollIntoView({ block: 'start', behavior: document.documentElement.dataset.motion === 'reduce' ? 'auto' : 'smooth' }); return;
   }
   const uni = e.target.closest('[data-action="browse-uni"]');
   if (uni) {
@@ -6283,7 +6301,7 @@ async function mountPdfViewer(body, bytes, lec) {
       '</div>' +
       '<div class="pv-pill">' + pvBtn('close', PVI.close, 'إغلاق') + '</div>' +
     '</div>' +
-    '<p class="pv-title" dir="auto">' + escapeHtml(lec.title || '') + '</p>' +
+    '<p class="pv-title" dir="auto">' + escapeHtml(lec.title || '') + (lec.source ? '<small>' + escapeHtml([lec.doctor && lec.doctor !== 'غير محدد' ? lec.doctor : '', lec.source].filter(Boolean).join(' · ')) + '</small>' : '') + '</p>' +
     '<div class="pv-pop" id="pvPenPop" hidden style="left:50%;transform:translateX(-50%)"><div class="pv-pop-row">' + PV_COLORS.map(c => '<button type="button" class="pv-color" data-pv-color="' + c + '" style="--c:' + c + '" aria-label="لون" aria-pressed="' + (c === pen.c) + '"></button>').join('') + '</div>' +
       '<div class="pv-pop-row">' + PV_SIZES.map((w, i) => '<button type="button" class="pv-size" data-pv-size="' + w + '" aria-label="سماكة ' + (i + 1) + '" aria-pressed="' + (w === pen.w) + '"><i style="height:' + (2 + i * 2) + 'px"></i></button>').join('') + '</div></div>' +
     '<div class="pv-pop" id="pvHlPop" hidden style="left:50%;transform:translateX(-50%)"><div class="pv-pop-row">' + PV_HL.map(c => '<button type="button" class="pv-color" data-pv-hl="' + c + '" style="--c:' + c + '" aria-label="لون التظليل" aria-pressed="' + (c === hl.c) + '"></button>').join('') + '</div>' + hlAlphaRow('pv', hl.a) + '</div>' +
@@ -6502,7 +6520,7 @@ function mountTextTools(lec) {
       '<div class="pv-set" id="txSet2" hidden>' + b('set1', PVI.chevR, 'أدوات الكتابة') + b('night', PVI.night, 'الوضع الداكن') + b('fit', PVI.fit, 'حجم الخط الافتراضي') + b('top', PVI.top, 'بداية النص') + '</div>' +
     '</div>' +
     '<div class="pv-pill">' + b('close', PVI.close, 'إغلاق') + '</div></div>' +
-    '<p class="pv-title" dir="auto">' + escapeHtml(lec.title || '') + '</p>' +
+    '<p class="pv-title" dir="auto">' + escapeHtml(lec.title || '') + (lec.source ? '<small>' + escapeHtml([lec.doctor && lec.doctor !== 'غير محدد' ? lec.doctor : '', lec.source].filter(Boolean).join(' · ')) + '</small>' : '') + '</p>' +
     '<div class="pv-pop" id="txPenPop" hidden style="left:50%;transform:translateX(-50%)"><div class="pv-pop-row">' + PV_COLORS.map(c => '<button type="button" class="pv-color" data-tx-color="' + c + '" style="--c:' + c + '" aria-label="لون" aria-pressed="' + (c === pen.c) + '"></button>').join('') + '</div>' +
       '<div class="pv-pop-row">' + PV_SIZES.map((w, i) => '<button type="button" class="pv-size" data-tx-size="' + w + '" aria-label="سماكة ' + (i + 1) + '" aria-pressed="' + (w === pen.w) + '"><i style="height:' + (2 + i * 2) + 'px"></i></button>').join('') + '</div></div>' +
     '<div class="pv-pop" id="txHlPop" hidden style="left:50%;transform:translateX(-50%)"><div class="pv-pop-row">' + PV_HL.map(c => '<button type="button" class="pv-color" data-tx-hl="' + c + '" style="--c:' + c + '" aria-label="لون التظليل" aria-pressed="' + (c === hl.c) + '"></button>').join('') + '</div>' + hlAlphaRow('tx', hl.a) + '</div>' +
