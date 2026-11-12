@@ -80,10 +80,18 @@ Deno.serve(async (req) => {
       if (!row?.file_path) return reply(404, { error: 'no_file' });
       const pdfHeaders = { ...cors, 'Content-Type': 'application/pdf', 'Cache-Control': 'private, no-store' };
       if (row.file_path.startsWith('tg:')) {
-        const file = await telegramFile(row.file_path.slice(3));
+        // Books over the bot's 20 MB limit are stored as raw byte parts: "tg:<id1>,<id2>,…".
+        // The site asks for each part (body.part) and joins them; X-Parts says how many there are.
+        const ids = row.file_path.slice(3).split(',').filter(Boolean);
+        const part = Number.isInteger(body.part) ? body.part : 0;
+        if (part < 0 || part >= ids.length) return reply(400, { error: 'invalid_part' });
+        const file = await telegramFile(ids[part]);
         if (!file || !file.body) return reply(404, { error: 'file_missing' });
         const len = file.headers.get('content-length');
-        return new Response(file.body, { status: 200, headers: len ? { ...pdfHeaders, 'Content-Length': len } : pdfHeaders });
+        const h: Record<string, string> = { ...pdfHeaders, 'X-Parts': String(ids.length), 'Access-Control-Expose-Headers': 'X-Parts' };
+        if (ids.length > 1) h['Content-Type'] = 'application/octet-stream';
+        if (len) h['Content-Length'] = len;
+        return new Response(file.body, { status: 200, headers: h });
       }
       const obj = await r2.fetch(objectUrl(row.file_path), { method: 'GET' });
       if (obj.ok && obj.body) {

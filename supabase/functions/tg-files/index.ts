@@ -56,22 +56,43 @@ Deno.serve(async (req) => {
     if (body.action === 'insert') {
       const items = Array.isArray(body.rows) ? body.rows : [];
       if (!items.length || items.length > 300) return json(400, { error: 'rows' });
-      const ids = items.map((r: { message_id: number }) => r.message_id);
+      // A row may name several messages in «parts» (a big book split into ≤19 MB byte parts, in order).
+      const ids = items.flatMap((r: { message_id: number; parts?: number[] }) => Array.isArray(r.parts) && r.parts.length ? r.parts : [r.message_id]);
       const { data: all, error } = await pub.rpc('tg_files_get', { p_from: Math.min(...ids), p_to: Math.max(...ids) });
       if (error) throw error;
       const files = (all || []).filter((f: { message_id: number }) => ids.includes(Number(f.message_id)));
       const byMsg = new Map(files.map((f: { message_id: number; file_id: string }) => [Number(f.message_id), f.file_id]));
       const out = [];
       for (const r of items) {
-        const fid = byMsg.get(Number(r.message_id));
-        if (!fid) continue;
+        const msgs = Array.isArray(r.parts) && r.parts.length ? r.parts : [r.message_id];
+        const fids = msgs.map((m: number) => byMsg.get(Number(m)));
+        if (fids.some((f: string | undefined) => !f)) continue;
+        const fid = fids.join(',');
         out.push({ title: r.title, source: r.source, category: r.category, topic: r.topic, type: r.type || 'محاضرة', stage: r.stage ?? null,
           doctor: r.doctor ?? null, topic_id: r.topic_id ?? null, notes: r.notes ?? null, file_path: 'tg:' + fid, questions: [] });
       }
       if (!out.length) return json(400, { error: 'no_files' });
-      const { data: ins, error: e2 } = await pub.from('lectures').insert(out).select('id');
+      const { data: ins, error: e2 } = await pub.from('lectures').insert(out).select('id,title,category,topic');
       if (e2) throw e2;
-      return json(200, { inserted: ins.length });
+      return json(200, { inserted: ins.length, rows: ins });
+    }
+    if (body.action === 'link') {
+      // Topic hubs: create missing topics (category, branch, key) then point each new lecture at its topic.
+      const topics = Array.isArray(body.topics) ? body.topics : [], links = Array.isArray(body.links) ? body.links : [];
+      if (topics.length) { const { error } = await pub.from('topics').upsert(topics, { onConflict: 'category,branch,key', ignoreDuplicates: true }); if (error) throw error; }
+      const keys = [...new Set(links.map((l: { key: string }) => l.key))];
+      const map = new Map();
+      for (let i = 0; i < keys.length; i += 100) {
+        const { data, error } = await pub.from('topics').select('id,category,branch,key').in('key', keys.slice(i, i + 100));
+        if (error) throw error;
+        (data || []).forEach((t: { id: string; category: string; branch: string; key: string }) => map.set(t.category + '|' + t.branch + '|' + t.key, t.id));
+      }
+      let linked = 0;
+      for (const l of links) {
+        const tid = map.get(l.category + '|' + l.branch + '|' + l.key); if (!tid) continue;
+        const { error } = await pub.from('lectures').update({ topic_id: tid }).eq('id', l.id); if (!error) linked++;
+      }
+      return json(200, { topics: topics.length, linked });
     }
     return json(400, { error: 'action' });
   } catch (e) {

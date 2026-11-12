@@ -6374,13 +6374,26 @@ function loadPdfJs() {
 async function fetchLecturePdf(id) {
   const { data, error } = await client.auth.getSession();
   if (error || !data.session?.access_token) throw new Error('sign_in_required');
-  const [response] = await Promise.all([fetch(SUPABASE_URL + '/functions/v1/lecture-file?action=stream', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', apikey: SUPABASE_KEY, Authorization: 'Bearer ' + data.session.access_token },
-    body: JSON.stringify({ lecture_id: id })
-  }), loadPdfJs()]);
-  if (!response.ok) throw new Error('stream_' + response.status);
-  return new Uint8Array(await response.arrayBuffer());
+  const getPart = async part => {
+    const r = await fetch(SUPABASE_URL + '/functions/v1/lecture-file?action=stream', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', apikey: SUPABASE_KEY, Authorization: 'Bearer ' + data.session.access_token },
+      body: JSON.stringify({ lecture_id: id, part })
+    });
+    if (!r.ok) throw new Error('stream_' + r.status);
+    return { n: Number(r.headers.get('X-Parts') || 1), bytes: new Uint8Array(await r.arrayBuffer()) };
+  };
+  const [first] = await Promise.all([getPart(0), loadPdfJs()]);
+  if (first.n <= 1) return first.bytes;
+  // Large books are stored in parts of up to 19 MB; fetch the rest three at a time and join them in order.
+  const parts = [first.bytes];
+  for (let i = 1; i < first.n; i += 3) {
+    const batch = await Promise.all([i, i + 1, i + 2].filter(p => p < first.n).map(getPart));
+    batch.forEach(b => parts.push(b.bytes));
+  }
+  const out = new Uint8Array(parts.reduce((a, p) => a + p.length, 0));
+  let at = 0; parts.forEach(p => { out.set(p, at); at += p.length; });
+  return out;
 }
 const PV_COLORS = ['#111827', '#1f6feb', '#e5484d', '#2da44e', '#8e4ec6', '#f97316'];
 const PV_HL = ['#fde047', '#86efac', '#f9a8d4', '#93c5fd'];
