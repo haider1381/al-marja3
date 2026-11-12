@@ -2742,6 +2742,19 @@ html[lang="en"] .mb-feature-en, html[lang="en"] .sp-title small { display:none; 
 #readerOverlay.reader-quiz .rd-tb [data-open-labs] { display:none; }
 .study-track span { background:linear-gradient(90deg,#0F6CBD,#3f8fd6) !important; }
 .study-ib { color:#0F6CBD !important; }
+
+/* Summaries/text lectures: same pills as the PDF viewer; the old reader bar is hidden. */
+#readerOverlay.tx-active .rd-tb { display:none !important; }
+.tx-tools { position:absolute; inset:0 0 auto 0; height:0; z-index:9; direction:ltr; }
+.tx-tools .pv-title { position:absolute; }
+.tx-tools .pv-countdown, .tx-tools .pv-pop { position:absolute; }
+#readerOverlay.tx-active .reader-workspace { padding-top:calc(96px + env(safe-area-inset-top,0px)); }
+#readerOverlay.tx-active .reader-related { display:none !important; }
+#readerBody { position:relative; }
+.tx-ink { position:absolute; left:0; top:0; z-index:2; pointer-events:none; }
+.tx-drawing .tx-ink { pointer-events:auto; touch-action:none; cursor:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16'%3E%3Ccircle cx='8' cy='8' r='3' fill='%230F6CBD' stroke='white' stroke-width='1.5'/%3E%3C/svg%3E") 8 8, default; }
+#readerBody[data-tool="text"] .tx-ink { cursor:text; }
+@media (max-width:760px) { #readerOverlay.tx-active .reader-workspace { padding-top:calc(150px + env(safe-area-inset-top,0px)); } }
 </style>
 <link rel="manifest" href="./manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="192x192" href="./assets/app-icon-192.png">
@@ -6116,6 +6129,7 @@ function openMaterialInReader(id) {
 }
 async function openPdfInReader(id) {
   if (paywallBlocks()) return;
+  destroyTextTools();
   const lec = lectures.find(l => l.id === id);
   if (!lec || !lec.filePath || !client) return;
   readerLectureId = lec.id;
@@ -6406,6 +6420,164 @@ function openPvTextBox(pageEl, n, x, y) {
   ta.addEventListener('pointerdown', e => e.stopPropagation());
   ta.focus();
 }
+
+// ---------------- Text lectures & summaries: the same tool pills as the PDF viewer ----------------
+// Pen, highlighter, eraser and text notes draw on a layer over the text (saved on this device per lecture);
+// the left pill holds headings, more, timer, lab values, smaller/larger text, undo and redo.
+let txView = null;
+function txKey(id) { return 'medbrain_txink_' + id; }
+function txSave() { if (!txView) return; try { localStorage.setItem(txKey(txView.lecId), JSON.stringify(txView.items)); } catch (_) {} }
+function txSize() {
+  const v = txView; if (!v) return;
+  const body = document.getElementById('readerBody');
+  const w = body.clientWidth, h = body.scrollHeight, dpr = Math.min(window.devicePixelRatio || 1, 2);
+  v.canvas.style.width = w + 'px'; v.canvas.style.height = h + 'px';
+  v.canvas.width = Math.round(w * dpr); v.canvas.height = Math.round(h * dpr);
+  v.dpr = dpr; txDraw();
+}
+// Points are stored as fractions of the text width (x and y), so notes follow the column on any screen.
+function txDraw(extra) {
+  const v = txView; if (!v) return;
+  const c = v.canvas, ctx = c.getContext('2d'), W = c.width;
+  ctx.clearRect(0, 0, c.width, c.height);
+  v.items.forEach(st => drawStroke(ctx, st, W, W));
+  if (extra) drawStroke(ctx, extra, W, W);
+}
+function destroyTextTools() {
+  document.getElementById('readerOverlay').classList.remove('tx-active');
+  const bar = document.getElementById('txTools'); if (bar) bar.remove();
+  if (txView && txView.ro) txView.ro.disconnect();
+  if (txView && txView.canvas) txView.canvas.remove();
+  txView = null;
+}
+function mountTextTools(lec) {
+  destroyTextTools();
+  const body = document.getElementById('readerBody');
+  let items = []; try { items = JSON.parse(localStorage.getItem(txKey(lec.id)) || '[]') || []; } catch (_) {}
+  const prefs = pvPrefs();
+  const pen = Object.assign({ c: PV_COLORS[0], w: PV_SIZES[1] }, prefs.pen || {});
+  const hl = Object.assign({ c: PV_HL[0] }, prefs.hl || {});
+  const b = (act, icon, label, extra) => '<button type="button" class="pv-ib" data-tx="' + act + '" aria-label="' + label + '" title="' + label + '"' + (extra || '') + '>' + icon + '</button>';
+  const bar = document.createElement('div');
+  bar.id = 'txTools'; bar.className = 'tx-tools';
+  bar.innerHTML = '<div class="pv-tb" role="toolbar" aria-label="أدوات الملخص">' +
+    '<div class="pv-pill">' + b('pages', PVI.pages, 'العناوين', ' aria-expanded="false"') + b('more', PVI.more, 'المزيد', ' aria-expanded="false"') +
+      b('timer', PVI.timer, 'مؤقت المذاكرة', ' aria-expanded="false"') + '<button type="button" class="pv-ib" data-open-labs aria-label="Lab values" title="Lab values">' + STUDY_ICONS.lab + '</button>' +
+      b('font-down', PVI.zoomOut, 'تصغير الخط') + b('font-up', PVI.zoomIn, 'تكبير الخط') + b('undo', PVI.undo, 'تراجع', ' disabled') + b('redo', PVI.redo, 'إعادة الخطوة', ' disabled') + '</div>' +
+    '<div class="pv-pill pv-pill-center">' +
+      '<div class="pv-set" id="txSet1">' + b('set2', PVI.chevL, 'أدوات أخرى') + b('hand', PVI.hand, 'تصفح', ' aria-pressed="true"') + '<span class="pv-sep"></span>' +
+        b('text', PVI.text, 'كتابة نص', ' aria-pressed="false"') + b('eraser', PVI.eraser, 'ممحاة', ' aria-pressed="false"') +
+        '<button type="button" class="pv-ib" data-tx="hl" aria-label="قلم تظليل" title="قلم تظليل" aria-pressed="false" style="--c:' + hl.c + '">' + PVI.hl + '</button>' +
+        '<button type="button" class="pv-ib" data-tx="pen" aria-label="قلم" title="قلم" aria-pressed="false" style="--c:' + pen.c + '">' + PVI.pen + '</button></div>' +
+      '<div class="pv-set" id="txSet2" hidden>' + b('set1', PVI.chevR, 'أدوات الكتابة') + b('night', PVI.night, 'الوضع الداكن') + b('fit', PVI.fit, 'حجم الخط الافتراضي') + b('top', PVI.top, 'بداية النص') + '</div>' +
+    '</div>' +
+    '<div class="pv-pill">' + b('close', PVI.close, 'إغلاق') + '</div></div>' +
+    '<p class="pv-title" dir="auto">' + escapeHtml(lec.title || '') + '</p>' +
+    '<div class="pv-pop" id="txPenPop" hidden style="left:50%;transform:translateX(-50%)"><div class="pv-pop-row">' + PV_COLORS.map(c => '<button type="button" class="pv-color" data-tx-color="' + c + '" style="--c:' + c + '" aria-label="لون" aria-pressed="' + (c === pen.c) + '"></button>').join('') + '</div>' +
+      '<div class="pv-pop-row">' + PV_SIZES.map((w, i) => '<button type="button" class="pv-size" data-tx-size="' + w + '" aria-label="سماكة ' + (i + 1) + '" aria-pressed="' + (w === pen.w) + '"><i style="height:' + (2 + i * 2) + 'px"></i></button>').join('') + '</div></div>' +
+    '<div class="pv-pop" id="txHlPop" hidden style="left:50%;transform:translateX(-50%)"><div class="pv-pop-row">' + PV_HL.map(c => '<button type="button" class="pv-color" data-tx-hl="' + c + '" style="--c:' + c + '" aria-label="لون التظليل" aria-pressed="' + (c === hl.c) + '"></button>').join('') + '</div></div>' +
+    '<div class="pv-pop pv-menu" id="txPagesPop" hidden style="left:12px"></div>' +
+    '<div class="pv-pop pv-menu" id="txMorePop" hidden style="left:12px">' +
+      (topicQuizAvailable(lec.topicId) ? '<button type="button" data-tx="quiz">' + PVI.quiz + '<span>Quick Quiz</span></button>' : '') +
+      '<button type="button" data-tx="clear-all">' + PVI.clear + '<span>مسح كل ملاحظاتي على الملخص</span></button></div>' +
+    '<div class="pv-pop" id="txTimerPop" hidden style="left:12px"><form class="pv-timeform" id="txTimeForm" dir="ltr">' +
+      '<label><input type="number" id="txHours" min="0" max="9" step="1" inputmode="numeric" placeholder="0" aria-label="ساعات"><span>h</span></label><b>:</b>' +
+      '<label><input type="number" id="txMinutes" min="0" max="59" step="1" inputmode="numeric" placeholder="25" aria-label="دقائق"><span>m</span></label>' +
+      '<button type="submit" class="pv-ib pv-go" aria-label="ابدأ المؤقت"><svg viewBox="0 0 24 24"><path class="ic-soft" d="M8 5.5v13l10.5-6.5z"/></svg></button></form></div>' +
+    '<div class="pv-countdown" id="pvCountdown" hidden><output id="pvClock">00:00</output><button type="button" data-tx="timer-stop" aria-label="إيقاف المؤقت">×</button></div>';
+  document.querySelector('#readerOverlay .reader-modal').appendChild(bar);
+  const canvas = document.createElement('canvas');
+  canvas.className = 'tx-ink';
+  body.appendChild(canvas);
+  txView = { lecId: lec.id, topicId: lec.topicId, items, pen, hl, tool: 'hand', hist: [], redo: [], canvas };
+  document.getElementById('readerOverlay').classList.add('tx-active');
+  txView.ro = new ResizeObserver(() => txSize()); txView.ro.observe(body);
+  txSize();
+  bindTextTools(bar, body);
+  if (pdfTimer) showCountdown();
+}
+function bindTextTools(bar, body) {
+  const v0 = txView, canvas = v0.canvas;
+  const pops = ['txPenPop', 'txHlPop', 'txPagesPop', 'txMorePop', 'txTimerPop'];
+  const closePops = except => pops.forEach(id => { if (id !== except) document.getElementById(id).hidden = true; });
+  const togglePop = id => { const el = document.getElementById(id); closePops(id); el.hidden = !el.hidden; };
+  const syncHist = () => { if (!txView) return; bar.querySelector('[data-tx="undo"]').disabled = !txView.hist.length; bar.querySelector('[data-tx="redo"]').disabled = !txView.redo.length; };
+  const commit = op => { txView.hist.push(op); txView.redo = []; txSave(); syncHist(); };
+  const apply = (op, reverse) => { const add = op.add ? !reverse : reverse;
+    op.items.forEach(({ item, i }) => { if (add) txView.items.splice(Math.min(i, txView.items.length), 0, item); else { const at = txView.items.indexOf(item); if (at >= 0) txView.items.splice(at, 1); } });
+    txSave(); txDraw(); };
+  const setTool = tool => { txView.tool = tool;
+    ['hand', 'text', 'eraser', 'hl', 'pen'].forEach(t => bar.querySelector('[data-tx="' + t + '"]').setAttribute('aria-pressed', String(t === tool)));
+    body.classList.toggle('tx-drawing', tool !== 'hand'); body.dataset.tool = tool; };
+  const pt = e => { const r = canvas.getBoundingClientRect(); return [(e.clientX - r.left) / r.width, (e.clientY - r.top) / r.width]; };
+  let stroke = null, erased = null;
+  const eraseAt = (x, y) => { for (let i = txView.items.length - 1; i >= 0; i--) if (pvHit(txView.items[i], x, y, 0.015)) { erased.push({ item: txView.items[i], i }); txView.items.splice(i, 1); } txDraw(); };
+  canvas.addEventListener('pointerdown', e => {
+    const v = txView; if (!v || v.tool === 'hand') return;
+    closePops(); e.preventDefault();
+    const [x, y] = pt(e);
+    if (v.tool === 'text') {
+      const ta = document.createElement('textarea'); ta.className = 'pv-textbox'; ta.rows = 1; ta.dir = 'auto';
+      Object.assign(ta.style, { left: (x * 100) + '%', top: (y * canvas.getBoundingClientRect().width) + 'px', fontSize: Math.max(11, 0.022 * canvas.clientWidth) + 'px', color: v.pen.c });
+      body.appendChild(ta);
+      let done = false;
+      const fin = keep => { if (done) return; done = true; const t = ta.value.trim(); ta.remove();
+        if (keep && t && txView === v) { const item = { k: 'txt', c: v.pen.c, x: Math.round(x * 1000) / 1000, y: Math.round(y * 1000) / 1000, s: 0.022, t: t.slice(0, 500) }; v.items.push(item); commit({ add: true, items: [{ item, i: v.items.length - 1 }] }); txDraw(); } };
+      ta.addEventListener('keydown', ev => { if (ev.key === 'Enter' && !ev.shiftKey) { ev.preventDefault(); fin(true); } else if (ev.key === 'Escape') { ev.preventDefault(); fin(false); } });
+      ta.addEventListener('input', () => { ta.style.width = Math.max(4, Math.min(40, ta.value.length + 2)) + 'ch'; });
+      ta.addEventListener('blur', () => fin(true));
+      ta.addEventListener('pointerdown', ev => ev.stopPropagation());
+      ta.focus(); return;
+    }
+    canvas.setPointerCapture(e.pointerId);
+    if (v.tool === 'eraser') { erased = []; eraseAt(x, y); return; }
+    stroke = v.tool === 'hl' ? { k: 'hl', c: v.hl.c, pts: [[x, y]] } : { c: v.pen.c, w: v.pen.w, pts: [[x, y]] };
+  });
+  canvas.addEventListener('pointermove', e => { if (!txView) return; const [x, y] = pt(e);
+    if (erased) { eraseAt(x, y); return; } if (!stroke) return; stroke.pts.push([x, y]); txDraw(stroke); });
+  const finish = () => { const v = txView; if (!v) return;
+    if (erased) { if (erased.length) commit({ add: false, items: erased.reverse() }); erased = null; return; }
+    if (!stroke) return; stroke.pts = stroke.pts.map(([x, y]) => [Math.round(x * 1000) / 1000, Math.round(y * 1000) / 1000]);
+    v.items.push(stroke); commit({ add: true, items: [{ item: stroke, i: v.items.length - 1 }] }); stroke = null; txDraw(); };
+  canvas.addEventListener('pointerup', finish); canvas.addEventListener('pointercancel', finish);
+  document.getElementById('txTimeForm').addEventListener('submit', e => { e.preventDefault();
+    const h = Math.max(0, Math.min(9, Number(document.getElementById('txHours').value) || 0)), m = Math.max(0, Math.min(59, Number(document.getElementById('txMinutes').value) || 0));
+    if (!(h * 60 + m)) { document.getElementById('txMinutes').focus(); return; } startPdfTimer(h * 60 + m); closePops(); });
+  bar.addEventListener('click', e => {
+    const v = txView; if (!v) return;
+    const color = e.target.closest('[data-tx-color]');
+    if (color) { v.pen.c = color.dataset.txColor; bar.querySelectorAll('[data-tx-color]').forEach(x => x.setAttribute('aria-pressed', String(x === color))); bar.querySelector('[data-tx="pen"]').style.setProperty('--c', v.pen.c); savePvPrefs({ pen: v.pen, hl: v.hl, night: pvPrefs().night }); return; }
+    const size = e.target.closest('[data-tx-size]');
+    if (size) { v.pen.w = Number(size.dataset.txSize); bar.querySelectorAll('[data-tx-size]').forEach(x => x.setAttribute('aria-pressed', String(x === size))); savePvPrefs({ pen: v.pen, hl: v.hl, night: pvPrefs().night }); return; }
+    const hlc = e.target.closest('[data-tx-hl]');
+    if (hlc) { v.hl.c = hlc.dataset.txHl; bar.querySelectorAll('[data-tx-hl]').forEach(x => x.setAttribute('aria-pressed', String(x === hlc))); bar.querySelector('[data-tx="hl"]').style.setProperty('--c', v.hl.c); savePvPrefs({ pen: v.pen, hl: v.hl, night: pvPrefs().night }); return; }
+    const head = e.target.closest('[data-tx-head]');
+    if (head) { const h = document.getElementById(head.dataset.txHead); if (h) h.scrollIntoView({ block: 'start', behavior: 'smooth' }); closePops(); return; }
+    const btn = e.target.closest('[data-tx]'); if (!btn) return;
+    const act = btn.dataset.tx;
+    if (act === 'pen' || act === 'hl') { if (v.tool === act) togglePop(act === 'pen' ? 'txPenPop' : 'txHlPop'); else { closePops(); setTool(act); } }
+    else if (act === 'hand' || act === 'eraser' || act === 'text') { closePops(); setTool(act); }
+    else if (act === 'set2' || act === 'set1') { closePops(); swapPvSets(act === 'set2' ? 'txSet1' : 'txSet2', act === 'set2' ? 'txSet2' : 'txSet1'); }
+    else if (act === 'undo' || act === 'redo') { const from = act === 'undo' ? v.hist : v.redo, to = act === 'undo' ? v.redo : v.hist; const op = from.pop(); if (op) { apply(op, act === 'undo'); to.push(op); } syncHist(); }
+    else if (act === 'pages') {
+      const heads = Array.from(body.querySelectorAll('.r-title,.r-section,.r-sub'));
+      document.getElementById('txPagesPop').innerHTML = heads.length ? heads.map(h => '<button type="button" data-tx-head="' + h.id + '" dir="auto"' + (h.classList.contains('r-sub') ? ' style="padding-inline-start:24px;font-size:13px"' : '') + '><span>' + escapeHtml(h.textContent.trim().slice(0, 70)) + '</span></button>').join('') : '<p style="margin:6px 10px;font-size:13px">لا توجد عناوين.</p>';
+      togglePop('txPagesPop');
+    }
+    else if (act === 'more') togglePop('txMorePop');
+    else if (act === 'timer') { if (pdfTimer && !pdfTimer.done) { closePops(); return; } togglePop('txTimerPop'); }
+    else if (act === 'timer-stop') stopPdfTimer();
+    else if (act === 'font-down') document.getElementById('readerFontMinus').click();
+    else if (act === 'font-up') document.getElementById('readerFontPlus').click();
+    else if (act === 'fit') document.getElementById('readerFontReset').click();
+    else if (act === 'night') { document.getElementById('readerThemeToggle').click(); btn.setAttribute('aria-pressed', String(document.getElementById('readerThemeToggle').getAttribute('aria-pressed') === 'true')); }
+    else if (act === 'top') document.getElementById('readerToTop').click();
+    else if (act === 'close') { closePops(); closeReader(); }
+    else if (act === 'quiz') { const t = v.topicId; closePops(); closeReader(); startTopicQuiz(t); }
+    else if (act === 'clear-all') { closePops(); if (!v.items.length || !confirm('مسح كل ملاحظاتك على هذا الملخص؟')) return; const all = v.items.map((item, i) => ({ item, i })); v.items = []; commit({ add: false, items: all }); txDraw(); }
+  });
+  syncHist();
+}
 function bindPdfViewer(wrap) {
   const viewer = document.getElementById('pdfViewer');
   const v0 = pdfView;
@@ -6593,9 +6765,11 @@ async function openReader(id) {
   document.getElementById('readerTime').textContent = 'قراءة تقديرية: ' + Math.max(1, Math.ceil(words / 180)) + ' دقيقة';
   buildReaderContents();
   openReaderSurface();
+  try { mountTextTools(lec); } catch (err) { console.warn('text tools unavailable', err); }
 }
 function closeReader() {
   destroyPdfViewer();
+  destroyTextTools();
   closeAIChat(false);
   closeSidePanel();
   readerLectureId=null;
@@ -7416,6 +7590,7 @@ async function collectQuestions(pool, n) {
 }
 function openCustomQuiz(title, meta, questions) {
   destroyPdfViewer();
+  destroyTextTools();
   if (!questions.length) { alert('لا توجد أسئلة كافية هنا بعد.'); return false; }
   const material = { id: 'self-quiz', title, source: '', topic: '', questions };
   quizState = { material, index: 0, answers: [] };
