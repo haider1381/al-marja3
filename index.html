@@ -744,6 +744,19 @@
   .question-editor .option-row { margin:10px 0; padding:8px; background:var(--surface-alt); border-radius:8px; }
   .question-editor input[type=radio] { width:auto; }
   .question-tools { display:flex; gap:8px; margin:12px 0; flex-wrap:wrap; }
+  .sub-row { display:flex; gap:8px; align-items:center; margin:6px 0 10px; }
+  .sub-row input, .sub-admin > input { flex:1; min-height:42px; padding:8px 12px; font:inherit; font-size:16px; border:1px solid var(--border); border-radius:10px; background:var(--surface); color:var(--text); width:100%; }
+  .sub-admin label { display:block; font-size:13px; margin-top:10px; }
+  .sub-switch { display:flex !important; gap:8px; align-items:center; font-weight:700; font-size:14px !important; }
+  .sub-switch input { width:20px; height:20px; }
+  .sub-hint { font-size:12px; opacity:.8; }
+  .sub-plans { display:flex; flex-wrap:wrap; gap:8px; margin-top:12px; }
+  .sub-list { margin-top:12px; display:grid; gap:8px; max-height:420px; overflow:auto; }
+  .sub-code { border:1px solid var(--border); border-radius:12px; padding:8px 10px; font-size:13px; }
+  .sub-code b { font-family:ui-monospace,monospace; font-size:15px; letter-spacing:1px; }
+  .sub-code .sub-code-actions { display:flex; gap:6px; margin-top:6px; }
+  .sub-code button { min-height:32px; padding:4px 10px; font-size:12px; }
+  .sub-code.is-off { opacity:.55; }
   .quiz-head { display:flex; align-items:center; justify-content:space-between; gap:8px; }
   .quiz-head .section-label { margin:0; }
   .quiz-report { display:inline-flex; align-items:center; gap:4px; min-height:32px; padding:4px 10px; border:1px solid var(--border); border-radius:999px; background:transparent; color:var(--muted, #6b7a8c); font:inherit; font-size:12px; cursor:pointer; }
@@ -2769,7 +2782,15 @@ body.ai-site-open .ai-fab, body.ai-fab-hidden .ai-fab { display:none; }
 <div class="mb-page-toolbar"><div class="mb-page-title-wrap"><button class="mb-page-back" type="button" data-tool-view="home" aria-label="العودة للرئيسية">‹</button><div><h2 class="mb-page-title">اشتراكي</h2><p class="mb-page-subtitle">حسابك والخدمات المتاحة لك في Medbrain.</p></div></div></div>
 <div class="mb-personal-grid">
  <article class="mb-personal-card"><span class="mb-personal-pill">الوصول الحالي</span><h3 style="margin-top:16px">حساب Medbrain</h3><p id="subscriptionIdentity" dir="auto"></p><ul><li>قراءة المحاضرات والملخصات وفتح ملفات PDF</li><li>جدول دراسي شخصي محفوظ في حسابك</li><li>حفظ المواد في المفضلات</li><li>مشاركة نسخة من جدولك الدراسي</li></ul><button type="button" class="mb-primary" data-nav="account">إدارة ملفي الشخصي</button></article>
- <article class="mb-personal-card"><h3>الاشتراكات المدفوعة</h3><p>لا تتوفر خطط مدفوعة أو عمليات دفع داخل المنصة حاليًا. يمكنك استخدام الخدمات المتاحة من حسابك.</p><p>ستظهر تفاصيل الخطط والتجديد هنا عند إتاحتها.</p></article>
+ <article class="mb-personal-card"><h3>حالة الاشتراك</h3><p id="subStatus">جارٍ التحقق…</p><form id="subRedeemForm" class="sub-redeem" hidden><label for="subRedeemCode">كود الاشتراك</label><div class="sub-row"><input id="subRedeemCode" dir="ltr" autocomplete="off" placeholder="MB-XXXXX-XXXXX" maxlength="20"><button type="submit" class="mb-primary">تفعيل الكود</button></div><p id="subRedeemStatus" role="status"></p></form><p id="subContact" hidden></p></article>
+ <article class="mb-personal-card sub-admin" id="subAdmin" hidden><span class="mb-personal-pill">لوحة المسؤول</span><h3 style="margin-top:16px">الاشتراكات والأكواد</h3>
+  <label class="sub-switch"><input type="checkbox" id="paywallToggle"> <span>الموقع مدفوع (طلب كود الاشتراك من الطلاب)</span></label>
+  <label for="paywallTelegram">معرّف أو رابط Telegram للتواصل</label><div class="sub-row"><input id="paywallTelegram" dir="ltr" placeholder="@username" maxlength="100"><button type="button" class="mb-file-btn" id="paywallSave">حفظ</button></div>
+  <p class="sub-hint">والمفتاح مطفأ، يستخدم الجميع الموقع مجانًا. حسابك يبقى مفتوحًا دائمًا.</p>
+  <label for="subNewNote">ملاحظة للكود (اختياري، مثل اسم الطالب)</label><input id="subNewNote" maxlength="200">
+  <div class="sub-plans"><button type="button" class="mb-primary" data-new-code="month">كود شهري</button><button type="button" class="mb-primary" data-new-code="quarter">كود 3 أشهر</button><button type="button" class="mb-primary" data-new-code="half">كود 6 أشهر</button><button type="button" class="mb-primary" data-new-code="year">كود سنوي</button></div>
+  <p id="subAdminStatus" role="status"></p>
+  <div id="subCodeList" class="sub-list"></div></article>
 </div>
 </section>
 <section class="mb-tool-page mb-page-view mb-personal-page" id="shareScheduleSection">
@@ -3073,6 +3094,7 @@ body.ai-site-open .ai-fab, body.ai-fab-hidden .ai-fab { display:none; }
 <button id="focusCompact" type="button" hidden aria-label="فتح مؤقّت الدراسة"></button><div id="deviceConnection" role="status" hidden>الاتصال بالإنترنت غير متاح. يمكنك استخدام مؤقّت الدراسة؛ حفظ التغييرات يحتاج اتصالًا.</div>
 <dialog id="focusDialog" class="device-dialog" aria-labelledby="focusTitle"><div class="sp-card-head"><h2 id="focusTitle">وقت التركيز</h2><button type="button" class="mb-mini-btn" data-device-close="focusDialog" aria-label="تصغير المؤقّت">×</button></div><p>قسّم دراستك إلى جلسات قصيرة واستراحات. يبقى المؤقّت دقيقًا عند تصغيره أو العودة للتطبيق.</p><form id="focusForm"><div class="device-pair"><label>مدة الدراسة (دقيقة)<input id="focusWork" type="number" min="1" max="240" value="30" required></label><label>الراحة (دقيقة)<input id="focusRest" type="number" min="0" max="120" value="5" required></label></div><label>عدد جلسات الدراسة<input id="focusCount" type="number" min="1" max="24" value="4" required></label><label id="focusNotifyLabel" hidden><input id="focusNotify" type="checkbox"> تنبيه على الجهاز عند انتهاء الفترة الحالية</label><div class="device-actions"><button type="submit" class="mb-primary" id="focusStart">بدء جلسات التركيز</button></div></form><div id="focusRunning" hidden><output id="focusClock" dir="ltr" aria-label="الوقت المتبقي">30:00</output><p class="focus-stage" id="focusStage"></p><progress id="focusMeter" max="100" value="0" aria-label="تقدم الجلسات"></progress><div class="device-actions"><button type="button" class="mb-primary" id="focusPause">إيقاف مؤقت</button><button type="button" class="mb-primary" id="focusNext" hidden>بدء الفترة التالية</button><button type="button" class="device-danger" id="focusStop">إنهاء المؤقّت</button></div></div><p id="focusStatus" role="status"></p><p>بدء الفترة التالية يدوي، ليكون وقت الراحة تحت تحكمك. المؤقّت لا يعلّم المحاضرة كمكتملة تلقائيًا.</p></dialog>
 <dialog id="deleteAccountDialog" class="device-dialog" aria-labelledby="deleteAccountTitle"><h2 id="deleteAccountTitle">حذف حساب Medbrain</h2><p>يُحذف حسابك وملفك الشخصي ومفضلاتك وبطاقاتك وجدولك وتقدمك نهائيًا. يمكنك تصدير بياناتك من الإعدادات قبل الحذف. تبقى مواد المكتبة المشتركة.</p><p>لحماية الحساب، يلزم تسجيل دخول خلال آخر عشر دقائق. حساب إدارة المنصة يحتاج نقل مسؤوليته أولًا.</p><label for="deleteAccountConfirm">للتأكيد اكتب «حذف حسابي»<input id="deleteAccountConfirm" autocomplete="off"></label><div class="device-actions"><button type="button" class="device-danger" id="deleteAccountSubmit">حذف الحساب نهائيًا</button><button type="button" class="mb-file-btn" data-device-close="deleteAccountDialog">إلغاء</button></div><p id="deleteAccountStatus" role="status"></p></dialog>
+<dialog id="paywallDialog" class="device-dialog" aria-labelledby="paywallTitle"><h2 id="paywallTitle">الاشتراك مطلوب</h2><p id="paywallText"></p><form id="paywallForm"><label for="paywallCode">كود الاشتراك<input id="paywallCode" dir="ltr" autocomplete="off" placeholder="MB-XXXXX-XXXXX" maxlength="20"></label><div class="device-actions"><button type="submit" class="mb-primary">تفعيل الكود</button><button type="button" class="mb-file-btn" data-device-close="paywallDialog">لاحقًا</button></div><p id="paywallStatus" role="status"></p></form><p id="paywallContact"></p></dialog>
 <dialog id="questionReportDialog" class="device-dialog" aria-labelledby="questionReportTitle"><h2 id="questionReportTitle">الإبلاغ عن مشكلة في السؤال</h2><p>يصل بلاغك إلى فريق Medbrain لمراجعة السؤال وتصحيحه.</p><form id="questionReportForm"><fieldset class="report-reasons"><legend>نوع المشكلة</legend><label><input type="radio" name="reportReason" value="wrong_answer"> الإجابة المعتمدة خاطئة</label><label><input type="radio" name="reportReason" value="wrong_question"> السؤال خاطئ أو غير واضح</label><label><input type="radio" name="reportReason" value="incomplete"> السؤال ناقص (خيار أو معلومة مفقودة)</label><label><input type="radio" name="reportReason" value="explanation"> الشرح خاطئ أو غير كافٍ</label><label><input type="radio" name="reportReason" value="other"> مشكلة أخرى</label></fieldset><label for="questionReportNote">تفاصيل (اختياري): ما الصحيح برأيك ومصدره؟<textarea id="questionReportNote" maxlength="1000" rows="3"></textarea></label><div class="device-actions"><button type="submit" class="mb-primary" id="questionReportSubmit">إرسال البلاغ</button><button type="button" class="mb-file-btn" data-device-close="questionReportDialog">إلغاء</button></div><p id="questionReportStatus" role="status"></p></form></dialog>
 <dialog id="reportsDialog" class="device-dialog reports-dialog" aria-labelledby="reportsTitle"><div class="sp-card-head"><h2 id="reportsTitle">بلاغات الطلاب</h2><button type="button" class="mb-mini-btn" data-device-close="reportsDialog" aria-label="إغلاق">×</button></div><p>البلاغات المفتوحة عن الأسئلة، الأحدث أولًا. «تمّ الإصلاح» يغلق كل البلاغات عن السؤال نفسه.</p><div id="reportsList"></div><p id="reportsStatus" role="status"></p></dialog>
 
@@ -3635,6 +3657,8 @@ function renderFlashcards(){
   ).join('');
 }
 function showMainView(view, kind='', scrollBehavior='smooth') {
+  if ((view === 'library' || view === 'flashcards') && paywallBlocks()) return;
+  if (view === 'subscription') { loadAccessState(false).then(() => { if (accessState && accessState.owner) loadCodeList(); }).catch(() => {}); }
   currentMainView=view;
   deviceSyncNav();
   ['dashboardView','librarySection','scheduleSection','flashcardsSection','subscriptionSection','shareScheduleSection','favoritesSection','settingsSection'].forEach(id=>{
@@ -3945,6 +3969,7 @@ async function syncAccess(session) {
     applyAccessUI();
     if (!canWrite) closeModal();
     syncNamePrompt();
+    loadAccessState(false).catch(() => {});
     return;
   }
   resetAIConversation(true);
@@ -3981,6 +4006,7 @@ async function syncAccess(session) {
     if (error) throw error;
     canWrite = data === true;
     applyAccessUI();
+    loadAccessState(true).catch(() => {});
     await appLoad;
     if (canWrite && version === accessVersion) { render(); loadOpenReports(true).catch(() => {}); }
   } catch (_) {
@@ -4597,6 +4623,7 @@ function wireStaticEvents() {
 
   document.getElementById('openAddBtn').addEventListener('click', () => openModal());
   document.getElementById('reportsBtn').addEventListener('click', openReportsInbox);
+  bindSubscriptionUI();
   document.getElementById('reportsList').addEventListener('click', handleReportAction);
   document.getElementById('questionReportForm').addEventListener('submit', submitQuestionReport);
   document.getElementById('cancelBtn').addEventListener('click', closeModal);
@@ -5582,6 +5609,7 @@ function openMaterialInReader(id) {
   else if (l.type === 'أسئلة' && l.questionCount > 0) openQuiz(id);
 }
 async function openPdfInReader(id) {
+  if (paywallBlocks()) return;
   const lec = lectures.find(l => l.id === id);
   if (!lec || !lec.filePath || !client) return;
   readerLectureId = lec.id;
@@ -5609,6 +5637,7 @@ async function openPdfInReader(id) {
   }
 }
 async function openReader(id) {
+  if (paywallBlocks()) return;
   const lec = lectures.find(l => l.id === id);
   if (!lec) return;
   try { await ensureLectureDetails(lec); } catch (_) { alert('تعذّر فتح المحاضرة. تحقق من الاتصال وأعد المحاولة.'); return; }
@@ -6359,6 +6388,7 @@ async function openStoredPdf(id, button, download = false) {
   } finally { button.disabled = false; }
 }
 async function openQuiz(id) {
+  if (paywallBlocks()) return;
   const material = lectures.find(l => l.id === id);
   if (!material) return;
   try { await ensureLectureDetails(material); } catch (_) { alert('تعذّر فتح الأسئلة. تحقق من الاتصال وأعد المحاولة.'); return; }
@@ -6426,6 +6456,134 @@ function renderQuiz(keepScroll) {
     (index === questions.length - 1 ? 'عرض النتيجة' : 'السؤال التالي') + '</button></div>';
   body.innerHTML = html;
   if (!keepScroll) document.getElementById('readerWorkspace').scrollTop = 0;
+}
+
+// ---------------- Subscription codes & paywall ----------------
+// The owner turns the paywall on from «اشتراكي». While it is off everyone has access. With it on, a student
+// redeems a personal code once; the server (RLS has_access) hides library content until a code is active.
+var accessState = null;
+const PLAN_LABELS = { month: 'شهري', quarter: '3 أشهر', half: '6 أشهر', year: 'سنوي' };
+function fmtDate(d) { try { return new Date(d).toLocaleDateString('ar-IQ', { year: 'numeric', month: 'long', day: 'numeric' }); } catch (_) { return String(d); } }
+function telegramLink(t) {
+  const v = String(t || '').trim(); if (!v) return '';
+  const url = /^https?:\/\//i.test(v) ? v : 'https://t.me/' + v.replace(/^@/, '');
+  return /^https:\/\/(t\.me|telegram\.me)\//i.test(url) ? url : '';
+}
+function contactHtml() {
+  const url = accessState && telegramLink(accessState.telegram);
+  return url ? 'للحصول على كود اشتراك أو تجديده راسلني على تيليجرام: <a href="' + escapeHtml(url) + '" target="_blank" rel="noopener noreferrer" dir="ltr">' + escapeHtml(accessState.telegram) + '</a>'
+             : 'للحصول على كود اشتراك أو تجديده تواصل مع إدارة Medbrain.';
+}
+async function loadAccessState(promptIfNeeded) {
+  if (!client || !activeUserId) { accessState = null; renderSubscriptionPage(); return; }
+  const version = accessVersion;
+  const { data, error } = await client.rpc('my_access');
+  if (version !== accessVersion) return;
+  accessState = error ? null : data;
+  renderSubscriptionPage();
+  // First time only: a student who never redeemed a code is asked once after signing in.
+  if (promptIfNeeded && accessState && accessState.paywall && !accessState.active && !accessState.ever_subscribed) openPaywall();
+}
+function isLocked() { return !!(accessState && accessState.paywall && !accessState.active); }
+// Called before opening library content; shows the right message and returns true when blocked.
+function paywallBlocks() { if (!isLocked()) return false; openPaywall(); return true; }
+function openPaywall() {
+  const expired = accessState && accessState.ever_subscribed;
+  document.getElementById('paywallTitle').textContent = expired ? 'انتهى اشتراكك' : 'الاشتراك مطلوب';
+  document.getElementById('paywallText').textContent = expired
+    ? 'انتهى اشتراكك' + (accessState.expires_at ? ' بتاريخ ' + fmtDate(accessState.expires_at) : '') + '. لمتابعة الوصول إلى المحاضرات والأسئلة والبطاقات، جدّد اشتراكك وأدخل الكود الجديد هنا.'
+    : 'المحاضرات والأسئلة والبطاقات متاحة للمشتركين. أدخل كود الاشتراك الخاص بك مرة واحدة، ولن يُطلب منك مجددًا حتى نهاية مدة الاشتراك.';
+  document.getElementById('paywallContact').innerHTML = contactHtml();
+  document.getElementById('paywallStatus').textContent = '';
+  document.getElementById('paywallCode').value = '';
+  const dlg = document.getElementById('paywallDialog'); if (!dlg.open) dlg.showModal();
+}
+async function redeemCode(raw, statusEl) {
+  const code = String(raw || '').trim();
+  if (!code) { statusEl.textContent = 'أدخل الكود أولًا.'; return false; }
+  statusEl.textContent = 'جارٍ التحقق…';
+  const { data, error } = await client.rpc('redeem_code', { p_code: code });
+  if (error) {
+    statusEl.textContent = /code_used/.test(error.message) ? 'هذا الكود مستخدم من حساب آخر.' : /invalid_code/.test(error.message) ? 'الكود غير صحيح أو ملغى.' : 'تعذّر التفعيل. تحقق من الاتصال وأعد المحاولة.';
+    return false;
+  }
+  statusEl.textContent = 'تم تفعيل اشتراكك حتى ' + fmtDate(data) + '.';
+  await loadAccessState(false);
+  await startApp(accessVersion);
+  return true;
+}
+function renderSubscriptionPage() {
+  const status = document.getElementById('subStatus'); if (!status) return;
+  const s = accessState, form = document.getElementById('subRedeemForm'), contact = document.getElementById('subContact');
+  if (!s) { status.textContent = 'تعذّر التحقق من حالة الاشتراك.'; form.hidden = true; contact.hidden = true; }
+  else if (s.staff) { status.textContent = 'حساب الإدارة: الوصول مفتوح دائمًا.'; form.hidden = true; contact.hidden = true; }
+  else {
+    const active = s.expires_at && new Date(s.expires_at) > new Date();
+    status.textContent = active ? 'اشتراكك فعّال حتى ' + fmtDate(s.expires_at) + '.'
+      : !s.paywall ? 'الوصول مجاني حاليًا لجميع الحسابات.'
+      : s.ever_subscribed ? 'انتهى اشتراكك' + (s.expires_at ? ' بتاريخ ' + fmtDate(s.expires_at) : '') + '. أدخل كودًا جديدًا للتجديد.'
+      : 'لا يوجد اشتراك فعّال. أدخل كود الاشتراك للوصول إلى المحتوى.';
+    form.hidden = !s.paywall && !active;
+    contact.hidden = !s.paywall; contact.innerHTML = contactHtml();
+  }
+  const admin = document.getElementById('subAdmin');
+  admin.hidden = !(s && s.owner);
+  if (s && s.owner) {
+    document.getElementById('paywallToggle').checked = !!s.paywall;
+    const tg = document.getElementById('paywallTelegram'); if (document.activeElement !== tg) tg.value = s.telegram || '';
+  }
+}
+async function loadCodeList() {
+  const list = document.getElementById('subCodeList');
+  const { data, error } = await client.rpc('admin_list_codes');
+  if (error) { list.innerHTML = '<p>تعذّر تحميل الأكواد.</p>'; return; }
+  if (!data.length) { list.innerHTML = '<p>لم تُنشأ أكواد بعد.</p>'; return; }
+  const now = new Date();
+  list.innerHTML = data.map(c => {
+    const state = c.revoked ? 'ملغى' : !c.redeemed_email ? 'غير مستخدم' : new Date(c.expires_at) > now ? 'فعّال حتى ' + fmtDate(c.expires_at) : 'منتهي ' + fmtDate(c.expires_at);
+    return '<div class="sub-code' + (c.revoked ? ' is-off' : '') + '"><b dir="ltr">' + escapeHtml(c.code) + '</b> · ' + escapeHtml(PLAN_LABELS[c.plan] || c.plan) + ' · ' + escapeHtml(state) +
+      (c.note ? '<br>' + escapeHtml(c.note) : '') + (c.redeemed_email ? '<br><span dir="ltr">' + escapeHtml(c.redeemed_email) + '</span>' : '') +
+      '<div class="sub-code-actions"><button type="button" class="mb-file-btn" data-copy-code="' + escapeHtml(c.code) + '">نسخ</button>' +
+      (c.revoked ? '' : '<button type="button" class="mb-file-btn" data-revoke-code="' + escapeHtml(c.id) + '">إلغاء</button>') + '</div></div>';
+  }).join('');
+}
+function bindSubscriptionUI() {
+  document.getElementById('paywallForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    if (await redeemCode(document.getElementById('paywallCode').value, document.getElementById('paywallStatus')))
+      setTimeout(() => document.getElementById('paywallDialog').close(), 1200);
+  });
+  document.getElementById('subRedeemForm').addEventListener('submit', e => {
+    e.preventDefault(); redeemCode(document.getElementById('subRedeemCode').value, document.getElementById('subRedeemStatus'));
+  });
+  const adminStatus = document.getElementById('subAdminStatus');
+  async function savePaywall() {
+    const { error } = await client.rpc('admin_set_paywall', { p_enabled: document.getElementById('paywallToggle').checked, p_telegram: document.getElementById('paywallTelegram').value });
+    adminStatus.textContent = error ? 'تعذّر الحفظ.' : (document.getElementById('paywallToggle').checked ? 'الموقع مدفوع الآن: يُطلب الكود من الطلاب.' : 'الموقع مجاني الآن لجميع الحسابات.');
+    await loadAccessState(false);
+  }
+  document.getElementById('paywallToggle').addEventListener('change', e => {
+    if (e.target.checked && !confirm('تفعيل الدفع: لن يرى الطلاب المحتوى إلا بكود اشتراك فعّال. متابعة؟')) { e.target.checked = false; return; }
+    savePaywall();
+  });
+  document.getElementById('paywallSave').addEventListener('click', savePaywall);
+  document.querySelector('.sub-plans').addEventListener('click', async e => {
+    const b = e.target.closest('[data-new-code]'); if (!b) return;
+    b.disabled = true;
+    const { data, error } = await client.rpc('admin_create_code', { p_plan: b.dataset.newCode, p_note: document.getElementById('subNewNote').value });
+    b.disabled = false;
+    if (error) { adminStatus.textContent = 'تعذّر إنشاء الكود.'; return; }
+    adminStatus.innerHTML = 'كود ' + escapeHtml(PLAN_LABELS[b.dataset.newCode]) + ' جديد: <b dir="ltr">' + escapeHtml(data) + '</b>';
+    try { await navigator.clipboard.writeText(data); adminStatus.innerHTML += ' (نُسخ)'; } catch (_) {}
+    document.getElementById('subNewNote').value = '';
+    loadCodeList();
+  });
+  document.getElementById('subCodeList').addEventListener('click', async e => {
+    const copy = e.target.closest('[data-copy-code]');
+    if (copy) { try { await navigator.clipboard.writeText(copy.dataset.copyCode); copy.textContent = 'نُسخ ✓'; } catch (_) {} return; }
+    const rev = e.target.closest('[data-revoke-code]');
+    if (rev && confirm('إلغاء هذا الكود؟ صاحبه يفقد الوصول فورًا.')) { await client.rpc('admin_revoke_code', { p_id: rev.dataset.revokeCode }); loadCodeList(); }
+  });
 }
 
 // ---------------- Question reports ----------------
