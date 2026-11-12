@@ -2712,6 +2712,36 @@ html[lang="en"] .mb-feature-en, html[lang="en"] .sp-title small { display:none; 
 .pv-roll-in { animation:pvRollIn .34s cubic-bezier(.2,.7,.3,1) both; }
 @keyframes pvRollOut { 0% { transform:none; opacity:1; } 50% { transform:translate(22px,-7px) rotate(35deg); opacity:.7; } 100% { transform:translate(60px,4px) rotate(90deg); opacity:0; } }
 @keyframes pvRollIn { 0% { transform:translate(-60px,4px) rotate(-90deg); opacity:0; } 55% { transform:translate(-18px,-7px) rotate(-25deg); opacity:.8; } 100% { transform:none; opacity:1; } }
+
+.pv-textbox { position:absolute; z-index:3; min-width:4ch; width:12ch; padding:2px 4px; margin:0; border:1.5px dashed #1f6feb; border-radius:4px; background:rgba(255,255,255,.92);
+  font-family:system-ui, sans-serif; font-weight:600; line-height:1.25; resize:none; overflow:hidden; outline:none; touch-action:auto; }
+
+/* Modern blue icons and friendly cursors in the PDF viewer and reader pills. */
+.pv-ib { color:#0F6CBD; }
+:root[data-theme="dark"] .pv-ib { color:#6cb6f5; }
+.pv-ib svg { stroke-width:1.8 !important; }
+.pv-ib svg .ic-soft { fill:rgba(15,108,189,.12); }
+.pv-ib svg .ic-dot { fill:currentColor; stroke:none; }
+.pv-ib svg.ic-color path { stroke-width:inherit; }
+.pv-ib svg.ic-color { stroke:none; }
+.pv-ib[aria-pressed="true"] { background:rgba(15,108,189,.14) !important; color:#0F6CBD !important; box-shadow:inset 0 0 0 1px rgba(15,108,189,.25); }
+.pv-ib:hover { background:rgba(15,108,189,.08) !important; }
+.pv-pill { border-radius:18px !important; box-shadow:0 4px 16px rgba(15,60,110,.12),0 0 0 1px rgba(15,108,189,.08) !important; }
+.pv-drawing .pv-ink { cursor:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16'%3E%3Ccircle cx='8' cy='8' r='3' fill='%230F6CBD' stroke='white' stroke-width='1.5'/%3E%3C/svg%3E") 8 8, default !important; }
+.pv-pages[data-tool="text"] .pv-ink { cursor:text !important; }
+.pv-pages[data-tool="eraser"] .pv-ink { cursor:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='22'%3E%3Ccircle cx='11' cy='11' r='9' fill='rgba(255,255,255,.6)' stroke='%230F6CBD' stroke-width='1.5'/%3E%3C/svg%3E") 11 11, default !important; }
+.pv-timeform { display:flex; align-items:center; gap:6px; }
+.pv-timeform label { display:flex; align-items:center; gap:4px; }
+.pv-timeform input { width:58px; height:44px; border:1px solid var(--border); border-radius:12px; text-align:center; font:inherit; font-size:20px; font-weight:800; background:var(--surface); color:var(--text); font-variant-numeric:tabular-nums; }
+.pv-timeform input:focus { outline:2px solid #0F6CBD; outline-offset:1px; }
+.pv-timeform span { font-size:13px; font-weight:700; color:var(--text-muted); }
+.pv-timeform b { font-size:20px; color:var(--text-muted); }
+.pv-go { width:44px !important; height:44px !important; border-radius:50% !important; background:#0F6CBD !important; color:#fff !important; }
+.pv-go svg .ic-soft { fill:#fff !important; stroke:#fff; }
+/* Quiz: the study bar already has the lab icon; the progress bar is neutral blue, not "correct" green. */
+#readerOverlay.reader-quiz .rd-tb [data-open-labs] { display:none; }
+.study-track span { background:linear-gradient(90deg,#0F6CBD,#3f8fd6) !important; }
+.study-ib { color:#0F6CBD !important; }
 </style>
 <link rel="manifest" href="./manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="192x192" href="./assets/app-icon-192.png">
@@ -6153,26 +6183,26 @@ const PV_COLORS = ['#111827', '#1f6feb', '#e5484d', '#2da44e', '#8e4ec6', '#f973
 const PV_HL = ['#fde047', '#86efac', '#f9a8d4', '#93c5fd'];
 const PV_SIZES = [0.0025, 0.0045, 0.008];
 const PVI = {
-  close: '<svg viewBox="0 0 24 24"><path d="M4 12h16M14 6l6 6-6 6"/></svg>',
-  pages: '<svg viewBox="0 0 24 24"><rect x="7" y="3" width="13" height="15" rx="2"/><path d="M4 7v12a2 2 0 0 0 2 2h10"/></svg>',
-  more: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="7.5" r=".6" fill="currentColor"/><circle cx="12" cy="12" r=".6" fill="currentColor"/><circle cx="12" cy="16.5" r=".6" fill="currentColor"/></svg>',
-  timer: '<svg viewBox="0 0 24 24"><circle cx="12" cy="13.5" r="7.5"/><path d="M12 9.5v4l2.5 2M10 2.5h4M18.5 6.5l1.5-1.5"/></svg>',
-  undo: '<svg viewBox="0 0 24 24"><path d="M9 7 4.5 11.5 9 16"/><path d="M5 11.5h9.5a5 5 0 0 1 0 10H12"/></svg>',
-  redo: '<svg viewBox="0 0 24 24"><path d="M15 7l4.5 4.5L15 16"/><path d="M19 11.5H9.5a5 5 0 0 0 0 10H12"/></svg>',
+  close: '<svg viewBox="0 0 24 24"><path d="M5 12h13.5"/><path d="m13 6.5 5.5 5.5-5.5 5.5"/></svg>',
+  pages: '<svg viewBox="0 0 24 24"><rect x="8" y="3.5" width="12" height="14" rx="3" class="ic-soft"/><path d="M5 7.5v10A3 3 0 0 0 8 20.5h8"/></svg>',
+  more: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" class="ic-soft"/><circle cx="12" cy="7.8" r="1.2" class="ic-dot"/><circle cx="12" cy="12" r="1.2" class="ic-dot"/><circle cx="12" cy="16.2" r="1.2" class="ic-dot"/></svg>',
+  timer: '<svg viewBox="0 0 24 24"><circle cx="12" cy="13.5" r="7.5" class="ic-soft"/><path d="M12 10v3.8l2.4 1.6M9.5 2.8h5M19 6.2l1.3-1.3"/></svg>',
+  undo: '<svg viewBox="0 0 24 24"><path d="M9.5 6.5 5 11l4.5 4.5"/><path d="M5.5 11H15a4.5 4.5 0 0 1 0 9h-2"/></svg>',
+  redo: '<svg viewBox="0 0 24 24"><path d="M14.5 6.5 19 11l-4.5 4.5"/><path d="M18.5 11H9a4.5 4.5 0 0 0 0 9h2"/></svg>',
   chevL: '<svg viewBox="0 0 24 24"><path d="M14.5 6 8.5 12l6 6"/></svg>',
-  chevR: '<svg viewBox="0 0 24 24"><path d="M9.5 6l6 6-6 6"/></svg>',
-  hand: '<svg viewBox="0 0 24 24"><path d="M8 13.5V6a1.5 1.5 0 0 1 3 0v5M11 10.5V4.5a1.5 1.5 0 0 1 3 0v6M14 10.5V6a1.5 1.5 0 0 1 3 0v5.5M17 11V9a1.5 1.5 0 0 1 3 0v5a7 7 0 0 1-7 7h-1a6.5 6.5 0 0 1-5.2-2.6L4.3 15.6a1.6 1.6 0 0 1 2.5-2L8 15"/></svg>',
-  text: '<svg viewBox="0 0 24 24"><path d="M3.5 6h10M8.5 6v13M14.5 10.5h6M17.5 8v9.5a1.5 1.5 0 0 0 2.5 1"/></svg>',
-  eraser: '<svg viewBox="0 0 24 24"><path d="M14.5 4.5 20 10l-8.5 8.5H7L3.5 15z"/><path d="m9 10 5.5 5.5M11.5 18.5H20"/></svg>',
-  hl: '<svg viewBox="0 0 24 24"><path d="m14 3.5 6.5 6.5-7 7-6.5-6.5z"/><path d="M7 10.5 5 16l3 3 5.5-2M5 16l-2 3h4"/></svg>',
-  pen: '<svg viewBox="0 0 24 24"><path d="M15.5 3.5 20.5 8.5 10 19l-5.5 1 1-5.5z"/><path d="m13.5 5.5 5 5M5.5 14.5l4 4"/></svg>',
-  night: '<svg viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg>',
-  fit: '<svg viewBox="0 0 24 24"><path d="M3 12h18M7 8l-4 4 4 4M17 8l4 4-4 4"/></svg>',
-  top: '<svg viewBox="0 0 24 24"><path d="M5 4h14M12 20V8M7 13l5-5 5 5"/></svg>',
-  clear: '<svg viewBox="0 0 24 24"><path d="M4 7h16M10 11v6m4-6v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg>',
-  quiz: '<svg viewBox="0 0 24 24"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg>',
-  zoomOut: '<svg viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m15.5 15.5 5 5M7.5 10.5h6"/></svg>',
-  zoomIn: '<svg viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m15.5 15.5 5 5M7.5 10.5h6M10.5 7.5v6"/></svg>'
+  chevR: '<svg viewBox="0 0 24 24"><path d="m9.5 6 6 6-6 6"/></svg>',
+  hand: '<svg viewBox="0 0 24 24"><path class="ic-soft" d="M8 13.5V6.2a1.6 1.6 0 0 1 3.2 0V11V4.8a1.6 1.6 0 0 1 3.2 0V11V6.4a1.6 1.6 0 0 1 3.2 0V12V9.6a1.5 1.5 0 0 1 3 0v4.6a6.8 6.8 0 0 1-6.8 6.8h-1.2a6.3 6.3 0 0 1-5-2.5l-3-4a1.6 1.6 0 0 1 2.5-2L8 15z"/></svg>',
+  text: '<svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="4" class="ic-soft"/><path d="M7.5 8.5h7M11 8.5v8M14.5 12h3.5M16.2 12v4.5"/></svg>',
+  eraser: '<svg viewBox="0 0 24 24"><path class="ic-soft" d="M14.2 4.6a2 2 0 0 1 2.8 0l3.4 3.4a2 2 0 0 1 0 2.8l-8.2 8.2H8.4L4 14.6a2 2 0 0 1 0-2.8z"/><path d="m8.5 10.3 5.2 5.2M12.5 19h7"/></svg>',
+  hl: '<svg viewBox="0 0 24 24" class="ic-color"><path d="M14.8 3.4 20.6 9.2 12 17.8 6.2 12z" style="fill:var(--c,#fde047)" stroke="#0b4f8f" stroke-width="1.4" stroke-linejoin="round"/><path d="m6.2 12 5.8 5.8-2.3 1.7-5.2-.1-.5-.5L4 13.7z" fill="#0F6CBD"/><path d="M3.5 21h6" stroke="#0b4f8f" stroke-width="1.6" stroke-linecap="round"/></svg>',
+  pen: '<svg viewBox="0 0 24 24" class="ic-color"><path d="M15.6 3.6a2.2 2.2 0 0 1 3.1 0l1.7 1.7a2.2 2.2 0 0 1 0 3.1L9.5 19.3l-4.8-4.8z" fill="#0F6CBD"/><path d="m13.9 5.3 4.8 4.8-1.5 1.5-4.8-4.8z" fill="#FFC83D"/><path d="M4.7 14.5 9.5 19.3 3 21z" style="fill:var(--c,#111827)"/></svg>',
+  night: '<svg viewBox="0 0 24 24"><path class="ic-soft" d="M19.5 14.6A7.8 7.8 0 1 1 9.4 4.5a6.2 6.2 0 0 0 10.1 10.1z"/></svg>',
+  fit: '<svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="3.5" class="ic-soft"/><path d="M7 12h10M9.5 9.5 7 12l2.5 2.5M14.5 9.5 17 12l-2.5 2.5"/></svg>',
+  top: '<svg viewBox="0 0 24 24"><path d="M6 4.5h12"/><path d="M12 20V9"/><path d="m7.5 13 4.5-4.5 4.5 4.5"/></svg>',
+  clear: '<svg viewBox="0 0 24 24"><path d="M4.5 7h15M9.5 7V4.5h5V7"/><path class="ic-soft" d="M6.5 7l.9 12a2 2 0 0 0 2 1.8h5.2a2 2 0 0 0 2-1.8l.9-12z"/></svg>',
+  quiz: '<svg viewBox="0 0 24 24"><path class="ic-soft" d="M13.2 2.5 4.5 14h6.6l-1 7.5L19 10h-6.7z"/></svg>',
+  zoomOut: '<svg viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5" class="ic-soft"/><path d="m15.5 15.5 4.5 4.5M7.8 10.5h5.4"/></svg>',
+  zoomIn: '<svg viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5" class="ic-soft"/><path d="m15.5 15.5 4.5 4.5M7.8 10.5h5.4M10.5 7.8v5.4"/></svg>'
 };
 function inkKey(id) { return 'medbrain_ink_' + id; }
 function loadInk(id) { try { return JSON.parse(localStorage.getItem(inkKey(id)) || '{}') || {}; } catch (_) { return {}; } }
@@ -6204,8 +6234,8 @@ async function mountPdfViewer(body, bytes, lec) {
       '<div class="pv-pill pv-pill-center">' +
         '<div class="pv-set" id="pvSet1">' + pvBtn('set2', PVI.chevL, 'أدوات أخرى') + pvBtn('hand', PVI.hand, 'تصفح', ' aria-pressed="true"') + '<span class="pv-sep"></span>' +
           pvBtn('text', PVI.text, 'كتابة نص', ' aria-pressed="false"') + pvBtn('eraser', PVI.eraser, 'ممحاة', ' aria-pressed="false"') +
-          '<button type="button" class="pv-ib" data-pv="hl" aria-label="قلم تظليل" title="قلم تظليل" aria-pressed="false" style="--c:' + hl.c + '">' + PVI.hl + '<span class="pv-swatch"></span></button>' +
-          '<button type="button" class="pv-ib" data-pv="pen" aria-label="قلم" title="قلم" aria-pressed="false" style="--c:' + pen.c + '">' + PVI.pen + '<span class="pv-swatch"></span></button></div>' +
+          '<button type="button" class="pv-ib" data-pv="hl" aria-label="قلم تظليل" title="قلم تظليل" aria-pressed="false" style="--c:' + hl.c + '">' + PVI.hl + '</button>' +
+          '<button type="button" class="pv-ib" data-pv="pen" aria-label="قلم" title="قلم" aria-pressed="false" style="--c:' + pen.c + '">' + PVI.pen + '</button></div>' +
         '<div class="pv-set" id="pvSet2" hidden>' + pvBtn('set1', PVI.chevR, 'أدوات الكتابة') + pvBtn('night', PVI.night, 'الوضع الليلي للصفحات', ' aria-pressed="' + !!prefs.night + '"') +
           pvBtn('fit', PVI.fit, 'ملاءمة العرض') + pvBtn('top', PVI.top, 'الصفحة الأولى') + '</div>' +
       '</div>' +
@@ -6220,7 +6250,7 @@ async function mountPdfViewer(body, bytes, lec) {
       (topicQuizAvailable(lec.topicId) ? '<button type="button" data-pv="quiz">' + PVI.quiz + '<span>Quick Quiz</span></button>' : '') +
       '<button type="button" data-pv="clear-page">' + PVI.clear + '<span>مسح كتابتي في هذه الصفحة</span></button>' +
       '<button type="button" data-pv="clear-all">' + PVI.clear + '<span>مسح كل ملاحظاتي على الملف</span></button></div>' +
-    '<div class="pv-pop" id="pvTimerPop" hidden style="left:12px"><div class="pv-mins">' + [15, 25, 45, 60, 90].map(m => '<button type="button" data-pv-min="' + m + '" aria-label="' + m + ' دقيقة">' + m + '</button>').join('') + '</div></div>' +
+    '<div class="pv-pop" id="pvTimerPop" hidden style="left:12px"><form class="pv-timeform" id="pvTimeForm" dir="ltr"><label><input type="number" id="pvHours" min="0" max="9" step="1" inputmode="numeric" placeholder="0" aria-label="ساعات"><span>h</span></label><b>:</b><label><input type="number" id="pvMinutes" min="0" max="59" step="1" inputmode="numeric" placeholder="25" aria-label="دقائق"><span>m</span></label><button type="submit" class="pv-ib pv-go" aria-label="ابدأ المؤقت"><svg viewBox="0 0 24 24"><path class="ic-soft" d="M8 5.5v13l10.5-6.5z"/></svg></button></form></div>' +
     '<div class="pv-countdown" id="pvCountdown" hidden><output id="pvClock">00:00</output><button type="button" data-pv="timer-stop" aria-label="إيقاف المؤقت">×</button></div>' +
     '<div class="pv-stage"><div class="pv-pages' + (prefs.night ? ' pv-night' : '') + '" id="pvPages"></div></div></div>';
   const wrap = document.getElementById('pvPages');
@@ -6348,6 +6378,34 @@ function swapPvSets(outId, inId) {
     setTimeout(() => btns(inn).forEach(b => { b.classList.remove('pv-roll-in'); b.style.animationDelay = ''; }), 520);
   }, 300);
 }
+// Text tool: a small box opens where the page was tapped; Enter or tapping elsewhere saves it onto the page.
+function openPvTextBox(pageEl, n, x, y) {
+  const v = pdfView; if (!v) return;
+  const prev = document.querySelector('.pv-textbox'); if (prev) prev.blur();
+  const ta = document.createElement('textarea');
+  ta.className = 'pv-textbox'; ta.rows = 1; ta.dir = 'auto';
+  ta.setAttribute('aria-label', 'اكتب النص');
+  const size = 0.022 * pageEl.clientWidth;
+  Object.assign(ta.style, { left: (x * 100) + '%', top: (y * 100) + '%', fontSize: Math.max(10, size) + 'px', color: v.pen.c });
+  pageEl.appendChild(ta);
+  let done = false;
+  const commit = keep => {
+    if (done) return; done = true;
+    const t = ta.value.trim(); ta.remove();
+    if (!keep || !t || pdfView !== v) return;
+    const item = { k: 'txt', c: v.pen.c, x: Math.round(x * 1000) / 1000, y: Math.round(y * 1000) / 1000, s: 0.022, t: t.slice(0, 500) };
+    const list = (v.ink[n] = v.ink[n] || []);
+    list.push(item); pvCommit({ n, add: true, items: [{ item, i: list.length - 1 }] }); drawInk(n);
+  };
+  ta.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); commit(true); }
+    else if (e.key === 'Escape') { e.preventDefault(); commit(false); }
+  });
+  ta.addEventListener('input', () => { ta.style.width = Math.max(4, Math.min(40, ta.value.length + 2)) + 'ch'; ta.style.height = 'auto'; ta.style.height = ta.scrollHeight + 'px'; });
+  ta.addEventListener('blur', () => commit(true));
+  ta.addEventListener('pointerdown', e => e.stopPropagation());
+  ta.focus();
+}
 function bindPdfViewer(wrap) {
   const viewer = document.getElementById('pdfViewer');
   const v0 = pdfView;
@@ -6361,25 +6419,18 @@ function bindPdfViewer(wrap) {
     const v = pdfView; v.tool = tool;
     ['hand', 'text', 'eraser', 'hl', 'pen'].forEach(t => viewer.querySelector('[data-pv="' + t + '"]').setAttribute('aria-pressed', String(t === tool)));
     wrap.classList.toggle('pv-drawing', tool !== 'hand');
+    wrap.dataset.tool = tool;
   };
   wrap.addEventListener('pointerdown', e => {
     const v = pdfView; const ink = e.target.closest('.pv-ink'); if (!ink || !v || v.tool === 'hand') return;
     closePops();
     if (e.pointerType === 'pen') wrap.classList.add('pv-stylus');
-    if (e.pointerType === 'touch' && wrap.classList.contains('pv-stylus')) return; // with a stylus, fingers scroll
+    if (e.pointerType === 'touch' && wrap.classList.contains('pv-stylus') && v.tool !== 'text') return; // with a stylus, fingers scroll
     if (touchCount > 1) return;
     e.preventDefault();
     strokePage = Number(ink.parentElement.dataset.page);
     const [x, y] = point(e, ink);
-    if (v.tool === 'text') {
-      const t = prompt('اكتب النص:');
-      if (t && t.trim()) {
-        const item = { k: 'txt', c: v.pen.c, x: Math.round(x * 1000) / 1000, y: Math.round(y * 1000) / 1000, s: 0.022, t: t.trim().slice(0, 500) };
-        const list = (v.ink[strokePage] = v.ink[strokePage] || []);
-        list.push(item); pvCommit({ n: strokePage, add: true, items: [{ item, i: list.length - 1 }] }); drawInk(strokePage);
-      }
-      return;
-    }
+    if (v.tool === 'text') { openPvTextBox(ink.parentElement, strokePage, x, y); return; }
     ink.setPointerCapture(e.pointerId);
     if (v.tool === 'eraser') { erased = []; eraseAt(x, y); return; }
     stroke = v.tool === 'hl' ? { k: 'hl', c: v.hl.c, pts: [[x, y]] } : { c: v.pen.c, w: v.pen.w, pts: [[x, y]] };
@@ -6408,6 +6459,14 @@ function bindPdfViewer(wrap) {
     stroke = null; drawInk(strokePage);
   };
   wrap.addEventListener('pointerup', finish); wrap.addEventListener('pointercancel', finish);
+  document.getElementById('pvTimeForm').addEventListener('submit', e => {
+    e.preventDefault();
+    const h = Math.max(0, Math.min(9, Number(document.getElementById('pvHours').value) || 0));
+    const m = Math.max(0, Math.min(59, Number(document.getElementById('pvMinutes').value) || 0));
+    const total = h * 60 + m;
+    if (!total) { document.getElementById('pvMinutes').focus(); return; }
+    startPdfTimer(total); closePops();
+  });
 
   // Two-finger pinch (and Ctrl + wheel / trackpad pinch) zooms around the fingers; pages are redrawn sharp when it stops.
   let touchCount = 0, pinch = null, settle = null;
@@ -6505,7 +6564,8 @@ function showCountdown() {
   if (box && clock) {
     box.hidden = false;
     const m = Math.floor(left / 60000), sec = Math.floor(left / 1000) % 60;
-    clock.textContent = left ? String(m).padStart(2, '0') + ':' + String(sec).padStart(2, '0') : '✓';
+    const hh = Math.floor(m / 60), mm = m % 60;
+    clock.textContent = !left ? '✓' : (hh ? hh + ':' + String(mm).padStart(2, '0') : String(mm).padStart(2, '0')) + ':' + String(sec).padStart(2, '0');
     box.classList.toggle('is-done', !left);
     box.classList.toggle('is-last', left > 0 && left <= 60000);
   }
@@ -7475,6 +7535,7 @@ async function runSelfQuiz(e) {
 
 function bindReaderTopBar() {
   const bar = document.getElementById('readerTopBar'); if (!bar) return;
+  ({ timer: PVI.timer, dark: PVI.night, top: PVI.top, close: PVI.close }) && Object.entries({ timer: PVI.timer, dark: PVI.night, top: PVI.top, close: PVI.close }).forEach(([k, svg]) => { const b = bar.querySelector('[data-rd="' + k + '"]'); if (b) b.innerHTML = svg; });
   bar.addEventListener('click', e => {
     const b = e.target.closest('[data-rd]'); if (!b) return;
     const map = { dark: 'readerThemeToggle', minus: 'readerFontMinus', plus: 'readerFontPlus', top: 'readerToTop', close: 'readerCloseBtn' };
