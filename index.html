@@ -3839,7 +3839,7 @@ function deckStore(id) {
   try { const v = JSON.parse(localStorage.getItem('medbrain_deck_' + id) || 'null'); if (v && Array.isArray(v.known)) return v; } catch (_) {}
   return { known: [], hard: [] };
 }
-function saveDeckStore() { try { if (activeDeck) localStorage.setItem('medbrain_deck_' + activeDeck.id, JSON.stringify(deckProgress)); } catch (_) {} }
+function saveDeckStore() { try { if (activeDeck) localStorage.setItem('medbrain_deck_' + activeDeck.id, JSON.stringify(deckProgress)); } catch (_) {} if (activeDeck && activeDeck.id !== 'self-quiz') annSet('deck:' + activeDeck.id, deckProgress); }
 async function loadFlashDecks() {
   if (!client || !activeUserId) return;
   const result = await client.from('flashcard_decks').select('id,title,source,category,topic,card_count,sort').order('sort');
@@ -3923,6 +3923,11 @@ async function openDeck(id) {
   const result = await client.from('library_flashcards').select('id,ord,kind,front,back,extra').eq('deck_id', id).order('ord');
   deckCards = result.error ? [] : (result.data || []);
   deckProgress = deckStore(id);
+  try { const m = await annGet(['deck:' + id]); const d = m.get('deck:' + id);
+    if (d && Array.isArray(d.known) && activeDeck && activeDeck.id === id) {
+      deckProgress = { known: [...new Set([...deckProgress.known, ...d.known])], hard: [...new Set([...(deckProgress.hard || []), ...(d.hard || [])])].filter(x => !d.known.includes(x) || (deckProgress.hard || []).includes(x)) };
+      try { localStorage.setItem('medbrain_deck_' + id, JSON.stringify(deckProgress)); } catch (_) {}
+    } } catch (_) {}
   document.querySelector('[data-deck-action="shuffle"]').setAttribute('aria-pressed', 'false');
   buildDeckQueue(false);
   showDeckCard();
@@ -4419,7 +4424,7 @@ function focusEnd(){focusState=null;clearInterval(focusInterval);focusInterval=n
 function openFocus(){if(!deviceEl('focusDialog').open)deviceEl('focusDialog').showModal();focusRender();}
 async function deviceExport(){
  if(!client||!activeUserId)throw new Error('سجل الدخول أولًا.');const uid=activeUserId,version=accessVersion;
- const tables=['profiles','lecture_favorites','flashcards','study_schedule','study_chapter_plans','study_plan_topics','study_session_groups'];const results=await Promise.all(tables.map(t=>client.from(t).select('*').eq(t==='profiles'?'id':'user_id',uid)));if(uid!==activeUserId||version!==accessVersion)throw new Error('تغير الحساب. أعد المحاولة.');const failure=results.find(r=>r.error);if(failure)throw failure.error;
+ const tables=['profiles','lecture_favorites','flashcards','study_schedule','study_chapter_plans','study_plan_topics','study_session_groups','user_annotations'];const results=await Promise.all(tables.map(t=>client.from(t).select('*').eq(t==='profiles'?'id':'user_id',uid)));if(uid!==activeUserId||version!==accessVersion)throw new Error('تغير الحساب. أعد المحاولة.');const failure=results.find(r=>r.error);if(failure)throw failure.error;
  const data={exportedAt:new Date().toISOString(),account:{email:activeUserEmail,name:activeUserName},...Object.fromEntries(tables.map((t,i)=>[t,results[i].data||[]]))},text=JSON.stringify(data,null,2);if(deviceIsNative()&&window.MedbrainNative.exportJSON){await window.MedbrainNative.exportJSON(text);return data;}const blob=new Blob([text],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='Medbrain-my-data.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);return data;
 }
 function deviceDeletionIntent(){if(!activeUserId)return;try{if(sessionStorage.getItem('medbrain_delete_intent')==='1'){sessionStorage.removeItem('medbrain_delete_intent');showMainView('settings');renderPersonalPage('settings');deviceEl('openDeleteAccount').click();}}catch(_){}}
@@ -6408,7 +6413,7 @@ function newStroke(v, x, y) {
 function extendStroke(st, x, y) { if (st.st) st.pts[1] = [x, st.pts[0][1]]; else st.pts.push([x, y]); }
 function inkKey(id) { return 'medbrain_ink_' + id; }
 function loadInk(id) { try { return JSON.parse(localStorage.getItem(inkKey(id)) || '{}') || {}; } catch (_) { return {}; } }
-function saveInk() { if (!pdfView) return; try { localStorage.setItem(inkKey(pdfView.lecId), JSON.stringify(pdfView.ink)); } catch (_) {} }
+function saveInk() { if (!pdfView) return; try { localStorage.setItem(inkKey(pdfView.lecId), JSON.stringify(pdfView.ink)); } catch (_) {} annSet('pdf:' + pdfView.lecId, pdfView.ink); }
 function pvPrefs() { try { return JSON.parse(localStorage.getItem('medbrain_pv_prefs') || '{}') || {}; } catch (_) { return {}; } }
 function savePvPrefs(v) { try { localStorage.setItem('medbrain_pv_prefs', JSON.stringify({ pen: v.pen, hl: v.hl, night: v.night, line: v.line || 'band' })); } catch (_) {} }
 function destroyPdfViewer() {
@@ -6483,6 +6488,8 @@ async function mountPdfViewer(body, bytes, lec) {
   pages.forEach(el => pdfView.observer.observe(el));
   document.getElementById('readerOverlay').classList.add('pv-active');
   bindPdfViewer(wrap);
+  { const v = pdfView; annGet(['pdf:' + lec.id]).then(m => { const d = m.get('pdf:' + lec.id);
+      if (d && typeof d === 'object' && pdfView === v && !v.hist.length) { v.ink = d; try { localStorage.setItem(inkKey(v.lecId), JSON.stringify(d)); } catch (_) {} v.rendered.forEach(n => drawInk(n)); } }).catch(() => {}); }
   if (pdfTimer) showCountdown();
 }
 async function renderPdfPage(n) {
@@ -6616,7 +6623,7 @@ function openPvTextBox(pageEl, n, x, y) {
 // the left pill holds headings, more, timer, lab values, smaller/larger text, undo and redo.
 let txView = null;
 function txKey(id) { return 'medbrain_txink_' + id; }
-function txSave() { if (!txView) return; try { localStorage.setItem(txKey(txView.lecId), JSON.stringify(txView.items)); } catch (_) {} }
+function txSave() { if (!txView) return; try { localStorage.setItem(txKey(txView.lecId), JSON.stringify(txView.items)); } catch (_) {} annSet('tx:' + txView.lecId, txView.items); }
 function txSize() {
   const v = txView; if (!v) return;
   const body = document.getElementById('readerBody');
@@ -6686,6 +6693,8 @@ function mountTextTools(lec) {
   txView.ro = new ResizeObserver(() => txSize()); txView.ro.observe(body);
   txSize();
   bindTextTools(bar, body);
+  { const v = txView; annGet(['tx:' + lec.id]).then(m => { const d = m.get('tx:' + lec.id);
+      if (Array.isArray(d) && txView === v && !v.hist.length) { v.items = d; try { localStorage.setItem(txKey(v.lecId), JSON.stringify(d)); } catch (_) {} txDraw(); } }).catch(() => {}); }
   if (pdfTimer) showCountdown();
 }
 function bindTextTools(bar, body) {
@@ -7714,6 +7723,7 @@ async function openQuiz(id) {
   document.getElementById('readerLayout').classList.add('no-outline');
   renderQuiz();
   openReaderSurface(true);
+  loadQuizHl().catch(() => {});
 }
 // Ministerial questions start with an exam label line such as "[وزاري باطنية 2024]"; show it as a badge, not inside the sentence.
 function splitExamTag(prompt) {
@@ -7743,7 +7753,7 @@ function renderQuiz(keepScroll) {
   const right = questions.reduce((n, qq, i) => n + (answers[i] != null && answers[i] === qq.correctIndex ? 1 : 0), 0);
   const wrong = answers.filter((a, i) => a != null && a !== questions[i].correctIndex).length;
   const doneCount = answers.filter(a => a != null).length;
-  const stemHtml = quizState.hl && quizState.hl[index] ? quizState.hl[index] : escapeHtml(p.text).replace(/\n/g, '<br>');
+  const stemHtml = stemWithMarks(p.text, quizState.hl && Array.isArray(quizState.hl[index]) ? quizState.hl[index] : null);
   let html = studyBarHtml({ pos: index + 1, total: questions.length, done: doneCount, right, wrong, highlight: true, settings: true, ai: true }) +
     '<div class="study-grid">' + studyGaugeHtml(right, wrong) + '<div class="study-main">' +
     '<div class="quiz-head">' +
@@ -7805,6 +7815,7 @@ function openCustomQuiz(title, meta, questions) {
   document.getElementById('readerLayout').classList.add('no-outline');
   renderQuiz();
   openReaderSurface(true);
+  loadQuizHl().catch(() => {});
   return true;
 }
 function startCustomDeck(title, cards) {
@@ -8558,7 +8569,7 @@ function applyQuizHighlight() {
   try { const mark = document.createElement('mark'); mark.className = cls; range.surroundContents(mark); }
   catch (_) { const mark = document.createElement('mark'); mark.className = cls; mark.appendChild(range.extractContents()); range.insertNode(mark); }
   sel.removeAllRanges();
-  (quizState.hl = quizState.hl || {})[quizState.index] = stem.innerHTML;
+  saveQuizHl();
 }
 
 // «اسأل AI» inside a question: opens MidBrain AI over the quiz with the question (and, once answered, the student's
@@ -8576,6 +8587,84 @@ function askAIAboutQuestion() {
   box.value = text.length > 1180 ? text.slice(0, 1177) + '…' : text;
   box.dispatchEvent(new Event('input', { bubbles: true }));
   box.focus();
+}
+
+// ---------------- Student notes saved to the account ----------------
+// PDF ink, summary ink, question highlights and flashcard progress are kept in public.user_annotations (RLS: own
+// rows only), with this device's copy as an instant cache. Writes are batched a moment after the student stops.
+const annPending = new Map(); let annTimer = null;
+function annSet(key, data) {
+  if (!client || !activeUserId || !key) return;
+  annPending.set(key, data);
+  clearTimeout(annTimer); annTimer = setTimeout(annFlush, 1500);
+}
+async function annFlush() {
+  if (!client || !activeUserId || !annPending.size) return;
+  const uid = activeUserId;
+  const rows = [...annPending].map(([item_key, data]) => ({ user_id: uid, item_key, data, updated_at: new Date().toISOString() }));
+  annPending.clear();
+  const del = rows.filter(r => r.data == null || (Array.isArray(r.data) && !r.data.length) || (typeof r.data === 'object' && !Array.isArray(r.data) && !Object.keys(r.data).length));
+  const up = rows.filter(r => !del.includes(r));
+  try {
+    if (up.length) await client.from('user_annotations').upsert(up);
+    if (del.length) await client.from('user_annotations').delete().eq('user_id', uid).in('item_key', del.map(r => r.item_key));
+  } catch (err) { console.warn('notes sync failed', err); }
+}
+async function annGet(keys) {
+  if (!client || !activeUserId || !keys.length) return new Map();
+  const out = new Map();
+  for (let i = 0; i < keys.length; i += 150) {
+    const { data, error } = await client.from('user_annotations').select('item_key,data').in('item_key', keys.slice(i, i + 150));
+    if (!error) (data || []).forEach(r => out.set(r.item_key, r.data));
+  }
+  return out;
+}
+if (typeof window !== 'undefined' && window.addEventListener) {
+  window.addEventListener('pagehide', () => { if (annPending.size) annFlush(); });
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden' && annPending.size) annFlush(); });
+}
+
+// Question highlights are stored as ranges over the plain question text, then rebuilt as safe <mark> elements.
+function stemRanges(h3) {
+  const ranges = []; let pos = 0;
+  h3.childNodes.forEach(n => {
+    if (n.nodeType === 3) pos += n.nodeValue.length;
+    else if (n.nodeName === 'BR') pos += 1;
+    else if (n.nodeName === 'MARK') { const len = n.textContent.length; const c = (/hl-([a-z])/.exec(n.className) || [])[1] || 'y'; if (len) ranges.push([pos, pos + len, c]); pos += len; }
+    else pos += (n.textContent || '').length;
+  });
+  return ranges;
+}
+function stemWithMarks(text, ranges) {
+  if (!ranges || !ranges.length) return escapeHtml(text).replace(/\n/g, '<br>');
+  let html = '', at = 0;
+  ranges.slice().sort((a, b) => a[0] - b[0]).forEach(([a, b, c]) => {
+    if (a < at || b > text.length || b <= a) return;
+    html += escapeHtml(text.slice(at, a)).replace(/\n/g, '<br>') + '<mark class="hl hl-' + (/^[a-z]$/.test(c) ? c : 'y') + '">' + escapeHtml(text.slice(a, b)).replace(/\n/g, '<br>') + '</mark>';
+    at = b;
+  });
+  return html + escapeHtml(text.slice(at)).replace(/\n/g, '<br>');
+}
+function quizHlKey(i) {
+  if (!quizState) return '';
+  const q = quizState.material.questions[i]; if (!q || q._ai) return '';
+  const lec = q._lec || (quizState.material.id !== 'self-quiz' ? quizState.material.id : '');
+  return lec ? 'qh:' + lec + ':' + (q._i != null ? q._i : i) : '';
+}
+function saveQuizHl() {
+  if (!quizState) return;
+  const stem = document.querySelector('#readerBody .quiz-question h3'); if (!stem) return;
+  const r = stemRanges(stem); (quizState.hl = quizState.hl || {})[quizState.index] = r;
+  const key = quizHlKey(quizState.index); if (key) annSet(key, r);
+}
+async function loadQuizHl() {
+  const st = quizState; if (!st) return;
+  const keys = st.material.questions.map((_, i) => quizHlKey(i));
+  const got = await annGet(keys.filter(Boolean));
+  if (quizState !== st || !got.size) return;
+  st.hl = st.hl || {};
+  keys.forEach((k, i) => { if (k && got.has(k) && Array.isArray(got.get(k))) st.hl[i] = got.get(k); });
+  renderQuiz(true);
 }
 function bindStudyBar() {
   document.addEventListener('click', e => {
@@ -8600,7 +8689,7 @@ function bindStudyBar() {
     const m = e.target.closest('#readerBody .quiz-question h3 mark.hl');
     if (!m || !quizHighlight || !quizState) return;
     m.replaceWith(...m.childNodes);
-    (quizState.hl = quizState.hl || {})[quizState.index] = document.querySelector('#readerBody .quiz-question h3').innerHTML;
+    saveQuizHl();
   });
   ['mouseup', 'touchend'].forEach(ev => document.addEventListener(ev, () => setTimeout(applyQuizHighlight, 0)));
   document.documentElement.style.setProperty('--quiz-fs', studyFont + 'em');
