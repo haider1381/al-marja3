@@ -2125,7 +2125,7 @@ body.ai-site-open .mb-main{margin-left:var(--ai-site-width);margin-right:0;max-w
 #readerOverlay.ai-reader-open .reader-layout{grid-template-columns:340px minmax(0,760px);}
 #readerOverlay.ai-reader-open .reader-ai-host{display:block;height:max(350px,calc(100dvh - 240px));max-height:650px;margin-top:10px;}
 .reader-ai-host .mb-ai-dialog{position:static;inset:auto;width:100%;height:100%;border:1px solid var(--ai-border);border-radius:16px;box-shadow:none;z-index:auto;padding:14px;}
-#readerOverlay.reader-quiz .reader-ai-rail{display:none;}
+
 @media(max-width:1000px) and (min-width:701px){:root{--ai-site-width:310px;}#readerOverlay.ai-reader-open .reader-layout{grid-template-columns:290px minmax(0,1fr);padding-inline:16px;gap:16px;}}
 @media(max-width:700px){
  .mb-global-ai-trigger .mb-ai-top-label{display:none;}.mb-global-ai-trigger{width:36px;padding:0;}
@@ -2815,6 +2815,9 @@ html[lang="en"] .mb-feature-en, html[lang="en"] .sp-title small { display:none; 
 .dd-list button:hover { background:var(--accent-soft); }
 .dd-list button[aria-selected="true"] { background:var(--accent); color:#fff; }
 .exam-go { min-height:40px; padding:0 20px; border:0; border-radius:12px; background:var(--accent); color:#fff; font:inherit; font-size:14px; font-weight:800; cursor:pointer; }
+
+.study-ai { display:inline-flex; align-items:center; gap:6px; min-height:36px; margin-inline-start:6px; padding:0 12px; border:0; border-radius:999px; background:linear-gradient(135deg,#1593e6,#0a63b8); color:#fff; font:inherit; font-size:13px; font-weight:800; cursor:pointer; box-shadow:0 4px 12px rgba(8,118,207,.3); }
+.study-ai svg { width:17px; height:17px; fill:none; stroke:currentColor; stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round; }
 </style>
 <link rel="manifest" href="./manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="192x192" href="./assets/app-icon-192.png">
@@ -7723,7 +7726,7 @@ function renderQuiz(keepScroll) {
   const wrong = answers.filter((a, i) => a != null && a !== questions[i].correctIndex).length;
   const doneCount = answers.filter(a => a != null).length;
   const stemHtml = quizState.hl && quizState.hl[index] ? quizState.hl[index] : escapeHtml(p.text).replace(/\n/g, '<br>');
-  let html = studyBarHtml({ pos: index + 1, total: questions.length, done: doneCount, right, wrong, highlight: true, settings: true }) +
+  let html = studyBarHtml({ pos: index + 1, total: questions.length, done: doneCount, right, wrong, highlight: true, settings: true, ai: true }) +
     '<div class="study-grid">' + studyGaugeHtml(right, wrong) + '<div class="study-main">' +
     '<div class="quiz-head">' +
     '<button type="button" class="quiz-report" data-quiz-report title="الإبلاغ عن خطأ في هذا السؤال" aria-label="الإبلاغ عن خطأ في هذا السؤال">' +
@@ -8504,6 +8507,7 @@ function studyBarHtml(o) {
     '<button type="button" class="study-ib is-lab" data-open-labs aria-pressed="' + !document.getElementById('labsPanel').hidden + '" aria-label="Show lab values" title="Show lab values">' + STUDY_ICONS.lab + '</button>' +
     (o.highlight ? '<button type="button" class="study-ib" data-study="hl" aria-pressed="' + quizHighlight + '" aria-label="Highlight mode" title="Highlight mode">' + STUDY_ICONS.hl + '</button>' : '') +
     (fullscreenOk() ? '<button type="button" class="study-ib" data-study="full" aria-label="Full screen" title="Full screen">' + STUDY_ICONS.full + '</button>' : '') +
+    (o.ai ? '<button type="button" class="study-ai" data-study="ai" aria-label="اسأل MidBrain AI عن هذا السؤال" title="اسأل MidBrain AI عن هذا السؤال"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 3l2.2 6.8L19 12l-6.8 2.2L10 21l-2.2-6.8L1 12l6.8-2.2L10 3z"/><path d="M20 2v6M17 5h6"/></svg><span>اسأل AI</span></button>' : '') +
     '</div><div class="study-mid"><div class="study-count">' + Math.min(o.pos, o.total) + ' of ' + o.total + '</div>' +
     '<div class="study-track"><span style="width:' + pct + '%"></span></div>' +
     '<div class="study-score"><b>' + o.right + '</b> Correct' + (o.unsure != null ? ' · <b>' + o.unsure + '</b> Unsure' : '') + ' · <b>' + o.wrong + '</b> Incorrect</div></div>' +
@@ -8532,6 +8536,23 @@ function applyQuizHighlight() {
   sel.removeAllRanges();
   (quizState.hl = quizState.hl || {})[quizState.index] = stem.innerHTML;
 }
+
+// «اسأل AI» inside a question: opens MidBrain AI over the quiz with the question (and, once answered, the student's
+// choice) written into the box, ready to send or edit.
+function askAIAboutQuestion() {
+  if (!quizState) return;
+  const q = quizState.material.questions[quizState.index]; if (!q) return;
+  const p = splitExamTag(q.prompt);
+  const picked = quizState.answers[quizState.index];
+  let text = 'Explain this MCQ step by step: why the correct answer is right and why each other option is wrong.\n\n' + p.text.trim() + '\n' +
+    q.options.map((o, i) => 'ABCDE'[i] + ') ' + o.text).join('\n');
+  if (picked != null) text += '\n\nMy answer: ' + 'ABCDE'[picked] + (picked === q.correctIndex ? ' (correct)' : ' — keyed answer: ' + 'ABCDE'[q.correctIndex]);
+  openAIChat(null);
+  const box = document.getElementById('aiQuestion');
+  box.value = text.length > 1180 ? text.slice(0, 1177) + '…' : text;
+  box.dispatchEvent(new Event('input', { bubbles: true }));
+  box.focus();
+}
 function bindStudyBar() {
   document.addEventListener('click', e => {
     const b = e.target.closest('[data-study]');
@@ -8544,6 +8565,7 @@ function bindStudyBar() {
     const act = b.dataset.study;
     if (act === 'full') toggleFullscreen();
     else if (act === 'settings' && pop) { pop.hidden = !pop.hidden; b.setAttribute('aria-expanded', String(!pop.hidden)); }
+    else if (act === 'ai') askAIAboutQuestion();
     else if (act === 'hl') { quizHighlight = !quizHighlight; b.setAttribute('aria-pressed', String(quizHighlight)); document.getElementById('readerBody').classList.toggle('quiz-highlighting', quizHighlight); }
   });
   document.addEventListener('click', e => {
