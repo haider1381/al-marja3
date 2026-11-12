@@ -9,9 +9,9 @@
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Lateef:wght@400&family=Patrick+Hand&display=swap" rel="stylesheet">
 <style>
-/* Arabic letters use a lighter, flowing Naskh face; Latin letters keep Cairo. */
-@font-face { font-family:'MB Arabic'; font-style:normal; font-weight:400 700; font-display:swap;
-  src:url(https://fonts.gstatic.com/s/notonaskharabic/v44/RrQKbpV-9Dd1b1OAGA6M9PkyDuVBeN2DHV20Lg.woff2) format('woff2');
+/* Arabic letters use Lemonada (playful, rounded, slightly slanted like the English Nunito); Latin letters keep Cairo. */
+@font-face { font-family:'MB Arabic'; font-style:normal; font-weight:300 700; font-display:swap; size-adjust:86%;
+  src:url(https://fonts.gstatic.com/s/lemonada/v31/0QIjMXFD9oygTWy_R8tMv_SW8g.woff2) format('woff2');
   unicode-range:U+0600-06FF, U+0750-077F, U+0870-08FF, U+200C-200E, U+FB50-FDFF, U+FE70-FEFC; }
 
   :root {
@@ -6154,9 +6154,12 @@ function renderRelatedBar(lec) {
   const kinds = RELATED_KINDS.filter(([k]) => rel[k].length);
   const quiz = lec && lec.type !== 'أسئلة' && topicQuizAvailable(lec.topicId);
   bar.hidden = !kinds.length && !quiz;
-  bar.innerHTML = (kinds.length || quiz ? '<span class="reader-related-label">مرتبط بهذا الموضوع</span>' : '') + kinds.map(([k, label, icon]) =>
+  // On a question set, the related materials are framed as review: lectures to revise the question's topic.
+  const isQ = lec && lec.type === 'أسئلة';
+  const labelOf = (k, label) => isQ && k === 'sources' ? 'محاضرات لمراجعة موضوع السؤال' : label;
+  bar.innerHTML = (kinds.length || quiz ? '<span class="reader-related-label">' + (isQ ? 'راجع موضوع السؤال:' : 'مرتبط بهذا الموضوع') + '</span>' : '') + kinds.map(([k, label0, icon]) => { const label = labelOf(k, label0); return
     '<button type="button" class="related-btn rel-' + k + '" data-related="' + k + '" aria-pressed="' + (sidePanelKind === k) + '">' +
-    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + icon + '</svg><span>' + label + '</span></button>').join('') +
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + icon + '</svg><span>' + label + '</span></button>'; }).join('') +
     (quiz ? '<button type="button" class="related-btn rel-quiz" data-topic-quiz="' + escapeHtml(lec.topicId) + '"><span aria-hidden="true">⚡</span><span>Quick Quiz</span></button>' : '');
   if (sidePanelKind && !rel[sidePanelKind].length) closeSidePanel();
 }
@@ -6170,7 +6173,7 @@ function openSidePanel(kind) {
   if (sidePanelKind === kind) { closeSidePanel(); return; }
   closeAIChat(false);
   sidePanelKind = kind;
-  const label = (RELATED_KINDS.find(([k]) => k === kind) || [])[1] || '';
+  const label = relatedLecture && relatedLecture.type === 'أسئلة' && kind === 'sources' ? 'محاضرات لمراجعة موضوع السؤال' : (RELATED_KINDS.find(([k]) => k === kind) || [])[1] || '';
   document.getElementById('readerSideTitle').textContent = label + ' · ' + topicName(relatedLecture.topicId);
   const side = document.getElementById('readerSide');
   side.hidden = false;
