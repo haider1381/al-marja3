@@ -358,6 +358,34 @@
   .browse-crumbs span[aria-current] { font-weight:700; color:var(--text); }
   .browse-crumbs .sep { color:var(--text-muted); }
   .browse-grid { gap:10px; }
+  .subject-panels { display:grid; gap:16px; margin:8px 0 18px; }
+  .subject-panel { border:1px solid var(--border); border-radius:18px; background:var(--surface); overflow:hidden; }
+  .sp-head { display:flex; align-items:center; gap:14px; width:100%; padding:16px 20px; border:0; background:none; color:var(--text); font:inherit; text-align:start; cursor:pointer; }
+  .subject-panel.open .sp-head { border-bottom:1px solid var(--border); }
+  .sp-icon { flex:none; width:46px; height:46px; display:grid; place-items:center; border-radius:12px; background:color-mix(in srgb, var(--accent) 12%, var(--surface)); color:var(--accent); }
+  .sp-icon svg { width:24px; height:24px; }
+  .sp-title { flex:none; display:grid; font-weight:800; font-size:19px; line-height:1.3; }
+  .sp-title small { font-size:11.5px; font-weight:700; opacity:.6; }
+  .sp-organs { flex:1; display:flex; justify-content:center; gap:28px; min-width:0; overflow:hidden; }
+  .sp-organ { flex:none; width:40px; height:40px; opacity:.32; }
+  .sp-organ:nth-child(2) { transform:rotate(9deg) translateY(4px); }
+  .sp-organ svg { width:100%; height:100%; display:block; }
+  .sp-chevron { flex:none; font-size:22px; line-height:1; transition:transform .2s; color:var(--text-muted); }
+  .subject-panel:not(.open) .sp-chevron { transform:rotate(180deg); }
+  .sp-body { padding:14px 20px 18px; display:grid; gap:14px; }
+  .sp-branches { display:grid; grid-template-columns:1fr 1fr; gap:4px 28px; align-items:start; }
+  .sp-branch-row { display:flex; align-items:center; gap:6px; }
+  .sp-toggle { flex:none; width:30px; height:30px; display:grid; place-items:center; border:0; border-radius:8px; background:none; color:var(--text-muted); cursor:pointer; font-size:19px; transition:transform .2s, background .2s; }
+  .sp-toggle:hover, .sp-toggle:focus-visible { background:color-mix(in srgb, var(--accent) 10%, transparent); color:var(--accent); }
+  .sp-branch.open .sp-toggle { transform:rotate(-90deg); color:var(--accent); }
+  .sp-name { flex:0 1 auto; min-width:0; padding:8px 4px; border:0; background:none; color:var(--text); font:inherit; font-size:15.5px; font-weight:700; text-align:start; cursor:pointer; }
+  .sp-name:hover, .sp-name:focus-visible { color:var(--accent); }
+  .sp-topics { display:grid; gap:2px; margin:2px 15px 8px 0; padding-inline-start:16px; border-inline-start:2px solid var(--border); }
+  .subject-panel .sp-topic { justify-self:start; width:auto; padding:6px 8px; border:0 !important; box-shadow:none !important; border-radius:8px; background:none; color:var(--text); font:inherit; font-size:14px; text-align:start; cursor:pointer; }
+  .sp-topic:hover, .sp-topic:focus-visible { background:color-mix(in srgb, var(--accent) 8%, transparent); color:var(--accent); }
+  .sp-sources { display:flex; flex-wrap:wrap; align-items:center; gap:8px; padding-top:12px; border-top:1px dashed var(--border); }
+  .sp-sources-label { font-size:12.5px; font-weight:800; color:var(--text-muted); margin-inline-end:4px; }
+  @media (max-width:640px) { .sp-branches { grid-template-columns:1fr; } .sp-head { padding:14px; gap:10px; } .sp-organs { gap:14px; } .sp-organ { width:32px; height:32px; } .sp-body { padding:12px 14px 16px; } }
   .subject-strips { display:grid; grid-template-columns:1fr; gap:12px; width:100%; margin:8px 0 18px; grid-column:1 / -1; }
   .mb-support-tg { display:inline-grid; place-items:center; color:#229ED9; text-decoration:none; }
   .mb-support-tg svg { width:22px; height:22px; }
@@ -4371,18 +4399,7 @@ function renderBrowse() {
   const prompts = { category: 'اختر التخصص', topic: path.keys[0] === 'stage' ? 'اختر المادة' : 'اختر الفرع', source: 'اختر المصدر', type: 'اختر النوع', stage: 'اختر المرحلة', doctor: 'اختر الدكتور' };
   if (path.level === 'category' && !b.fromSource) {
     const kindPool = lectures.filter(l => !state.filterKind || materialGroup(l.type) === state.filterKind);
-    if (!b.rootCat) {
-      const cats = orderedValues(kindPool.map(l => l.category).filter(Boolean), SUBJECT_ORDER);
-      if (!cats.length) return html + '<div class="empty">لا توجد مواد هنا بعد.</div>';
-      return html + '<p class="section-label">اختر المادة</p><div class="subject-strips">' + cats.map(c => {
-        const srcs = orderedValues(kindPool.filter(l => l.category === c).map(l => sourceShort(l.source)), []);
-        return '<button type="button" class="subject-strip" data-action="browse-rootcat" data-value="' + escapeHtml(c) + '">' +
-          '<span class="subject-strip-icon">' + (ICONS[CATEGORY_ICON[c]] || ICONS.book || '') + '</span>' +
-          '<span class="subject-strip-main"><span class="subject-strip-name">' + escapeHtml(SUBJECT_AR[c] || c) + '</span>' +
-          '<span class="subject-strip-sub" dir="auto">' + escapeHtml(srcs.slice(0, 4).join(' · ') + (srcs.length > 4 ? ' …' : '')) + '</span></span>' +
-          '<span class="topic-row-arrow" aria-hidden="true">‹</span></button>';
-      }).join('') + '</div>';
-    }
+    if (!b.rootCat) return html + renderSubjectPanels(kindPool);
     const catPool = kindPool.filter(l => l.category === b.rootCat);
     const unis = new Set(universitySources());
     const srcs = orderedValues(catPool.map(l => l.source || 'غير محدد'), []);
@@ -4401,6 +4418,45 @@ function renderBrowse() {
 }
 const TYPE_SHORT = { 'محاضرة': 'PDF', 'ملف PDF': 'PDF', 'ملخص': 'ملخص', 'أسئلة': 'أسئلة', 'فيديو': 'فيديو', 'أخرى': 'أخرى' };
 function sourceShort(src) { return String(src || 'غير محدد').replace(/^محاضرات\s+/, '').replace(/^دكتور\s+/, 'د. '); }
+// Library home: one full-width panel per subject (Surgery, Medicine, Pediatrics, OB/GYN…). Inside, its branches
+// in two columns; the arrow beside a branch unfolds its smaller topics. Two organ outlines sit in the header's
+// empty middle — never behind or over text.
+const SUBJECT_ORGANS = { 'Surgery': ['stomach', 'liver'], 'Medicine': ['heart', 'lungs'], 'Pediatrics': ['brain', 'dna'], 'OB/GYN': ['kidney', 'dna'], 'Emergency': ['heart', 'skull'], 'Basic Sciences': ['dna', 'brain'] };
+var closedPanels = new Set(), openBranches = new Set();
+function organInline(name) {
+  return '<span class="sp-organ" aria-hidden="true" style="color:' + ORGAN_COLORS[name] + '"><svg viewBox="0 0 80 80" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">' + ORGAN_PATHS[name] + '</svg></span>';
+}
+function renderSubjectPanels(kindPool) {
+  const cats = orderedValues(kindPool.map(l => l.category).filter(Boolean), SUBJECT_ORDER);
+  if (!cats.length) return '<div class="empty">لا توجد مواد هنا بعد.</div>';
+  return '<div class="subject-panels">' + cats.map(cat => {
+    const pool = kindPool.filter(l => l.category === cat);
+    const open = !closedPanels.has(cat);
+    const branches = orderedValues(pool.map(BROWSE_KEY.topic), TOPICS[cat] || []);
+    const sources = orderedValues(pool.map(l => l.source || 'غير محدد'), []);
+    let body = '';
+    if (open) {
+      body = '<div class="sp-body"><div class="sp-branches">' + branches.map(br => {
+        const key = cat + '|' + br, exp = openBranches.has(key);
+        const hubs = exp ? hubOrder(pool.filter(l => BROWSE_KEY.topic(l) === br)) : [];
+        return '<div class="sp-branch' + (exp ? ' open' : '') + '">' +
+          '<div class="sp-branch-row"><button type="button" class="sp-toggle" data-action="sp-branch" data-key="' + escapeHtml(key) + '" aria-expanded="' + exp + '" aria-label="عرض مواضيع ' + escapeHtml(br) + '"><span aria-hidden="true">◂</span></button>' +
+          '<button type="button" class="sp-name" data-action="sp-open" data-cat="' + escapeHtml(cat) + '" data-branch="' + escapeHtml(br) + '" dir="auto">' + escapeHtml(br) + '</button></div>' +
+          (exp ? '<div class="sp-topics">' + hubs.map(h => '<button type="button" class="sp-topic" data-action="sp-open" data-cat="' + escapeHtml(cat) + '" data-branch="' + escapeHtml(br) + '" data-hub="' + escapeHtml(h) + '" dir="auto">' + escapeHtml(topicName(h, pool)) + '</button>').join('') + '</div>' : '') +
+          '</div>';
+      }).join('') + '</div>' +
+      (sources.length ? '<div class="sp-sources"><span class="sp-sources-label">المصادر</span>' + sources.map(src => '<button type="button" class="chip" data-action="browse-uni" data-cat="' + escapeHtml(cat) + '" data-value="' + escapeHtml(src) + '" dir="auto">' + escapeHtml(sourceShort(src)) + '</button>').join('') + '</div>' : '') +
+      '</div>';
+    }
+    const organs = SUBJECT_ORGANS[cat] || ['heart', 'brain'];
+    return '<section class="subject-panel' + (open ? ' open' : '') + '">' +
+      '<button type="button" class="sp-head" data-action="sp-panel" data-cat="' + escapeHtml(cat) + '" aria-expanded="' + open + '">' +
+        '<span class="sp-icon">' + (ICONS[CATEGORY_ICON[cat]] || ICONS.book || '') + '</span>' +
+        '<span class="sp-title">' + escapeHtml(SUBJECT_AR[cat] || cat) + '<small dir="ltr">' + escapeHtml(cat) + '</small></span>' +
+        '<span class="sp-organs">' + organs.map(organInline).join('') + '</span>' +
+        '<span class="sp-chevron" aria-hidden="true">⌃</span></button>' + body + '</section>';
+  }).join('') + '</div>';
+}
 function renderTopicRows(path) {
   const groups = new Map();
   path.pool.forEach(l => { const k = BROWSE_KEY.hub(l); if (!groups.has(k)) groups.set(k, []); groups.get(k).push(l); });
@@ -4715,9 +4771,19 @@ function onContentClick(e) {
   if (hubSrc) { state.browse.hubSource = hubSrc.dataset.value || null; render(); return; }
   const toTopic = e.target.closest('[data-action="open-topic"]');
   if (toTopic) { e.stopPropagation(); openTopicHub(toTopic.dataset.topic); return; }
+  const spPanel = e.target.closest('[data-action="sp-panel"]');
+  if (spPanel) { const c = spPanel.dataset.cat; closedPanels.has(c) ? closedPanels.delete(c) : closedPanels.add(c); render(); return; }
+  const spBranch = e.target.closest('[data-action="sp-branch"]');
+  if (spBranch) { const k = spBranch.dataset.key; openBranches.has(k) ? openBranches.delete(k) : openBranches.add(k); render(); return; }
+  const spOpen = e.target.closest('[data-action="sp-open"]');
+  if (spOpen) {
+    state.browse = browseStartFor('category-root', '');
+    Object.assign(state.browse, { rootCat: spOpen.dataset.cat, category: spOpen.dataset.cat, topic: spOpen.dataset.branch, hub: spOpen.dataset.hub || null });
+    render(); document.getElementById('content').scrollIntoView({ block: 'start', behavior: document.documentElement.dataset.motion === 'reduce' ? 'auto' : 'smooth' }); return;
+  }
   const uni = e.target.closest('[data-action="browse-uni"]');
   if (uni) {
-    const rootCat = state.browse.rootCat || null;
+    const rootCat = uni.dataset.cat || state.browse.rootCat || null;
     state.browse = browseStartFor('source', uni.dataset.value);
     // Coming from a subject: open that source directly at the subject's subspecialties.
     if (rootCat) { state.browse.rootCat = rootCat; state.browse.category = rootCat; }
