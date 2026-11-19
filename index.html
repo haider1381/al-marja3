@@ -4759,7 +4759,7 @@ function showMainView(view, kind='', scrollBehavior='smooth') {
   }
   currentMainView = view;
   currentMainKind = kind;
-  try { sessionStorage.setItem('medbrain_active_view_v2', JSON.stringify({view,kind})); } catch (_) {}
+  if(!restoringMainView) try { sessionStorage.setItem('medbrain_active_view_v2', JSON.stringify({view,kind})); } catch (_) {}
   deviceSyncNav();
   ['dashboardView','librarySection','scheduleSection','flashcardsSection','subscriptionSection','shareScheduleSection','favoritesSection','settingsSection'].forEach(id=>{
     const el=document.getElementById(id); if(el)el.classList.remove('active');
