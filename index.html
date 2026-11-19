@@ -3213,6 +3213,10 @@ html[lang="en"] .mb-feature-en, html[lang="en"] .sp-title small { display:none; 
   <label class="mb-profile-xp" id="friendPrivacyOption" hidden><input id="friendPrivacy" type="checkbox"> أسمح لأصدقائي برؤية تقدّمي</label>
   <p id="friendPrivacyStatus" role="status"></p>
       <button type="button" class="mb-file-btn" data-profile="logout" id="profileLogoutBtn">تسجيل الخروج</button>
+      <button type="button" class="mb-file-btn" id="openProgressComparison">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 20h16M6 17v-5m6 5V5m6 12V9"/></svg>
+        مقارنة التقدّم مع الأعضاء
+      </button>
       <form id="friendChatPreferences" class="mb-profile-xp" hidden>
         <label for="friendChatMode">من يگدر يراسلني؟</label>
         <select id="friendChatMode">
@@ -7757,6 +7761,14 @@ function initFriends() {
     void loadFriends();
   };
   document.getElementById('openFriends').addEventListener('click', () => open(false));
+  document.getElementById('openProgressComparison').addEventListener('click', () => {
+    setLayerOpen('accountOverlay', false);
+    open(false);
+    const ranking = document.getElementById('globalRanking');
+    if (ranking.open) void loadGlobalRanking();
+    else ranking.open = true;
+    ranking.querySelector('summary').focus();
+  });
   document.getElementById('openFriendInvite').addEventListener('click', () => open(true));
   document.getElementById('menuBtn').addEventListener('click', () => { if (activeUserId) void loadFriends(); });
   document.getElementById('profileBtn').addEventListener('click', () => {
