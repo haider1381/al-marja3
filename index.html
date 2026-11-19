@@ -3301,8 +3301,9 @@ body>.mb-note-menu[data-open=true]{display:grid!important;position:fixed!importa
 <nav class="mb-nav" aria-label="صفحاتي">
 <div id="drawerOwnerTools" hidden>
   <button type="button" data-tool-view="subscription"><span>لوحة الإدارة<small>الاشتراكات والأكواد</small></span></button>
-  <button type="button" id="drawerOwnerReports"><span>بلاغات الطلاب والاقتراحات</span></button>
+  <button type="button" data-open-admin-reports><span>بلاغات الطلاب والاقتراحات</span></button>
 </div>
+<button type="button" id="reportSupportInbox"><span>مراسلات دعم البلاغات</span></button>
 
 <button type="button" id="openFriends" data-friends-ready hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="9" cy="7" r="3"/><path d="M3 20v-2a6 6 0 0 1 12 0v2m4-11v6m-3-3h6"/></svg><span>الأصدقاء<small>إضافة صديق ومتابعة تقدّمه</small></span><b class="friend-request-count" id="friendMenuCount" hidden></b></button>
 <button type="button" data-tool-view="subscription"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M3 10h18M7 15h4"/></svg><span>اشتراكي<small>الوصول والخدمات المتاحة</small></span></button>
@@ -3657,12 +3658,13 @@ body>.mb-note-menu[data-open=true]{display:grid!important;position:fixed!importa
  <article class="mb-personal-card"><span class="mb-personal-pill">الوصول الحالي</span><h3 style="margin-top:16px">حساب Medbrain</h3><p id="subscriptionIdentity" dir="auto"></p><ul><li>قراءة المحاضرات والملخصات وفتح ملفات PDF</li><li>جدول دراسي شخصي محفوظ في حسابك</li><li>حفظ المواد في المفضلات</li></ul><button type="button" class="mb-primary" data-nav="account">إدارة ملفي الشخصي</button></article>
  <article class="mb-personal-card"><h3>حالة الاشتراك</h3><p id="subStatus">جارٍ التحقق…</p><form id="subRedeemForm" class="sub-redeem" hidden><label for="subRedeemCode">كود الاشتراك</label><div class="sub-row"><input id="subRedeemCode" dir="ltr" autocomplete="off" placeholder="MB-XXXXX-XXXXX" maxlength="20"><button type="submit" class="mb-primary">تفعيل الكود</button></div><p id="subRedeemStatus" role="status"></p></form><p id="subContact" hidden></p></article>
  <article class="mb-personal-card sub-admin" id="subAdmin" hidden><span class="mb-personal-pill">لوحة المسؤول</span><h3 style="margin-top:16px">الاشتراكات والأكواد</h3>
-  <div class="owner-user-count"><span>الحسابات المسجّلة</span><output id="ownerUserCount" aria-live="polite">—</output></div>
+  <div class="owner-user-count"><span>كل الحسابات المسجّلة (المجانية والمدفوعة)</span><output id="ownerUserCount" aria-live="polite">—</output></div>
   <label class="sub-switch"><input type="checkbox" id="paywallToggle"> <span>الموقع مدفوع (طلب كود الاشتراك من الطلاب)</span></label>
-  <label for="paywallTelegram">معرّف أو رابط Telegram للتواصل</label><div class="sub-row"><input id="paywallTelegram" dir="ltr" placeholder="@username" maxlength="100"><button type="button" class="mb-file-btn" id="paywallSave">حفظ</button></div>
+  <label for="paywallTelegram">رقم أو رابط واتساب للتواصل</label><div class="sub-row"><input id="paywallTelegram" dir="ltr" placeholder="+964…" inputmode="tel" maxlength="100"><button type="button" class="mb-file-btn" id="paywallSave">حفظ</button></div>
   <p class="sub-hint">والمفتاح مطفأ، يستخدم الجميع الموقع مجانًا. حسابك يبقى مفتوحًا دائمًا.</p>
   <label for="subNewNote">ملاحظة للكود (اختياري، مثل اسم الطالب)</label><input id="subNewNote" maxlength="200">
   <div class="sub-plans"><button type="button" class="mb-primary" data-new-code="month">كود شهري</button><button type="button" class="mb-primary" data-new-code="quarter">كود 3 أشهر</button><button type="button" class="mb-primary" data-new-code="half">كود 6 أشهر</button><button type="button" class="mb-primary" data-new-code="year">كود سنوي</button></div>
+  <button type="button" class="mb-file-btn" data-open-admin-reports>بلاغات الأسئلة واقتراحات المواد</button>
   <p id="subAdminStatus" role="status"></p>
   <details class="mb-list-fold" open><summary>قائمة أكواد الاشتراك</summary><div id="subCodeList" class="sub-list"></div></details></article>
 </div>
@@ -4062,7 +4064,7 @@ body>.mb-note-menu[data-open=true]{display:grid!important;position:fixed!importa
     <div id="lectureReviewList"></div>
   </div>
 </dialog>
-<dialog id="questionReportDialog" class="device-dialog" aria-labelledby="questionReportTitle"><h2 id="questionReportTitle">الإبلاغ عن مشكلة في السؤال</h2><p>يصل بلاغك إلى فريق Medbrain لمراجعة السؤال وتصحيحه.</p><form id="questionReportForm"><fieldset class="report-reasons"><legend>نوع المشكلة</legend><label><input type="radio" name="reportReason" value="wrong_answer"> الإجابة المعتمدة خاطئة</label><label><input type="radio" name="reportReason" value="wrong_question"> السؤال خاطئ أو غير واضح</label><label><input type="radio" name="reportReason" value="incomplete"> السؤال ناقص (خيار أو معلومة مفقودة)</label><label><input type="radio" name="reportReason" value="explanation"> الشرح خاطئ أو غير كافٍ</label><label><input type="radio" name="reportReason" value="other"> مشكلة أخرى</label></fieldset><label for="questionReportNote">تفاصيل (اختياري): ما الصحيح برأيك ومصدره؟<textarea id="questionReportNote" maxlength="1000" rows="3"></textarea></label><div class="device-actions"><button type="submit" class="mb-primary" id="questionReportSubmit">إرسال البلاغ</button><button type="button" class="mb-file-btn" data-device-close="questionReportDialog">إلغاء</button></div><p id="questionReportStatus" role="status"></p></form></dialog>
+<dialog id="questionReportDialog" class="device-dialog" aria-labelledby="questionReportTitle"><h2 id="questionReportTitle">الإبلاغ عن مشكلة في السؤال</h2><p>يصل بلاغك إلى فريق Medbrain لمراجعة السؤال وتصحيحه. قد يتواصل معك الدعم داخل التطبيق للاستيضاح عن هذا البلاغ.</p><form id="questionReportForm"><fieldset class="report-reasons"><legend>نوع المشكلة</legend><label><input type="radio" name="reportReason" value="wrong_answer"> الإجابة المعتمدة خاطئة</label><label><input type="radio" name="reportReason" value="wrong_question"> السؤال خاطئ أو غير واضح</label><label><input type="radio" name="reportReason" value="incomplete"> السؤال ناقص (خيار أو معلومة مفقودة)</label><label><input type="radio" name="reportReason" value="explanation"> الشرح خاطئ أو غير كافٍ</label><label><input type="radio" name="reportReason" value="other"> مشكلة أخرى</label></fieldset><label for="questionReportNote">تفاصيل (اختياري): ما الصحيح برأيك ومصدره؟<textarea id="questionReportNote" maxlength="1000" rows="3"></textarea></label><div class="device-actions"><button type="submit" class="mb-primary" id="questionReportSubmit">إرسال البلاغ</button><button type="button" class="mb-file-btn" data-device-close="questionReportDialog">إلغاء</button></div><p id="questionReportStatus" role="status"></p></form></dialog>
 <section id="labsPanel" class="labs-panel" role="dialog" aria-modal="false" aria-labelledby="labsTitle" data-no-i18n dir="ltr" hidden><div class="labs-head"><h2 id="labsTitle">Lab values</h2><button type="button" class="labs-close" data-labs-close aria-label="Close">×</button></div><div class="labs-tools"><select id="labsTab" aria-label="Lab group"><option value="blood">Blood</option><option value="heme">Hematologic</option><option value="csf">Cerebrospinal</option><option value="other">Sweat, Urine, BMI</option><option value="infl">Inflammation & Immunology</option><option value="vit">Vitamins & Minerals</option><option value="cardiac">Cardiac & Tumor markers</option></select><input type="search" id="labsSearch" class="labs-search" placeholder="Search…" autocomplete="off" aria-label="Search lab values"></div><div class="labs-body" id="labsBody"></div></section>
 <dialog id="selfQuizDialog" class="device-dialog" aria-labelledby="selfQuizTitle"><div class="sp-card-head"><h2 id="selfQuizTitle" dir="ltr">Quiz</h2><button type="button" class="mb-mini-btn" data-device-close="selfQuizDialog" aria-label="إغلاق">×</button></div><form id="selfQuizForm"><fieldset class="sq-group"><legend>نوع الاختبار</legend><label><input type="radio" name="sqMode" value="questions" checked> MCQ</label><label><input type="radio" name="sqMode" value="flash"> Flashcards</label></fieldset><fieldset class="sq-group"><legend>المادة</legend><div id="sqSubjects" class="sq-options"></div></fieldset><div id="sqExam"><fieldset class="sq-group"><legend>مصدر الأسئلة</legend><label><input type="radio" name="sqSource" value="all" checked> كل Q Bank</label><label><input type="radio" name="sqSource" value="files"> ملف أو عدة ملفات</label><label><input type="radio" name="sqSource" value="wizari"> وزاري أو تجريبي</label><label><input type="radio" name="sqSource" value="ai"> أسئلة جديدة بالذكاء الاصطناعي</label><label><input type="radio" name="sqSource" value="saved"> ★ الأسئلة المحفوظة</label></fieldset><div id="sqFilesBox" hidden><fieldset class="sq-group sq-files"><legend>اختر الملفات</legend><input type="search" id="sqFileFind" class="sq-find" placeholder="ابحث عن ملف…" autocomplete="off"><details class="mb-list-fold" open><summary>ملفات الأسئلة</summary><div id="sqFiles" class="sq-file-list"></div></details></fieldset></div><div id="sqExamMore" hidden><fieldset class="sq-group"><legend>نوع الأسئلة</legend><label><input type="radio" name="sqKind" value="" checked> الكل</label><label><input type="radio" name="sqKind" value="main"> وزاري (رئيسي)</label><label><input type="radio" name="sqKind" value="mock"> تجريبي</label></fieldset><fieldset class="sq-group" id="sqBranchBox" hidden><legend>الفرع</legend><div id="sqBranches" class="sq-options"></div></fieldset><fieldset class="sq-group"><legend>السنة</legend><div id="sqYears" class="sq-options"></div></fieldset><fieldset class="sq-group"><legend>الدور</legend><label><input type="radio" name="sqRound" value="" checked> كل الأدوار</label><label><input type="radio" name="sqRound" value="1"> الدور الأول</label><label><input type="radio" name="sqRound" value="2"> الدور الثاني</label></fieldset></div><div id="sqAiBox" hidden><fieldset class="sq-group"><legend>موضوع الأسئلة</legend><input type="text" id="sqAiTopic" class="sq-find" maxlength="160" placeholder="مثال: Heart failure management" dir="auto"><p class="sq-hint">يكتب المساعد حتى 10 أسئلة جديدة بخمسة خيارات وشرح لكل خيار. راجعها كمساعدة دراسية.</p></fieldset></div></div><fieldset class="sq-group"><legend>عدد الأسئلة</legend><div class="sq-count"><input type="number" id="sqCountNum" min="1" max="300" value="20" inputmode="numeric" aria-label="عدد الأسئلة"><button type="button" data-sq-count="10">10</button><button type="button" data-sq-count="20">20</button><button type="button" data-sq-count="40">40</button><button type="button" data-sq-count="300">الكل</button></div></fieldset><div class="device-actions"><button type="submit" class="mb-primary" id="sqStart">ابدأ الاختبار</button><button type="button" class="mb-file-btn" data-device-close="selfQuizDialog">إلغاء</button></div><p id="sqStatus" role="status"></p></form></dialog>
 <dialog id="pdfCopyDialog" class="device-dialog" aria-labelledby="pdfCopyTitle">
@@ -4088,6 +4090,18 @@ body>.mb-note-menu[data-open=true]{display:grid!important;position:fixed!importa
     </div>
     <p id="materialSuggestionStatus" role="status"></p>
   </form>
+</dialog>
+<dialog id="reportSupportDialog" class="device-dialog" aria-labelledby="reportSupportHeading">
+  <div class="sp-card-head"><h2 id="reportSupportHeading">مراسلات دعم البلاغات</h2><button type="button" class="mb-file-btn" data-device-close="reportSupportDialog">إغلاق</button></div>
+  <div id="reportSupportList"></div>
+  <form id="reportSupportForm" hidden>
+    <p id="reportSupportSubject" dir="auto"></p>
+    <div id="reportSupportMessages" aria-live="polite"></div>
+    <label for="reportSupportBody">رسالتك بخصوص البلاغ</label>
+    <textarea id="reportSupportBody" rows="3" maxlength="1000" dir="auto" required></textarea>
+    <button type="submit" class="mb-primary">إرسال</button>
+  </form>
+  <p id="reportSupportStatus" role="status"></p>
 </dialog>
 <dialog id="reportsDialog" class="device-dialog reports-dialog" aria-labelledby="reportsTitle"><div class="sp-card-head"><h2 id="reportsTitle">بلاغات الطلاب</h2><button type="button" class="mb-mini-btn" data-device-close="reportsDialog" aria-label="إغلاق">×</button></div><p>البلاغات المفتوحة عن الأسئلة، الأحدث أولًا. «تمّ الإصلاح» يغلق كل البلاغات عن السؤال نفسه.</p><div id="reportsList"></div><p id="reportsStatus" role="status"></p><section id="suggestionsReview" hidden>
   <h3>اقتراحات المحاضرات والمصادر</h3>
@@ -5180,6 +5194,9 @@ async function syncAccess(session, signedIn = false) {
   accessState = null;
   renderSubscriptionPage();
   document.getElementById('reportsDialog').close();
+  document.getElementById('reportSupportDialog').close();
+  reportSupportThread = null;
+  reportSupportAccounts.clear();
   previousMainViews.length = 0;
   renderStudyXP(null);
   resetFriends();
@@ -6037,6 +6054,11 @@ function wireStaticEvents() {
   document.getElementById('reportsBtn').addEventListener('click', openReportsInbox);
   bindSubscriptionUI(); bindSelfQuizUI();
   document.getElementById('reportsList').addEventListener('click', handleReportAction);
+  document.getElementById('reportSupportForm').addEventListener('submit', event => {
+    event.preventDefault();
+    const body = document.getElementById('reportSupportBody').value.trim();
+    if (body && reportSupportThread) void loadReportSupportMessages(reportSupportThread, body);
+  });
   document.getElementById('questionReportForm').addEventListener('submit', submitQuestionReport);
   document.getElementById('cancelBtn').addEventListener('click', closeModal);
   document.getElementById('materialBackBtn').addEventListener('click', closeModal);
@@ -6488,10 +6510,15 @@ function wireMedbrainEvents() {
   });
   backdrop.addEventListener('click', e => { if (e.target === backdrop) closeDrawer(); });
 
-  document.getElementById('drawerOwnerReports').addEventListener('click', () => {
+  document.querySelectorAll('[data-open-admin-reports]').forEach(button => button.addEventListener('click', () => {
     if (!activeUserId || !accessState?.owner) return;
     closeDrawer();
     void openReportsInbox();
+  }));
+  document.getElementById('reportSupportInbox').addEventListener('click', () => {
+    if (!activeUserId) return;
+    closeDrawer();
+    void openReportSupport();
   });
   document.addEventListener('click', e => {
     if (!profile.contains(e.target) && !e.target.closest('#profileBtn')) profile.classList.remove('open');
@@ -10193,19 +10220,22 @@ function bindSelfQuizUI() {
 var accessState = null;
 const PLAN_LABELS = { month: 'شهري', quarter: '3 أشهر', half: '6 أشهر', year: 'سنوي' };
 function fmtDate(d) { try { return new Date(d).toLocaleDateString('ar-IQ', { year: 'numeric', month: 'long', day: 'numeric' }); } catch (_) { return String(d); } }
-function telegramLink(t) {
-  const v = String(t || '').trim(); if (!v) return '';
-  const url = /^https?:\/\//i.test(v) ? v : 'https://t.me/' + v.replace(/^@/, '');
-  return /^https:\/\/(t\.me|telegram\.me)\//i.test(url) ? url : '';
+const DEFAULT_SUPPORT_WHATSAPP = 'https://wa.me/9647837271707';
+function whatsappSupportLink(value) {
+  const text = String(value || '').trim();
+  const direct = /^https:\/\/wa\.me\/(\d{8,15})\/?$/i.exec(text);
+  if (direct) return 'https://wa.me/' + direct[1];
+  if (!/^\+?[\d ()-]+$/.test(text)) return '';
+  const digits = text.replace(/\D/g, '').replace(/^00/, '').replace(/^0(?=7\d{9}$)/, '964');
+  return /^[1-9]\d{7,14}$/.test(digits) ? 'https://wa.me/' + digits : '';
 }
 // Apple 3.1.1 / Google Play payments: the native app must not sell or unlock content with outside codes,
 // nor point students to an outside purchase. There, the app only reflects the account's existing access.
 function storeBuild() { return typeof deviceIsNative === 'function' && deviceIsNative(); }
 function contactHtml() {
   if (storeBuild()) return '';
-  const url = accessState && telegramLink(accessState.telegram);
-  return url ? 'للحصول على كود اشتراك أو تجديده راسلني على تيليجرام: <a href="' + escapeHtml(url) + '" target="_blank" rel="noopener noreferrer" dir="ltr">' + escapeHtml(accessState.telegram) + '</a>'
-             : 'للحصول على كود اشتراك أو تجديده تواصل مع إدارة Medbrain.';
+  const url = whatsappSupportLink(accessState?.telegram) || DEFAULT_SUPPORT_WHATSAPP;
+  return 'للحصول على كود اشتراك أو تجديده <a href="' + escapeHtml(url) + '" target="_blank" rel="noopener noreferrer">راسل الدعم على واتساب</a>';
 }
 async function loadAccessState(promptIfNeeded) {
   if (!client || !activeUserId) { accessState = null; renderSubscriptionPage(); return; }
@@ -10271,7 +10301,7 @@ function renderSubscriptionPage() {
   if (admin.hidden) document.getElementById('ownerUserCount').textContent = '—';
   if (s && s.owner) {
     document.getElementById('paywallToggle').checked = !!s.paywall;
-    const tg = document.getElementById('paywallTelegram'); if (document.activeElement !== tg) tg.value = s.telegram || '';
+    const tg = document.getElementById('paywallTelegram'); if (document.activeElement !== tg) tg.value = whatsappSupportLink(s.telegram) || DEFAULT_SUPPORT_WHATSAPP;
   }
 }
 async function loadOwnerUserCount() {
@@ -10282,9 +10312,10 @@ async function loadOwnerUserCount() {
   output.textContent = 'جارٍ التحميل…';
   const { data, error } = await client.rpc('owner_registered_user_count');
   if (user !== activeUserId || version !== accessVersion || !accessState?.owner) return;
-  output.textContent = error || data == null
+  const count = typeof data === 'number' || /^\d+$/.test(String(data)) ? Number(data) : NaN;
+  output.textContent = error || !Number.isSafeInteger(count) || count < 0
     ? 'العدد غير متاح'
-    : new Intl.NumberFormat('ar-IQ').format(Number(data));
+    : new Intl.NumberFormat('ar-IQ').format(count);
 }
 async function loadCodeList() {
   void loadOwnerUserCount();
@@ -10312,7 +10343,9 @@ function bindSubscriptionUI() {
   });
   const adminStatus = document.getElementById('subAdminStatus');
   async function savePaywall() {
-    const { error } = await client.rpc('admin_set_paywall', { p_enabled: document.getElementById('paywallToggle').checked, p_telegram: document.getElementById('paywallTelegram').value });
+    const url = whatsappSupportLink(document.getElementById('paywallTelegram').value);
+    if (!url) { adminStatus.textContent = 'أدخل رقم واتساب مع مفتاح الدولة أو رابط wa.me.'; return; }
+    const { error } = await client.rpc('admin_set_paywall', { p_enabled: document.getElementById('paywallToggle').checked, p_telegram: url });
     adminStatus.textContent = error ? 'تعذّر الحفظ.' : (document.getElementById('paywallToggle').checked ? 'الموقع مدفوع الآن: يُطلب الكود من الطلاب.' : 'الموقع مجاني الآن لجميع الحسابات.');
     await loadAccessState(false);
   }
@@ -10394,19 +10427,95 @@ function renderReportsBadge() {
   badge.textContent = openReports.length > 99 ? '99+' : String(openReports.length);
   badge.hidden = !openReports.length;
 }
+let reportSupportAccounts = new Map(), reportSupportThread = null;
+async function readReportSupportList() {
+  const { data, error } = await client.rpc('medbrain_report_support');
+  if (error) throw error;
+  return data || [];
+}
+async function openReportSupport(report = null) {
+  const user = activeUserId;
+  const dialog = document.getElementById('reportSupportDialog');
+  const list = document.getElementById('reportSupportList');
+  const status = document.getElementById('reportSupportStatus');
+  const form = document.getElementById('reportSupportForm');
+  reportSupportThread = null;
+  list.replaceChildren();
+  form.hidden = true;
+  status.textContent = 'جارٍ التحميل…';
+  if (!dialog.open) dialog.showModal();
+  if (report) {
+    reportSupportThread = report.id;
+    document.getElementById('reportSupportSubject').textContent = report.question || report.question_prompt;
+    document.getElementById('reportSupportBody').value = '';
+    document.getElementById('reportSupportMessages').replaceChildren();
+    form.hidden = false;
+    await loadReportSupportMessages(report.id);
+    return;
+  }
+  try {
+    const threads = await readReportSupportList();
+    if (!dialog.open || user !== activeUserId || reportSupportThread) return;
+    for (const thread of threads.filter(item => item.has_messages)) {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'mb-file-btn';
+      button.textContent = thread.question;
+      button.addEventListener('click', () => void openReportSupport(thread));
+      list.append(button);
+    }
+    status.textContent = list.childElementCount ? '' : 'لا توجد مراسلات بخصوص البلاغات.';
+  } catch (_) {
+    if (dialog.open && user === activeUserId) status.textContent = 'مراسلات دعم البلاغات غير متاحة حالياً.';
+  }
+}
+async function loadReportSupportMessages(id, body = null) {
+  const user = activeUserId;
+  const dialog = document.getElementById('reportSupportDialog');
+  const status = document.getElementById('reportSupportStatus');
+  const form = document.getElementById('reportSupportForm');
+  const send = form.querySelector('button[type="submit"]');
+  if (send.disabled && body) return;
+  send.disabled = true;
+  status.textContent = body ? 'جارٍ الإرسال…' : 'جارٍ التحميل…';
+  const current = () => dialog.open && reportSupportThread === id && activeUserId === user;
+  try {
+    const { data, error } = await client.rpc('medbrain_report_support', { p_report_id: id, p_body: body });
+    if (!current()) return;
+    if (error) throw error;
+    const messages = document.getElementById('reportSupportMessages');
+    messages.replaceChildren(...(data || []).map(message => {
+      const line = document.createElement('p');
+      line.dir = 'auto';
+      line.textContent = interfaceText(message.from_owner ? 'الدعم' : 'الطالب') + ' · ' + message.body;
+      return line;
+    }));
+    if (body) document.getElementById('reportSupportBody').value = '';
+    status.textContent = body ? 'تم إرسال الرسالة.' : '';
+    send.disabled = false;
+  } catch (_) {
+    if (current()) {
+      status.textContent = body ? 'تعذّر إرسال الرسالة.' : 'تعذّر فتح المراسلة.';
+      send.disabled = !body;
+    }
+  }
+}
 function renderReportsList() {
   const list = document.getElementById('reportsList');
   if (!openReports.length) { list.innerHTML = '<p>لا توجد بلاغات مفتوحة.</p>'; return; }
   list.innerHTML = openReports.map(r => {
     const lec = lectures.find(l => String(l.id) === String(r.lecture_id));
     const p = splitExamTag(r.question_prompt);
+    const account = reportSupportAccounts.get(r.id);
     return '<article class="report-item" data-report-id="' + escapeHtml(r.id) + '">' +
       '<p class="report-meta">' + escapeHtml(REPORT_REASONS[r.reason] || r.reason) + ' · ' + escapeHtml(new Date(r.created_at).toLocaleDateString('ar-IQ')) + '</p>' +
       '<p class="report-where">' + escapeHtml(lec ? lec.title : 'مجموعة أسئلة') + ' — السؤال ' + (r.question_index + 1) + '</p>' +
       '<p class="report-q" dir="' + textDir(p.text) + '">' + escapeHtml(p.text.slice(0, 260)) + (p.text.length > 260 ? '…' : '') + '</p>' +
+      (account ? '<p class="report-meta">المبلّغ: <bdi>' + escapeHtml(account.reporter_name) + '</bdi> · <bdi>' + escapeHtml(account.reporter_id) + '</bdi></p>' : '') +
       (r.note ? '<p class="report-note" dir="auto">ملاحظة الطالب: ' + escapeHtml(r.note) + '</p>' : '') +
       '<div class="device-actions"><button type="button" class="mb-primary" data-report-open>فتح السؤال</button>' +
       '<button type="button" class="mb-file-btn" data-report-edit>تعديل المجموعة</button>' +
+      (account ? '<button type="button" class="mb-file-btn" data-report-contact>راسل المبلّغ</button>' : '') +
       '<button type="button" class="mb-file-btn" data-report-close="resolved">تمّ الإصلاح</button>' +
       '<button type="button" class="mb-file-btn" data-report-close="dismissed">تجاهل</button></div></article>';
   }).join('');
@@ -10455,12 +10564,25 @@ async function openReportsInbox() {
   renderReportsList();
   document.getElementById('reportsDialog').showModal();
   void loadSupportSuggestions();
+  if (accessState?.owner) void readReportSupportList().then(rows => {
+    if (activeUserId !== user || !document.getElementById('reportsDialog').open) return;
+    reportSupportAccounts = new Map(rows.map(row => [row.id, row]));
+    renderReportsList();
+  }).catch(() => {
+    if (activeUserId === user && document.getElementById('reportsDialog').open) {
+      document.getElementById('reportsStatus').textContent = 'عرض حساب المبلّغ والمراسلة غير متاحَين حالياً.';
+    }
+  });
 }
 async function handleReportAction(e) {
   const item = e.target.closest('[data-report-id]'), btn = e.target.closest('button');
   if (!item || !btn) return;
   const r = openReports.find(x => x.id === item.dataset.reportId);
   if (!r) return;
+  if (btn.hasAttribute('data-report-contact') && accessState?.owner && reportSupportAccounts.has(r.id)) {
+    void openReportSupport(r);
+    return;
+  }
   const status = document.getElementById('reportsStatus');
   if (btn.hasAttribute('data-report-open') || btn.hasAttribute('data-report-edit')) {
     document.getElementById('reportsDialog').close();
@@ -11198,6 +11320,14 @@ Object.assign(I18N_EN, {
   "نص الصفحة الحالية": "Current page text",
   "تعذّر استخراج نص الصفحة.": "Could not extract the page text.",
   "تم تحديد النص. اختر نسخ من جهازك.": "Text selected. Use your device’s Copy command.",
+  "كل الحسابات المسجّلة (المجانية والمدفوعة)": "All registered accounts (free and paid)",
+  "رقم أو رابط واتساب للتواصل": "WhatsApp number or link",
+  "بلاغات الأسئلة واقتراحات المواد": "Question reports and material suggestions",
+  "مراسلات دعم البلاغات": "Report support messages",
+  "رسالتك بخصوص البلاغ": "Message about the report",
+  "راسل المبلّغ": "Message reporter",
+  "يصل بلاغك إلى فريق Medbrain لمراجعة السؤال وتصحيحه. قد يتواصل معك الدعم داخل التطبيق للاستيضاح عن هذا البلاغ.": "Medbrain reviews question reports. Support may contact you in the app to clarify this report.",
+  "راسل الدعم على واتساب": "Contact support on WhatsApp",
   "اقتراح إضافة مادة": "Suggest a material",
   "يصل طلبك إلى الدعم للمراجعة. تحصل على نقطتين XP إذا أُضيفت المادة.": "Support will review your request. You earn 2 XP if the material is added.",
   "اسم المحاضرة أو المصدر": "Lecture or source name",
@@ -11238,7 +11368,7 @@ Object.assign(I18N_EN, {
   "لحماية الحساب، يلزم تسجيل دخول خلال آخر عشر دقائق. حساب إدارة المنصة يحتاج نقل مسؤوليته أولًا.": "For account security, you must have signed in within the last ten minutes. Platform administrators must transfer ownership first.",
   "للتأكيد اكتب «حذف حسابي»": "Type «حذف حسابي» to confirm",
   "تظهر هنا المحاضرات بعد 15 دقيقة من فتحها في الواجهة.": "Lectures appear here 15 minutes after you open them.",
-  "يصل بلاغك إلى فريق Medbrain لمراجعة السؤال وتصحيحه.": "The Medbrain team will review your report and correct the question if needed.",
+  "يصل بلاغك إلى فريق Medbrain لمراجعة السؤال وتصحيحه. قد يتواصل معك الدعم داخل التطبيق للاستيضاح عن هذا البلاغ.": "The Medbrain team will review your report and correct the question if needed.",
   "نوع المشكلة": "Issue type",
   "الإجابة المعتمدة خاطئة": "The marked answer is incorrect",
   "السؤال خاطئ أو غير واضح": "The question is incorrect or unclear",
