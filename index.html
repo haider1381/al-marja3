@@ -3112,12 +3112,10 @@ body:has(:is(#friendsDialog,#friendChatDialog,#friendInboxDialog,#friendProfileD
 :root[data-theme="light"] {--study-page:#fff;--study-card-paint:linear-gradient(#fff,#fff);--study-symbol-stroke:#4c3684;}
 :root[data-theme="dark"] {--study-card-paint:linear-gradient(#0d1032,#0d1032);--study-symbol-stroke:#9381d1;}
 #dashboardView .mb-art {display:grid;place-items:center;overflow:hidden;background:transparent;}
-#dashboardView .mb-art .study-card-symbol {
-  display:block;width:min(100%,144px);height:100%;max-height:128px;margin:0;
-  fill:#fff;stroke:var(--study-symbol-stroke);stroke-width:3;
-  stroke-linecap:round;stroke-linejoin:round;
+#dashboardView .mb-art :is(.restored-study-art,.sq-art) {
+  display:block;width:min(100%,245px);height:100%;max-height:150px;margin:0;overflow:hidden;
 }
-#dashboardView .mb-art .study-card-symbol .symbol-detail {fill:none;}
+#selfQuizCard .mb-art .sq-art {width:min(100%,205px);max-height:140px;}
 </style>
 <link rel="manifest" href="./manifest.webmanifest?v=indigo1">
 <link rel="icon" type="image/png" sizes="192x192" href="./assets/app-icon-192.png?v=indigo1">
@@ -3474,46 +3472,55 @@ body:has(:is(#friendsDialog,#friendChatDialog,#friendInboxDialog,#friendProfileD
       <span style="font-size:12px;color:#748296">لوحة Medbrain</span>
     </div>
 
+    <svg width="0" height="0" aria-hidden="true" style="position:absolute;pointer-events:none">
+      <defs>
+        <filter id="studyArtKnockout" color-interpolation-filters="sRGB">
+          <feColorMatrix in="SourceGraphic" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  -1 -1 -1 0 3"/>
+          <feComponentTransfer result="matte"><feFuncA type="linear" slope="7" intercept="-.55"/></feComponentTransfer>
+          <feComposite in="SourceGraphic" in2="matte" operator="in"/>
+        </filter>
+      </defs>
+    </svg>
     <section class="mb-feature-grid" aria-label="أقسام Medbrain">
       <button type="button" class="mb-feature" data-dashboard-kind="lectures">
         <div class="mb-feature-top"><div><h3 class="mb-feature-title">المحاضرات</h3><span class="mb-feature-en">Lectures</span></div><span class="mb-feature-count" id="cardLectures" hidden></span></div>
-        <div class="mb-art"><svg class="study-card-symbol" viewBox="0 0 120 120" aria-hidden="true" focusable="false"><path d="M60 29c-11-11-26-11-43-7v66c17-4 31-4 43 7 12-11 26-11 43-7V22c-17-4-32-4-43 7Z"/><path class="symbol-detail" d="M60 29v66M28 39c8-1 15 1 22 5m-22 9c8-1 15 1 22 5m20-14c7-4 14-6 22-5m-22 19c7-4 14-6 22-5"/></svg></div>
+        <div class="mb-art"><svg class="restored-study-art" viewBox="0 0 360 257" aria-hidden="true" focusable="false"><image href="assets/medbrain/lectures.webp?v=4" width="360" height="257" filter="url(#studyArtKnockout)"/></svg></div>
         <p class="mb-feature-note">كل النصوص وملفات PDF والملخصات في مكان واحد.</p>
       </button>
 
       <button type="button" class="mb-feature" data-dashboard-kind="questions">
         <div class="mb-feature-top"><div><h3 class="mb-feature-title" dir="ltr">Q Bank</h3></div><span class="mb-feature-count" id="cardQuestions" hidden></span></div>
-        <div class="mb-art"><svg class="study-card-symbol" viewBox="0 0 120 120" aria-hidden="true" focusable="false"><rect x="31" y="25" width="66" height="76" rx="10"/><path d="M24 88h-3a7 7 0 0 1-7-7V26a9 9 0 0 1 9-9h55"/><path class="symbol-detail" d="M52 51a11 11 0 1 1 17 9c-4 2-5 5-5 9m0 12h.1"/></svg></div>
+        <div class="mb-art"><svg class="restored-study-art" viewBox="0 0 315 305" aria-hidden="true" focusable="false"><image href="assets/medbrain/qbank.webp?v=4" width="315" height="305" filter="url(#studyArtKnockout)"/></svg></div>
         <p class="mb-feature-note">اختبارات تفاعلية مع التصحيح والتفسيرات.</p>
       </button>
 
       <button type="button" class="mb-feature" id="selfQuizCard" aria-haspopup="dialog">
         <div class="mb-feature-top"><div><h3 class="mb-feature-title" dir="ltr">Quiz</h3></div></div>
-        <div class="mb-art"><svg class="study-card-symbol" viewBox="0 0 120 120" aria-hidden="true" focusable="false"><rect x="30" y="21" width="60" height="79" rx="11"/><rect x="46" y="15" width="28" height="15" rx="6"/><path class="symbol-detail" d="m43 46 4 4 7-8m8 6h15m-34 14 4 4 7-8m8 6h15m-34 14 4 4 7-8m8 6h15"/></svg></div>
+        <div class="mb-art"><svg class="sq-art" viewBox="8 0 160 120" aria-hidden="true"><rect x="34" y="18" width="92" height="88" rx="14" fill="#eef5ff" stroke="#4f5960" stroke-width="3"/><rect x="62" y="10" width="36" height="16" rx="6" fill="#81d6c7" stroke="#4f5960" stroke-width="3"/><path d="M50 46h14M50 66h14M50 86h14" stroke="#4f5960" stroke-width="3" stroke-linecap="round"/><path d="m74 44 6 6 12-12" fill="none" stroke="#39c99b" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><path d="m74 64 6 6 12-12" fill="none" stroke="#39c99b" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><path d="m76 82 12 12m0-12-12 12" stroke="#ef8b9c" stroke-width="5" stroke-linecap="round"/><circle cx="122" cy="88" r="20" fill="#f5c449" stroke="#4f5960" stroke-width="3"/><path d="M122 76v12l8 5" fill="none" stroke="#4f5960" stroke-width="3" stroke-linecap="round"/></svg></div>
         <p class="mb-feature-note">اختبار عشوائي من Q Bank أو Flashcards حسب المادة.</p>
       </button>
 
       <button type="button" class="mb-feature" data-dashboard-kind="videos">
         <div class="mb-feature-top"><div><h3 class="mb-feature-title">فيديوهات مقترحة</h3><span class="mb-feature-en">Recommended Videos</span></div><span class="mb-feature-count" id="cardVideos" hidden></span></div>
-        <div class="mb-art"><svg class="study-card-symbol" viewBox="0 0 120 120" aria-hidden="true" focusable="false"><rect x="15" y="26" width="90" height="64" rx="12"/><path d="m52 44 24 14-24 14Z" fill="none"/></svg></div>
+        <div class="mb-art"><svg class="restored-study-art" viewBox="0 0 360 187" aria-hidden="true" focusable="false"><image href="assets/medbrain/recommended.webp?v=4" width="360" height="187" filter="url(#studyArtKnockout)"/></svg></div>
         <p class="mb-feature-note">افتح الفيديوهات المحفوظة حسب تخصصك وموضوعك.</p>
       </button>
 
       <button type="button" class="mb-feature" data-tool-view="flashcards">
         <div class="mb-feature-top"><div><h3 class="mb-feature-title" dir="ltr">Flashcards</h3></div><span class="mb-feature-count" id="cardFlashcards" hidden></span></div>
-        <div class="mb-art"><svg class="study-card-symbol" viewBox="0 0 120 120" aria-hidden="true" focusable="false"><rect x="33" y="19" width="66" height="70" rx="10" transform="rotate(10 66 54)"/><rect x="20" y="30" width="66" height="70" rx="10"/><path class="symbol-detail" d="M35 51h36M35 63h28m-28 12h18"/></svg></div>
+        <div class="mb-art"><svg class="restored-study-art" viewBox="0 0 400 315" aria-hidden="true" focusable="false"><image href="assets/medbrain/flashcards.webp?v=4" width="400" height="315" filter="url(#studyArtKnockout)"/></svg></div>
         <p class="mb-feature-note">أنشئ بطاقاتك الشخصية وراجعها واقلبها لرؤية الإجابة.</p>
       </button>
 
       <button type="button" class="mb-feature" data-dashboard-kind="other">
         <div class="mb-feature-top"><div><h3 class="mb-feature-title">متنوعات</h3><span class="mb-feature-en">Miscellaneous</span></div><span class="mb-feature-count" id="cardOther" hidden></span></div>
-        <div class="mb-art"><svg class="study-card-symbol" viewBox="0 0 120 120" aria-hidden="true" focusable="false"><rect x="21" y="21" width="32" height="32" rx="7"/><rect x="67" y="21" width="32" height="32" rx="7"/><rect x="21" y="67" width="32" height="32" rx="7"/><rect x="67" y="67" width="32" height="32" rx="7"/></svg></div>
+        <div class="mb-art"><svg class="restored-study-art" viewBox="0 0 360 212" aria-hidden="true" focusable="false"><image href="assets/medbrain/misc.webp?v=4" width="360" height="212" filter="url(#studyArtKnockout)"/></svg></div>
         <p class="mb-feature-note">كل المواد التي لا تندرج ضمن الأقسام الرئيسية.</p>
       </button>
 
       <button type="button" class="mb-feature" data-tool-view="schedule">
         <div class="mb-feature-top"><div><h3 class="mb-feature-title">جدول الدراسة</h3><span class="mb-feature-en">Study Schedule</span></div><span class="mb-feature-count" id="cardSchedule" hidden></span></div>
-        <div class="mb-art"><svg class="study-card-symbol" viewBox="0 0 120 120" aria-hidden="true" focusable="false"><rect x="20" y="24" width="80" height="77" rx="11"/><path class="symbol-detail" d="M20 44h80M40 16v17m40-17v17M38 60h9m11 0h9m11 0h9M38 76h9m11 0h9m11 0h9"/></svg></div>
+        <div class="mb-art"><svg class="restored-study-art" viewBox="0 0 320 305" aria-hidden="true" focusable="false"><image href="assets/medbrain/schedule.webp?v=4" width="320" height="305" filter="url(#studyArtKnockout)"/></svg></div>
         <p class="mb-feature-note">أنشئ جدولك الأسبوعي وحدّد أوقات الدراسة وتابع إنجازك.</p>
       </button>
     </section>
