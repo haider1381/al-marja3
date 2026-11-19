@@ -4058,6 +4058,21 @@ body>.mb-note-menu[data-open=true]{display:grid!important;position:fixed!importa
 <dialog id="questionReportDialog" class="device-dialog" aria-labelledby="questionReportTitle"><h2 id="questionReportTitle">الإبلاغ عن مشكلة في السؤال</h2><p>يصل بلاغك إلى فريق Medbrain لمراجعة السؤال وتصحيحه.</p><form id="questionReportForm"><fieldset class="report-reasons"><legend>نوع المشكلة</legend><label><input type="radio" name="reportReason" value="wrong_answer"> الإجابة المعتمدة خاطئة</label><label><input type="radio" name="reportReason" value="wrong_question"> السؤال خاطئ أو غير واضح</label><label><input type="radio" name="reportReason" value="incomplete"> السؤال ناقص (خيار أو معلومة مفقودة)</label><label><input type="radio" name="reportReason" value="explanation"> الشرح خاطئ أو غير كافٍ</label><label><input type="radio" name="reportReason" value="other"> مشكلة أخرى</label></fieldset><label for="questionReportNote">تفاصيل (اختياري): ما الصحيح برأيك ومصدره؟<textarea id="questionReportNote" maxlength="1000" rows="3"></textarea></label><div class="device-actions"><button type="submit" class="mb-primary" id="questionReportSubmit">إرسال البلاغ</button><button type="button" class="mb-file-btn" data-device-close="questionReportDialog">إلغاء</button></div><p id="questionReportStatus" role="status"></p></form></dialog>
 <section id="labsPanel" class="labs-panel" role="dialog" aria-modal="false" aria-labelledby="labsTitle" data-no-i18n dir="ltr" hidden><div class="labs-head"><h2 id="labsTitle">Lab values</h2><button type="button" class="labs-close" data-labs-close aria-label="Close">×</button></div><div class="labs-tools"><select id="labsTab" aria-label="Lab group"><option value="blood">Blood</option><option value="heme">Hematologic</option><option value="csf">Cerebrospinal</option><option value="other">Sweat, Urine, BMI</option><option value="infl">Inflammation & Immunology</option><option value="vit">Vitamins & Minerals</option><option value="cardiac">Cardiac & Tumor markers</option></select><input type="search" id="labsSearch" class="labs-search" placeholder="Search…" autocomplete="off" aria-label="Search lab values"></div><div class="labs-body" id="labsBody"></div></section>
 <dialog id="selfQuizDialog" class="device-dialog" aria-labelledby="selfQuizTitle"><div class="sp-card-head"><h2 id="selfQuizTitle" dir="ltr">Quiz</h2><button type="button" class="mb-mini-btn" data-device-close="selfQuizDialog" aria-label="إغلاق">×</button></div><form id="selfQuizForm"><fieldset class="sq-group"><legend>نوع الاختبار</legend><label><input type="radio" name="sqMode" value="questions" checked> MCQ</label><label><input type="radio" name="sqMode" value="flash"> Flashcards</label></fieldset><fieldset class="sq-group"><legend>المادة</legend><div id="sqSubjects" class="sq-options"></div></fieldset><div id="sqExam"><fieldset class="sq-group"><legend>مصدر الأسئلة</legend><label><input type="radio" name="sqSource" value="all" checked> كل Q Bank</label><label><input type="radio" name="sqSource" value="files"> ملف أو عدة ملفات</label><label><input type="radio" name="sqSource" value="wizari"> وزاري أو تجريبي</label><label><input type="radio" name="sqSource" value="ai"> أسئلة جديدة بالذكاء الاصطناعي</label><label><input type="radio" name="sqSource" value="saved"> ★ الأسئلة المحفوظة</label></fieldset><div id="sqFilesBox" hidden><fieldset class="sq-group sq-files"><legend>اختر الملفات</legend><input type="search" id="sqFileFind" class="sq-find" placeholder="ابحث عن ملف…" autocomplete="off"><details class="mb-list-fold" open><summary>ملفات الأسئلة</summary><div id="sqFiles" class="sq-file-list"></div></details></fieldset></div><div id="sqExamMore" hidden><fieldset class="sq-group"><legend>نوع الأسئلة</legend><label><input type="radio" name="sqKind" value="" checked> الكل</label><label><input type="radio" name="sqKind" value="main"> وزاري (رئيسي)</label><label><input type="radio" name="sqKind" value="mock"> تجريبي</label></fieldset><fieldset class="sq-group" id="sqBranchBox" hidden><legend>الفرع</legend><div id="sqBranches" class="sq-options"></div></fieldset><fieldset class="sq-group"><legend>السنة</legend><div id="sqYears" class="sq-options"></div></fieldset><fieldset class="sq-group"><legend>الدور</legend><label><input type="radio" name="sqRound" value="" checked> كل الأدوار</label><label><input type="radio" name="sqRound" value="1"> الدور الأول</label><label><input type="radio" name="sqRound" value="2"> الدور الثاني</label></fieldset></div><div id="sqAiBox" hidden><fieldset class="sq-group"><legend>موضوع الأسئلة</legend><input type="text" id="sqAiTopic" class="sq-find" maxlength="160" placeholder="مثال: Heart failure management" dir="auto"><p class="sq-hint">يكتب المساعد حتى 10 أسئلة جديدة بخمسة خيارات وشرح لكل خيار. راجعها كمساعدة دراسية.</p></fieldset></div></div><fieldset class="sq-group"><legend>عدد الأسئلة</legend><div class="sq-count"><input type="number" id="sqCountNum" min="1" max="300" value="20" inputmode="numeric" aria-label="عدد الأسئلة"><button type="button" data-sq-count="10">10</button><button type="button" data-sq-count="20">20</button><button type="button" data-sq-count="40">40</button><button type="button" data-sq-count="300">الكل</button></div></fieldset><div class="device-actions"><button type="submit" class="mb-primary" id="sqStart">ابدأ الاختبار</button><button type="button" class="mb-file-btn" data-device-close="selfQuizDialog">إلغاء</button></div><p id="sqStatus" role="status"></p></form></dialog>
+<dialog id="materialSuggestionDialog" class="device-dialog" aria-labelledby="materialSuggestionHeading">
+  <h2 id="materialSuggestionHeading">اقتراح إضافة مادة</h2>
+  <p>يصل طلبك إلى الدعم للمراجعة. تحصل على نقطتين XP إذا أُضيفت المادة.</p>
+  <form id="materialSuggestionForm">
+    <label for="materialSuggestionTitle">اسم المحاضرة أو المصدر</label>
+    <input id="materialSuggestionTitle" type="text" maxlength="200" dir="auto" required>
+    <label for="materialSuggestionDetails">معلومات المادة</label>
+    <textarea id="materialSuggestionDetails" maxlength="1000" rows="4" dir="auto" placeholder="اكتب ما تعرفه عنها، مثل المرحلة أو اسم الدكتور أو الجامعة أو رابط المصدر." required></textarea>
+    <div class="device-actions">
+      <button type="submit" class="mb-primary">إرسال إلى الدعم</button>
+      <button type="button" class="mb-file-btn" data-device-close="materialSuggestionDialog">إلغاء</button>
+    </div>
+    <p id="materialSuggestionStatus" role="status"></p>
+  </form>
+</dialog>
 <dialog id="reportsDialog" class="device-dialog reports-dialog" aria-labelledby="reportsTitle"><div class="sp-card-head"><h2 id="reportsTitle">بلاغات الطلاب</h2><button type="button" class="mb-mini-btn" data-device-close="reportsDialog" aria-label="إغلاق">×</button></div><p>البلاغات المفتوحة عن الأسئلة، الأحدث أولًا. «تمّ الإصلاح» يغلق كل البلاغات عن السؤال نفسه.</p><div id="reportsList"></div><p id="reportsStatus" role="status"></p><section id="suggestionsReview" hidden>
   <h3>اقتراحات المحاضرات والمصادر</h3>
   <p id="suggestionsReviewStatus" role="status"></p>
@@ -5501,8 +5516,12 @@ function render() {
   if (browsing) content.innerHTML = renderBrowse();
   else {
     const list = filterMaterials(lectures, state);
-    content.innerHTML = '<p class="section-label">' + (state.search.trim() ? 'نتائج البحث' : 'المواد المتوفرة') + '</p>' +
-      (list.length ? renderLectureList(list) : '<div class="empty">لا توجد مواد مطابقة. جرّب تغيير البحث أو الفلاتر.</div>');
+    const searching = !!state.search.trim();
+    const emptyMessage = searching
+      ? '<div class="empty"><span>لا توجد مواد مطابقة. هل تريد منا إضافتها؟</span> <button type="button" class="mb-file-btn" data-suggest-source>نعم</button></div>'
+      : '<div class="empty">لا توجد مواد مطابقة. جرّب تغيير البحث أو الفلاتر.</div>';
+    content.innerHTML = '<p class="section-label">' + (searching ? 'نتائج البحث' : 'المواد المتوفرة') + '</p>' +
+      (list.length ? renderLectureList(list) : emptyMessage);
   }
   renderMedbrainWidgets();
   updateFavoriteButtons();
@@ -5768,22 +5787,6 @@ function browseBack() {
 }
 function browsePathValue(level) { return lastBrowsePath ? lastBrowsePath[level] : null; }
 
-function renderSearchResults(q) {
-  const matches = lectures.filter(l =>
-    (l.title || '').toLowerCase().includes(q) ||
-    (l.source || '').toLowerCase().includes(q) ||
-    (l.topic || '').toLowerCase().includes(q) ||
-    (l.category || '').toLowerCase().includes(q)
-  );
-  let html = `<p class="section-label">نتائج البحث عن «${escapeHtml(state.search.trim())}»</p>`;
-  if (matches.length === 0) {
-    html += `<div class="empty"><strong>لا توجد نتائج</strong>جرّب كلمة بحث مختلفة، أو <button type="button" class="mb-mini-btn" data-suggest-source>اقترح إضافة هذا المصدر</button>. <a href="./support.html">راسل الدعم</a></div>`;
-  } else {
-    html += renderLectureList(matches);
-  }
-  return html;
-}
-
 function renderSourceMode() {
   if (!state.selectedSource) {
     const bySource = Object.create(null);
@@ -5961,6 +5964,7 @@ function renderLectureList(list) {
 // ---------------- Events ----------------
 function wireStaticEvents() {
   wireAIChat();
+  wireMaterialSuggestion();
   wireReaderTools();
   wireAuthoringEvents();
   wireMedbrainEvents();
@@ -6906,6 +6910,54 @@ async function sendAIQuestion(e) {
     if(generation===aiGeneration&&activeUserId===userId){aiAbort=null;setAIBusy(false);renderAIConversation();}
   }
 }
+function wireMaterialSuggestion() {
+  const dialog = document.getElementById('materialSuggestionDialog');
+  const form = document.getElementById('materialSuggestionForm');
+  const title = document.getElementById('materialSuggestionTitle');
+  const details = document.getElementById('materialSuggestionDetails');
+  const status = document.getElementById('materialSuggestionStatus');
+  const submit = form.querySelector('[type="submit"]');
+  let openedForUser = null;
+
+  document.getElementById('content').addEventListener('click', event => {
+    if (!event.target.closest('[data-suggest-source]') || dialog.open || submit.disabled) return;
+    if (!activeUserId || !client) { showMbToast('سجّل الدخول لإرسال اقتراح.'); return; }
+    openedForUser = activeUserId;
+    form.reset();
+    title.value = state.search.trim().slice(0, 200);
+    status.textContent = '';
+    dialog.showModal();
+    details.focus();
+  });
+
+  form.addEventListener('submit', async event => {
+    event.preventDefault();
+    if (submit.disabled) return;
+    if (!activeUserId || openedForUser !== activeUserId) {
+      status.textContent = 'سجّل الدخول ثم افتح نموذج الاقتراح مجددًا.';
+      return;
+    }
+    const p_title = title.value.trim();
+    const p_details = details.value.trim();
+    if (!p_title || !p_details) {
+      status.textContent = 'اكتب اسم المادة وتفاصيل الاقتراح.';
+      return;
+    }
+    submit.disabled = true;
+    status.textContent = 'جارٍ الإرسال…';
+    try {
+      const { error } = await client.rpc('medbrain_submit_suggestion', { p_title, p_details });
+      if (error && error.code !== '23505') throw error;
+      if (openedForUser !== activeUserId) return;
+      dialog.close();
+      showMbToast(error ? 'طلبك مسجّل مسبقًا وقيد المراجعة.' : 'وصل طلبك إلى الدعم للمراجعة.');
+    } catch (_) {
+      status.textContent = 'تعذّر الإرسال. تحقق من الاتصال وأعد المحاولة.';
+    } finally {
+      submit.disabled = false;
+    }
+  });
+}
 function wireAIChat() {
   wireLectureReview();
   document.addEventListener('click', async event => {
@@ -6920,14 +6972,6 @@ function wireAIChat() {
       aiXPAction = 'ai_hint';
       document.getElementById('aiQuestion').value = ('Give me a hint without revealing the answer: ' + question).slice(0, 1180);
     }
-    if (!event.target.closest('[data-suggest-source]')) return;
-    if (!activeUserId) { showMbToast('سجّل الدخول لإرسال اقتراح.'); return; }
-    const title = state.search.trim().slice(0, 200);
-    const details = prompt('شنو المعلومات المتوفرة عن المصدر؟ اكتب اسم الدكتور أو الجامعة أو الرابط.');
-    if (details === null) return;
-    if (!title || !details.trim()) { showMbToast('اكتب اسم المادة وتفاصيل الاقتراح.'); return; }
-    const { error } = await client.rpc('medbrain_submit_suggestion', { p_title: title, p_details: details.trim().slice(0, 1000) });
-    showMbToast(error ? 'تعذّر إرسال الاقتراح. تقدر تراسل الدعم.' : 'وصل اقتراحك. شكرًا!');
   });
   window.addEventListener('resize',fitReaderAIPanel);
   document.addEventListener('keydown', e => {
@@ -10283,7 +10327,7 @@ async function loadSupportSuggestions(id = null, approve = null) {
     const details = document.createElement('p');
     details.textContent = suggestion.details;
     card.append(title, details);
-    for (const [label, accept] of [['اعتماد وإضافة 2 XP', true], ['تجاهل', false]]) {
+    for (const [label, accept] of [['تمت الإضافة — امنح 2 XP', true], ['تجاهل', false]]) {
       const button = document.createElement('button');
       button.className = 'mb-file-btn';
       button.type = 'button';
@@ -11036,6 +11080,19 @@ Object.assign(I18N_EN, {
   "إغلاق محادثة AI": "Close AI chat",
   "المحادثة مع المساعد": "Assistant chat",
   "مقترحات للمحاضرة": "Lecture suggestions",
+  "لا توجد مواد مطابقة. هل تريد منا إضافتها؟": "No matching materials. Would you like us to add it?",
+  "نعم": "Yes",
+  "اقتراح إضافة مادة": "Suggest a material",
+  "يصل طلبك إلى الدعم للمراجعة. تحصل على نقطتين XP إذا أُضيفت المادة.": "Support will review your request. You earn 2 XP if the material is added.",
+  "اسم المحاضرة أو المصدر": "Lecture or source name",
+  "معلومات المادة": "Material details",
+  "اكتب ما تعرفه عنها، مثل المرحلة أو اسم الدكتور أو الجامعة أو رابط المصدر.": "Share what you know, such as the year, lecturer, university, or source link.",
+  "إرسال إلى الدعم": "Send to support",
+  "سجّل الدخول ثم افتح نموذج الاقتراح مجددًا.": "Sign in, then reopen the suggestion form.",
+  "اكتب اسم المادة وتفاصيل الاقتراح.": "Enter the material name and details.",
+  "طلبك مسجّل مسبقًا وقيد المراجعة.": "Your request is already under review.",
+  "وصل طلبك إلى الدعم للمراجعة.": "Support received your request for review.",
+  "تمت الإضافة — امنح 2 XP": "Added \u2014 award 2 XP",
   "💡 اقتراحات": "💡 Suggestions",
   "اقتراحات الأسئلة": "Suggested questions",
   "اكتب موضوعًا، مثل Heart failure…": "Enter a topic, such as heart failure…",
