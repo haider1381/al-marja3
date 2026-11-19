@@ -3159,6 +3159,8 @@ body>.mb-note-menu[data-open=true]{display:grid!important;position:fixed!importa
 
 /* Paper actions: small popover below the dots; never increase card height. */
 #libraryNotes{overflow:visible!important;isolation:isolate}#libraryNotes .mb-note-tile{overflow:visible!important;position:relative!important;min-height:140px!important;max-height:170px!important}#libraryNotes .mb-note-menu-wrap{position:static!important}#libraryNotes .mb-note-menu-trigger{position:absolute;bottom:9px;left:9px;z-index:5}#libraryNotes .mb-note-menu{position:absolute!important;top:calc(100% + 4px)!important;right:auto!important;left:8px!important;z-index:9999!important;width:126px!important;min-width:126px!important;max-width:126px!important;border-radius:12px!important;background:#251a49!important;box-shadow:0 12px 28px #0009!important}#libraryNotes .mb-note-menu[hidden]{display:none!important}#libraryNotes .mb-note-menu:not([hidden]){display:grid!important}#libraryNotes .mb-note-tile:has(.mb-note-menu:not([hidden])){z-index:100!important}
+
+body>.mb-note-menu[data-open=true]{display:grid!important;position:fixed!important;z-index:2147483640!important;min-width:138px!important;max-width:145px!important;background:#251944!important;border:1px solid #8b77c2!important;border-radius:12px!important;box-shadow:0 12px 30px #000a!important;padding:5px!important;gap:3px!important}body>.mb-note-menu[hidden]{display:none!important}body>.mb-note-menu button{display:block;width:100%;border:0!important;background:transparent!important;color:#f5eeff!important;text-align:right!important;font-size:12px!important;padding:8px!important;border-radius:7px!important}.mb-note-tile{height:148px!important;min-height:148px!important;max-height:148px!important;border-radius:17px!important;overflow:visible!important}
 </style>
 <link rel="manifest" href="./manifest.webmanifest?v=indigo1">
 <link rel="icon" type="image/png" sizes="192x192" href="./assets/app-icon-192.png?v=indigo1">
@@ -4762,7 +4764,7 @@ function showMainView(view, kind='', scrollBehavior='smooth') {
   }
   currentMainView = view;
   currentMainKind = kind;
-  if(!restoringMainView) try { sessionStorage.setItem('medbrain_active_view_v2', JSON.stringify({view,kind})); } catch (_) {}
+  try { sessionStorage.setItem('medbrain_active_view_v2', JSON.stringify({view,kind})); } catch (_) {}
   deviceSyncNav();
   ['dashboardView','librarySection','scheduleSection','flashcardsSection','subscriptionSection','shareScheduleSection','favoritesSection','settingsSection'].forEach(id=>{
     const el=document.getElementById(id); if(el)el.classList.remove('active');
@@ -4786,7 +4788,7 @@ function showMainView(view, kind='', scrollBehavior='smooth') {
 }
 
 /* Restore the active tool page after a browser refresh without navigating home. */
-(function(){function restore(){let saved;try{saved=JSON.parse(sessionStorage.getItem('medbrain_active_view_v2')||'null')}catch(_){}if(!saved||!['home','library','schedule','flashcards','subscription','shareSchedule','favorites','settings'].includes(saved.view))return;if(saved.view==='home')return;const attempt=()=>{if(typeof showMainView==='function'){restoringMainView=true;try{showMainView(saved.view,saved.kind||'','instant')}finally{restoringMainView=false}}};attempt();setTimeout(attempt,650);setTimeout(attempt,1900);window.addEventListener('load',()=>setTimeout(attempt,300),{once:true})}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',restore);else restore()})();
+(function(){function restore(){let saved;try{saved=JSON.parse(sessionStorage.getItem('medbrain_active_view_v2')||'null')}catch(_){}if(!saved||!['home','library','schedule','flashcards','subscription','shareSchedule','favorites','settings'].includes(saved.view))return;if(saved.view==='home')return;const attempt=()=>{if(typeof showMainView==='function'){restoringMainView=true;try{showMainView(saved.view,saved.kind||'','instant')}finally{restoringMainView=false}}};attempt();setTimeout(attempt,650);setTimeout(attempt,1900);window.addEventListener('load',()=>setTimeout(attempt,300),{once:true});window.addEventListener('pageshow',attempt,{once:true})}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',restore);else restore()})();
 function rowToLecture(r) {
   return {
     id: String(r.id), title: r.title, source: r.source, category: r.category,
@@ -10396,17 +10398,18 @@ async function refreshLibraryNotes(){
  const root=document.getElementById('libraryNotes');if(!root)return;
  let notes=mbLibraryNotebookLocal();
  if(client&&activeUserId){try{const {data,error}=await client.from('student_notebooks').select('id,title,subject,lecture_id,is_favorite').eq('user_id',activeUserId).order('updated_at',{ascending:false});if(!error&&data){const ids=new Set(notes.map(n=>n.id));for(const n of data)if(!ids.has(n.id))notes.push({id:n.id,title:n.title,subject:n.subject,lectureId:n.lecture_id,isFavorite:n.is_favorite,pages:[]})}}catch(_){}}
+ document.querySelectorAll('body>.mb-note-menu').forEach(el=>el.remove());
  root.replaceChildren();
  notes.forEach((note,i)=>{
  const tile=document.createElement('div');tile.className='mb-note-tile';
  const title=document.createElement('a');title.href='./notebooks.html?id='+encodeURIComponent(note.id);title.textContent=note.title||('ID-'+String(note.id).slice(0,8));
  const detail=document.createElement('small');detail.textContent=(note.pages?.length?note.pages.length+' صفحة':'ورقة A4')+(note.subject?' · '+note.subject:'');
  const menu=document.createElement('div');menu.className='mb-note-menu-wrap';const summary=document.createElement('button');summary.type='button';summary.className='mb-note-menu-trigger';summary.textContent='⋮';summary.setAttribute('aria-label','خيارات الورقة');summary.setAttribute('aria-expanded','false');menu.append(summary);
- const actions=document.createElement('div');actions.className='mb-note-menu';actions.hidden=true;summary.onclick=(event)=>{event.preventDefault();event.stopPropagation();const opening=actions.hidden;document.querySelectorAll('.mb-note-menu').forEach(other=>other.hidden=true);actions.hidden=!opening;summary.setAttribute('aria-expanded',String(opening))};
+ const actions=document.createElement('div');actions.className='mb-note-menu';actions.hidden=true;summary.onclick=(event)=>{event.preventDefault();event.stopPropagation();const wasOpen=!actions.hidden;document.querySelectorAll('body>.mb-note-menu').forEach(other=>{other.hidden=true;other.removeAttribute('data-open')});document.querySelectorAll('.mb-note-menu-trigger').forEach(b=>b.setAttribute('aria-expanded','false'));if(wasOpen){actions.hidden=true;return}if(actions.parentNode!==document.body)document.body.appendChild(actions);const rect=summary.getBoundingClientRect();actions.style.top=Math.min(rect.bottom+7,window.innerHeight-145)+'px';actions.style.left=Math.max(8,Math.min(rect.right-138,window.innerWidth-150))+'px';actions.hidden=false;actions.dataset.open='true';summary.setAttribute('aria-expanded','true')};
  const rename=document.createElement('button');rename.type='button';rename.textContent='تسمية';rename.onclick=async()=>{const name=prompt('اسم الورقة (اختياري)',note.title||'');if(name===null||!name.trim())return;note.title=name.trim().slice(0,120);const local=mbLibraryNotebookLocal();const own=local.find(n=>n.id===note.id);if(own){own.title=note.title;localStorage.setItem('medbrain_notebooks_v1',JSON.stringify(local))}if(client&&activeUserId)await client.from('student_notebooks').update({title:note.title}).eq('id',note.id).eq('user_id',activeUserId);void refreshLibraryNotes()};
  const assign=document.createElement('button');assign.type='button';assign.textContent='إضافة إلى…';assign.onclick=async()=>{const choices=lectures.filter(l=>favoriteRecords.has(l.id));if(!choices.length){alert('أضف مادة أو محاضرة إلى مكتبتي أولاً.');return}const choice=prompt('اختر رقم المادة المحفوظة:\n'+choices.map((l,i)=>(i+1)+' - '+l.title).join('\n'));const selected=choices[Number(choice)-1];if(!selected)return;note.subject=selected.title;const local=mbLibraryNotebookLocal(),own=local.find(n=>n.id===note.id);if(own){own.subject=note.subject;localStorage.setItem('medbrain_notebooks_v1',JSON.stringify(local))}if(client&&activeUserId)await client.from('student_notebooks').update({subject:note.subject,lecture_id:String(selected.id)}).eq('id',note.id).eq('user_id',activeUserId);void refreshLibraryNotes()};
  const del=document.createElement('button');del.type='button';del.textContent='حذف';del.className='danger';del.onclick=async()=>{if(!confirm('حذف هذه الورقة وجميع صفحاتها نهائياً؟'))return;const local=mbLibraryNotebookLocal().filter(b=>b.id!==note.id);localStorage.setItem('medbrain_notebooks_v1',JSON.stringify(local));if(client&&activeUserId){const {error}=await client.from('student_notebooks').delete().eq('id',note.id).eq('user_id',activeUserId);if(error){alert('تعذر حذف النسخة السحابية: '+error.message);return}}void refreshLibraryNotes()};
- actions.append(rename,assign,del);menu.append(actions);tile.append(title,detail,menu);root.append(tile);
+ actions.append(rename,assign,del);tile.append(title,detail,menu);root.append(tile);
  });
 }
 function initializeLibraryPaper(){
