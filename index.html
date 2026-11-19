@@ -406,6 +406,12 @@
   #readerOverlay:has(.lecture-focus) .reader-ai-rail, body:has(#readerOverlay.open .lecture-focus) .ai-fab { visibility:hidden; }
   .lecture-tools-scrolled [data-reader-related] { display:none; }
   .lecture-related-menu { right:12px; direction:rtl; }
+  .lecture-quiz-options { font-size:.75rem; }
+  .lecture-quiz-options summary { cursor:pointer; padding:6px 0; }
+  .lecture-quiz-options label { display:flex; align-items:center; gap:8px; margin:6px 0; }
+  .lecture-quiz-options select, .pv-menu .lecture-quiz-options button { font:inherit; min-height:32px; }
+  .lecture-quiz-options select { color:var(--text); background:var(--surface); }
+  .lecture-quiz-options [role="status"]:empty { display:none; }
   [data-reader-related] { width:auto !important; padding-inline:8px; white-space:nowrap; }
   .pv-text-layer { position:absolute; inset:0; overflow:hidden; opacity:1; line-height:1; text-align:left; transform-origin:0 0; user-select:text; -webkit-user-select:text; }
   .pv-text-layer :is(span,br) { position:absolute; color:transparent; white-space:pre; cursor:text; transform-origin:0 0; }
@@ -5349,7 +5355,7 @@ function wireStaticEvents() {
     if (e.target.id === 'overlay') closeModal();
   });
 
-  document.getElementById('readerCloseBtn').addEventListener('click', closeReader);
+  document.getElementById('readerCloseBtn').addEventListener('click', returnFromReaderQuiz);
   document.getElementById('readerOverlay').addEventListener('click', e => {
     if (e.target.id === 'readerOverlay') closeReader();
   });
@@ -6564,7 +6570,7 @@ function mountLectureControls(root, stage, currentTool, lecture, pdfDocument) {
   menu.innerHTML = document.getElementById('readerRelated').innerHTML;
   menu.querySelector('.reader-related-label')?.remove();
   if (!menu.children.length) menu.insertAdjacentHTML('beforeend', '<p>ستُضاف المواد المرتبطة لاحقًا.</p>');
-  menu.insertAdjacentHTML('beforeend', '<label>اختبرني بهذه المحاضرة <select aria-label="صعوبة الأسئلة"><option value="easy">سهل</option><option value="medium" selected>متوسط</option><option value="hard">صعب</option></select></label><button type="button" data-generate-lecture-quiz>إنشاء أسئلة</button><p role="status"></p>');
+  menu.insertAdjacentHTML('beforeend', '<details class="lecture-quiz-options"><summary>اختبرني بهذه المحاضرة</summary><label>نوع الأسئلة <select><option value="easy">سهل</option><option value="medium" selected>متوسط</option><option value="hard">صعب</option></select></label><button type="button" data-generate-lecture-quiz>إنشاء أسئلة</button><p role="status"></p></details>');
   root.appendChild(menu);
   const scrollArea = pdfDocument ? stage : document.getElementById('readerWorkspace');
   if (scrollArea.medbrainRelatedScroll) scrollArea.removeEventListener('scroll', scrollArea.medbrainRelatedScroll);
@@ -7384,6 +7390,20 @@ async function openReader(id) {
   openReaderSurface();
   autoStartScheduledLecture(lec);
   try { mountTextTools(lec); } catch (err) { console.warn('text tools unavailable', err); }
+}
+async function returnFromReaderQuiz() {
+  const destination = quizState?.returnToLecture;
+  if (!destination) {
+    closeReader();
+    return;
+  }
+  quizState.returnToLecture = null;
+  const { id, isPdf, scrollTop } = destination;
+  if (isPdf) await openPdfInReader(id);
+  else await openReader(id);
+  if (readerLectureId !== id || quizState) return;
+  const scroller = document.getElementById(isPdf ? 'pvPages' : 'readerWorkspace');
+  if (scroller) scroller.scrollTop = scrollTop;
 }
 function closeReader() {
   stopLectureReviewTracking();
@@ -8230,12 +8250,16 @@ async function collectQuestions(pool, n) {
   return shuffledCopy(all).slice(0, n);
 }
 function openCustomQuiz(title, meta, questions, studyLecture = null) {
+  if (!questions.length) { alert('لا توجد أسئلة كافية هنا بعد.'); return false; }
+  const returnToLecture = studyLecture && readerLectureId === studyLecture.id && !quizState
+    ? { id: studyLecture.id, isPdf: document.getElementById('readerOverlay').classList.contains('pdf-mode'),
+        scrollTop: (document.getElementById('pvPages') || document.getElementById('readerWorkspace')).scrollTop }
+    : null;
   destroyPdfViewer();
   destroyTextTools();
-  if (!questions.length) { alert('لا توجد أسئلة كافية هنا بعد.'); return false; }
   if (pdfTimer && pdfTimer.lectureId) stopPdfTimer();
   const material = { id: 'self-quiz', title, source: '', topic: '', questions, studyLecture };
-  quizState = { material, index: 0, answers: [] };
+  quizState = { material, index: 0, answers: [], returnToLecture };
   document.getElementById('readerOverlay').classList.remove('pdf-mode');
   closeSidePanel();
   document.getElementById('readerRelated').hidden = true;
