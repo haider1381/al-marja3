@@ -7221,8 +7221,10 @@ function mountLectureControls(root, stage, currentTool, lecture, pdfDocument) {
   const toolbar = root.querySelector('.pv-tb');
   const right = toolbar.lastElementChild;
   right.insertAdjacentHTML('afterbegin',
+    '<button type="button" class="pv-ib" data-lecture-notebook aria-label="إضافة ورقة A4 للمحاضرة" title="دفتر ملاحظات مرتبط بالمحاضرة">✎ ورقة A4</button>' +
     '<button type="button" class="pv-ib" data-reader-related aria-expanded="false">مرتبط بالمحاضرة ▾</button>' +
     '<button type="button" class="pv-ib" data-reader-focus aria-label="إخفاء الأدوات" title="وضع القراءة">⛶</button>');
+  right.querySelector('[data-lecture-notebook]').addEventListener('click',()=>{const url=new URL('./notebooks.html',location.href);url.searchParams.set('lecture',String(lecture.id));url.searchParams.set('title',String(lecture.title||'ملاحظات المحاضرة'));window.open(url.href,'_blank','noopener')});
   const related = right.querySelector('[data-reader-related]');
   const focus = right.querySelector('[data-reader-focus]');
   const menu = document.createElement('div');
