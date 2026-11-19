@@ -3276,7 +3276,7 @@ body:has(:is(#friendsDialog,#friendChatDialog,#friendInboxDialog,#friendProfileD
 <button type="button" id="openFriends" data-friends-ready hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="9" cy="7" r="3"/><path d="M3 20v-2a6 6 0 0 1 12 0v2m4-11v6m-3-3h6"/></svg><span>الأصدقاء<small>إضافة صديق ومتابعة تقدّمه</small></span><b class="friend-request-count" id="friendMenuCount" hidden></b></button>
 <button type="button" data-tool-view="subscription"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M3 10h18M7 15h4"/></svg><span>اشتراكي<small>الوصول والخدمات المتاحة</small></span></button>
 <button type="button" data-tool-view="schedule"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="5" width="16" height="15" rx="3"/><path d="M8 3v4m8-4v4M4 10h16m-7 5 2 2 4-4"/></svg><span>جدولي الدراسي<small>مهامي وخطتي الأسبوعية</small></span></button>
-<button type="button" data-tool-view="favorites"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m19 21-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg><span>المفضلات<small>المواد التي حفظتها للرجوع إليها</small></span></button>
+<button type="button" data-tool-view="favorites"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m19 21-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg><span>مكتبتي<small>محاضراتي وملخصاتي ودفاتري</small></span></button>
 <button type="button" class="mb-settings-nav" data-tool-view="settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="m9 3-1 3-3 1-2 3 2 2-1 3 3 2 3-1 2 2 3-1 1-3 3-1 2-3-2-2 1-3-3-2-3 1-2-2z"/></svg><span>الإعدادات<small>المظهر والقراءة والحساب</small></span></button>
 <a class="mb-support-nav" href="https://wa.me/9647837271707" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M20 11.5a8 8 0 0 1-11.8 7L4 20l1.3-4a8 8 0 1 1 14.7-4.5Z"/><path d="M9 9c.5 3 2 4.5 5 5" stroke-linecap="round"/></svg><span>مراسلة الدعم<small>واتساب</small></span></a>
 <button type="button" class="friend-invite-link" id="openFriendInvite" data-friends-ready hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 4l18 8-18 8 3-8-3-8zm3 8h15"/></svg><span>دعوة صديق<small>مشاركة رابط الدعوة</small></span></button>
@@ -3649,9 +3649,9 @@ body:has(:is(#friendsDialog,#friendChatDialog,#friendInboxDialog,#friendProfileD
 </div>
 </section>
 <section class="mb-tool-page mb-page-view mb-personal-page" id="favoritesSection">
-<div class="mb-page-toolbar"><div class="mb-page-title-wrap"><button class="mb-page-back" type="button" data-tool-view="home" aria-label="العودة للرئيسية">‹</button><div><h2 class="mb-page-title">المفضلات</h2></div></div></div>
-<div class="mb-favorite-tools"><input class="mb-personal-input" id="favoritesSearch" type="search" placeholder="ابحث داخل المفضلات…" aria-label="البحث داخل المفضلات"><select class="mb-personal-input" id="favoritesSort" aria-label="ترتيب المفضلات"><option value="latest">الأحدث حفظًا</option><option value="title">حسب العنوان</option></select><button type="button" class="mb-file-btn" id="refreshFavoritesBtn">تحديث</button></div>
-<div class="mb-personal-status" id="favoritesStatus" role="status"></div><details class="mb-list-fold" open><summary>قائمة المفضلات</summary><div id="favoritesContent" class="mb-favorite-content"></div></details>
+<div class="mb-page-toolbar"><div class="mb-page-title-wrap"><button class="mb-page-back" type="button" data-tool-view="home" aria-label="العودة للرئيسية">‹</button><div><h2 class="mb-page-title">مكتبتي</h2></div></div></div>
+<div class="mb-favorite-tools"><input class="mb-personal-input" id="favoritesSearch" type="search" placeholder="ابحث داخل مكتبتي…" aria-label="البحث داخل المفضلات"><select class="mb-personal-input" id="favoritesSort" aria-label="ترتيب المفضلات"><option value="latest">الأحدث حفظًا</option><option value="title">حسب العنوان</option></select><button type="button" class="mb-file-btn" id="refreshFavoritesBtn">تحديث</button></div>
+<div class="mb-personal-status" id="favoritesStatus" role="status"></div><details class="mb-list-fold" open><summary>محاضراتي المحفوظة</summary><div id="favoritesContent" class="mb-favorite-content"></div></details>
 </section>
 <section class="mb-tool-page mb-page-view mb-personal-page" id="settingsSection">
 <div class="mb-page-toolbar"><div class="mb-page-title-wrap"><button class="mb-page-back" type="button" data-tool-view="home" aria-label="العودة للرئيسية">‹</button><div><h2 class="mb-page-title">الإعدادات</h2></div></div></div>
@@ -3953,7 +3953,7 @@ body:has(:is(#friendsDialog,#friendChatDialog,#friendInboxDialog,#friendProfileD
 </div>
 <div id="smartSuggestions" class="smart-suggestions" role="listbox" aria-label="اقتراحات من المواد المتوفرة" hidden></div>
 
-<nav class="mb-bottom-nav" id="deviceNav" aria-label="التنقل السريع"><button type="button" data-device-view="home" aria-current="page"><span aria-hidden="true">⌂</span>الرئيسية</button><button type="button" data-device-view="library"><span aria-hidden="true">▤</span>المحاضرات</button><button type="button" data-device-view="schedule"><span aria-hidden="true">▦</span>جدولي</button><button type="button" data-device-view="favorites"><span aria-hidden="true">☆</span>المفضلات</button><button type="button" data-device-view="settings"><span aria-hidden="true">⚙</span>الإعدادات</button></nav>
+<nav class="mb-bottom-nav" id="deviceNav" aria-label="التنقل السريع"><button type="button" data-device-view="home" aria-current="page"><span aria-hidden="true">⌂</span>الرئيسية</button><button type="button" data-device-view="library"><span aria-hidden="true">▤</span>المحاضرات</button><button type="button" data-device-view="schedule"><span aria-hidden="true">▦</span>جدولي</button><button type="button" data-device-view="favorites"><span aria-hidden="true">☆</span>مكتبتي</button><button type="button" data-device-view="settings"><span aria-hidden="true">⚙</span>الإعدادات</button></nav>
 <button id="focusCompact" type="button" hidden aria-label="فتح مؤقّت الدراسة"></button><div id="deviceConnection" role="status" hidden>الاتصال بالإنترنت غير متاح. يمكنك استخدام مؤقّت الدراسة؛ حفظ التغييرات يحتاج اتصالًا.</div>
 <dialog id="friendInboxDialog" class="device-dialog" aria-labelledby="friendInboxTitle">
   <form method="dialog" class="sp-card-head"><h2 id="friendInboxTitle">المراسلات</h2><button class="mb-close" aria-label="إغلاق">×</button></form>
@@ -4871,6 +4871,7 @@ const ICONS = {
   play: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>',
   file: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>',
   help: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
+  star: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 2 3.1 6.3 7 1-5.05 4.92 1.2 6.95L12 17.9l-6.25 3.27 1.2-6.95L1.9 9.3l7-1L12 2z"/></svg>',
   bookmark: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>',
   chevron: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>',
   back: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>',
@@ -5909,7 +5910,7 @@ function renderLectureList(list) {
         ${l.notes ? `<p class="notes">${escapeHtml(l.notes)}</p>` : ''}
       </div>
       <div class="actions">
-        <button type="button" class="${favoriteRecords.has(l.id) ? 'favorite-saved' : ''}" data-action="toggle-favorite" data-id="${escapeHtml(l.id)}" aria-label="${favoriteRecords.has(l.id) ? 'إزالة من المفضلات' : 'إضافة إلى المفضلات'}" aria-pressed="${favoriteRecords.has(l.id)}" ${favoritePending.has(l.id) ? 'disabled' : ''}>${ICONS.bookmark}</button>
+        <button type="button" class="${favoriteRecords.has(l.id) ? 'favorite-saved' : ''}" data-action="toggle-favorite" data-id="${escapeHtml(l.id)}" aria-label="${favoriteRecords.has(l.id) ? 'إزالة من مكتبتي' : 'إضافة إلى مكتبتي'}" aria-pressed="${favoriteRecords.has(l.id)}" ${favoritePending.has(l.id) ? 'disabled' : ''}>${ICONS.star}</button>
         ${l.topicId && state.browse.hub !== l.topicId && topicSiblings(l) ? `<button type="button" class="read topic-jump" data-action="open-topic" data-topic="${escapeHtml(l.topicId)}" aria-label="كل المصادر لموضوع ${escapeHtml(topicName(l.topicId))}" title="كل المصادر لهذا الموضوع">${ICONS.book}</button>` : ''}
         ${hasQuiz && openAction !== 'open-quiz' ? `<button type="button" class="read" data-action="open-quiz" data-id="${escapeHtml(l.id)}" aria-label="بدء الأسئلة">${ICONS.help}</button>` : ''}
         ${l.filePath && openAction !== 'open-pdf' ? `<button type="button" class="read" data-action="open-pdf" data-id="${escapeHtml(l.id)}" aria-label="فتح PDF" title="فتح PDF">${ICONS.file}</button>` : ''}
@@ -10334,7 +10335,7 @@ async function toggleFavorite(id) {
     favoritesError = '';
     updateFavoriteButtons();
     renderFavorites();
-    showMbToast(wasSaved ? 'أُزيلت المادة من المفضلات.' : 'حُفظت المادة في المفضلات.');
+    showMbToast(wasSaved ? 'أُزيلت المادة من مكتبتي.' : 'أُضيفت المادة إلى مكتبتي.');
   } catch (_) {
     if (userId === activeUserId && version === accessVersion)
       showMbToast('تعذّر حفظ التغيير. تحقق من الاتصال وحاول مجددًا.');
@@ -10349,8 +10350,8 @@ function updateFavoriteButtons() {
     button.disabled = favoritePending.has(id);
     button.classList.toggle('favorite-saved',saved);
     button.setAttribute('aria-pressed',String(saved));
-    button.setAttribute('aria-label',saved ? 'إزالة من المفضلات' : 'إضافة إلى المفضلات');
-    button.title = saved ? 'إزالة من المفضلات' : 'إضافة إلى المفضلات';
+    button.setAttribute('aria-label',saved ? 'إزالة من مكتبتي' : 'إضافة إلى مكتبتي');
+    button.title = saved ? 'إزالة من مكتبتي' : 'إضافة إلى مكتبتي';
   });
 }
 function renderFavorites() {
@@ -10364,7 +10365,7 @@ function renderFavorites() {
   else items.sort((a,b)=>String(favoriteRecords.get(b.id)).localeCompare(String(favoriteRecords.get(a.id))));
   document.getElementById('favoritesStatus').textContent = favoritesError || (items.length + ' مادة محفوظة');
   content.innerHTML = items.length ? renderLectureList(items) : '<div class="mb-empty-tool"><h3>' +
-    (query.trim() ? 'لا توجد نتائج مطابقة' : 'مفضلاتك تنتظر أول مادة') +
+    (query.trim() ? 'لا توجد نتائج مطابقة' : 'مكتبتك تنتظر أول مادة') +
     '</h3><p>اضغط علامة الحفظ بجانب أي محاضرة أو مادة لتظهر هنا.</p><button type="button" class="mb-primary" data-nav-kind="lectures">استعراض المحاضرات</button></div>';
   updateFavoriteButtons();
 }
