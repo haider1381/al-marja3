@@ -16,8 +16,11 @@
   let prompting = false;
   let added = false;
 
-  function announce(message) {
-    status.forEach(node => { node.textContent = message; });
+  function announce(message, state = '') {
+    status.forEach(node => {
+      node.textContent = message;
+      node.dataset.installState = state;
+    });
   }
 
   function sync() {
@@ -28,7 +31,7 @@
     announce(running ? 'أنت تستخدم Medbrain من أيقونة الشاشة الرئيسية.'
       : added ? 'تمت إضافة Medbrain. افتحه من أيقونته على جهازك.'
       : offer ? 'نافذة التثبيت جاهزة.'
-      : '');
+      : '', added || running ? 'success' : '');
   }
 
   function showGuidance() {
@@ -56,8 +59,8 @@
       const response = await promptEvent.prompt();
       const choice = response?.outcome ? response : await promptEvent.userChoice;
       if (!added && choice?.outcome === 'accepted') {
-        announce('تم تأكيد طلب التثبيت. ابحث عن أيقونة Medbrain على شاشتك.');
-      } else if (!added) {
+        announce('تم تأكيد طلب التثبيت. ابحث عن أيقونة Medbrain على شاشتك.', 'pending');
+      } else if (!added && !choice?.outcome) {
         showGuidance();
       }
     } catch {
