@@ -1523,6 +1523,19 @@
   .mb-profile-pop.open { display:block; }
   .mb-profile-pop .name { font-weight:800; margin:4px 5px 0; }
   .mb-profile-pop .email { color:#718096; font-size:11px; direction:ltr; margin:3px 5px 9px; word-break:break-all; }
+  .mb-avatar-level { position:relative; flex:none; margin-inline-start:3px; }
+  .mb-avatar-level #profileBtn { margin:0; }
+  .mb-avatar-level svg { position:absolute; inset:-3px; width:calc(100% + 6px); height:calc(100% + 6px); pointer-events:none; transform:rotate(-90deg); }
+  .mb-avatar-level svg[hidden] { display:none; }
+  .mb-avatar-level circle { fill:none; stroke-width:2.5; }
+  .mb-avatar-level .ring-track { stroke:var(--border,#dce4ef); }
+  .mb-avatar-level .ring-fill { stroke:#8b5cf6; stroke-linecap:round; }
+  .mb-profile-xp { margin:8px 5px; padding:10px; background:var(--accent-soft,#edf3ff); border-radius:10px; }
+  .mb-profile-xp-head { display:flex; align-items:center; justify-content:space-between; gap:8px; font-size:13px; font-weight:800; }
+  .mb-profile-xp progress { appearance:none; display:block; width:100%; height:6px; margin-top:8px; border:0; border-radius:99px; overflow:hidden; background:var(--border,#dce4ef); color:#8b5cf6; }
+  .mb-profile-xp progress::-webkit-progress-bar { background:var(--border,#dce4ef); }
+  .mb-profile-xp progress::-webkit-progress-value { background:#8b5cf6; border-radius:99px; }
+  .mb-profile-xp progress::-moz-progress-bar { background:#8b5cf6; border-radius:99px; }
   .mb-profile-pop button {
     width:100%;
     border:0;
@@ -1636,20 +1649,22 @@
   .mb-account-stat span { color:#66758a;font-size:12px; }
   .mb-toast {
     position:fixed;
-    z-index:70;
-    bottom:24px;
+    z-index:3000;
+    top:calc(12px + env(safe-area-inset-top));
     left:50%;
-    transform:translate(-50%,25px);
-    opacity:0;
-    pointer-events:none;
+    transform:translateX(-50%);
     background:#142438;
     color:#fff;
-    border-radius:999px;
-    padding:11px 18px;
-    font-size:12px;
-    transition:.2s ease;
+    border-radius:14px;
+    padding:8px 12px;
+    font-size:13px;
+    width:max-content;
+    max-width:calc(100vw - 24px);
+    box-shadow:0 6px 20px #0003;
   }
-  .mb-toast.show { transform:translate(-50%,0); opacity:1; }
+  .mb-toast[data-tone="logout"] { background:#9c263a; }
+  .mb-toast button { border:0; background:transparent; color:inherit; font:inherit; text-decoration:underline; cursor:pointer; margin-inline-start:8px; }
+  [data-friends-ready][hidden] { display:none!important; }
 
   @media (max-width:1000px) {
     .mb-feature-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
@@ -2862,6 +2877,58 @@ html[lang="en"] .mb-feature-en, html[lang="en"] .sp-title small { display:none; 
 .quiz-save[aria-pressed="true"] svg { fill:#f5b400; }
 .exam-saved { min-height:40px; padding:0 16px; border:1px solid #f5b400; border-radius:12px; background:#fff8e1; color:#a76b00; font:inherit; font-size:14px; font-weight:800; cursor:pointer; }
 :root[data-theme="dark"] .exam-saved, #readerOverlay[data-reader-theme="dark"] .quiz-save[aria-pressed="true"] { background:rgba(245,180,0,.15); }
+  #deviceNav { display:none; }
+  @media(max-width:820px) {
+    body { padding-bottom:env(safe-area-inset-bottom); }
+    .mb-nav button, .mb-nav a { font-size:14px; }
+    .mb-nav small { font-size:11px; }
+    .mb-welcome { font-size:clamp(25px, 6vw, 34px); }
+    .mb-feature-title { font-size:17px; }
+  }
+  .mb-friends-dialog { width:min(530px,calc(100% - 24px)); max-height:86dvh; overflow:auto; padding:20px; border:1px solid var(--border); border-radius:16px; background:var(--surface); color:var(--text); }
+  .mb-friends-dialog form, .mb-friends-dialog .friend-row, .friend-fields { display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin:10px 0; }
+  .mb-friends-dialog input { flex:1; min-width:120px; padding:7px; border:1px solid var(--border); border-radius:8px; background:var(--surface); color:inherit; font:inherit; }
+  .mb-friends-dialog [hidden] { display:none!important; }
+  .mb-friends-dialog .friend-row { justify-content:space-between; border-bottom:1px solid var(--border); padding-bottom:8px; }
+  .friend-empty, .friend-help { color:var(--text-muted); font-size:14px; margin:8px 0 12px; }
+  .friend-action { border-top:1px solid var(--border); }
+  .friend-action > summary { color:var(--accent-strong,var(--mb-blue)); font-size:14px; }
+  .friend-fields label { flex-basis:100%; font-size:13px; }
+  .friend-request-count { min-width:1.25rem; padding:0 .28rem; border-radius:999px; background:#844ee2; color:white; text-align:center; font-size:11px; font-weight:800; }
+  .friend-dialog-head { display:grid; grid-template-columns:auto 1fr auto; gap:8px; align-items:center; direction:ltr; }
+  .friend-dialog-head > * { grid-row:1; }
+  .friend-dialog-head > h2 { grid-column:2; text-align:center; font-size:1.15rem; }
+  .friend-dialog-head > form { grid-column:1; }
+  .friend-request-top { position:relative; display:flex; align-items:center; grid-column:3; }
+  .friend-request-top .friend-request-trigger { position:relative; padding:5px; }
+  .friend-request-trigger svg { width:20px; height:20px; vertical-align:middle; }
+  .friend-request-trigger .friend-request-count { position:absolute; top:-7px; right:-7px; }
+  .friend-request-sheet { position:absolute; right:0; top:calc(100% + 8px); z-index:2; width:min(300px,calc(100vw - 68px)); max-height:min(270px,55dvh); overflow:auto; padding:10px; border:1px solid var(--border); border-radius:12px; background:var(--surface); box-shadow:0 12px 30px #1113; }
+  .mb-friends-dialog:has(.friend-request-sheet:not([hidden])) { min-height:min(365px,86dvh); }
+  html[lang="en"] .friend-request-sheet { direction:ltr; }
+  .friend-request-sheet h3 { margin:0 0 6px; font-size:14px; }
+  .friend-request-sheet .friend-row { display:grid; justify-content:stretch; margin:8px 0; }
+  .friend-request-profile { display:flex; align-items:center; gap:8px; min-width:0; }
+  .friend-request-profile small { display:block; color:var(--text-muted); }
+  .friend-request-avatar { flex:none; width:30px; height:30px; display:grid; place-items:center; border-radius:50%; background:var(--accent-soft); font-size:12px; font-weight:700; }
+  .friend-request-actions { display:flex; flex-wrap:wrap; gap:6px; }
+  #friendStatus:empty { display:none; }
+  .mb-drawer .friend-invite-link { margin:10px 12px 16px; padding:8px 5px; align-self:flex-start; border:0; border-radius:0; background:transparent; color:var(--text-muted); font:inherit; font-size:13px; text-decoration:underline; text-underline-offset:4px; cursor:pointer; }
+
+  :is(.mb-list-fold,#scheduleSection details,details.sp-topic) > summary { cursor:pointer; list-style:none; }
+  :is(.mb-list-fold,#scheduleSection details,details.sp-topic) > summary::-webkit-details-marker { display:none; }
+  :is(.mb-list-fold,#scheduleSection details,details.sp-topic) > summary::after {
+    content:""; display:inline-block; width:7px; height:7px; margin-inline-start:12px; vertical-align:.2em;
+    border-right:2px solid currentColor; border-bottom:2px solid currentColor; transform:rotate(45deg);
+  }
+  :is(.mb-list-fold,#scheduleSection details,details.sp-topic)[open] > summary::after { transform:rotate(225deg); }
+  .mb-list-fold > summary { padding:7px 0; font-weight:700; }
+  .mb-list-fold[open] > summary { margin-bottom:6px; }
+  .daily-review-actions { display:grid; gap:7px; margin:12px 0; }
+  .daily-review-actions button { width:100%; text-align:start; }
+  #dailyReviewResults[hidden], #dailyReviewChoices[hidden] { display:none; }
+  #chapterTopicsFold #chapterTopics { margin:0; border:0; }
+  details.sp-topic { display:block; }
 </style>
 <link rel="manifest" href="./manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="192x192" href="./assets/app-icon-192.png">
@@ -2871,7 +2938,7 @@ html[lang="en"] .mb-feature-en, html[lang="en"] .sp-title small { display:none; 
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Medbrain">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<script src="./pwa.js?v=2" defer></script>
+<script src="./pwa.js?v=3" defer></script>
 </head>
 <body>
 
@@ -2972,21 +3039,67 @@ html[lang="en"] .mb-feature-en, html[lang="en"] .sp-title small { display:none; 
       </button>
     </div>
 <nav class="mb-nav" aria-label="صفحاتي">
+<button type="button" id="openFriends" data-friends-ready hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="9" cy="7" r="3"/><path d="M3 20v-2a6 6 0 0 1 12 0v2m4-11v6m-3-3h6"/></svg><span>الأصدقاء<small>إضافة صديق ومتابعة تقدّمه</small></span><b class="friend-request-count" id="friendMenuCount" hidden></b></button>
 <button type="button" data-open-ai><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 3l2.2 6.8L19 12l-6.8 2.2L10 21l-2.2-6.8L1 12l6.8-2.2L10 3z"/><path d="M20 2v6M17 5h6M21 17v4M19 19h4"/></svg><span dir="ltr">Ask MidBrain AI ✨<small dir="rtl">مساعدك للدراسة وفهم المحاضرات</small></span></button>
 <button type="button" data-tool-view="subscription"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M3 10h18M7 15h4"/></svg><span>اشتراكي<small>الوصول والخدمات المتاحة</small></span></button>
-<button type="button" data-tool-view="shareSchedule"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 10.5 6.8-4m-6.8 7 6.8 4"/></svg><span>مشاركة جدولي الخاص<small>معاينة الجدول ثم مشاركته</small></span></button>
 <button type="button" data-tool-view="schedule"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="5" width="16" height="15" rx="3"/><path d="M8 3v4m8-4v4M4 10h16m-7 5 2 2 4-4"/></svg><span>جدولي الدراسي<small>مهامي وخطتي الأسبوعية</small></span></button>
 <button type="button" data-tool-view="favorites"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m19 21-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg><span>المفضلات<small>المواد التي حفظتها للرجوع إليها</small></span></button>
 <button type="button" class="mb-settings-nav" data-tool-view="settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="m9 3-1 3-3 1-2 3 2 2-1 3 3 2 3-1 2 2 3-1 1-3 3-1 2-3-2-2 1-3-3-2-3 1-2-2z"/></svg><span>الإعدادات<small>المظهر والقراءة والحساب</small></span></button>
 <a class="mb-support-nav js-support-tg" href="https://t.me/ha_hayder" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M21.9 4.3 18.7 19.4c-.2 1-.9 1.3-1.8.8l-4.9-3.6-2.4 2.3c-.3.3-.5.5-1 .5l.3-5 9.1-8.2c.4-.4-.1-.6-.6-.2L6.2 13.1l-4.8-1.5c-1-.3-1.1-1 .2-1.5L20.5 2.8c.9-.3 1.6.2 1.4 1.5Z"/></svg><span>مراسلة الدعم<small>للمشاكل والاستفسارات</small></span></a>
 </nav>
+<button type="button" class="friend-invite-link" id="openFriendInvite" data-friends-ready hidden>دعوة صديق</button>
 
   </aside>
 </div>
 
+<dialog class="mb-friends-dialog" id="friendsDialog" aria-labelledby="friendsTitle">
+  <div class="mb-dialog-head friend-dialog-head">
+    <div class="friend-request-top" dir="rtl">
+      <button type="button" class="mb-file-btn friend-request-trigger" id="friendRequestsToggle" aria-controls="friendRequestSheet" aria-expanded="false" aria-label="طلبات الصداقة">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="7" r="3"/><path d="M5 21v-2a7 7 0 0 1 14 0v2"/></svg><b class="friend-request-count" id="friendDialogCount" hidden></b>
+      </button>
+      <section class="friend-request-sheet" id="friendRequestSheet" hidden aria-labelledby="friendRequestTitle">
+        <h3 id="friendRequestTitle">طلبات الصداقة</h3>
+        <div id="incomingFriendRequests"><p class="friend-empty">لا توجد طلبات صداقة جديدة.</p></div>
+      </section>
+    </div>
+    <h2 id="friendsTitle">الأصدقاء</h2>
+    <form method="dialog"><button type="submit" class="mb-file-btn">إغلاق</button></form>
+  </div>
+  <p class="friend-empty" id="friendEmpty">لا يوجد لديك أصدقاء حاليًا.</p>
+  <div id="friendList"></div>
+  <details class="mb-list-fold friend-action" id="friendAddSection" name="friend-actions">
+    <summary>إضافة صديق</summary>
+    <div class="friend-fields" id="friendOwnCode" hidden>
+      <label for="friendCodeValue">ID الخاص بك</label>
+      <input id="friendCodeValue" dir="ltr" type="text" readonly>
+      <button type="button" class="mb-file-btn" id="copyFriendCode">نسخ</button>
+    </div>
+    <form id="friendRequestForm">
+      <input id="friendPeer" dir="ltr" type="text" aria-label="ID الصديق" placeholder="ID الصديق" minlength="10" maxlength="10" required>
+      <button type="submit" class="mb-primary">إرسال الطلب</button>
+    </form>
+  </details>
+  <details class="mb-list-fold friend-action" id="friendInviteSection" name="friend-actions">
+    <summary>دعوة صديق</summary>
+    <p class="friend-help">تكسب 10 XP عندما ينضم طالب جديد بحساب مؤكّد من رابطك. تُحسب الدعوة مرة واحدة لكل حساب جديد.</p>
+    <div class="friend-fields">
+      <input id="friendInviteLink" aria-label="رابط الدعوة" type="url" readonly dir="ltr">
+      <button type="button" class="mb-file-btn" id="shareFriendInvite">مشاركة الرابط</button>
+    </div>
+  </details>
+  <p id="friendStatus" role="status"></p>
+</dialog>
+
 <div class="mb-profile-pop" id="profileMenu" aria-hidden="true">
   <div class="name" id="profileMenuName">Medbrain User</div>
   <div class="email" id="profileMenuEmail"></div>
+  <div class="mb-profile-xp" id="profileXP" hidden>
+    <div class="mb-profile-xp-head"><span id="studyLevel"></span><output id="studyXP" dir="ltr"></output></div>
+    <progress id="studyLevelProgress" max="100" value="0" aria-label="التقدم إلى المستوى التالي"></progress>
+  </div>
+  <label class="mb-profile-xp" id="friendPrivacyOption" hidden><input id="friendPrivacy" type="checkbox"> أسمح لأصدقائي برؤية تقدّمي</label>
+  <p id="friendPrivacyStatus" role="status"></p>
   <button type="button" data-profile="account">الملف الشخصي والحساب</button>
   <button type="button" data-profile="topics">استعراض المواضيع</button>
   <button type="button" data-profile="logout" id="profileLogoutBtn">تسجيل الخروج</button>
@@ -3068,7 +3181,13 @@ html[lang="en"] .mb-feature-en, html[lang="en"] .sp-title small { display:none; 
         <button class="mb-icon-btn keep-mobile mb-labs-btn" type="button" data-open-labs aria-label="Reference values" title="Reference values"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 3h6M10 3v6l-5 9a2 2 0 0 0 1.7 3h10.6a2 2 0 0 0 1.7-3l-5-9V3"/><path d="M7.5 14h9"/></svg></button>
         <button class="mb-icon-btn keep-mobile mb-lang-btn" id="siteLangToggle" type="button" aria-label="English / العربية" title="English / العربية" data-no-i18n>EN</button>
         <button class="mb-icon-btn keep-mobile" id="siteThemeToggle" type="button" aria-label="تفعيل الوضع الداكن" aria-pressed="false" title="الوضع الداكن">☾</button>
-        <button class="mb-avatar" id="profileBtn" type="button" aria-label="الحساب"><span id="avatarInitials">MB</span></button>
+        <div class="mb-avatar-level">
+          <button class="mb-avatar" id="profileBtn" type="button" aria-label="الحساب"><span id="avatarInitials">MB</span></button>
+          <svg id="profileLevelRing" viewBox="0 0 50 50" aria-hidden="true" focusable="false" hidden>
+            <circle class="ring-track" cx="25" cy="25" r="23"></circle>
+            <circle class="ring-fill" id="profileLevelFill" cx="25" cy="25" r="23" pathLength="100" stroke-dasharray="0 100"></circle>
+          </svg>
+        </div>
       </div>
     </div>
   </header>
@@ -3077,14 +3196,12 @@ html[lang="en"] .mb-feature-en, html[lang="en"] .sp-title small { display:none; 
     <div class="banner" id="storageBanner">تعذّر الاتصال بالتخزين. جرّب إعادة تحميل الصفحة.</div>
 
     <section class="mb-page-view active" id="dashboardView">
-      <button type="button" class="mb-file-btn" id="openLectureReview">مراجعة المحاضرات</button>
-      <details class="mb-personal-card"><summary>إنجازاتي <output id="studyXP">— XP</output></summary><p id="studyLevel"></p><p>جلسة مكتملة +10 · جلسة فائتة −3 · اختبار +8 · بطاقات +6 · تلميح −2 · حل AI −5</p><ul id="studyXPHistory"></ul></details>
     <section class="mb-hero">
       <span class="mb-watermark mb-wm-brain" aria-hidden="true"><svg viewBox="0 0 100 80" fill="none" stroke="currentColor" stroke-width="4"><path d="M47 67c-7 7-20 4-22-6-12 1-18-13-10-21-7-8-1-22 10-21 2-11 17-14 23-5 8-10 24-5 25 7 12-1 18 14 10 22 9 7 4 23-8 23-3 10-17 12-24 5-2 3-4 5-8 6Z"/><path d="M48 17v48M35 23c10 4 7 12 2 16m25-16c-10 4-7 12-2 16M29 48c8-4 14 0 18 6m25-6c-8-4-14 0-18 6"/></svg></span>
       <span class="mb-watermark mb-wm-heart" aria-hidden="true"><svg viewBox="0 0 80 80" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M30 31C21 34 15 43 17 54C19 66 31 75 44 73C57 71 65 60 63 46C62 38 57 32 50 30"/><path d="M37 31C36 21 40 13 49 11C56 10 61 14 60 21"/><path d="M44 13V5M50 11V3M56 13V6"/><path d="M33 31C31 24 26 20 19 20M28 35C23 29 23 20 26 12M38 40C43 50 43 59 38 67"/></svg></span>
       <span class="mb-watermark mb-wm-micro" aria-hidden="true"><svg viewBox="0 0 90 90" fill="none" stroke="currentColor" stroke-width="4"><circle cx="43" cy="45" r="17"/><path d="m31 14 9 18m20-11-8 14M15 45h11m36 0h14M26 72l8-13m25 14-9-14"/><circle cx="43" cy="45" r="4"/></svg></span>
 
-      <h1 class="mb-welcome" dir="ltr">Welcome, <span id="welcomeName">Doctor</span>!</h1>
+      <h1 class="mb-welcome" dir="ltr">أهلًا، <span id="welcomeName" data-no-i18n>Doctor</span>!</h1>
       <div class="mb-search-row">
         <form class="search-box smart-search-form" id="homeSearchForm" role="search">
           <button type="submit" class="search-submit" aria-label="بحث"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg></button>
@@ -3093,12 +3210,12 @@ html[lang="en"] .mb-feature-en, html[lang="en"] .sp-title small { display:none; 
         </form>
         <button class="mb-topics-btn" id="heroTopicsBtn" type="button">عرض كل المواضيع <span>⌄</span></button>
       </div>
-      <div class="mb-tip"><span class="mb-tip-bulb">💡</span><i>Try: “Cardiology” &nbsp; • &nbsp; “Diabetes” &nbsp; • &nbsp; “Respiratory”...</i></div>
+      <div class="mb-tip"><span class="mb-tip-bulb">💡</span><i>جرّب: «أمراض القلب» • «السكري» • «أمراض الجهاز التنفسي»…</i></div>
     </section>
 
     <div class="mb-dashboard-head">
       <div><h2>مساحتك الدراسية</h2><div class="mb-dashboard-meta"><span id="countLabel"></span></div></div>
-      <span style="font-size:12px;color:#748296">Medbrain Dashboard</span>
+      <span style="font-size:12px;color:#748296">لوحة Medbrain</span>
     </div>
 
     <section class="mb-feature-grid" aria-label="أقسام Medbrain">
@@ -3151,8 +3268,8 @@ html[lang="en"] .mb-feature-en, html[lang="en"] .sp-title small { display:none; 
         <div class="mb-practice-rocket" aria-hidden="true">
           <svg viewBox="0 0 120 120"><path d="M69 15c24 15 31 46 12 69L54 58c4-20 10-34 15-43Z" fill="#81d6c7" stroke="#4f5960" stroke-width="3"/><circle cx="70" cy="42" r="11" fill="#dff8f6" stroke="#4f5960" stroke-width="3"/><path d="m53 58-19 5-12 22 26-7m32 6 5 18 17-13-7-20" fill="#ef8b9c" stroke="#4f5960" stroke-width="3"/><path d="M42 82c-8 12-11 22-12 27 7-2 18-7 27-16" fill="#f5c449" stroke="#d69f23" stroke-width="3"/></svg>
         </div>
-        <div class="mb-practice-copy"><h4>أسئلة مبنية على المواد التي أضفتها</h4><p>مجموعات أسئلة متاحة حسب موادك.</p><p>ابدأ مراجعة سريعة لتثبيت المعلومات.</p></div>
-        <button type="button" class="mb-primary" data-dashboard-kind="questions">ابدأ الأسئلة</button>
+        <div class="mb-practice-copy"><h4>راجع اللي درستَه</h4><p>اختَر محاضراتك المقروءة أو المفضلات أو تدرب من محتوى المكتبة.</p></div>
+        <button type="button" class="mb-primary" id="openLectureReview">ابدأ المراجعة</button>
       </div>
     </section>
 
@@ -3220,7 +3337,7 @@ html[lang="en"] .mb-feature-en, html[lang="en"] .sp-title small { display:none; 
 <section class="mb-tool-page mb-page-view mb-personal-page" id="subscriptionSection">
 <div class="mb-page-toolbar"><div class="mb-page-title-wrap"><button class="mb-page-back" type="button" data-tool-view="home" aria-label="العودة للرئيسية">‹</button><div><h2 class="mb-page-title">اشتراكي</h2></div></div></div>
 <div class="mb-personal-grid">
- <article class="mb-personal-card"><span class="mb-personal-pill">الوصول الحالي</span><h3 style="margin-top:16px">حساب Medbrain</h3><p id="subscriptionIdentity" dir="auto"></p><ul><li>قراءة المحاضرات والملخصات وفتح ملفات PDF</li><li>جدول دراسي شخصي محفوظ في حسابك</li><li>حفظ المواد في المفضلات</li><li>مشاركة نسخة من جدولك الدراسي</li></ul><button type="button" class="mb-primary" data-nav="account">إدارة ملفي الشخصي</button></article>
+ <article class="mb-personal-card"><span class="mb-personal-pill">الوصول الحالي</span><h3 style="margin-top:16px">حساب Medbrain</h3><p id="subscriptionIdentity" dir="auto"></p><ul><li>قراءة المحاضرات والملخصات وفتح ملفات PDF</li><li>جدول دراسي شخصي محفوظ في حسابك</li><li>حفظ المواد في المفضلات</li></ul><button type="button" class="mb-primary" data-nav="account">إدارة ملفي الشخصي</button></article>
  <article class="mb-personal-card"><h3>حالة الاشتراك</h3><p id="subStatus">جارٍ التحقق…</p><form id="subRedeemForm" class="sub-redeem" hidden><label for="subRedeemCode">كود الاشتراك</label><div class="sub-row"><input id="subRedeemCode" dir="ltr" autocomplete="off" placeholder="MB-XXXXX-XXXXX" maxlength="20"><button type="submit" class="mb-primary">تفعيل الكود</button></div><p id="subRedeemStatus" role="status"></p></form><p id="subContact" hidden></p></article>
  <article class="mb-personal-card sub-admin" id="subAdmin" hidden><span class="mb-personal-pill">لوحة المسؤول</span><h3 style="margin-top:16px">الاشتراكات والأكواد</h3>
   <label class="sub-switch"><input type="checkbox" id="paywallToggle"> <span>الموقع مدفوع (طلب كود الاشتراك من الطلاب)</span></label>
@@ -3229,7 +3346,7 @@ html[lang="en"] .mb-feature-en, html[lang="en"] .sp-title small { display:none; 
   <label for="subNewNote">ملاحظة للكود (اختياري، مثل اسم الطالب)</label><input id="subNewNote" maxlength="200">
   <div class="sub-plans"><button type="button" class="mb-primary" data-new-code="month">كود شهري</button><button type="button" class="mb-primary" data-new-code="quarter">كود 3 أشهر</button><button type="button" class="mb-primary" data-new-code="half">كود 6 أشهر</button><button type="button" class="mb-primary" data-new-code="year">كود سنوي</button></div>
   <p id="subAdminStatus" role="status"></p>
-  <div id="subCodeList" class="sub-list"></div></article>
+  <details class="mb-list-fold" open><summary>قائمة أكواد الاشتراك</summary><div id="subCodeList" class="sub-list"></div></details></article>
 </div>
 </section>
 <section class="mb-tool-page mb-page-view mb-personal-page" id="shareScheduleSection">
@@ -3249,7 +3366,7 @@ html[lang="en"] .mb-feature-en, html[lang="en"] .sp-title small { display:none; 
 <section class="mb-tool-page mb-page-view mb-personal-page" id="favoritesSection">
 <div class="mb-page-toolbar"><div class="mb-page-title-wrap"><button class="mb-page-back" type="button" data-tool-view="home" aria-label="العودة للرئيسية">‹</button><div><h2 class="mb-page-title">المفضلات</h2></div></div></div>
 <div class="mb-favorite-tools"><input class="mb-personal-input" id="favoritesSearch" type="search" placeholder="ابحث داخل المفضلات…" aria-label="البحث داخل المفضلات"><select class="mb-personal-input" id="favoritesSort" aria-label="ترتيب المفضلات"><option value="latest">الأحدث حفظًا</option><option value="title">حسب العنوان</option></select><button type="button" class="mb-file-btn" id="refreshFavoritesBtn">تحديث</button></div>
-<div class="mb-personal-status" id="favoritesStatus" role="status"></div><div id="favoritesContent" class="mb-favorite-content"></div>
+<div class="mb-personal-status" id="favoritesStatus" role="status"></div><details class="mb-list-fold" open><summary>قائمة المفضلات</summary><div id="favoritesContent" class="mb-favorite-content"></div></details>
 </section>
 <section class="mb-tool-page mb-page-view mb-personal-page" id="settingsSection">
 <div class="mb-page-toolbar"><div class="mb-page-title-wrap"><button class="mb-page-back" type="button" data-tool-view="home" aria-label="العودة للرئيسية">‹</button><div><h2 class="mb-page-title">الإعدادات</h2></div></div></div>
@@ -3279,7 +3396,7 @@ html[lang="en"] .mb-feature-en, html[lang="en"] .sp-title small { display:none; 
   <li>الاستراحات ما عليها خصم أو مكافأة. توليد اختبار جديد بالذكاء الاصطناعي مجاني من ناحية XP.</li></ul>
  </details>
  <div class="sp-selectors mb-personal-card">
-  <label for="studySubject">المادة الأساسية<select id="studySubject"><option value="Medicine">Medicine</option><option value="Surgery">Surgery</option><option value="Pediatrics">Paediatric</option><option value="OB/GYN">OB/GYN</option></select></label>
+  <label for="studySubject">المادة الأساسية<select id="studySubject"><option value="Medicine">الباطنية</option><option value="Surgery">الجراحة</option><option value="Pediatrics">الأطفال</option><option value="OB/GYN">النسائية والتوليد</option></select></label>
   <label for="studyChapter">الفصل<select id="studyChapter"></select></label>
   <label for="chapterDays">الأيام المخططة للفصل<input id="chapterDays" type="number" min="1" max="365" value="7"></label>
   <label for="chapterStart">بداية خطة الفصل<input id="chapterStart" type="date"></label>
@@ -3288,10 +3405,10 @@ html[lang="en"] .mb-feature-en, html[lang="en"] .sp-title small { display:none; 
  <p id="studyPlannerStatus" class="mb-personal-status" role="status"></p>
  <div class="sp-layout">
   <div class="mb-personal-card"><div class="sp-card-head"><h3 id="chapterHeading">محاضرات الفصل</h3><strong id="chapterPercent">0٪</strong></div><progress id="chapterProgress" max="100" value="0" aria-label="إنجاز الفصل"></progress><p class="sp-muted" id="chapterCount"></p>
-   <div id="chapterTopics" class="sp-topics"></div>
+   <details class="mb-list-fold" id="chapterTopicsFold"><summary>محاضرات الفصل</summary><div id="chapterTopics" class="sp-topics"></div></details>
    <form id="customStudyTopicForm" class="sp-custom-topic"><label for="customStudyTopic">موضوع تدرسه خارج المكتبة<input id="customStudyTopic" maxlength="200" placeholder="مثال: Myocardial infarction" required></label><button type="submit" class="mb-file-btn">إضافة عنوان</button></form>
   </div>
-  <div class="mb-personal-card"><h3>قسّم وقت الدراسة</h3>
+  <details class="mb-personal-card mb-list-fold" open><summary>قسّم وقت الدراسة</summary>
    <form id="studySessionForm">
     <label for="sessionTopic">المحاضرة أو الفصل<select id="sessionTopic"><option value="">الفصل كاملًا</option></select></label>
     <label for="sessionPlanTitle">عنوان الخطة<input id="sessionPlanTitle" maxlength="160" required placeholder="مثال: مراجعة Heart Failure"></label>
@@ -3307,13 +3424,13 @@ html[lang="en"] .mb-feature-en, html[lang="en"] .sp-title small { display:none; 
    </form>
    <p id="studySessionStatus" class="mb-personal-status" role="status"></p>
    <div id="studySessionPreview" class="sp-preview" hidden></div>
-  </div>
+  </details>
  </div>
- <div class="mb-personal-card sp-overview"><h3>نسبة إنجاز كل فصل في المادة</h3><div id="subjectChapterProgress" class="sp-chapter-grid"></div></div>
- <div class="mb-personal-card sp-saved"><div class="sp-card-head"><h3>جلساتي المخططة</h3><label for="studyGroupsScope">عرض<select id="studyGroupsScope"><option value="chapter">الفصل الحالي</option><option value="all">كل خططي</option></select></label></div><p class="sp-muted">علّم كل جلسة عند إتمامها. إنجاز المحاضرة يُحدد من مربعها في قائمة الفصل.</p><div id="savedStudyGroups"></div></div>
+ <details class="mb-personal-card sp-overview mb-list-fold"><summary>نسبة إنجاز كل فصل في المادة</summary><div id="subjectChapterProgress" class="sp-chapter-grid"></div></details>
+ <div class="mb-personal-card sp-saved"><div class="sp-card-head"><h3>جلساتي المخططة</h3><label for="studyGroupsScope">عرض<select id="studyGroupsScope"><option value="chapter">الفصل الحالي</option><option value="all">كل خططي</option></select></label></div><p class="sp-muted">علّم كل جلسة عند إتمامها. إنجاز المحاضرة يُحدد من مربعها في قائمة الفصل.</p><details class="mb-list-fold" open><summary>قائمة الجلسات المحفوظة</summary><div id="savedStudyGroups"></div></details></div>
  <details class="mb-personal-card sp-legacy"><summary>مهامي الحرة والجدول الأسبوعي</summary>
   <form class="mb-schedule-form" id="scheduleForm"><label>المهمة<input id="scheduleTitle" maxlength="160" required placeholder="مهمة أخرى"></label><label>اليوم<select id="scheduleDay"><option value="0">الأحد</option><option value="1">الاثنين</option><option value="2">الثلاثاء</option><option value="3">الأربعاء</option><option value="4">الخميس</option><option value="5">الجمعة</option><option value="6">السبت</option></select></label><label>الوقت<input id="scheduleTime" type="time"></label><label>ملاحظة<input id="scheduleNotes" maxlength="500" placeholder="اختياري"></label><button class="mb-primary" type="submit">إضافة</button></form>
-  <div class="mb-status" id="scheduleStatus"></div><div class="mb-week-grid" id="scheduleGrid"></div>
+  <div class="mb-status" id="scheduleStatus"></div><details class="mb-list-fold"><summary>أيام الأسبوع</summary><div class="mb-week-grid" id="scheduleGrid"></div></details>
  </details>
 </section>
 
@@ -3375,11 +3492,11 @@ html[lang="en"] .mb-feature-en, html[lang="en"] .sp-title small { display:none; 
         <button class="mb-primary" type="submit">إضافة بطاقة</button>
       </form>
       <div class="mb-status" id="flashStatus"></div>
-      <div class="mb-flash-grid" id="flashcardGrid"></div>
+      <details class="mb-list-fold" open><summary>بطاقاتي الشخصية</summary><div class="mb-flash-grid" id="flashcardGrid"></div></details>
     </section>
   </main>
 </div>
-<div class="mb-toast" id="mbToast" role="status" aria-live="polite"></div>
+<div class="mb-toast" id="mbToast" hidden><span id="mbToastMessage" role="status" aria-live="polite"></span><button type="button" id="mbToastAction" hidden></button></div>
 
 
 <!-- Full-screen material editor -->
@@ -3550,12 +3667,26 @@ html[lang="en"] .mb-feature-en, html[lang="en"] .sp-title small { display:none; 
 <dialog id="deleteAccountDialog" class="device-dialog" aria-labelledby="deleteAccountTitle"><h2 id="deleteAccountTitle">حذف حساب Medbrain</h2><p>يُحذف حسابك وملفك الشخصي ومفضلاتك وبطاقاتك وجدولك وتقدمك نهائيًا. يمكنك تصدير بياناتك من الإعدادات قبل الحذف. تبقى مواد المكتبة المشتركة.</p><p>لحماية الحساب، يلزم تسجيل دخول خلال آخر عشر دقائق. حساب إدارة المنصة يحتاج نقل مسؤوليته أولًا.</p><label for="deleteAccountConfirm">للتأكيد اكتب «حذف حسابي»<input id="deleteAccountConfirm" autocomplete="off"></label><div class="device-actions"><button type="button" class="device-danger" id="deleteAccountSubmit">حذف الحساب نهائيًا</button><button type="button" class="mb-file-btn" data-device-close="deleteAccountDialog">إلغاء</button></div><p id="deleteAccountStatus" role="status"></p></dialog>
 <dialog id="paywallDialog" class="device-dialog" aria-labelledby="paywallTitle"><h2 id="paywallTitle">الاشتراك مطلوب</h2><p id="paywallText"></p><form id="paywallForm"><label for="paywallCode">كود الاشتراك<input id="paywallCode" dir="ltr" autocomplete="off" placeholder="MB-XXXXX-XXXXX" maxlength="20"></label><div class="device-actions"><button type="submit" class="mb-primary">تفعيل الكود</button><button type="button" class="mb-file-btn" data-device-close="paywallDialog">لاحقًا</button></div><p id="paywallStatus" role="status"></p></form><p id="paywallContact"></p></dialog>
 <dialog id="lectureReviewDialog" class="device-dialog" aria-labelledby="lectureReviewTitle">
-  <div class="sp-card-head"><h2 id="lectureReviewTitle">مراجعة المحاضرات</h2><button type="button" class="mb-mini-btn" data-close-review aria-label="إغلاق">×</button></div>
-  <p>تظهر هنا المحاضرات بعد 15 دقيقة من فتحها في الواجهة.</p><div id="lectureReviewList"></div>
+  <div class="sp-card-head"><h2 id="lectureReviewTitle">Daily Practice</h2><button type="button" class="mb-mini-btn" data-close-review aria-label="إغلاق">×</button></div>
+  <div id="dailyReviewChoices">
+    <p>شنو تريد تراجع اليوم؟</p>
+    <div class="daily-review-actions">
+      <button type="button" class="mb-file-btn" data-daily-source="read">محاضرات قرأتها 15 دقيقة أو أكثر</button>
+      <button type="button" class="mb-file-btn" data-daily-source="favorites">المفضلات</button>
+      <button type="button" class="mb-file-btn" data-daily-source="questions">أسئلة حسب المادة</button>
+      <button type="button" class="mb-file-btn" data-daily-source="cards">Flashcards</button>
+      <button type="button" class="mb-file-btn" data-daily-source="maps">Mind Maps</button>
+    </div>
+  </div>
+  <div id="dailyReviewResults" hidden>
+    <button type="button" class="mb-file-btn" data-daily-source="back">اختيار مصدر آخر</button>
+    <h3 id="dailyReviewSource"></h3>
+    <div id="lectureReviewList"></div>
+  </div>
 </dialog>
 <dialog id="questionReportDialog" class="device-dialog" aria-labelledby="questionReportTitle"><h2 id="questionReportTitle">الإبلاغ عن مشكلة في السؤال</h2><p>يصل بلاغك إلى فريق Medbrain لمراجعة السؤال وتصحيحه.</p><form id="questionReportForm"><fieldset class="report-reasons"><legend>نوع المشكلة</legend><label><input type="radio" name="reportReason" value="wrong_answer"> الإجابة المعتمدة خاطئة</label><label><input type="radio" name="reportReason" value="wrong_question"> السؤال خاطئ أو غير واضح</label><label><input type="radio" name="reportReason" value="incomplete"> السؤال ناقص (خيار أو معلومة مفقودة)</label><label><input type="radio" name="reportReason" value="explanation"> الشرح خاطئ أو غير كافٍ</label><label><input type="radio" name="reportReason" value="other"> مشكلة أخرى</label></fieldset><label for="questionReportNote">تفاصيل (اختياري): ما الصحيح برأيك ومصدره؟<textarea id="questionReportNote" maxlength="1000" rows="3"></textarea></label><div class="device-actions"><button type="submit" class="mb-primary" id="questionReportSubmit">إرسال البلاغ</button><button type="button" class="mb-file-btn" data-device-close="questionReportDialog">إلغاء</button></div><p id="questionReportStatus" role="status"></p></form></dialog>
 <section id="labsPanel" class="labs-panel" role="dialog" aria-modal="false" aria-labelledby="labsTitle" data-no-i18n dir="ltr" hidden><div class="labs-head"><h2 id="labsTitle">Lab values</h2><button type="button" class="labs-close" data-labs-close aria-label="Close">×</button></div><div class="labs-tools"><select id="labsTab" aria-label="Lab group"><option value="blood">Blood</option><option value="heme">Hematologic</option><option value="csf">Cerebrospinal</option><option value="other">Sweat, Urine, BMI</option><option value="infl">Inflammation & Immunology</option><option value="vit">Vitamins & Minerals</option><option value="cardiac">Cardiac & Tumor markers</option></select><input type="search" id="labsSearch" class="labs-search" placeholder="Search…" autocomplete="off" aria-label="Search lab values"></div><div class="labs-body" id="labsBody"></div></section>
-<dialog id="selfQuizDialog" class="device-dialog" aria-labelledby="selfQuizTitle"><div class="sp-card-head"><h2 id="selfQuizTitle" dir="ltr">Quiz</h2><button type="button" class="mb-mini-btn" data-device-close="selfQuizDialog" aria-label="إغلاق">×</button></div><form id="selfQuizForm"><fieldset class="sq-group"><legend>نوع الاختبار</legend><label><input type="radio" name="sqMode" value="questions" checked> MCQ</label><label><input type="radio" name="sqMode" value="flash"> Flashcards</label></fieldset><fieldset class="sq-group"><legend>المادة</legend><div id="sqSubjects" class="sq-options"></div></fieldset><div id="sqExam"><fieldset class="sq-group"><legend>مصدر الأسئلة</legend><label><input type="radio" name="sqSource" value="all" checked> كل Q Bank</label><label><input type="radio" name="sqSource" value="files"> ملف أو عدة ملفات</label><label><input type="radio" name="sqSource" value="wizari"> وزاري أو تجريبي</label><label><input type="radio" name="sqSource" value="ai"> أسئلة جديدة بالذكاء الاصطناعي</label><label><input type="radio" name="sqSource" value="saved"> ★ الأسئلة المحفوظة</label></fieldset><div id="sqFilesBox" hidden><fieldset class="sq-group sq-files"><legend>اختر الملفات</legend><input type="search" id="sqFileFind" class="sq-find" placeholder="ابحث عن ملف…" autocomplete="off"><div id="sqFiles" class="sq-file-list"></div></fieldset></div><div id="sqExamMore" hidden><fieldset class="sq-group"><legend>نوع الأسئلة</legend><label><input type="radio" name="sqKind" value="" checked> الكل</label><label><input type="radio" name="sqKind" value="main"> وزاري (رئيسي)</label><label><input type="radio" name="sqKind" value="mock"> تجريبي</label></fieldset><fieldset class="sq-group" id="sqBranchBox" hidden><legend>الفرع</legend><div id="sqBranches" class="sq-options"></div></fieldset><fieldset class="sq-group"><legend>السنة</legend><div id="sqYears" class="sq-options"></div></fieldset><fieldset class="sq-group"><legend>الدور</legend><label><input type="radio" name="sqRound" value="" checked> كل الأدوار</label><label><input type="radio" name="sqRound" value="1"> الدور الأول</label><label><input type="radio" name="sqRound" value="2"> الدور الثاني</label></fieldset></div><div id="sqAiBox" hidden><fieldset class="sq-group"><legend>موضوع الأسئلة</legend><input type="text" id="sqAiTopic" class="sq-find" maxlength="160" placeholder="مثال: Heart failure management" dir="auto"><p class="sq-hint">يكتب المساعد حتى 10 أسئلة جديدة بخمسة خيارات وشرح لكل خيار. راجعها كمساعدة دراسية.</p></fieldset></div></div><fieldset class="sq-group"><legend>عدد الأسئلة</legend><div class="sq-count"><input type="number" id="sqCountNum" min="1" max="300" value="20" inputmode="numeric" aria-label="عدد الأسئلة"><button type="button" data-sq-count="10">10</button><button type="button" data-sq-count="20">20</button><button type="button" data-sq-count="40">40</button><button type="button" data-sq-count="300">الكل</button></div></fieldset><div class="device-actions"><button type="submit" class="mb-primary" id="sqStart">ابدأ الاختبار</button><button type="button" class="mb-file-btn" data-device-close="selfQuizDialog">إلغاء</button></div><p id="sqStatus" role="status"></p></form></dialog>
+<dialog id="selfQuizDialog" class="device-dialog" aria-labelledby="selfQuizTitle"><div class="sp-card-head"><h2 id="selfQuizTitle" dir="ltr">Quiz</h2><button type="button" class="mb-mini-btn" data-device-close="selfQuizDialog" aria-label="إغلاق">×</button></div><form id="selfQuizForm"><fieldset class="sq-group"><legend>نوع الاختبار</legend><label><input type="radio" name="sqMode" value="questions" checked> MCQ</label><label><input type="radio" name="sqMode" value="flash"> Flashcards</label></fieldset><fieldset class="sq-group"><legend>المادة</legend><div id="sqSubjects" class="sq-options"></div></fieldset><div id="sqExam"><fieldset class="sq-group"><legend>مصدر الأسئلة</legend><label><input type="radio" name="sqSource" value="all" checked> كل Q Bank</label><label><input type="radio" name="sqSource" value="files"> ملف أو عدة ملفات</label><label><input type="radio" name="sqSource" value="wizari"> وزاري أو تجريبي</label><label><input type="radio" name="sqSource" value="ai"> أسئلة جديدة بالذكاء الاصطناعي</label><label><input type="radio" name="sqSource" value="saved"> ★ الأسئلة المحفوظة</label></fieldset><div id="sqFilesBox" hidden><fieldset class="sq-group sq-files"><legend>اختر الملفات</legend><input type="search" id="sqFileFind" class="sq-find" placeholder="ابحث عن ملف…" autocomplete="off"><details class="mb-list-fold" open><summary>ملفات الأسئلة</summary><div id="sqFiles" class="sq-file-list"></div></details></fieldset></div><div id="sqExamMore" hidden><fieldset class="sq-group"><legend>نوع الأسئلة</legend><label><input type="radio" name="sqKind" value="" checked> الكل</label><label><input type="radio" name="sqKind" value="main"> وزاري (رئيسي)</label><label><input type="radio" name="sqKind" value="mock"> تجريبي</label></fieldset><fieldset class="sq-group" id="sqBranchBox" hidden><legend>الفرع</legend><div id="sqBranches" class="sq-options"></div></fieldset><fieldset class="sq-group"><legend>السنة</legend><div id="sqYears" class="sq-options"></div></fieldset><fieldset class="sq-group"><legend>الدور</legend><label><input type="radio" name="sqRound" value="" checked> كل الأدوار</label><label><input type="radio" name="sqRound" value="1"> الدور الأول</label><label><input type="radio" name="sqRound" value="2"> الدور الثاني</label></fieldset></div><div id="sqAiBox" hidden><fieldset class="sq-group"><legend>موضوع الأسئلة</legend><input type="text" id="sqAiTopic" class="sq-find" maxlength="160" placeholder="مثال: Heart failure management" dir="auto"><p class="sq-hint">يكتب المساعد حتى 10 أسئلة جديدة بخمسة خيارات وشرح لكل خيار. راجعها كمساعدة دراسية.</p></fieldset></div></div><fieldset class="sq-group"><legend>عدد الأسئلة</legend><div class="sq-count"><input type="number" id="sqCountNum" min="1" max="300" value="20" inputmode="numeric" aria-label="عدد الأسئلة"><button type="button" data-sq-count="10">10</button><button type="button" data-sq-count="20">20</button><button type="button" data-sq-count="40">40</button><button type="button" data-sq-count="300">الكل</button></div></fieldset><div class="device-actions"><button type="submit" class="mb-primary" id="sqStart">ابدأ الاختبار</button><button type="button" class="mb-file-btn" data-device-close="selfQuizDialog">إلغاء</button></div><p id="sqStatus" role="status"></p></form></dialog>
 <dialog id="reportsDialog" class="device-dialog reports-dialog" aria-labelledby="reportsTitle"><div class="sp-card-head"><h2 id="reportsTitle">بلاغات الطلاب</h2><button type="button" class="mb-mini-btn" data-device-close="reportsDialog" aria-label="إغلاق">×</button></div><p>البلاغات المفتوحة عن الأسئلة، الأحدث أولًا. «تمّ الإصلاح» يغلق كل البلاغات عن السؤال نفسه.</p><div id="reportsList"></div><p id="reportsStatus" role="status"></p></dialog>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.js"></script>
@@ -4140,6 +4271,7 @@ function spSwitchChapter(subjectChanged=false){
  spEl('studyChapter').innerHTML=chapters.map(c=>'<option value="'+escapeHtml(c)+'">'+escapeHtml(c)+'</option>').join('');
  if(!subjectChanged&&chapters.includes(old))spEl('studyChapter').value=old;
  const chapter=spEl('studyChapter').value,plan=spPlan(category,chapter);
+ spEl('chapterTopicsFold').open=false;
  spEl('chapterDays').value=plan?.planned_days||7;spEl('chapterStart').value=plan?.start_date||spToday();
  spEl('sessionStartDate').value=plan?.start_date||spToday();spEl('sessionPlanTitle').value=chapter?('دراسة '+chapter):'';spEl('sessionTopic').value='';spInvalidate();renderStudyPlanner();
 }
@@ -4194,7 +4326,7 @@ function wireStudyPlanner(){
  spEl('studySessionForm').addEventListener('submit',e=>{e.preventDefault();spRun(async()=>{spRequire();const preview=studyPreview;if(!preview||preview.uid!==activeUserId)throw new Error('عاين التقسيم أولًا.');const p=await spEnsurePlan(preview.category,preview.chapter),entry=spEntries(preview.category,preview.chapter).find(e=>e.key===preview.topicKey),topic=entry?await spEnsureTopic(p,entry):null;
  const r=await client.rpc('save_study_session_group',{group_data:{id:preview.id,plan_id:p.id,plan_topic_id:topic?.id||null,title:preview.title,config:preview.config},session_data:preview.result.sessions.map(s=>({...s,title:s.kind==='break'?'استراحة':preview.title}))});if(r.error)throw r.error;if(preview.uid!==activeUserId)return;await Promise.all([loadScheduleItems(),loadStudyPlanner()]);spInvalidate();spStatus('studySessionStatus','حُفظت الجلسات. افتح خطتك أسفل الصفحة وعلّم كل جلسة بعد إنجازها.');},'studySessionStatus');});
  spEl('scheduleSection').addEventListener('change',e=>{const box=e.target,key=box.dataset.spTopic,id=box.dataset.spSession;if(!key&&!id)return;const checked=box.checked;box.disabled=true;spRun(async()=>{spRequire();const uid=activeUserId;if(id){await toggleScheduleItem(id,checked);return;}const {category,chapter}=spSelection(),entry=spEntries(category,chapter).find(e=>e.key===key);if(!entry)throw new Error('الموضوع غير متاح.');const p=await spEnsurePlan(category,chapter),t=await spEnsureTopic(p,entry),r=await client.from('study_plan_topics').update({completed:checked,updated_at:new Date().toISOString()}).eq('id',t.id).eq('user_id',uid).select('*').single();if(r.error)throw r.error;if(uid!==activeUserId)return;Object.assign(t,r.data);spStatus('studyPlannerStatus','حُفظ التقدم في حسابك.');});});
- spEl('scheduleSection').addEventListener('click',e=>{const chapter=e.target.closest('[data-sp-chapter]'),open=e.target.closest('[data-sp-open]'),del=e.target.closest('[data-sp-delete-group]');if(chapter){spEl('studyChapter').value=chapter.dataset.spChapter;spSwitchChapter();spEl('studySubject').scrollIntoView({behavior:'smooth'});}if(open){const l=lectures.find(x=>x.id===open.dataset.spOpen);if(l&&(lectureHasText(l)||l.filePath||(l.type==='أسئلة'&&l.questionCount)))openMaterialInReader(l.id);else if(l?.link){const url=safeExternalLink(l.link);if(url)window.open(url,'_blank','noopener,noreferrer');}else showMbToast('لا يتوفر محتوى لفتح هذه المادة.');}if(del)spRun(async()=>{spRequire();const id=del.dataset.spDeleteGroup,uid=activeUserId,n=scheduleItems.filter(s=>s.session_group_id===id).length;if(!confirm('حذف هذه الخطة و'+n+' فترة مرتبطة بها؟ يبقى إنجاز المحاضرات محفوظًا.'))return;const r=await client.from('study_session_groups').delete().eq('id',id).eq('user_id',uid);if(r.error)throw r.error;if(uid!==activeUserId)return;studyGroups=studyGroups.filter(g=>g.id!==id);scheduleItems=scheduleItems.filter(s=>s.session_group_id!==id);renderSchedule();});});
+ spEl('scheduleSection').addEventListener('click',e=>{const chapter=e.target.closest('[data-sp-chapter]'),open=e.target.closest('[data-sp-open]'),del=e.target.closest('[data-sp-delete-group]');if(chapter){spEl('studyChapter').value=chapter.dataset.spChapter;spSwitchChapter();spEl('studySubject').scrollIntoView({behavior:'smooth'});}if(open){const l=lectures.find(x=>x.id===open.dataset.spOpen);if(l&&(lectureHasText(l)||l.filePath||(l.type==='أسئلة'&&l.questionCount)))openMaterialInReader(l.id);else if(l?.link){const url=safeExternalLink(l.link);if(url)window.open(url,'_blank','noopener,noreferrer');}else showMbToast('لا يتوفر محتوى لفتح هذه المادة.');}if(del)spRun(async()=>{spRequire();const id=del.dataset.spDeleteGroup,uid=activeUserId,n=scheduleItems.filter(s=>s.session_group_id===id).length;if(!confirm(interfaceText('حذف هذه الخطة و'+n+' فترة مرتبطة بها؟ يبقى إنجاز المحاضرات محفوظًا.')))return;const r=await client.from('study_session_groups').delete().eq('id',id).eq('user_id',uid);if(r.error)throw r.error;if(uid!==activeUserId)return;studyGroups=studyGroups.filter(g=>g.id!==id);scheduleItems=scheduleItems.filter(s=>s.session_group_id!==id);renderSchedule();});});
 }
 
 const STUDY_DAYS=['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
@@ -4227,6 +4359,7 @@ function renderFlashcards(){
   ).join('');
 }
 function showMainView(view, kind='', scrollBehavior='smooth') {
+  if (view === 'shareSchedule') view = 'schedule';
   if ((view === 'library' || view === 'flashcards') && paywallBlocks()) return;
   if (view === 'subscription') { loadAccessState(false).then(() => { if (accessState && accessState.owner) loadCodeList(); }).catch(() => {}); }
   currentMainView=view;
@@ -4495,6 +4628,7 @@ function wireDeviceTools(){
 // ---------------- Init ----------------
 async function init() {
   applySiteTheme();
+  initFriends();
   const callbackType = new URLSearchParams(location.hash.slice(1)).get("type");
   if (callbackType === "invite" || callbackType === "recovery") {
     location.replace(new URL("./recovery.html", location.href).href + location.search + location.hash);
@@ -4517,7 +4651,7 @@ async function init() {
   col = supaCol;
   client.auth.onAuthStateChange((event, session) => {
     // Run outside the Auth callback to avoid awaiting requests under its lock.
-    if (event !== 'INITIAL_SESSION') setTimeout(() => syncAccess(session), 0);
+    if (event !== 'INITIAL_SESSION') setTimeout(() => syncAccess(session, event === 'SIGNED_IN'), 0);
   });
   const { data, error } = await client.auth.getSession();
   if (error) document.getElementById('gateError').textContent = 'تعذّر استعادة جلسة الدخول.';
@@ -4526,7 +4660,7 @@ async function init() {
 function showGate() { closeSearchSuggestions(); setSearchFiltersOpen(false); document.getElementById('gateOverlay').classList.add('open'); }
 function hideGate() { document.getElementById('gateOverlay').classList.remove('open'); }
 
-async function syncAccess(session) {
+async function syncAccess(session, signedIn = false) {
   const userId = session && session.user ? session.user.id : null;
   updateUserIdentity(session && session.user ? session.user : null);
   if (!userId) syncNamePrompt();
@@ -4548,6 +4682,8 @@ async function syncAccess(session) {
   window.MedbrainNative?.clearExports?.();
   spReset();
   activeUserId = userId;
+  renderStudyXP(null);
+  resetFriends();
   favoriteRecords = new Map();
   favoritesError = '';
   favoritePending.clear();
@@ -4568,6 +4704,13 @@ async function syncAccess(session) {
   try { localStorage.setItem('medbrain_signed_in_before', '1'); } catch (_) {}
   hideGate();
   syncNamePrompt();
+  let returnedFromGoogle = false;
+  try {
+    const started = Number(sessionStorage.getItem('medbrain_google_signin'));
+    returnedFromGoogle = started > 0 && Date.now() - started < 10 * 60 * 1000;
+    sessionStorage.removeItem('medbrain_google_signin');
+  } catch (_) {}
+  if (signedIn || returnedFromGoogle) showMbToast('تم تسجيل الدخول.');
   try {
     // The editor check and the library load are independent, so they run together.
     const appLoad = startApp(version);
@@ -4598,6 +4741,7 @@ function wireGateEvents() {
     error.textContent = '';
     try {
       if(deviceIsNative()){await window.MedbrainNative.signIn(client,'google');return;}
+      try { sessionStorage.setItem('medbrain_google_signin', String(Date.now())); } catch (_) {}
       const { error: authError } = await client.auth.signInWithOAuth({
         provider: 'google',
         options: {
@@ -4607,6 +4751,7 @@ function wireGateEvents() {
       });
       if (authError) throw authError;
     } catch (_) {
+      try { sessionStorage.removeItem('medbrain_google_signin'); } catch (_) {}
       error.textContent = 'تعذّر بدء الدخول عبر Google. إذا فتحت الرابط داخل تطبيق، افتحه في متصفح جهازك وجرّب مرة أخرى.';
       button.disabled = false;
       label.textContent = 'المتابعة باستخدام Google';
@@ -4627,6 +4772,7 @@ function wireGateEvents() {
       const g = document.querySelector('input[name="nameGender"]:checked');
       await saveProfileName(first, last, g ? g.value : '', document.getElementById('nameAge').value, document.getElementById('nameStage').value);
       syncNamePrompt();
+      showMbToast('تم حفظ الملف الشخصي.');
       document.getElementById('profileBtn').focus();
     } catch (err) {
       error.textContent = err.message || 'تعذّر حفظ الاسم. حاول مجددًا.';
@@ -4751,6 +4897,7 @@ function wireGateEvents() {
       if (error) throw error;
       document.getElementById('gateError').textContent = '';
       document.getElementById('gateEmail').focus();
+      showMbToast('تم تسجيل الخروج.', { tone: 'logout' });
     } catch (_) {
       document.getElementById('gateError').textContent = 'تعذّر إنهاء الجلسة على الخادم. حاول تسجيل الخروج مرة أخرى بعد استعادة الاتصال.';
     } finally {
@@ -4759,6 +4906,8 @@ function wireGateEvents() {
   });
 }
 async function startApp(version = accessVersion) {
+  void claimFriendInvite();
+  void loadFriends();
   const request = ++contentRequest;
   const banner = document.getElementById('storageBanner');
   // Personal data does not depend on the library list, so both load at the same time.
@@ -4950,12 +5099,15 @@ function browsePath() {
   }
   return path;
 }
+function isMindMapMaterial(material) {
+  return /mind[\s-]*maps?|خرائط? ذهني[ةه]/i.test([material.type, material.title, material.source].join(' '));
+}
+
 function renderMiscMaterials() {
   const categories = ['Surgery', 'Pediatrics', 'OB/GYN', 'Medicine'];
   const misc = lectures.filter(l => materialGroup(l.type) === 'other');
-  const isMindMap = l => /mind[\s-]*maps?|خرائط? ذهني[ةه]/i.test([l.type, l.title, l.source].join(' '));
-  const maps = lectures.filter(isMindMap);
-  const sources = misc.filter(l => !isMindMap(l));
+  const maps = lectures.filter(isMindMapMaterial);
+  const sources = misc.filter(l => !isMindMapMaterial(l));
   const later = '<p class="sp-muted">ستُضاف بقية المواضيع لاحقًا.</p>';
   const section = (label, children) => '<details class="sp-topic"><summary>' + escapeHtml(label) + '</summary>' + children + '</details>';
   const mapTopics = [...new Set(maps.map(l => l.topicId || l.topic || l.category))];
@@ -5290,7 +5442,7 @@ function topicSiblings(l) {
 function renderLectureList(list) {
   const key = list.length + ':' + (list[0] && list[0].id) + ':' + (list[list.length - 1] && list[list.length - 1].id);
   if (key !== lectureListKey) { lectureListKey = key; lectureListLimit = LECTURE_PAGE; }
-  let html = `<div class="lecture-list">`;
+  let html = (list.length > 12 ? '<details class="mb-list-fold" open><summary>قائمة المواد</summary>' : '') + `<div class="lecture-list">`;
   list.slice(0, lectureListLimit).forEach(l => {
     const iconKey = TYPE_ICON[l.type] || 'bookmark';
     const hasText = lectureHasText(l);
@@ -5322,7 +5474,7 @@ function renderLectureList(list) {
   });
   html += `</div>`;
   if (list.length > lectureListLimit) html += `<button type="button" class="show-more-lectures" data-action="show-more-lectures">عرض المزيد</button>`;
-  return html;
+  return html + (list.length > 12 ? '</details>' : '');
 }
 
 // ---------------- Events ----------------
@@ -5516,13 +5668,25 @@ function setLayerOpen(id, open) {
   el.classList.toggle('open', open);
   el.setAttribute('aria-hidden', open ? 'false' : 'true');
 }
-function showMbToast(message) {
+function showMbToast(message, { tone = '', action = null, label = '' } = {}) {
   const el = document.getElementById('mbToast');
   if (!el) return;
-  el.textContent = message;
-  el.classList.add('show');
+  const button = document.getElementById('mbToastAction');
+  const hide = () => {
+    el.hidden = true;
+    button.onclick = null;
+    document.body.append(el);
+  };
+  const container = [...document.querySelectorAll('dialog[open]')].at(-1) || document.body;
+  if (el.parentElement !== container) container.append(el);
+  el.dataset.tone = tone;
+  el.hidden = false;
+  document.getElementById('mbToastMessage').textContent = message;
+  button.hidden = !action;
+  button.textContent = label;
+  button.onclick = action ? () => { hide(); action(); } : null;
   clearTimeout(showMbToast.timer);
-  showMbToast.timer = setTimeout(() => el.classList.remove('show'), 2200);
+  showMbToast.timer = setTimeout(hide, action ? 8500 : 2800);
 }
 
 function goToLibraryKind(kind) {
@@ -7153,21 +7317,286 @@ function bindPdfViewer(wrap) {
   });
   pvSyncHistory();
 }
-// The countdown keeps its end time, so it stays right when the tab sleeps or another PDF is opened.
+function renderStudyXP(balance) {
+  const available = balance != null && Number.isFinite(Number(balance));
+  const points = available ? Math.max(0, Math.floor(Number(balance))) : 0;
+  const progress = points % 100;
+  const level = 1 + Math.floor(points / 100);
+  document.getElementById('profileXP').hidden = !available;
+  document.getElementById('profileLevelRing').toggleAttribute('hidden', !available);
+  document.getElementById('profileLevelFill').setAttribute('stroke-dasharray', progress + ' 100');
+  document.getElementById('profileLevelFill').style.visibility = progress ? 'visible' : 'hidden';
+  document.getElementById('studyXP').textContent = points + ' XP';
+  document.getElementById('studyLevel').textContent = 'المستوى ' + level;
+  const bar = document.getElementById('studyLevelProgress');
+  bar.value = progress;
+  bar.setAttribute('aria-valuetext', progress + ' من 100 XP إلى المستوى التالي');
+  document.getElementById('profileBtn').setAttribute('aria-label', available ? 'الحساب، المستوى ' + level : 'الحساب');
+}
+
+const FRIEND_INVITE_KEY = 'medbrain_friend_invite';
+let friendLoadVersion = 0;
+let friendBackendReady = false;
+
+function openFriendRequestsFromNotice() {
+  const dialog = document.getElementById('friendsDialog');
+  if (!dialog.open) document.getElementById('openFriends').click();
+  const toggle = document.getElementById('friendRequestsToggle');
+  if (toggle.getAttribute('aria-expanded') !== 'true') toggle.click();
+  toggle.focus();
+}
+
+function notifyFriendChanges(peers) {
+  const key = 'medbrain_friend_notices_' + activeUserId;
+  let previous = null;
+  try {
+    previous = JSON.parse(localStorage.getItem(key) || 'null');
+    localStorage.setItem(key, JSON.stringify(Object.fromEntries(peers.map(peer => [peer.id, peer.status]))));
+  } catch (_) { return; }
+  const pending = peers.filter(peer => peer.status === 'received' && previous?.[peer.id] !== 'received');
+  if (pending.length) {
+    const name = pending[0].name?.trim() || pending[0].friend_code;
+    showMbToast(pending.length === 1 ? 'وصلك طلب صداقة من ' + name : 'وصلتك طلبات صداقة جديدة.', {
+      label: 'عرض الطلبات', action: openFriendRequestsFromNotice
+    });
+    return;
+  }
+  const accepted = peers.find(peer => peer.status === 'friend' && ['sent', 'received'].includes(previous?.[peer.id]));
+  if (accepted) showMbToast('تمت إضافة صديق: ' + (accepted.name?.trim() || accepted.friend_code));
+}
+
+function initFriends() {
+  const url = new URL(location.href);
+  const code = url.searchParams.get('invite');
+  if (code && /^[0-9a-f-]{36}$/i.test(code)) {
+    try { localStorage.setItem(FRIEND_INVITE_KEY, code); } catch (_) {}
+    url.searchParams.delete('invite');
+    history.replaceState(history.state, '', url.href);
+  }
+  const dialog = document.getElementById('friendsDialog');
+  const status = document.getElementById('friendStatus');
+  const toggle = document.getElementById('friendRequestsToggle');
+  const sheet = document.getElementById('friendRequestSheet');
+  toggle.addEventListener('click', () => {
+    sheet.hidden = !sheet.hidden;
+    toggle.setAttribute('aria-expanded', String(!sheet.hidden));
+    if (!sheet.hidden) void loadFriends();
+  });
+  dialog.addEventListener('close', () => {
+    sheet.hidden = true;
+    toggle.setAttribute('aria-expanded', 'false');
+  });
+  const refreshNotices = () => {
+    if (friendBackendReady && activeUserId && !document.hidden) void loadFriends();
+  };
+  window.setInterval(refreshNotices, 45000);
+  document.addEventListener('visibilitychange', refreshNotices);
+  const open = invite => {
+    document.getElementById('drawerClose').click();
+    status.textContent = '';
+    document.getElementById('friendAddSection').open = false;
+    document.getElementById('friendInviteSection').open = invite;
+    dialog.showModal();
+    void loadFriends();
+  };
+  document.getElementById('openFriends').addEventListener('click', () => open(false));
+  document.getElementById('openFriendInvite').addEventListener('click', () => open(true));
+  document.getElementById('menuBtn').addEventListener('click', () => { if (activeUserId) void loadFriends(); });
+  document.getElementById('profileBtn').addEventListener('click', () => {
+    if (activeUserId) void loadFriends();
+  });
+  document.getElementById('friendRequestForm').addEventListener('submit', async event => {
+    event.preventDefault();
+    const codeInput = document.getElementById('friendPeer');
+    const target = codeInput.value.trim().toUpperCase();
+    if (!/^[0-9A-F]{10}$/.test(target)) {
+      status.textContent = 'ادخل ID الصديق المكوّن من 10 خانات.';
+      return;
+    }
+    if (await changeFriends('friend_request', { p_friend_code: target }, 'تعذّر إرسال الطلب. تأكد من ID الصديق.')) {
+      codeInput.value = '';
+      status.textContent = 'تم إرسال الطلب أو هو موجود بالفعل.';
+    }
+  });
+  document.getElementById('copyFriendCode').addEventListener('click', async () => {
+    const field = document.getElementById('friendCodeValue');
+    try {
+      await navigator.clipboard.writeText(field.value);
+      status.textContent = 'نُسخ ID الخاص بك.';
+    } catch (_) {
+      field.focus();
+      field.select();
+    }
+  });
+  document.getElementById('shareFriendInvite').addEventListener('click', async () => {
+    const input = document.getElementById('friendInviteLink');
+    if (!input.value) await loadFriends();
+    const url = input.value;
+    if (!url) {
+      status.textContent = 'رابط الدعوة غير متاح الآن. حاول مرة أخرى.';
+      return;
+    }
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: 'انضم إلى Medbrain', url });
+        return;
+      }
+    } catch (error) {
+      if (error.name === 'AbortError') return;
+    }
+    try {
+      await navigator.clipboard.writeText(url);
+      status.textContent = 'نُسخ رابط الدعوة. أرسله بأي تطبيق تفضله.';
+    } catch (_) {
+      input.focus();
+      input.select();
+      status.textContent = 'انسخ الرابط المحدّد وأرسله لصديقك.';
+    }
+  });
+  const privacy = document.getElementById('friendPrivacy');
+  privacy.addEventListener('change', async () => {
+    const selected = privacy.checked;
+    privacy.disabled = true;
+    const updated = await changeFriends('friend_set_privacy', { p_share: selected });
+    if (!updated) privacy.checked = !selected;
+    document.getElementById('friendPrivacyStatus').textContent = updated ? '' : 'تعذّر حفظ خصوصية التقدّم.';
+    privacy.disabled = false;
+  });
+}
+
+function resetFriends() {
+  friendLoadVersion++;
+  friendBackendReady = false;
+  document.querySelectorAll('[data-friends-ready]').forEach(node => { node.hidden = true; });
+  const dialog = document.getElementById('friendsDialog');
+  if (dialog.open) dialog.close();
+  for (const id of ['friendOwnCode', 'friendPrivacyOption']) {
+    document.getElementById(id).hidden = true;
+  }
+  document.getElementById('friendList').replaceChildren();
+  document.getElementById('incomingFriendRequests').replaceChildren();
+  updateFriendRequestCount(0);
+  document.getElementById('friendEmpty').hidden = false;
+  document.getElementById('friendStatus').textContent = '';
+  document.getElementById('friendPrivacyStatus').textContent = '';
+  document.getElementById('friendPrivacy').checked = false;
+  document.getElementById('friendInviteLink').value = '';
+  document.getElementById('friendCodeValue').value = '';
+  document.getElementById('friendPeer').value = '';
+}
+
+function updateFriendRequestCount(count) {
+  for (const id of ['friendMenuCount', 'friendDialogCount']) {
+    const badge = document.getElementById(id);
+    badge.textContent = count;
+    badge.hidden = count === 0;
+  }
+}
+
+async function loadFriends() {
+  if (!client || !activeUserId) return;
+  const version = ++friendLoadVersion;
+  const { data, error } = await client.rpc('friend_state');
+  if (version !== friendLoadVersion) return;
+  const status = document.getElementById('friendStatus');
+  if (error || !data?.profile) return;
+  friendBackendReady = true;
+  document.querySelectorAll('[data-friends-ready]').forEach(node => { node.hidden = false; });
+  status.textContent = '';
+  const ownCode = document.getElementById('friendOwnCode');
+  document.getElementById('friendCodeValue').value = data.profile.friend_code;
+  ownCode.hidden = false;
+  document.getElementById('friendPrivacyOption').hidden = false;
+  document.getElementById('friendPrivacy').checked = data.profile.share_progress === true;
+  const invite = new URL('https://haider1381.github.io/al-marja3/');
+  invite.searchParams.set('invite', data.profile.invite_code);
+  document.getElementById('friendInviteLink').value = invite.href;
+  const list = document.getElementById('friendList');
+  const requests = document.getElementById('incomingFriendRequests');
+  const peers = data.peers || [];
+  const requestCount = peers.filter(peer => peer.status === 'received').length;
+  updateFriendRequestCount(requestCount);
+  document.getElementById('friendEmpty').hidden = peers.some(peer => peer.status === 'friend');
+  list.replaceChildren();
+  requests.replaceChildren();
+  if (!requestCount) {
+    const empty = document.createElement('p');
+    empty.className = 'friend-empty';
+    empty.textContent = 'لا توجد طلبات صداقة جديدة.';
+    requests.append(empty);
+  }
+  for (const peer of peers) {
+    const row = document.createElement('div');
+    row.className = 'friend-row';
+    const name = document.createElement('span');
+    const displayName = typeof peer.name === 'string' && peer.name.trim() || peer.friend_code;
+    const progress = peer.points == null ? 'التقدّم خاص' : 'المستوى ' + (1 + Math.floor(Number(peer.points) / 100)) + ' · ' + peer.points + ' XP';
+    const profile = document.createElement('div');
+    profile.className = 'friend-request-profile';
+    const avatar = document.createElement('span');
+    avatar.className = 'friend-request-avatar';
+    avatar.setAttribute('aria-hidden', 'true');
+    avatar.textContent = Array.from(displayName)[0];
+    const title = document.createElement('bdi');
+    title.dataset.noI18n = '';
+    title.textContent = displayName;
+    const detail = document.createElement('small');
+    detail.textContent = peer.status === 'friend' ? progress : peer.status === 'sent' ? 'طلب مرسل' : peer.friend_code;
+    name.append(title, detail);
+    profile.append(avatar, name);
+    row.append(profile);
+    const controls = document.createElement('div');
+    controls.className = 'friend-request-actions';
+    const actions = peer.status === 'received' ? [['موافقة', true], ['تجاهل', false]]
+      : [[peer.status === 'friend' ? 'إزالة الصديق' : 'إلغاء الطلب', false]];
+    for (const [label, accept] of actions) {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'mb-file-btn';
+      button.textContent = label;
+      button.addEventListener('click', async () => {
+        button.disabled = true;
+        if (!await changeFriends('friend_respond', { p_peer: peer.id, p_accept: accept })) button.disabled = false;
+      });
+      controls.append(button);
+    }
+    row.append(controls);
+    (peer.status === 'received' ? requests : list).append(row);
+  }
+  notifyFriendChanges(peers);
+}
+
+async function changeFriends(method, args, errorMessage = 'تعذّر حفظ التغيير. حاول مرة أخرى.') {
+  const user = activeUserId;
+  if (!client || !user) return false;
+  const { error } = await client.rpc(method, args);
+  if (user !== activeUserId) return false;
+  if (error) {
+    document.getElementById('friendStatus').textContent = errorMessage;
+    return false;
+  }
+  await loadFriends();
+  return user === activeUserId;
+}
+
+async function claimFriendInvite() {
+  let code;
+  try { code = localStorage.getItem(FRIEND_INVITE_KEY); } catch (_) { return; }
+  if (!code || !activeUserId || !client) return;
+  const { error } = await client.rpc('friend_claim_invite', { p_code: code });
+  if (error) return;
+  try {
+    if (localStorage.getItem(FRIEND_INVITE_KEY) === code) localStorage.removeItem(FRIEND_INVITE_KEY);
+  } catch (_) {}
+}
+
 async function refreshStudyXP() {
   const user = activeUserId;
   if (!user || !client) return;
-  const balance = await client.rpc('study_xp_balance');
-  if (user !== activeUserId || balance.error) return;
-  const history = await client.from('study_xp_events').select('points,activity').order('created_at', { ascending: false }).limit(10);
-  if (user !== activeUserId) return;
-  const points = balance.data;
-  document.getElementById('studyXP').textContent = points + ' XP';
-  const level = 1 + Math.floor(points / 100);
-  document.getElementById('studyLevel').textContent = 'المستوى ' + level + ' · ' + (100 - points % 100) + ' XP للمستوى التالي';
-  const labels = { study: 'جلسة دراسة', quiz: 'اختبار', deck: 'مراجعة بطاقات', ai_hint: 'تلميح AI', ai_answer: 'حل AI', ai_quiz: 'توليد اختبار سابق', missed_study: 'جلسة دراسة فائتة' };
-  document.getElementById('studyXPHistory').innerHTML = (history.data || []).map(event =>
-    '<li>' + labels[event.activity] + ' ' + (event.points > 0 ? '+' : '') + event.points + ' XP</li>').join('');
+  const version = accessVersion;
+  const [balance, invite] = await Promise.all([client.rpc('study_xp_balance'), client.rpc('friend_invite_xp')]);
+  if (user !== activeUserId || version !== accessVersion || balance.error) return;
+  renderStudyXP(Math.max(0, Number(balance.data) || 0) + (invite.error ? 0 : Number(invite.data) || 0));
 }
 async function awardPracticeXP(activity, key) {
   if (!activeUserId || !key) return;
@@ -7231,6 +7660,7 @@ function startPracticeTimer() {
 }
 const lectureReviewThreshold = 15 * 60 * 1000;
 let lectureReviewTimer = null;
+let lectureReviewLast = 0;
 function lectureReviewKey() { return 'medbrain_review_' + activeUserId; }
 function lectureReviewProgress() {
   try { return JSON.parse(localStorage.getItem(lectureReviewKey()) || '{}') || {}; }
@@ -7247,17 +7677,17 @@ function trackLectureReview(lecture) {
   if (!user) return;
   let elapsed = lectureReviewProgress()[lecture.id] || 0;
   if (elapsed >= lectureReviewThreshold) return;
-  let last = performance.now();
+  lectureReviewLast = performance.now();
   lectureReviewTimer = setInterval(() => {
-    if (activeUserId !== user || readerLectureId !== lecture.id || quizState ||
+    if (activeUserId !== user || readerLectureId !== lecture.id ||
         !document.getElementById('readerOverlay').classList.contains('open')) {
       stopLectureReviewTracking();
       return;
     }
     const now = performance.now();
-    const period = now - last;
-    last = now;
-    if (document.hidden) return;
+    const period = now - lectureReviewLast;
+    lectureReviewLast = now;
+    if (document.hidden || quizState) return;
     elapsed = Math.min(lectureReviewThreshold, elapsed + Math.min(period, 1500));
     try {
       const progress = lectureReviewProgress();
@@ -7266,55 +7696,64 @@ function trackLectureReview(lecture) {
     } catch (_) { return; }
     if (elapsed >= lectureReviewThreshold) {
       stopLectureReviewTracking();
-      showMbToast('انضافت المحاضرة إلى «مراجعة المحاضرات».');
-      const cacheKey = lectureReviewKey() + ':' + lecture.id;
-      generateLectureQuestions(lecture, pdfView?.doc, 'medium').then(questions => {
-        if (activeUserId === user && questions.length) localStorage.setItem(cacheKey, JSON.stringify(questions));
-      }).catch(() => {});
+      showMbToast('انضافت المحاضرة إلى Daily Practice.');
     }
   }, 1000);
 }
 function wireLectureReview() {
   const dialog = document.getElementById('lectureReviewDialog');
+  const choices = document.getElementById('dailyReviewChoices');
+  const results = document.getElementById('dailyReviewResults');
   const list = document.getElementById('lectureReviewList');
+  const showChoices = () => {
+    choices.hidden = false;
+    results.hidden = true;
+    list.replaceChildren();
+  };
+  document.addEventListener('visibilitychange', () => {
+    if (lectureReviewTimer !== null) lectureReviewLast = performance.now();
+  });
   document.getElementById('openLectureReview').addEventListener('click', () => {
-    const progress = lectureReviewProgress();
-    const recent = lectures.filter(item => progress[item.id] >= lectureReviewThreshold);
-    const action = (id, kind, label) => '<button type="button" class="mb-mini-btn" data-review-kind="' +
-      kind + '" data-review-id="' + escapeHtml(id) + '">' + label + '</button>';
-    list.innerHTML = recent.map(lecture => {
-      const related = relatedFor(lecture);
-      return '<article><strong dir="auto">' + escapeHtml(lecture.title) + '</strong><div>' +
-        (related.questions.length ? action(lecture.id, 'questions', 'الأسئلة الموجودة') : '') +
-        (related.flash.length ? action(lecture.id, 'flash', 'الفلاش كاردز الموجودة') : '') +
-        (related.summary.length ? action(lecture.id, 'summary', 'الملخصات الموجودة') : '') +
-        action(lecture.id, 'generate', localStorage.getItem(lectureReviewKey() + ':' + lecture.id) ? 'ابدأ اختبار المراجعة' : 'ولّد اختبار مراجعة') +
-        action(lecture.id, 'open', 'افتح المحاضرة') + '</div></article>';
-    }).join('') || '<p>بعد ماكو محاضرات جاهزة للمراجعة.</p>';
+    if (paywallBlocks()) return;
+    showChoices();
     dialog.showModal();
   });
   dialog.querySelector('[data-close-review]').addEventListener('click', () => dialog.close());
-  list.addEventListener('click', async event => {
-    const button = event.target.closest('[data-review-kind]');
+  dialog.addEventListener('click', event => {
+    const source = event.target.closest('[data-daily-source]')?.dataset.dailySource;
+    if (!source) return;
+    if (source === 'back') { showChoices(); return; }
+    if (source === 'favorites' || source === 'questions' || source === 'cards') {
+      dialog.close();
+      if (source === 'questions') openSelfQuiz(true);
+      else showMainView(source === 'cards' ? 'flashcards' : 'favorites');
+      return;
+    }
+    const read = source === 'read';
+    const progress = read ? lectureReviewProgress() : {};
+    const materials = lectures.filter(item => read ? progress[item.id] >= lectureReviewThreshold : isMindMapMaterial(item));
+    document.getElementById('dailyReviewSource').textContent = read ? 'محاضرات قرأتها 15 دقيقة أو أكثر' : 'Mind Maps';
+    list.innerHTML = materials.map(material =>
+      '<article><button type="button" class="mb-file-btn" dir="auto" data-no-i18n data-review-id="' +
+      escapeHtml(material.id) + '">' + escapeHtml(material.title) + '</button></article>'
+    ).join('') || '<p>' + (read ? 'ماكو محاضرات وصلت إلى 15 دقيقة قراءة على هذا الجهاز.' : 'لا توجد خرائط ذهنية في المكتبة حاليًا.') + '</p>';
+    choices.hidden = true;
+    results.hidden = false;
+    results.querySelector('[data-daily-source="back"]').focus();
+  });
+  list.addEventListener('click', event => {
+    const button = event.target.closest('[data-review-id]');
     if (!button) return;
-    const lecture = lectures.find(item => item.id === button.dataset.reviewId);
-    if (!lecture) return;
-    dialog.close();
-    if (lectureHasText(lecture)) await openReader(lecture.id);
-    else await openPdfInReader(lecture.id);
-    if (readerLectureId !== lecture.id || relatedLecture?.id !== lecture.id) return;
-    const kind = button.dataset.reviewKind;
-    if (kind === 'generate') {
-      let saved;
-      try { saved = JSON.parse(localStorage.getItem(lectureReviewKey() + ':' + lecture.id)); } catch (_) {}
-      if (Array.isArray(saved) && saved.length) {
-        openCustomQuiz('مراجعة — ' + lecture.title, 'MCQ', saved, lecture);
-        return;
-      }
-      const relatedButton = document.querySelector('#readerOverlay [data-reader-related]');
-      if (relatedButton && relatedButton.getAttribute('aria-expanded') === 'false') relatedButton.click();
-      if (!relatedButton) showMbToast('تعذّر تجهيز الاختبار من هذا الملف.');
-    } else if (kind !== 'open') openSidePanel(kind);
+    const material = lectures.find(item => item.id === button.dataset.reviewId);
+    if (!material) return;
+    if (lectureHasText(material) || material.filePath || (material.type === 'أسئلة' && material.questionCount)) {
+      dialog.close();
+      openMaterialInReader(material.id);
+    } else {
+      const link = safeExternalLink(material.link);
+      if (link) window.open(link, '_blank', 'noopener,noreferrer');
+      else showMbToast('لا يتوفر محتوى لفتح هذه المادة.');
+    }
   });
 }
 function autoStartScheduledLecture(lecture) {
@@ -8372,7 +8811,7 @@ async function collectExamQuestions(cat, year, round, kind, n, branch) {
   return (data || []).map(r => r.question && Array.isArray(r.question.options) && r.question.options[r.question.correctIndex]
     ? Object.assign({}, r.question, { _lec: r.lecture_id, _i: r.idx }) : null).filter(Boolean);
 }
-function openSelfQuiz() {
+function openSelfQuiz(libraryOnly = false) {
   if (paywallBlocks()) return;
   loadExamPapers().then(syncSelfQuizExam).catch(() => {});
   const cats = orderedValues(lectures.map(l => l.category).filter(Boolean), SUBJECT_ORDER).filter(c => SUBJECT_AR[c]);
@@ -8380,6 +8819,13 @@ function openSelfQuiz() {
     escapeHtml(c ? SUBJECT_AR[c] : 'كل المواد') + '</label>').join('');
   document.getElementById('sqStatus').textContent = '';
   restoreQuizChoices();
+  const form = document.getElementById('selfQuizForm');
+  const ai = form.querySelector('input[name="sqSource"][value="ai"]');
+  ai.closest('label').hidden = libraryOnly === true;
+  if (libraryOnly === true) {
+    form.sqMode.value = 'questions';
+    form.sqSource.value = 'all';
+  }
   syncSelfQuizExam();
   document.getElementById('selfQuizDialog').showModal();
 }
@@ -9210,23 +9656,350 @@ function bindStudyBar() {
 const I18N_EN = {"(اختياري — حتى 50 MB)": "(optional — up to 50 MB)", "(اختياري — فيديو أو ملف)": "(optional — video or file)", "(اختياري — للقراءة داخل التطبيق)": "(optional — for in-app reading)", "(اختياري)": "(optional)", "JPG / PNG / WebP — حتى 2MB بعد الضغط": "JPG / PNG / WebP — up to 2MB after compression", "Medbrain على جهازك": "Medbrain on your device", "Medbrain منصة تعليمية للطلاب، ولا تُستخدم لتشخيص المرضى أو اتخاذ قرارات علاجية.": "Medbrain is a learning platform for students. It is not for diagnosing patients or making treatment decisions.", "أحسنت! أنهيت المجموعة": "Well done! You finished the set", "أخرى": "Other", "أخطأت": "Wrong", "أدوات القراءة": "Reading tools", "أدوات جهازك": "Device tools", "أسئلة": "Questions", "أسئلة اختيار من متعدد": "Multiple-choice questions", "أسئلة مبنية على المواد التي أضفتها": "Questions built from your materials", "أسئلة مقترحة": "Suggested questions", "أسبوع / أسابيع": "week(s)", "أصبت": "Correct", "أضف التطبيق إلى الشاشة الرئيسية وافتحه بأيقونة مستقلة. المحاضرات والحساب والذكاء الاصطناعي تحتاج اتصالًا بالإنترنت.": "Add the app to your home screen and open it with its own icon. Lectures, account and AI need an internet connection.", "أعدها لي قريبًا": "Show it again soon", "أكمل بياناتك": "Complete your details", "أنثى": "Female", "أنشئ بطاقاتك الشخصية وراجعها واقلبها لرؤية الإجابة.": "Create your own cards, review them and flip to see the answer.", "أنشئ جدولك الأسبوعي وحدّد أوقات الدراسة وتابع إنجازك.": "Build your weekly plan, set study times and track your progress.", "أو بالبريد الإلكتروني": "or with email", "أي تفاصيل إضافية تريد تذكّرها…": "Any extra details to remember…", "أيام الدراسة": "Study days", "إجابة": "Answer", "إجمالي المدة": "Total duration", "إدارة ملفي الشخصي": "Manage my profile", "إرسال البلاغ": "Send report", "إرسال السؤال": "Send question", "إضافة": "Add", "إضافة بطاقة": "Add card", "إضافة سؤال": "Add question", "إضافة عنوان": "Add heading", "إضافة مادة": "Add material", "إظهار اسمي في الجدول": "Show my name on the schedule", "إظهار الإجابة": "Show answer", "إظهار كلمة المرور": "Show password", "إعادة": "Reset", "إغلاق": "Close", "إلغاء": "Cancel", "إنجاز الفصل": "Chapter progress", "إيقاف مؤقت": "Pause", "ابحث باسم المحاضرة أو الموضوع…": "Search by lecture or topic…", "ابحث داخل المفضلات…": "Search favorites…", "ابحث عن محاضرة، موضوع، مصدر أو فيديو…": "Search a lecture, topic, source or video…", "ابحث عن مصدر…": "Search a source…", "ابحث عن موضوع…": "Search a topic…", "ابدأ الأسئلة": "Start questions", "ابدأ الاختبار": "Start quiz", "ابدأ المجموعة من جديد": "Restart the set", "ابدأ مراجعة سريعة لتثبيت المعلومات.": "Start a quick review to lock in what you learned.", "اختبار عشوائي من بنك الأسئلة أو البطاقات حسب المادة.": "A random quiz from the Q Bank or flashcards by subject.", "اختبارات تفاعلية مع التصحيح والتفسيرات.": "Interactive quizzes with answers and explanations.", "اختبر نفسك": "Test yourself", "اختر المادة ونوع الاختبار. للوزاري يمكنك اختيار السنة والدور ونوع الأسئلة.": "Pick a subject and quiz type. For ministerial exams you can choose the year, round and paper type.", "اختر…": "Choose…", "اختياري": "Optional", "اسأل": "Ask", "اسألني عن المحاضرة": "Ask me about the lecture", "استعراض المواضيع": "Browse topics", "اسم العائلة": "Last name", "اشتراكي": "My subscription", "اشرح لي المحاضرة": "Explain the lecture", "اضغط لقلب البطاقة": "Tap to flip the card", "افتح الفيديوهات المحفوظة حسب تخصصك وموضوعك.": "Open saved videos by specialty and topic.", "اكتب اسمك وبياناتك الدراسية لتظهر في حسابك.": "Enter your name and study details for your account.", "اكتب سؤالك…": "Type your question…", "الأحد": "Sun", "الأربعاء": "Wed", "الأسئلة الوزارية فقط": "Ministerial questions only", "الأيام": "Days", "الإبلاغ عن مشكلة في السؤال": "Report a problem with this question", "الإعدادات": "Settings", "الاثنين": "Mon", "الاسم الأول": "First name", "الاشتراك مطلوب": "Subscription required", "الاشتراكات والأكواد": "Subscriptions and codes", "البريد الإلكتروني": "Email", "البطاقات التعليمية": "Flashcards", "التخصص": "Specialty", "الثلاثاء": "Tue", "الجمعة": "Fri", "الجنس": "Gender", "الحساب": "Account", "الخصوصية": "Privacy", "الخميس": "Thu", "الدعم": "Support", "الدعم والملاحظات": "Support and feedback", "الدور": "Round", "الدور الأول": "1st round", "الدور الثاني": "2nd round", "الرئيسية": "Home", "الرابط": "Link", "السبت": "Sat", "العمر": "Age", "العودة للرئيسية": "Back to home", "الفصل": "Chapter", "القائمة الرئيسية": "Main menu", "الكل": "All", "المادة": "Subject", "المتابعة باستخدام Google": "Continue with Google", "المحاضرات": "Lectures", "المرحلة الأولى": "1st year", "المرحلة الثانية": "2nd year", "المرحلة الثالثة": "3rd year", "المرحلة الرابعة": "4th year", "المرحلة الخامسة": "5th year", "المرحلة السادسة": "6th year", "المرحلة الدراسية": "Study year", "المصادر": "Sources", "المصدر": "Source", "المظهر والقراءة": "Appearance and reading", "المظهر والقراءة والحساب": "Appearance, reading and account", "المفضلات": "Favorites", "الملف الشخصي": "Profile", "الملف الشخصي والحساب": "Profile and account", "المواد التي حفظتها للرجوع إليها": "Materials you saved", "المواضيع": "Topics", "الموضوع": "Topic", "الوصول والخدمات المتاحة": "Access and services", "الوضع الداكن": "Dark mode", "الوضع الداكن ☾": "Dark mode ☾", "اليوم": "Today", "بتردد": "Unsure", "بحث": "Search", "بطاقات المكتبة": "Library cards", "بطاقاتي الشخصية": "My cards", "بلاغات الطلاب": "Student reports", "Q Bank": "Q Bank", "بياناتك وخصوصيتك": "Your data and privacy", "تأكيد كلمة المرور": "Confirm password", "تجريبية": "Mock", "تسجيل الخروج": "Sign out", "تصدير بياناتي": "Export my data", "تعديل الملف الشخصي": "Edit profile", "تعديل جدولي الدراسي": "Edit my schedule", "تغيير الصورة": "Change photo", "تفعيل الكود": "Activate code", "تقليل الحركة": "Reduce motion", "تخفيف الانتقالات والحركات في الواجهة.": "Fewer transitions and animations.", "جارٍ التحقق…": "Checking…", "جدول الدراسة": "Study schedule", "جدول دراسي شخصي محفوظ في حسابك": "A personal study schedule saved in your account", "جدولي": "My plan", "جدولي الدراسي": "My study schedule", "جلسات تركيز واستراحات مع مؤقّت يمكنك تصغيره أثناء القراءة.": "Focus sessions and breaks with a timer you can minimise while reading.", "حالة الاشتراك": "Subscription status", "حجم الخط": "Font size", "حجم خط القراءة": "Reading font size", "حذف الحساب": "Delete account", "حذف الحساب نهائيًا": "Delete account permanently", "حذف حسابي": "Delete my account", "حساب Medbrain": "Medbrain account", "حساب جديد": "New account", "حفظ": "Save", "حفظ التغييرات": "Save changes", "حفظ ومتابعة": "Save and continue", "خريج / طبيب مقيم": "Graduate / resident", "خلط": "Shuffle", "داكن": "Dark", "دخول": "Sign in", "دقيقة": "min", "ذكر": "Male", "رئيسية (الامتحان الوزاري)": "Main (ministerial exam)", "راجع الصعبة فقط": "Review hard ones only", "رجوع": "Back", "سؤال": "Question", "سجّل الدخول إلى عقلك الطبي ومكتبتك الدراسية.": "Sign in to your medical brain and study library.", "سنة الوزاري": "Exam year", "سياسة الخصوصية": "Privacy policy", "طول الاختبار": "Quiz length", "طويل": "Long", "عرض النتائج": "Show results", "عن Medbrain": "About Medbrain", "فاتح": "Light", "فتح القائمة": "Open menu", "فتح مؤقّت الدراسة": "Open study timer", "فلاتر البحث": "Search filters", "فيديو": "Video", "فيديوهات مقترحة": "Recommended videos", "قصير": "Short", "كل الأدوار": "All rounds", "كل الأسئلة": "All questions", "كل المواد التي لا تندرج ضمن الأقسام الرئيسية.": "Everything outside the main sections.", "كل النصوص وملفات PDF والملخصات في مكان واحد.": "All texts, PDFs and summaries in one place.", "كلمة المرور": "Password", "كود 3 أشهر": "3-month code", "كود 6 أشهر": "6-month code", "كود الاشتراك": "Subscription code", "كود سنوي": "Yearly code", "كود شهري": "Monthly code", "كيف أجبت على هذه البطاقة؟": "How did you answer this card?", "لأي مشكلة أو استفسار راسل الدعم.": "For any problem or question, message support.", "لاحقًا": "Later", "لخص المحاضرة": "Summarise the lecture", "لدي حساب": "I have an account", "للمشاكل والاستفسارات": "Problems and questions", "لوحة المسؤول": "Admin panel", "مؤقّت الدراسة ◷": "Study timer ◷", "متنوعات": "Miscellaneous", "متوسط": "Medium", "محادثة جديدة": "New chat", "محاضرة": "Lecture", "مراسلة الدعم": "Message support", "مساعدك للدراسة وفهم المحاضرات": "Your study assistant for lectures", "مسح البحث والفلاتر": "Clear search and filters", "مسح الفلاتر": "Clear filters", "مشاركة جدولي الخاص": "Share my schedule", "مشاركة نسخة من جدولك الدراسي": "Share a copy of your schedule", "معاينة الجدول ثم مشاركته": "Preview the schedule, then share", "مصدر الأسئلة": "Question source", "مظهر التطبيق": "App theme", "مهامي وخطتي الأسبوعية": "My tasks and weekly plan", "ملاحظات": "Notes", "ملخص": "Summary", "ملف PDF": "PDF file", "نسيت كلمة المرور؟": "Forgot password?", "نوع الأسئلة": "Paper type", "نوع الاختبار": "Quiz type", "نوع المادة": "Material type", "يسري على الموقع وواجهة القراءة.": "Applies to the site and the reader.", "يُحفظ لاستخدامه عند فتح المحاضرات.": "Saved for when you open lectures.", "— اختر —": "— Choose —", "الورقة كاملة": "Full paper", "الجراحة": "Surgery", "الباطنية": "Medicine", "الأطفال": "Pediatrics", "النسائية والتوليد": "OB/GYN", "الطوارئ": "Emergency", "العلوم الأساسية": "Basic Sciences", "الجامعات": "Universities", "الكورسات والمصادر": "Courses and sources", "اختر الموضوع": "Choose a topic", "اختر الفرع": "Choose a branch", "اختر التخصص": "Choose a specialty", "اختر المصدر": "Choose a source", "محاضرات": "Lectures", "ملخصات": "Summaries", "ملفات PDF": "PDF files", "فيديوهات": "Videos", "الفيديوهات": "Videos", "المكتبة": "Library", "لا توجد مواد هنا بعد.": "Nothing here yet.", "كويز سريع": "Quick quiz", "⚡ كويز سريع": "⚡ Quick quiz", "كل المواد": "All subjects", "كل السنوات": "All years", "الأسئلة الوزارية": "Ministerial questions", "اللغة": "Language", "لغة الواجهة": "Interface language", "العربية": "العربية", "مسح كتابتي في هذه الصفحة": "Clear my ink on this page", "مسح كل ملاحظاتي على الملف": "Clear all my notes on this file", "Quick Quiz": "Quick quiz on this topic", "الصفحات": "Pages", "المزيد": "More", "مؤقت المذاكرة": "Study timer", "تراجع": "Undo", "إعادة الخطوة": "Redo", "تصفح": "Browse", "كتابة نص": "Text", "ممحاة": "Eraser", "قلم تظليل": "Highlighter", "قلم": "Pen", "أدوات أخرى": "More tools", "أدوات الكتابة": "Writing tools", "الوضع الليلي للصفحات": "Night pages", "ملاءمة العرض": "Fit width", "الصفحة الأولى": "First page"};
 let uiLang = 'ar';
 try { uiLang = localStorage.getItem('medbrain_lang') === 'en' ? 'en' : 'ar'; } catch (_) {}
-const I18N_SKIP = '[data-no-i18n], .reader-body, .pv-pages, textarea, script, style, .mb-ai-messages, .quiz-body';
+Object.assign(I18N_EN, {
+  "تم تسجيل الدخول.": "Signed in.",
+  "تم تسجيل الخروج.": "Signed out.",
+  "تم حفظ الملف الشخصي.": "Profile saved.",
+  "وصلتك طلبات صداقة جديدة.": "You have new friend requests.",
+  "عرض الطلبات": "View requests",
+  "اضغط «مشاركة» ← «إضافة إلى الشاشة الرئيسية» ← «إضافة». إذا ظهر «فتح كتطبيق ويب»، فعّله. إذا غاب الخيار، افتح الرابط في متصفح يدعم الإضافة.": "Choose Share → Add to Home Screen → Add. Turn on Open as Web App if offered. If the option is missing, open the link in a browser that supports it.",
+  "من قائمة التطبيق اختر «فتح في المتصفح»، ثم اضغط زر الإضافة مرة أخرى.": "Choose Open in browser from the app menu, then tap Add again.",
+  "من قائمة المتصفح، اختر «تثبيت التطبيق» أو «إضافة إلى الشاشة الرئيسية».": "From the browser menu, choose Install app or Add to Home screen.",
+  "من قائمة المتصفح، اختر «تثبيت التطبيق» أو «إنشاء اختصار» إذا كان متاحًا.": "From the browser menu, choose Install app or Create shortcut if available.",
+  "طلبات الصداقة": "Friend requests",
+  "لا توجد طلبات صداقة جديدة.": "No new friend requests.",
+  "موافقة": "Accept",
+  "تجاهل": "Ignore",
+  "راجع اللي درستَه": "Review what you studied",
+  "اختَر محاضراتك المقروءة أو المفضلات أو تدرب من محتوى المكتبة.": "Review lectures you’ve read, revisit favorites, or practice with library materials.",
+  "ابدأ المراجعة": "Start review",
+  "شنو تريد تراجع اليوم؟": "What would you like to review today?",
+  "محاضرات قرأتها 15 دقيقة أو أكثر": "Lectures read for at least 15 minutes",
+  "أسئلة حسب المادة": "Questions by subject",
+  "اختيار مصدر آخر": "Choose another source",
+  "ماكو محاضرات وصلت إلى 15 دقيقة قراءة على هذا الجهاز.": "No lectures have reached 15 minutes of reading on this device yet.",
+  "لا توجد خرائط ذهنية في المكتبة حاليًا.": "No mind maps are available in the library yet.",
+  "انضافت المحاضرة إلى Daily Practice.": "Lecture added to Daily Practice.",
+  "لا يوجد لديك أصدقاء حاليًا.": "You don’t have any friends yet.",
+  "رابط الدعوة غير متاح الآن. حاول مرة أخرى.": "The invitation link is unavailable. Try again.",
+  "طلبات الصداقة والأصدقاء": "Friend requests and friends",
+  "قائمة أكواد الاشتراك": "Subscription codes",
+  "ملفات الأسئلة": "Question files",
+  "أهلًا،": "Welcome,",
+  "جرّب: «أمراض القلب» • «السكري» • «أمراض الجهاز التنفسي»…": "Try: “Cardiology” • “Diabetes” • “Respiratory”…",
+  "لوحة Medbrain": "Medbrain Dashboard",
+  "أنت تستخدم Medbrain من أيقونة الشاشة الرئيسية.": "You are using Medbrain from its home-screen icon.",
+  "تمت إضافة Medbrain. افتحه من أيقونته على جهازك.": "Medbrain was added. Open it from its icon.",
+  "نافذة التثبيت جاهزة.": "The install prompt is ready.",
+  "تم تأكيد طلب التثبيت. ابحث عن أيقونة Medbrain على شاشتك.": "Installation was confirmed. Look for the Medbrain icon on your home screen.",
+  "إذا لم تظهر نافذة التثبيت، جرّب خيار الإضافة من قائمة المتصفح.": "If no install prompt appears, try the Add option in the browser menu.",
+  "افتح قائمة التطبيق واختر «فتح في المتصفح»، أو انسخ عنوان الصفحة وافتحه في متصفح جهازك. بعدها اضغط زر الإضافة مرة أخرى.": "Open the app menu and choose Open in browser, or copy the address into your browser. Then tap Add again.",
+  "على آيفون وآيباد، افتح Medbrain في Safari، ثم اضغط «مشاركة» ← «إضافة إلى الشاشة الرئيسية» ← «إضافة». فعّل «فتح كتطبيق ويب» إذا ظهر.": "On iPhone or iPad, open Medbrain in Safari and choose Share → Add to Home Screen → Add. Turn on Open as Web App if offered.",
+  "في Samsung Internet، افتح قائمة ☰ ← «إضافة الصفحة إلى» ← «الشاشة الرئيسية». يمكنك أيضًا استخدام رمز ＋ في شريط العنوان إذا ظهر.": "In Samsung Internet, choose ☰ → Add page to → Home screen. You can also use ＋ in the address bar if it appears.",
+  "افتح قائمة متصفحك ⋮، واختر «تثبيت التطبيق» أو «إضافة إلى الشاشة الرئيسية» أو «إنشاء اختصار». إذا كنت في نافذة خاصة، جرّب نافذة عادية.": "Open the browser menu ⋮ and choose Install app, Add to Home screen, or Create shortcut. If you are in a private tab, try a regular tab.",
+  "افتح قائمة المتصفح وابحث عن «تثبيت التطبيق» أو «إنشاء اختصار». إذا لم يظهر الخيار، يمكنك استخدام الموقع مباشرة من المتصفح.": "Open the browser menu and look for Install app or Create shortcut. If those options are unavailable, use the site in your browser.",
+  "نوع الدخول": "Sign-in method",
+  "إذا تعذّر دخول Google داخل التطبيق الذي فتح الرابط، افتح Medbrain في متصفح جهازك وجرّب مرة أخرى. تسجيل الدخول بالبريد متاح أيضًا للحسابات التي لديها كلمة مرور.": "If Google sign-in fails in the app that opened this link, open Medbrain in your browser and try again. You can also sign in by email if your account has a password.",
+  "أضف Medbrain إلى شاشتك": "Add Medbrain to your home screen",
+  "تعديل معلومات الملف الشخصي": "Edit profile information",
+  "صفحاتي": "My pages",
+  "الأصدقاء": "Friends",
+  "إضافة صديق ومتابعة تقدّمه": "Add friends and follow their progress",
+  "دعوة صديق": "Invite a friend",
+  "شارك رابطك واكسب 10 XP": "Share your link and earn 10 XP",
+  "ID الخاص بك": "Your ID",
+  "نسخ": "Copy",
+  "إضافة صديق": "Add a friend",
+  "ID الصديق": "Friend's ID",
+  "إرسال الطلب": "Send request",
+  "تكسب 10 XP عندما ينضم طالب جديد بحساب مؤكّد من رابطك. تُحسب الدعوة مرة واحدة لكل حساب جديد.": "Earn 10 XP when a new student joins through your link and confirms their account. Each new account counts once.",
+  "رابط الدعوة": "Invitation link",
+  "مشاركة الرابط": "Share link",
+  "التقدم إلى المستوى التالي": "Progress to the next level",
+  "أسمح لأصدقائي برؤية تقدّمي": "Let my friends see my progress",
+  "إغلاق النبذة": "Close About",
+  "منصة دماغ الطب هي الدماغ الذي يحمل كل معلوماتك من محاضرات وفيديوهات وأسئلة وملخصات.": "Medbrain brings your lectures, videos, questions and summaries together.",
+  "ابحث عن موضوع": "Search for a topic",
+  "حساب طالب — القراءة وإدارة أدواتك الشخصية": "Student account — read materials and manage study tools",
+  "Medbrain — الواجهة الرئيسية": "Medbrain — Home",
+  "English / العربية": "English / Arabic",
+  "تفعيل الوضع الداكن": "Enable dark mode",
+  "تعذّر الاتصال بالتخزين. جرّب إعادة تحميل الصفحة.": "Couldn't connect to storage. Try reloading the page.",
+  "مراجعة المحاضرات": "Lecture review",
+  "البحث في المواد الطبية": "Search medical materials",
+  "عرض كل المواضيع": "Browse all topics",
+  "مساحتك الدراسية": "Your study space",
+  "أقسام Medbrain": "Medbrain sections",
+  "اختبار عشوائي من Q Bank أو Flashcards حسب المادة.": "Take a random Quiz from Q Bank or Flashcards by subject.",
+  "مجموعات أسئلة متاحة حسب موادك.": "Question sets are available for your subjects.",
+  "بحث في المحاضرات": "Search lectures",
+  "البحث في المحاضرات والمواد": "Search lectures and materials",
+  "إغلاق الفلاتر": "Close filters",
+  "ابحث عن مصدر": "Search for a source",
+  "حسب المصدر": "By source",
+  "حسب الموضوع": "By topic",
+  "الوصول الحالي": "Current access",
+  "قراءة المحاضرات والملخصات وفتح ملفات PDF": "Read lectures and summaries and open PDFs",
+  "حفظ المواد في المفضلات": "Save materials to favorites",
+  "الموقع مدفوع (طلب كود الاشتراك من الطلاب)": "Require a subscription code from students",
+  "معرّف أو رابط Telegram للتواصل": "Telegram username or contact link",
+  "والمفتاح مطفأ، يستخدم الجميع الموقع مجانًا. حسابك يبقى مفتوحًا دائمًا.": "When the switch is off, everyone can use the site for free. Your account always has access.",
+  "ملاحظة للكود (اختياري، مثل اسم الطالب)": "Code note (optional, such as the student's name)",
+  "خيارات المشاركة": "Sharing options",
+  "تضمين المهام المنجزة": "Include completed tasks",
+  "تضمين ملاحظات المهام": "Include task notes",
+  "مشاركة الجدول": "Share schedule",
+  "نسخ النص": "Copy text",
+  "تنزيل نسخة": "Download a copy",
+  "المشاركة ترسل نسخة نصية فقط. تغييراتك اللاحقة لا تُرسل تلقائيًا.": "Sharing sends a text copy. Later changes are not shared automatically.",
+  "معاينة الجدول": "Preview schedule",
+  "البحث داخل المفضلات": "Search favorites",
+  "ترتيب المفضلات": "Sort favorites",
+  "الأحدث حفظًا": "Recently saved",
+  "حسب العنوان": "By title",
+  "تحديث": "Refresh",
+  "تثبيت Medbrain": "Install Medbrain",
+  "تفضيلات المظهر والقراءة تُحفظ على هذا الجهاز.": "Appearance and reading preferences are saved on this device.",
+  "اختَر المادة والفصل، وبعدها اختَر المحاضرة وحدّد شكد تريد تدرس. عاين أوقات الدراسة والاستراحة، وبعدين احفظ الجلسات.": "Choose a subject and chapter, then choose a lecture and decide how long to study. Preview study times and breaks, then save your sessions.",
+  "قواعد الجدول وتنبيهات XP": "Schedule rules and XP",
+  "إكمال جلسة دراسة يضيف 10 XP، بحد أقصى خمس مكافآت جلسات باليوم.": "Each completed study session earns 10 XP, up to five rewards per day.",
+  "إذا انتهى يوم الجلسة بتوقيت بغداد وهي غير مكتملة، ينخصم لحد 3 XP. الخصم يطبق على الجلسات الجديدة ورصيدك ما ينزل تحت الصفر.": "An unfinished session can cost up to 3 XP after midnight in Baghdad. This applies to new sessions and your balance cannot fall below zero.",
+  "الاستراحات ما عليها خصم أو مكافأة. توليد اختبار جديد بالذكاء الاصطناعي مجاني من ناحية XP.": "Breaks neither earn nor cost XP. Generating a new AI Quiz does not cost XP.",
+  "المادة الأساسية": "Subject",
+  "الأيام المخططة للفصل": "Days planned for this chapter",
+  "بداية خطة الفصل": "Chapter start date",
+  "حفظ خطة الفصل": "Save chapter plan",
+  "محاضرات الفصل": "Chapter lectures",
+  "قائمة المحاضرات": "Lecture list",
+  "قائمة المواد": "Materials list",
+  "قائمة الجلسات المحفوظة": "Saved sessions",
+  "أيام الأسبوع": "Days of the week",
+  "قائمة المفضلات": "Favorites list",
+  "موضوع تدرسه خارج المكتبة": "Topic outside the library",
+  "مثال: Myocardial infarction": "Example: Myocardial infarction",
+  "قسّم وقت الدراسة": "Split your study time",
+  "المحاضرة أو الفصل": "Lecture or chapter",
+  "الفصل كاملًا": "Entire chapter",
+  "عنوان الخطة": "Plan title",
+  "مثال: مراجعة Heart Failure": "Example: Heart Failure review",
+  "الوحدة": "Unit",
+  "ساعة": "Hour",
+  "طريقة احتساب المدة": "How to count time",
+  "وقت الدراسة فقط — تضاف الاستراحات": "Study time only — add breaks separately",
+  "وقت الجلسات شامل الاستراحات": "Total session time including breaks",
+  "دراسة في كل جلسة (دقيقة)": "Study time per session (minutes)",
+  "راحة بين الجلسات (دقيقة)": "Break between sessions (minutes)",
+  "تاريخ البداية": "Start date",
+  "وقت البداية يوميًا": "Daily start time",
+  "وزّعها خلال": "Spread sessions over",
+  "الفترة": "Period",
+  "يوم / أيام": "Day(s)",
+  "الوقت المتاح يوميًا، مع الراحة (دقيقة)": "Available time per day, including breaks (minutes)",
+  "تظهر الراحة بين جلستين في اليوم نفسه، ولا تضاف راحة بعد آخر جلسة.": "Breaks go between sessions on the same day. No break is added after the last session.",
+  "معاينة التقسيم": "Preview sessions",
+  "حفظ الجلسات": "Save sessions",
+  "نسبة إنجاز كل فصل في المادة": "Progress by chapter",
+  "جلساتي المخططة": "My planned sessions",
+  "عرض": "Show",
+  "الفصل الحالي": "Current chapter",
+  "كل خططي": "All my plans",
+  "علّم كل جلسة عند إتمامها. إنجاز المحاضرة يُحدد من مربعها في قائمة الفصل.": "Mark each session when you finish it. Use the chapter list to mark a lecture as complete.",
+  "مهامي الحرة والجدول الأسبوعي": "Other tasks and weekly schedule",
+  "المهمة": "Task",
+  "مهمة أخرى": "Other task",
+  "الوقت": "Time",
+  "ملاحظة": "Note",
+  "جارٍ تحميل المجموعات…": "Loading decks…",
+  "› المجموعات": "‹ Decks",
+  "⏱ المؤقت": "⏱ Timer",
+  "تلميح AI · 2 XP": "AI hint · 2 XP",
+  "البطاقة. اضغط لقلبها": "Flashcard. Press to flip",
+  "تذكرتها بجهد": "Recalled with effort",
+  "عرفتها فورًا": "Recalled immediately",
+  "المسافة لقلب البطاقة · 1 أخطأت · 2 بتردد · 3 أصبت": "Space to flip · 1 Incorrect · 2 Unsure · 3 Correct",
+  "السؤال / الوجه الأمامي": "Question / front",
+  "مثال: What are the causes of HFrEF?": "Example: What are the causes of HFrEF?",
+  "الإجابة / الوجه الخلفي": "Answer / back",
+  "اكتب الإجابة المختصرة": "Type a short answer",
+  "حدّد المصدر والموضوع ليتم ترتيبها تلقائيًا في مكانها المناسب.": "Choose a source and topic to place the material in the library automatically.",
+  "عنوان المادة": "Material title",
+  "مثال: Heart Failure — Pathophysiology": "Example: Heart Failure — Pathophysiology",
+  "مثال: د. أحمد — كلية طب ذي قار": "Example: Dr. Ahmed — Dhi Qar College of Medicine",
+  "التصنيف الرئيسي": "Main category",
+  "الموضوع الفرعي": "Subtopic",
+  "اختر التصنيف أولاً": "Choose a category first",
+  "رفع PDF من جهازك": "Upload a PDF from your device",
+  "إزالة الملف المرتبط من هذه المادة": "Remove the attached file from this material",
+  "محرر الأسئلة": "Question editor",
+  "لكل سؤال أربعة خيارات وإجابة صحيحة واحدة. أضف تفسير كل خيار ليظهر بعد الإجابة.": "Each question has four options and one correct answer. Add an explanation for each option to show after answering.",
+  "نص المحاضرة": "Lecture text",
+  "الصق نص المحاضرة هنا. استخدم 🔴 للعنوان الرئيسي، 🔹🔶🔸 للعناوين الفرعية، 📍 أو ▪︎ للنقاط، ليظهر منسّقًا بشكل جميل.": "Paste the lecture text here. Use 🔴 for main headings, 🔹🔶🔸 for subheadings, and 📍 or ▪︎ for bullet points.",
+  "حفظ المادة": "Save material",
+  "مؤقّت الدراسة": "Study timer",
+  "تصغير الخط": "Decrease font size",
+  "تكبير الخط": "Increase font size",
+  "بداية النص": "Top of text",
+  "إعادة حجم الخط الافتراضي": "Reset font size",
+  "بداية النص ↑": "Top of text ↑",
+  "مواد مرتبطة بهذا الموضوع": "Related materials",
+  "تقدم القراءة": "Reading progress",
+  "مساعد المحاضرة": "Lecture assistant",
+  "إغلاق اللوحة": "Close panel",
+  "إغلاق محادثة AI": "Close AI chat",
+  "المحادثة مع المساعد": "Assistant chat",
+  "مقترحات للمحاضرة": "Lecture suggestions",
+  "💡 اقتراحات": "💡 Suggestions",
+  "اقتراحات الأسئلة": "Suggested questions",
+  "اكتب موضوعًا، مثل Heart failure…": "Enter a topic, such as heart failure…",
+  "ابحث في الاقتراحات": "Search suggestions",
+  "اربط بمحاضرة": "Link a lecture",
+  "سؤال عام": "General question",
+  "عن المساعد": "About the assistant",
+  "مساعد للدراسة — تحقّق من الإجابات. يُرسل السؤال والمحادثة ومقتطف من المحاضرة إلى Groq. المحادثة مؤقتة وغير محفوظة في حسابك. لا تُدخل بيانات مرضى. الحصة: 15 طلبًا للحساب و40 للموقع يوميًا، وقد تفرض Groq حدودًا إضافية.": "Study assistant: verify answers. Your question, conversation and a lecture excerpt are sent to Groq. Chats are temporary and are not saved to your account. Do not enter patient data. Daily limits are 15 requests per account and 40 for the site. Groq may apply additional limits.",
+  "اقتراحات من المواد المتوفرة": "Suggestions from available materials",
+  "التنقل السريع": "Quick navigation",
+  "الاتصال بالإنترنت غير متاح. يمكنك استخدام مؤقّت الدراسة؛ حفظ التغييرات يحتاج اتصالًا.": "You're offline. The study timer still works. Saving changes requires a connection.",
+  "وقت التركيز": "Focus time",
+  "تصغير المؤقّت": "Minimize timer",
+  "قسّم دراستك إلى جلسات قصيرة واستراحات. يبقى المؤقّت دقيقًا عند تصغيره أو العودة للتطبيق.": "Break study time into short sessions and breaks. The timer stays accurate when minimized or when you return.",
+  "مدة الدراسة (دقيقة)": "Study duration (minutes)",
+  "الراحة (دقيقة)": "Break duration (minutes)",
+  "عدد جلسات الدراسة": "Number of study sessions",
+  "تنبيه على الجهاز عند انتهاء الفترة الحالية": "Notify me when this period ends",
+  "بدء جلسات التركيز": "Start focus sessions",
+  "الوقت المتبقي": "Time remaining",
+  "تقدم الجلسات": "Session progress",
+  "بدء الفترة التالية": "Start next period",
+  "إنهاء المؤقّت": "Stop timer",
+  "بدء الفترة التالية يدوي، ليكون وقت الراحة تحت تحكمك. المؤقّت لا يعلّم المحاضرة كمكتملة تلقائيًا.": "Start the next period manually so you control your breaks. The timer does not mark lectures as complete.",
+  "حذف حساب Medbrain": "Delete Medbrain account",
+  "يُحذف حسابك وملفك الشخصي ومفضلاتك وبطاقاتك وجدولك وتقدمك نهائيًا. يمكنك تصدير بياناتك من الإعدادات قبل الحذف. تبقى مواد المكتبة المشتركة.": "Your account, profile, favorites, flashcards, schedule and progress are deleted permanently. You can export your data from Settings first. Shared library materials are kept.",
+  "لحماية الحساب، يلزم تسجيل دخول خلال آخر عشر دقائق. حساب إدارة المنصة يحتاج نقل مسؤوليته أولًا.": "For account security, you must have signed in within the last ten minutes. Platform administrators must transfer ownership first.",
+  "للتأكيد اكتب «حذف حسابي»": "Type «حذف حسابي» to confirm",
+  "تظهر هنا المحاضرات بعد 15 دقيقة من فتحها في الواجهة.": "Lectures appear here 15 minutes after you open them.",
+  "يصل بلاغك إلى فريق Medbrain لمراجعة السؤال وتصحيحه.": "The Medbrain team will review your report and correct the question if needed.",
+  "نوع المشكلة": "Issue type",
+  "الإجابة المعتمدة خاطئة": "The marked answer is incorrect",
+  "السؤال خاطئ أو غير واضح": "The question is incorrect or unclear",
+  "السؤال ناقص (خيار أو معلومة مفقودة)": "The question is missing an option or information",
+  "الشرح خاطئ أو غير كافٍ": "The explanation is incorrect or incomplete",
+  "مشكلة أخرى": "Other issue",
+  "تفاصيل (اختياري): ما الصحيح برأيك ومصدره؟": "Details (optional): what should be corrected, and what is your source?",
+  "كل Q Bank": "All Q Bank",
+  "ملف أو عدة ملفات": "One or more files",
+  "وزاري أو تجريبي": "Ministerial or mock",
+  "أسئلة جديدة بالذكاء الاصطناعي": "New AI-generated questions",
+  "★ الأسئلة المحفوظة": "★ Saved questions",
+  "اختر الملفات": "Choose files",
+  "ابحث عن ملف…": "Search for a file…",
+  "وزاري (رئيسي)": "Ministerial (main)",
+  "تجريبي": "Mock",
+  "الفرع": "Branch",
+  "السنة": "Year",
+  "موضوع الأسئلة": "Question topic",
+  "مثال: Heart failure management": "Example: Heart failure management",
+  "يكتب المساعد حتى 10 أسئلة جديدة بخمسة خيارات وشرح لكل خيار. راجعها كمساعدة دراسية.": "The assistant writes up to 10 questions with five options and an explanation for each. Use them as a study aid.",
+  "عدد الأسئلة": "Number of questions",
+  "البلاغات المفتوحة عن الأسئلة، الأحدث أولًا. «تمّ الإصلاح» يغلق كل البلاغات عن السؤال نفسه.": "Open question reports, newest first. Marking a question as fixed closes all reports for it.",
+  "ثبّت Medbrain على جهازك": "Install Medbrain on your device",
+  "فتح رابط التطبيق في المتصفح": "Open the app in your browser",
+  "فهمت": "Got it",
+  "عنوان شخصي محفوظ": "Saved personal topic",
+  "فتح": "Open",
+  "لا توجد مواد": "No materials",
+  "لا توجد مواد متاحة في هذا الفصل حاليًا. يمكنك إضافة عناوين تدرسها خارج المكتبة.": "No library materials are available for this chapter yet. You can add your own topics.",
+  "حذف هذه الجلسات": "Delete these sessions",
+  "لا توجد جلسات محفوظة هنا بعد. عاين التقسيم ثم احفظه.": "No sessions saved here yet. Preview your plan and save it.",
+  "لا توجد مهام": "No tasks",
+  "إلغاء الإنجاز": "Mark incomplete",
+  "تم الإنجاز": "Mark complete",
+  "استراحة": "Break",
+  "دراسة": "Study",
+  "كتب ومصادر": "Books and resources",
+  "ستُضاف بقية المواضيع لاحقًا.": "More topics will be added later.",
+  "انتظر تحميل خطط حسابك ثم حاول مجددًا.": "Wait for your plans to load and try again.",
+  "اكتب عنوان الخطة.": "Enter a plan title.",
+  "هذه معاينة؛ اضغط حفظ لإضافتها إلى حسابك.": "This is a preview. Save it to add the plan to your account.",
+  "تعذّر الحفظ. حاول مجددًا.": "Couldn't save. Try again.",
+  "اختر عدد أيام من 1 إلى 365.": "Choose between 1 and 365 days.",
+  "اكتب عنوان الموضوع.": "Enter a topic title.",
+  "حُفظ العنوان الشخصي.": "Personal topic saved.",
+  "عاين التقسيم أولًا.": "Preview your planned sessions first.",
+  "حُفظت الجلسات. افتح خطتك أسفل الصفحة وعلّم كل جلسة بعد إنجازها.": "Sessions saved. Open your plan below and mark each session as you complete it.",
+  "الموضوع غير متاح.": "This topic is unavailable.",
+  "حُفظ التقدم في حسابك.": "Progress saved to your account.",
+  "لا يتوفر محتوى لفتح هذه المادة.": "There is no content to open for this material.",
+  "تعذّر تحميل الأصدقاء حاليًا. حاول مرة أخرى.": "Couldn't load friends. Try again.",
+  "التقدّم خاص": "Progress is private",
+  "طلب مرسل": "Request sent",
+  "طلب وارد": "Incoming request",
+  "قبول": "Accept",
+  "رفض": "Decline",
+  "إزالة الصديق": "Remove friend",
+  "إلغاء الطلب": "Cancel request",
+  "تم إرسال الطلب أو هو موجود بالفعل.": "Friend request sent or already pending.",
+  "تعذّر إرسال الطلب. تأكد من ID الصديق.": "Couldn't send the request. Check your friend's ID.",
+  "ادخل ID الصديق المكوّن من 10 خانات.": "Enter your friend's 10-character ID.",
+  "نُسخ ID الخاص بك.": "Your ID was copied.",
+  "نُسخ رابط الدعوة. أرسله بأي تطبيق تفضله.": "Invitation link copied. Share it in any app.",
+  "انسخ الرابط المحدّد وأرسله لصديقك.": "Copy the selected link and send it to your friend.",
+  "تعذّر حفظ خصوصية التقدّم.": "Couldn't save progress privacy.",
+  "تعذّر حفظ التغيير. حاول مرة أخرى.": "Couldn't save the change. Try again.",
+  "مراجعة": "Review",
+  "الأقسام": "Sections",
+});
+const I18N_SKIP = '[data-no-i18n], .reader-body, .pv-pages, script, style, .mb-ai-messages, .quiz-body, .lecture .title, .mb-task-title, .mb-task-note, .sp-topic strong, .sp-group summary strong';
+const I18N_ATTRS = ['aria-label', 'aria-valuetext', 'placeholder', 'title'];
+const I18N_FORMATS = [
+  [/^وصلك طلب صداقة من (.+)$/, 'Friend request from $1'],
+  [/^تمت إضافة صديق: (.+)$/, 'Friend added: $1'],
+  [/^(\d+) من (\d+) موضوعًا مكتملًا — القائمة تشمل مواد المكتبة المتاحة وعناوينك المضافة\.$/, '$1 of $2 topics complete — includes available library materials and your own topics.'],
+  [/^(\d+)٪ — (\d+) \/ (\d+) دقيقة دراسة$/, '$1% — $2 / $3 study minutes'],
+  [/^(\d+)٪$/, '$1%'],
+  [/^(استراحة|دراسة) — (\d+) دقيقة$/, (_, activity, duration) => I18N_EN[activity] + ' — ' + duration + ' min'],
+  [/^\d+ \/ \d+ دقيقة مسجّلة$/, value => value.replace('دقيقة مسجّلة', 'min logged')],
+  [/^(\d+) دقيقة دراسة \+ (\d+) دقيقة راحة = (\d+) دقيقة، على (\d+) يوم دراسة\.$/, '$1 min study + $2 min breaks = $3 min across $4 study day(s).'],
+  [/^متبقٍ (\d+) دقيقة دون إضافة استراحة في نهاية الخطة\.$/, '$1 min remaining. No break was added after the last session.'],
+  [/^حُفظت خطة الفصل حتى (.+)\.$/, 'Chapter plan saved through $1.'],
+  [/^حذف هذه الخطة و(\d+) فترة مرتبطة بها\؟ يبقى إنجاز المحاضرات محفوظًا\.$/, 'Delete this plan and its $1 period(s)? Completed lectures will stay marked as complete.'],
+  [/^المستوى (\d+)$/, 'Level $1'],
+  [/^الحساب، المستوى (\d+)$/, 'Account, level $1'],
+  [/^(\d+) من 100 XP إلى المستوى التالي$/, '$1 of 100 XP toward the next level'],
+  [/^إنجاز (.+)$/, 'Mark $1 complete'],
+  [/^(الأحد|الاثنين|الثلاثاء|الأربعاء|الخميس|الجمعة|السبت) (\d{4}-\d{2}-\d{2})$/, (_, day, date) => I18N_EN[day] + ' ' + date],
+  [/^([A-F0-9]{10}) · (طلب مرسل|طلب وارد|التقدّم خاص)$/, (_, code, state) => code + ' · ' + I18N_EN[state]],
+  [/^([A-F0-9]{10}) · المستوى (\d+) · (\d+) XP$/, '$1 · Level $2 · $3 XP']
+];
+function i18nLabel(text) {
+  if (Object.hasOwn(I18N_EN, text)) return I18N_EN[text];
+  for (const [pattern, replacement] of I18N_FORMATS) {
+    if (pattern.test(text)) return text.replace(pattern, replacement);
+  }
+  return '';
+}
+function interfaceText(text) { return uiLang === 'en' ? i18nLabel(text) || text : text; }
 function i18nText(node) {
   const t = node.nodeValue, k = t.trim();
   if (!k || !/[؀-ۿ]/.test(k)) return;
-  const en = I18N_EN[k];
-  if (en) { if (node.__ar == null) node.__ar = t; node.nodeValue = t.replace(k, en); i18nTouched.add(node); }
+  const en = i18nLabel(k);
+  if (en) {
+    const option = node.parentElement;
+    if (option?.tagName === 'OPTION' && !option.hasAttribute('value')) option.value = option.value;
+    node.__ar = t;
+    node.nodeValue = t.replace(k, () => en);
+    i18nTouched.add(node);
+  }
 }
 const i18nTouched = new Set();
 function i18nAttrs(el) {
-  ['aria-label', 'placeholder', 'title'].forEach(a => { const v = el.getAttribute(a); if (v && I18N_EN[v.trim()]) { el.__arAttr = el.__arAttr || {}; if (el.__arAttr[a] == null) el.__arAttr[a] = v; el.setAttribute(a, I18N_EN[v.trim()]); i18nTouched.add(el); } });
+  I18N_ATTRS.forEach(a => { const v = el.getAttribute(a); const en = v && i18nLabel(v.trim()); if (en && en !== v) { el.__arAttr = el.__arAttr || {}; el.__arAttr[a] = v; el.setAttribute(a, en); i18nTouched.add(el); } });
 }
 function i18nTree(root) {
   if (uiLang !== 'en' || !root) return;
   if (root.nodeType === 3) { if (!(root.parentElement && root.parentElement.closest(I18N_SKIP))) i18nText(root); return; }
   if (root.nodeType !== 1 || root.closest(I18N_SKIP)) return;
   i18nAttrs(root);
-  root.querySelectorAll('[aria-label],[placeholder],[title]').forEach(el => { if (!el.closest(I18N_SKIP)) i18nAttrs(el); });
+  root.querySelectorAll('[aria-label],[aria-valuetext],[placeholder],[title]').forEach(el => { if (!el.closest(I18N_SKIP)) i18nAttrs(el); });
   const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, { acceptNode: n => n.parentElement && n.parentElement.closest(I18N_SKIP) ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT });
   const nodes = []; while (walker.nextNode()) nodes.push(walker.currentNode);
   nodes.forEach(i18nText);
@@ -9254,11 +10027,11 @@ function applyEnglish() {
   i18nTree(document.body);
   let queued = new Set(), scheduled = false;
   i18nObserver = new MutationObserver(list => {
-    list.forEach(m => { if (m.type === 'characterData') queued.add(m.target); else m.addedNodes.forEach(n => queued.add(n)); });
+    list.forEach(m => { if (m.type === 'characterData' || m.type === 'attributes') queued.add(m.target); else m.addedNodes.forEach(n => queued.add(n)); });
     if (scheduled) return; scheduled = true;
-    requestAnimationFrame(() => { scheduled = false; const q = queued; queued = new Set(); q.forEach(n => { if (n.isConnected) i18nTree(n); }); });
+    requestAnimationFrame(() => { scheduled = false; const q = queued; queued = new Set(); q.forEach(n => { if (n.isConnected) i18nTree(n); }); i18nTouched.forEach(n => { if (!n.isConnected) i18nTouched.delete(n); }); });
   });
-  i18nObserver.observe(document.body, { childList: true, subtree: true, characterData: true });
+  i18nObserver.observe(document.body, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: I18N_ATTRS });
 }
 function initI18n() {
   const btn = document.getElementById('siteLangToggle'), sel = document.getElementById('settingsLang');

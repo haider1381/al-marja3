@@ -5,7 +5,6 @@
   const ua = navigator.userAgent;
   const apple = /iPhone|iPad|iPod/i.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
   const android = /Android/i.test(ua);
-  const samsung = /SamsungBrowser/i.test(ua);
   const embedded = /Telegram|FBAN|FBAV|Instagram|Line\/|; wv\)/i.test(ua) ||
     (apple && /AppleWebKit/i.test(ua) && !/Safari/i.test(ua) && !navigator.standalone);
   const standalone = window.matchMedia('(display-mode: standalone)');
@@ -33,20 +32,18 @@
   }
 
   function showGuidance() {
-    guidance.textContent = embedded
-      ? 'افتح قائمة التطبيق واختر «فتح في المتصفح»، أو انسخ عنوان الصفحة وافتحه في متصفح جهازك. بعدها اضغط زر الإضافة مرة أخرى.'
-      : apple
-        ? 'على آيفون وآيباد، افتح Medbrain في Safari، ثم اضغط «مشاركة» ← «إضافة إلى الشاشة الرئيسية» ← «إضافة». فعّل «فتح كتطبيق ويب» إذا ظهر.'
-        : samsung
-          ? 'في Samsung Internet، افتح قائمة ☰ ← «إضافة الصفحة إلى» ← «الشاشة الرئيسية». يمكنك أيضًا استخدام رمز ＋ في شريط العنوان إذا ظهر.'
-          : android
-            ? 'افتح قائمة متصفحك ⋮، واختر «تثبيت التطبيق» أو «إضافة إلى الشاشة الرئيسية» أو «إنشاء اختصار». إذا كنت في نافذة خاصة، جرّب نافذة عادية.'
-            : 'افتح قائمة المتصفح وابحث عن «تثبيت التطبيق» أو «إنشاء اختصار». إذا لم يظهر الخيار، يمكنك استخدام الموقع مباشرة من المتصفح.';
+    guidance.textContent = apple
+      ? 'اضغط «مشاركة» ← «إضافة إلى الشاشة الرئيسية» ← «إضافة». إذا ظهر «فتح كتطبيق ويب»، فعّله. إذا غاب الخيار، افتح الرابط في متصفح يدعم الإضافة.'
+      : embedded
+        ? 'من قائمة التطبيق اختر «فتح في المتصفح»، ثم اضغط زر الإضافة مرة أخرى.'
+        : android
+          ? 'من قائمة المتصفح، اختر «تثبيت التطبيق» أو «إضافة إلى الشاشة الرئيسية».'
+          : 'من قائمة المتصفح، اختر «تثبيت التطبيق» أو «إنشاء اختصار» إذا كان متاحًا.';
     if (!dialog.open) dialog.showModal();
   }
 
   async function install() {
-    if (!offer) {
+    if (apple || !offer) {
       showGuidance();
       return;
     }
@@ -76,6 +73,7 @@
   document.getElementById('installAppClose').addEventListener('click', () => dialog.close());
   document.querySelectorAll('[data-embedded-browser-help]').forEach(node => { node.hidden = !embedded; });
   window.addEventListener('beforeinstallprompt', event => {
+    if (apple) return;
     event.preventDefault();
     offer = event;
     sync();

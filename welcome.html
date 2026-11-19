@@ -32,7 +32,6 @@ h1{font:900 clamp(3.1rem,8vw,6rem)/1 Arial,sans-serif;margin:0;text-align:start;
 @keyframes slide{to{transform:translateX(-50%)}}
 @media(prefers-reduced-motion:reduce){.track{animation:none;width:auto}.track>div{width:100%;justify-content:center;flex-wrap:wrap}.track>div[aria-hidden]{display:none}.track span{padding-inline:10px}.track span:after{display:none}}
 dialog{color:var(--ink);background:#251b50;border:1px solid #8571b7;border-radius:21px;padding:24px;width:min(530px,calc(100% - 28px));max-height:85dvh}dialog::backdrop{background:#090521bb}dialog h2{margin-top:0}dialog p{color:var(--muted)}
-.browser-note{border:1px solid #a88ee3;border-radius:20px;padding:16px;margin-top:20px;background:#30205c}.browser-note h2{margin:0;font-size:1.15rem}.browser-note p{margin:5px 0 11px}
 @media(max-width:900px) and (orientation:portrait){.hero{grid-template-columns:1fr;padding:32px 0;gap:28px}.phone{justify-self:center}}
 @media(max-width:650px){.wrap{width:calc(100% - 32px)}nav{min-height:64px}.hero{grid-template-columns:1fr;padding:28px 0;gap:28px}.intro p{margin:15px 0 18px}.track span{padding-inline:25px}}
 @media(max-width:350px){.actions>*{width:100%;text-align:center}}
@@ -43,10 +42,6 @@ dialog{color:var(--ink);background:#251b50;border:1px solid #8571b7;border-radiu
 </nav></header>
 <main>
 <div class="wrap">
-  <aside class="browser-note" data-embedded-browser-help hidden>
-    <h2>افتح Medbrain في متصفح جهازك</h2>
-    <p>إذا كنت داخل تطبيق، اختر «فتح في المتصفح» من قائمته. يمكنك أيضًا نسخ عنوان الصفحة وفتحه في المتصفح الذي تستخدمه.</p>
-  </aside>
   <section class="hero" aria-labelledby="title">
     <div class="intro">
       <h1 id="title"><bdi>Medbrain</bdi></h1>
@@ -2955,5 +2950,5 @@ html,body{height:100%;overflow:hidden;margin:0;padding:0!important}body{backgrou
   <p id="installAppGuidance"></p>
   <button class="secondary" type="button" id="installAppClose">تم</button>
 </dialog>
-<script src="./pwa.js?v=2" defer></script>
+<script src="./pwa.js?v=3" defer></script>
 </html>
