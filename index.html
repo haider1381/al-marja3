@@ -2289,6 +2289,9 @@ button,a,input,select,textarea{-webkit-tap-highlight-color:transparent;}
 .gate-tabs button { border:0; background:transparent; color:var(--gate-muted); font:inherit; font-size:14px; font-weight:700; padding:9px 8px; border-radius:10px; cursor:pointer; transition:background .15s, color .15s, box-shadow .15s; }
 .gate-tabs button[aria-selected="true"] { background:var(--gate-tab-on); color:var(--gate-accent-strong); box-shadow:0 1px 3px rgba(12,32,52,.12); }
 :root[data-theme="dark"] .gate-tabs button[aria-selected="true"] { color:#ffffff; }
+#signupProfile:not([hidden]) { display:grid; gap:8px; margin:0 0 12px; }
+#signupProfile .field { margin:0; }
+#signupProfile label, #signupProfile legend { color:var(--gate-text); }
 #gateOverlay .google-login-btn { margin-top:0; border-radius:12px; border:1px solid var(--gate-line); background:var(--gate-card); color:var(--gate-text); padding:11px 14px; min-height:46px; }
 #gateOverlay .google-login-btn:hover { background:var(--gate-field); }
 #gateOverlay .login-divider { display:flex; align-items:center; gap:10px; margin:16px 0 12px; color:var(--gate-muted); font-size:12px; }
@@ -2996,6 +2999,28 @@ html[lang="en"] .mb-feature-en, html[lang="en"] .sp-title small { display:none; 
       <button type="button" role="tab" id="gateTabSignup" data-gate-mode="signup" aria-selected="false">حساب جديد</button>
       <button type="button" role="tab" id="gateTabLogin" data-gate-mode="login" aria-selected="true">لدي حساب</button>
     </div>
+    <form id="signupProfile" hidden aria-label="بيانات الطالب">
+      <div class="field">
+        <label for="signupFirst">الاسم الأول</label>
+        <input type="text" id="signupFirst" autocomplete="given-name" maxlength="40" dir="auto" required>
+      </div>
+      <div class="field">
+        <label for="signupLast">اسم العائلة</label>
+        <input type="text" id="signupLast" autocomplete="family-name" maxlength="40" dir="auto" required>
+      </div>
+      <fieldset class="field gender-field"><legend>الجنس</legend>
+        <label class="gender-opt"><input type="radio" name="signupGender" value="male" required> ذكر</label>
+        <label class="gender-opt"><input type="radio" name="signupGender" value="female"> أنثى</label>
+      </fieldset>
+      <div class="field">
+        <label for="signupAge">العمر</label>
+        <input type="number" id="signupAge" inputmode="numeric" min="13" max="100" step="1" required>
+      </div>
+      <div class="field">
+        <label for="signupStage">المرحلة الدراسية</label>
+        <select id="signupStage" required><option value="">— اختر —</option><option value="1">المرحلة الأولى</option><option value="2">المرحلة الثانية</option><option value="3">المرحلة الثالثة</option><option value="4">المرحلة الرابعة</option><option value="5">المرحلة الخامسة</option><option value="6">المرحلة السادسة</option><option value="7">خريج / طبيب مقيم</option></select>
+      </div>
+    </form>
     <button type="button" id="googleLoginBtn" class="google-login-btn">
       <svg viewBox="0 0 48 48" aria-hidden="true" focusable="false">
         <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
@@ -3905,11 +3930,24 @@ async function loadProfile() {
     const missing = ['gender','age','stage','first_name','last_name'].some(k => !meta[k]);
     if (missing) { const fresh = await client.auth.getUser(); if (!fresh.error && fresh.data.user && fresh.data.user.id === uid) Object.keys(fresh.data.user.user_metadata || {}).forEach(k => { if (!meta[k]) meta[k] = fresh.data.user.user_metadata[k]; }); }
   }
+  let pending;
+  try {
+    pending = JSON.parse(sessionStorage.getItem(pendingSignupProfileKey) || 'null');
+    sessionStorage.removeItem(pendingSignupProfileKey);
+  } catch (_) {}
+  if (pending?.profile && Date.now() - pending.started < 20 * 60 * 1000 &&
+      uid === activeUserId && activeUser.app_metadata?.provider === 'google' && needsAccountName(activeUser)) {
+    const { first_name, last_name, gender, age, stage } = pending.profile;
+    try { await saveProfileName(first_name, last_name, gender, age, stage); profile = { display_name: activeUserName }; }
+    catch (error) { console.warn('Could not complete signup profile', error); }
+    if (uid !== activeUserId) return;
+  }
   if (uid === activeUserId) { profileCheckedFor = uid; syncNamePrompt(); }
   if (!profile) {
     const seed = {
       id: activeUserId,
       display_name: displayNameFromUser(activeUser),
+      ...profileExtrasFromUser(activeUser),
       avatar_url: activeAvatarUrl || null,
       updated_at: new Date().toISOString()
     };
@@ -4762,7 +4800,23 @@ async function syncAccess(session, signedIn = false) {
     document.getElementById('storageBanner').textContent = 'تعذّر التحقق من صلاحيات الحساب. تأكد من تطبيق إعدادات Supabase ثم أعد تحميل الصفحة.';
   }
 }
+const pendingSignupProfileKey = 'medbrain_pending_signup_profile';
+function readSignupProfile() {
+  const form = document.getElementById('signupProfile');
+  if (form.hidden) return null;
+  if (!form.reportValidity()) throw new Error('أكمل بيانات الطالب أولًا.');
+  const first = document.getElementById('signupFirst').value.trim();
+  const last = document.getElementById('signupLast').value.trim();
+  if (!first || !last) throw new Error('اكتب الاسم الأول واسم العائلة.');
+  return {
+    first_name: first, last_name: last, display_name: first + ' ' + last,
+    gender: form.elements.signupGender.value,
+    age: Number(document.getElementById('signupAge').value),
+    stage: Number(document.getElementById('signupStage').value)
+  };
+}
 function wireGateEvents() {
+  document.getElementById('signupProfile').addEventListener('submit', event => event.preventDefault());
   document.getElementById('googleLoginBtn').addEventListener('click', async () => {
     if (!client) return;
     const button = document.getElementById('googleLoginBtn');
@@ -4772,6 +4826,9 @@ function wireGateEvents() {
     label.textContent = 'جارٍ الاتصال بـ Google…';
     error.textContent = '';
     try {
+      const profile = readSignupProfile();
+      sessionStorage.removeItem(pendingSignupProfileKey);
+      if (profile) sessionStorage.setItem(pendingSignupProfileKey, JSON.stringify({ profile, started: Date.now() }));
       if(deviceIsNative()){await window.MedbrainNative.signIn(client,'google');return;}
       try { sessionStorage.setItem('medbrain_google_signin', String(Date.now())); } catch (_) {}
       const { error: authError } = await client.auth.signInWithOAuth({
@@ -4782,9 +4839,12 @@ function wireGateEvents() {
         }
       });
       if (authError) throw authError;
-    } catch (_) {
-      try { sessionStorage.removeItem('medbrain_google_signin'); } catch (_) {}
-      error.textContent = 'تعذّر بدء الدخول عبر Google. إذا فتحت الرابط داخل تطبيق، افتحه في متصفح جهازك وجرّب مرة أخرى.';
+    } catch (err) {
+      try {
+        sessionStorage.removeItem(pendingSignupProfileKey);
+        sessionStorage.removeItem('medbrain_google_signin');
+      } catch (_) {}
+      error.textContent = err.message === 'أكمل بيانات الطالب أولًا.' || err.message === 'اكتب الاسم الأول واسم العائلة.' ? err.message : 'تعذّر بدء الدخول عبر Google. إذا فتحت الرابط داخل تطبيق، افتحه في متصفح جهازك وجرّب مرة أخرى.';
       button.disabled = false;
       label.textContent = 'المتابعة باستخدام Google';
     }
@@ -4846,6 +4906,7 @@ function wireGateEvents() {
   const setGateMode = mode => {
     gateMode = mode;
     const signup = mode === 'signup';
+    document.getElementById('signupProfile').hidden = !signup;
     document.querySelectorAll('[data-gate-mode]').forEach(tab => tab.setAttribute('aria-selected', String(tab.dataset.gateMode === mode)));
     document.getElementById('gateConfirmField').hidden = !signup;
     document.getElementById('resetPasswordBtn').hidden = signup;
@@ -4883,7 +4944,7 @@ function wireGateEvents() {
     btn.textContent = signup ? 'جارٍ إنشاء الحساب…' : 'جارٍ التحقق…';
     try {
       if (signup) {
-        const { data, error } = await client.auth.signUp({ email, password, options: { emailRedirectTo: new URL(location.pathname, location.origin).href } });
+        const { data, error } = await client.auth.signUp({ email, password, options: { emailRedirectTo: new URL(location.pathname, location.origin).href, data: readSignupProfile() } });
         if (error) throw error;
         document.getElementById('gatePassword').value = '';
         document.getElementById('gatePasswordConfirm').value = '';
