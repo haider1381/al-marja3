@@ -2,6 +2,8 @@
 <html lang="ar" dir="rtl" data-theme="light">
 <head>
 <meta charset="UTF-8">
+<meta name="color-scheme" content="only light">
+<meta name="theme-color" id="siteThemeColor" content="#0B5FA5">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Medbrain — Medical Learning</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -15,6 +17,8 @@
   unicode-range:U+0600-06FF, U+0750-077F, U+0870-08FF, U+200C-200E, U+FB50-FDFF, U+FE70-FEFC; }
 
   :root {
+    color-scheme: only light;
+    background-color: var(--bg);
     box-sizing: border-box;
     padding-top: env(safe-area-inset-top, 0px);
     padding-bottom: env(safe-area-inset-bottom, 0px);
@@ -51,6 +55,7 @@
     }
   }
   :root[data-theme="dark"] {
+    color-scheme: dark;
     --bg: #101715;
     --surface: #16201D;
     --surface-alt: #1C2723;
@@ -2947,8 +2952,6 @@ html[lang="en"] .mb-feature-en, html[lang="en"] .sp-title small { display:none; 
 <link rel="manifest" href="./manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="192x192" href="./assets/app-icon-192.png">
 <link rel="apple-touch-icon" sizes="180x180" href="./assets/apple-touch-icon.png">
-<meta name="theme-color" content="#0B5FA5" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#10162B" media="(prefers-color-scheme: dark)">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Medbrain">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -6241,6 +6244,8 @@ function applySiteTheme() {
   document.documentElement.dataset.theme = readerTheme;
   const button = document.getElementById('siteThemeToggle');
   const dark = readerTheme === 'dark';
+  document.querySelector('meta[name="color-scheme"]').content = dark ? 'dark' : 'only light';
+  document.getElementById('siteThemeColor').content = dark ? '#10162B' : '#0B5FA5';
   button.textContent = dark ? '☀' : '☾';
   button.setAttribute('aria-pressed', String(dark));
   button.setAttribute('aria-label', dark ? 'تفعيل الوضع الفاتح' : 'تفعيل الوضع الداكن');
