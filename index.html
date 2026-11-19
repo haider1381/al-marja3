@@ -3116,6 +3116,27 @@ body:has(:is(#friendsDialog,#friendChatDialog,#friendInboxDialog,#friendProfileD
   display:block;width:min(100%,245px);height:100%;max-height:150px;margin:0;overflow:hidden;
 }
 #selfQuizCard .mb-art .sq-art {width:min(100%,205px);max-height:140px;}
+
+/* Dark indigo drawer: transparent, stroke-only menu glyphs. */
+:root[data-theme="dark"] #navDrawer .mb-nav :is(button,a) > svg,
+:root[data-theme="dark"] #navDrawer .mb-nav :is(button,a) svg {
+  background:transparent !important;
+  background-color:transparent !important;
+  box-shadow:none !important;
+  border:none !important;
+  border-radius:0 !important;
+  padding:0 !important;
+  color:#ad9bf0 !important;
+  fill:none !important;
+  stroke:#ad9bf0;
+  stroke-width:1.9;
+}
+:root[data-theme="dark"] #navDrawer .mb-nav :is(button,a) svg :is(rect,circle,path,line,polyline,polygon,ellipse) {
+  fill:none !important;
+  stroke:currentColor;
+}
+:root[data-theme="dark"] #navDrawer .mb-nav :is(button,a) svg :is([fill="none"]) {fill:none !important;}
+
 </style>
 <link rel="manifest" href="./manifest.webmanifest?v=indigo1">
 <link rel="icon" type="image/png" sizes="192x192" href="./assets/app-icon-192.png?v=indigo1">
