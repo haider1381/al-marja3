@@ -1530,7 +1530,8 @@
   .mb-profile-pop .name { font-weight:800; margin:4px 5px 0; }
   .mb-profile-pop .email { color:#718096; font-size:11px; direction:ltr; margin:3px 5px 9px; word-break:break-all; }
   .mb-avatar-level { position:relative; flex:none; margin-inline-start:3px; }
-  .mb-avatar-level #profileBtn { margin:0; }
+  .mb-avatar-level #profileBtn { margin:0; cursor:default; pointer-events:none; }
+  body.auth-pending { visibility:hidden; }
   .mb-avatar-level svg { position:absolute; inset:-3px; width:calc(100% + 6px); height:calc(100% + 6px); pointer-events:none; transform:rotate(-90deg); }
   .mb-avatar-level svg[hidden] { display:none; }
   .mb-avatar-level circle { fill:none; stroke-width:2.5; }
@@ -3170,7 +3171,7 @@ body>.mb-note-menu[data-open=true]{display:grid!important;position:fixed!importa
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <script src="./pwa.js?v=3" defer></script>
 </head>
-<body>
+<body class="auth-pending">
 
 <div class="overlay" id="nameOverlay">
   <div class="modal gate-modal" role="dialog" aria-modal="true" aria-labelledby="nameTitle" aria-describedby="nameDescription">
@@ -3204,7 +3205,7 @@ body>.mb-note-menu[data-open=true]{display:grid!important;position:fixed!importa
   </div>
 </div>
 
-<div class="overlay gate open" id="gateOverlay">
+<div class="overlay gate" id="gateOverlay">
   <div class="modal gate-modal" role="dialog" aria-modal="true" aria-labelledby="gateTitle" aria-describedby="gateSubtitle">
     <div class="gate-brand">
       <span class="gate-logo" aria-hidden="true"><svg viewBox="0 0 48 48" fill="none"><path d="M17 9c-5 0-9 4-9 9 0 2 .6 3.7 1.8 5.3A9 9 0 0 0 14 39c2 0 3.8-.7 5.2-1.8C21 39 23 40 24 40V8c-2 0-4 1-5.4 2.5A8 8 0 0 0 17 9Z" fill="#58b9ea"/><path d="M31 9c5 0 9 4 9 9 0 2-.6 3.7-1.8 5.3A9 9 0 0 1 34 39c-2 0-3.8-.7-5.2-1.8C27 39 25 40 24 40V8c2 0 4 1 5.4 2.5A8 8 0 0 1 31 9Z" fill="#39c99b"/><path d="M24 13c-4-3-8 0-8 4m8 2c-5-2-8 1-8 5m8 4c-5-2-8 1-7 5m7-20c4-3 8 0 8 4m-8 2c5-2 8 1 8 5m-8 4c5-2 8 1 7 5" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg></span>
@@ -3296,6 +3297,10 @@ body>.mb-note-menu[data-open=true]{display:grid!important;position:fixed!importa
       </button>
     </div>
 <nav class="mb-nav" aria-label="صفحاتي">
+<div id="drawerOwnerTools" hidden>
+  <button type="button" data-tool-view="subscription"><span>لوحة الإدارة<small>الاشتراكات والأكواد</small></span></button>
+  <button type="button" id="drawerOwnerReports"><span>بلاغات الطلاب والاقتراحات</span></button>
+</div>
 
 <button type="button" id="openFriends" data-friends-ready hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="9" cy="7" r="3"/><path d="M3 20v-2a6 6 0 0 1 12 0v2m4-11v6m-3-3h6"/></svg><span>الأصدقاء<small>إضافة صديق ومتابعة تقدّمه</small></span><b class="friend-request-count" id="friendMenuCount" hidden></b></button>
 <button type="button" data-tool-view="subscription"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M3 10h18M7 15h4"/></svg><span>اشتراكي<small>الوصول والخدمات المتاحة</small></span></button>
@@ -3483,7 +3488,7 @@ body>.mb-note-menu[data-open=true]{display:grid!important;position:fixed!importa
         <button class="mb-icon-btn keep-mobile mb-lang-btn" id="siteLangToggle" type="button" aria-label="English / العربية" title="English / العربية" data-no-i18n>EN</button>
         <button class="mb-icon-btn keep-mobile" id="siteThemeToggle" type="button" aria-label="تفعيل الوضع الداكن" aria-pressed="false" title="الوضع الداكن">☾</button>
         <div class="mb-avatar-level">
-          <button class="mb-avatar" id="profileBtn" type="button" aria-label="الحساب"><span id="avatarInitials">MB</span></button>
+          <div class="mb-avatar" id="profileBtn" aria-hidden="true"><span id="avatarInitials">MB</span></div>
           <svg id="profileLevelRing" viewBox="0 0 50 50" aria-hidden="true" focusable="false" hidden>
             <circle class="ring-track" cx="25" cy="25" r="23"></circle>
             <circle class="ring-fill" id="profileLevelFill" cx="25" cy="25" r="23" pathLength="100" stroke-dasharray="0 100"></circle>
@@ -5101,6 +5106,7 @@ async function init() {
     document.getElementById('gateError').textContent = 'تعذّر تحميل خدمة الدخول. أعد تحميل الصفحة.';
     document.getElementById('gateSubmit').disabled = true;
     document.getElementById('googleLoginBtn').disabled = true;
+    showGate();
     return;
   }
   client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, deviceIsNative()?{auth:{flowType:'pkce',detectSessionInUrl:false}}:undefined);
@@ -5112,10 +5118,31 @@ async function init() {
   });
   const { data, error } = await client.auth.getSession();
   if (error) document.getElementById('gateError').textContent = 'تعذّر استعادة جلسة الدخول.';
-  await syncAccess(error ? null : data.session);
+  const session = error ? null : data.session;
+  const entry = new URL(location.href);
+  if (!session && !error && shouldShowWelcome(entry, deviceIsNative())) {
+    const welcome = new URL('./welcome.html', entry);
+    welcome.search = entry.search;
+    location.replace(welcome.href);
+    return;
+  }
+  await syncAccess(session);
 }
-function showGate() { closeSearchSuggestions(); setSearchFiltersOpen(false); document.getElementById('gateOverlay').classList.add('open'); }
-function hideGate() { document.getElementById('gateOverlay').classList.remove('open'); }
+function shouldShowWelcome(entry, native) {
+  if (native || entry.hash || ['auth', 'code', 'error', 'error_code', 'delete-account'].some(key => entry.searchParams.has(key))) return false;
+  try { return localStorage.getItem('medbrain_signed_in_before') !== '1'; }
+  catch (_) { return true; }
+}
+function showGate() {
+  closeSearchSuggestions();
+  setSearchFiltersOpen(false);
+  document.getElementById('gateOverlay').classList.add('open');
+  document.body.classList.remove('auth-pending');
+}
+function hideGate() {
+  document.getElementById('gateOverlay').classList.remove('open');
+  document.body.classList.remove('auth-pending');
+}
 
 async function syncAccess(session, signedIn = false) {
   const userId = session && session.user ? session.user.id : null;
@@ -5139,6 +5166,9 @@ async function syncAccess(session, signedIn = false) {
   window.MedbrainNative?.clearExports?.();
   spReset();
   activeUserId = userId;
+  accessState = null;
+  renderSubscriptionPage();
+  document.getElementById('reportsDialog').close();
   previousMainViews.length = 0;
   renderStudyXP(null);
   resetFriends();
@@ -5257,7 +5287,7 @@ function wireGateEvents() {
       await saveProfileName(first, last, g ? g.value : '', document.getElementById('nameAge').value, document.getElementById('nameStage').value);
       syncNamePrompt();
       showMbToast('تم حفظ الملف الشخصي.');
-      document.getElementById('profileBtn').focus();
+      document.getElementById('menuBtn').focus();
     } catch (err) {
       error.textContent = err.message || 'تعذّر حفظ الاسم. حاول مجددًا.';
     } finally {
@@ -5313,7 +5343,8 @@ function wireGateEvents() {
   // Most visitors are new, so "New account" opens first; a device that has signed in before opens "I have an account".
   let knownDevice = false;
   try { knownDevice = localStorage.getItem('medbrain_signed_in_before') === '1'; } catch (_) {}
-  setGateMode(knownDevice ? 'login' : 'signup');
+  const requestedMode = new URLSearchParams(location.search).get('auth');
+  setGateMode(['login', 'signup'].includes(requestedMode) ? requestedMode : knownDevice ? 'login' : 'signup');
   document.querySelectorAll('[data-toggle-password]').forEach(button => button.addEventListener('click', () => {
     const show = button.getAttribute('aria-pressed') !== 'true';
     button.setAttribute('aria-pressed', String(show));
@@ -6426,9 +6457,10 @@ function wireMedbrainEvents() {
   });
   backdrop.addEventListener('click', e => { if (e.target === backdrop) closeDrawer(); });
 
-  document.getElementById('profileBtn').addEventListener('click', e => {
-    e.stopPropagation();
-    openAccountPanel();
+  document.getElementById('drawerOwnerReports').addEventListener('click', () => {
+    if (!activeUserId || !accessState?.owner) return;
+    closeDrawer();
+    void openReportsInbox();
   });
   document.addEventListener('click', e => {
     if (!profile.contains(e.target) && !e.target.closest('#profileBtn')) profile.classList.remove('open');
@@ -7898,7 +7930,6 @@ function renderStudyXP(balance) {
   const bar = document.getElementById('studyLevelProgress');
   bar.value = progress;
   bar.setAttribute('aria-valuetext', progress + ' من 100 XP إلى المستوى التالي');
-  document.getElementById('profileBtn').setAttribute('aria-label', available ? 'الحساب، المستوى ' + level : 'الحساب');
 }
 
 const FRIEND_INVITE_KEY = 'medbrain_friend_invite';
@@ -8413,9 +8444,6 @@ function initFriends() {
   document.getElementById('openFriends').addEventListener('click', () => open(false));
   document.getElementById('openFriendInvite').addEventListener('click', () => open(true));
   document.getElementById('menuBtn').addEventListener('click', () => { if (activeUserId) void loadFriends(); });
-  document.getElementById('profileBtn').addEventListener('click', () => {
-    if (activeUserId) void loadFriends();
-  });
   document.getElementById('friendRequestForm').addEventListener('submit', async event => {
     event.preventDefault();
     const codeInput = document.getElementById('friendPeer');
@@ -10162,7 +10190,8 @@ function renderSubscriptionPage() {
     if (storeBuild() && !active && s.paywall) status.textContent = 'المحتوى غير مفعّل لهذا الحساب حاليًا.';
   }
   const admin = document.getElementById('subAdmin');
-  admin.hidden = !(s && s.owner);
+  admin.hidden = !s?.owner;
+  document.getElementById('drawerOwnerTools').hidden = admin.hidden;
   if (admin.hidden) document.getElementById('ownerUserCount').textContent = '—';
   if (s && s.owner) {
     document.getElementById('paywallToggle').checked = !!s.paywall;
@@ -10343,8 +10372,10 @@ async function loadSupportSuggestions(id = null, approve = null) {
   }));
 }
 async function openReportsInbox() {
+  const user = activeUserId;
   document.getElementById('reportsStatus').textContent = '';
   await loadOpenReports(false);
+  if (!user || user !== activeUserId || (!canWrite && !accessState?.owner)) return;
   renderReportsList();
   document.getElementById('reportsDialog').showModal();
   void loadSupportSuggestions();
@@ -11082,6 +11113,8 @@ Object.assign(I18N_EN, {
   "مقترحات للمحاضرة": "Lecture suggestions",
   "لا توجد مواد مطابقة. هل تريد منا إضافتها؟": "No matching materials. Would you like us to add it?",
   "نعم": "Yes",
+  "لوحة الإدارة": "Admin panel",
+  "بلاغات الطلاب والاقتراحات": "Student reports and suggestions",
   "اقتراح إضافة مادة": "Suggest a material",
   "يصل طلبك إلى الدعم للمراجعة. تحصل على نقطتين XP إذا أُضيفت المادة.": "Support will review your request. You earn 2 XP if the material is added.",
   "اسم المحاضرة أو المصدر": "Lecture or source name",
