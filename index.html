@@ -3303,7 +3303,6 @@ body>.mb-note-menu[data-open=true]{display:grid!important;position:fixed!importa
   <button type="button" data-tool-view="subscription"><span>لوحة الإدارة<small>الاشتراكات والأكواد</small></span></button>
   <button type="button" data-open-admin-reports><span>بلاغات الطلاب والاقتراحات</span></button>
 </div>
-<button type="button" id="reportSupportInbox"><span>مراسلات دعم البلاغات</span></button>
 
 <button type="button" id="openFriends" data-friends-ready hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="9" cy="7" r="3"/><path d="M3 20v-2a6 6 0 0 1 12 0v2m4-11v6m-3-3h6"/></svg><span>الأصدقاء<small>إضافة صديق ومتابعة تقدّمه</small></span><b class="friend-request-count" id="friendMenuCount" hidden></b></button>
 <button type="button" data-tool-view="subscription"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M3 10h18M7 15h4"/></svg><span>اشتراكي<small>الوصول والخدمات المتاحة</small></span></button>
@@ -6528,11 +6527,6 @@ function wireMedbrainEvents() {
     closeDrawer();
     void openReportsInbox();
   }));
-  document.getElementById('reportSupportInbox').addEventListener('click', () => {
-    if (!activeUserId) return;
-    closeDrawer();
-    void openReportSupport();
-  });
   document.addEventListener('click', e => {
     if (!profile.contains(e.target) && !e.target.closest('#profileBtn')) profile.classList.remove('open');
   });
