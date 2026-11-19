@@ -3049,6 +3049,7 @@ html[lang="en"] .mb-feature-en, html[lang="en"] .sp-title small { display:none; 
         <div class="gate-input"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg><input type="password" id="gatePasswordConfirm" autocomplete="new-password" minlength="8"></div>
       </div>
       <p id="gateError" class="gate-message" role="status" aria-live="polite"></p>
+      <button type="button" id="gateNewAccount" class="gate-link" hidden>الانتقال إلى حساب جديد</button>
       <button type="submit" class="btn-save gate-submit" id="gateSubmit">دخول</button>
     </form>
     <div data-install-on-web hidden>
@@ -3112,7 +3113,7 @@ html[lang="en"] .mb-feature-en, html[lang="en"] .sp-title small { display:none; 
     <div class="friend-fields" id="friendOwnCode" hidden>
       <label for="friendCodeValue">ID الخاص بك</label>
       <input id="friendCodeValue" dir="ltr" type="text" readonly>
-      <button type="button" class="mb-file-btn" id="copyFriendCode">نسخ</button>
+      <button type="button" class="mb-file-btn" id="copyFriendCode" aria-label="نسخ المعرّف" title="نسخ المعرّف"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg></button>
     </div>
     <form id="friendRequestForm">
       <input id="friendPeer" dir="ltr" type="text" aria-label="ID الصديق" placeholder="ID الصديق" minlength="10" maxlength="10" required>
@@ -3184,11 +3185,15 @@ html[lang="en"] .mb-feature-en, html[lang="en"] .sp-title small { display:none; 
       </div>
       <div>
       <dl class="account-profile-summary">
-        <div><dt>ID الخاص بك</dt><dd class="account-profile-code"><bdi id="accountFriendCode">—</bdi><button type="button" class="mb-file-btn" id="copyAccountFriendCode" hidden>نسخ</button></dd></div>
+        <div><dt>ID الخاص بك</dt><dd class="account-profile-code"><bdi id="accountFriendCode">—</bdi><button type="button" class="mb-file-btn" id="copyAccountFriendCode" hidden aria-label="نسخ المعرّف" title="نسخ المعرّف"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg></button></dd></div>
         <div class="account-read-detail"><dt>الجنس</dt><dd id="accountGenderValue">—</dd></div>
         <div class="account-read-detail"><dt>العمر</dt><dd id="accountAgeValue">—</dd></div>
         <div class="account-read-detail"><dt>المرحلة الدراسية</dt><dd id="accountStageValue">—</dd></div>
       </dl>
+      <div class="mb-profile-xp" id="accountXP" hidden>
+        <div class="mb-profile-xp-head"><span id="accountStudyLevel"></span><output id="accountStudyXP" dir="ltr"></output></div>
+        <progress id="accountStudyProgress" max="100" value="0" aria-label="التقدم إلى المستوى التالي"></progress>
+      </div>
       <form class="mb-profile-fields" id="profileForm" hidden>
         <label>الاسم الأول
           <input type="text" id="profileFirstName" maxlength="40" autocomplete="given-name" dir="auto" required>
@@ -4905,9 +4910,11 @@ function wireGateEvents() {
     } finally { btn.disabled = false; }
   });
   // Sign-in window: "I have an account" / "New account" share one form.
+  document.getElementById('gateNewAccount').addEventListener('click', () => setGateMode('signup'));
   let gateMode = 'login';
   const setGateMode = mode => {
     gateMode = mode;
+    document.getElementById('gateNewAccount').hidden = true;
     const signup = mode === 'signup';
     document.getElementById('signupProfile').hidden = !signup;
     document.querySelectorAll('[data-gate-mode]').forEach(tab => tab.setAttribute('aria-selected', String(tab.dataset.gateMode === mode)));
@@ -4937,6 +4944,7 @@ function wireGateEvents() {
     const email = document.getElementById('gateEmail').value.trim();
     const password = document.getElementById('gatePassword').value;
     const signup = gateMode === 'signup';
+    document.getElementById('gateNewAccount').hidden = true;
     errEl.textContent = '';
     errEl.classList.remove('ok');
     if (!email || !document.getElementById('gateEmail').checkValidity()) { errEl.textContent = 'اكتب بريدًا إلكترونيًا صحيحًا.'; return; }
@@ -4966,6 +4974,14 @@ function wireGateEvents() {
       if (signup && /already|registered/i.test(text)) errEl.textContent = 'هذا البريد لديه حساب بالفعل. اختر «لدي حساب» وسجّل الدخول.';
       else if (signup && /signup.*(disabled|not allowed)/i.test(text)) errEl.textContent = 'إنشاء الحسابات الجديدة متوقف حاليًا.';
       else if (signup) errEl.textContent = 'تعذّر إنشاء الحساب. تحقق من البريد والاتصال ثم حاول مجددًا.';
+      else if (err?.code === 'user_not_found' && gateMode === 'login') {
+        setGateMode('signup');
+        errEl.textContent = 'ماكو حساب مسجّل بهذا البريد. كمّل بياناتك في «حساب جديد».';
+      }
+      else if (err?.code === 'invalid_credentials' && gateMode === 'login') {
+        errEl.textContent = 'البريد أو كلمة المرور غير صحيحة. إذا ما عندك حساب بهذا البريد، اختر «حساب جديد».';
+        document.getElementById('gateNewAccount').hidden = false;
+      }
       else if (/confirm/i.test(text)) errEl.textContent = 'أكّد بريدك أولًا من الرسالة التي وصلتك، ثم سجّل الدخول.';
       else errEl.textContent = 'تعذّر تسجيل الدخول. تحقق من البريد وكلمة المرور والاتصال بالإنترنت.';
     } finally {
@@ -7448,6 +7464,10 @@ function renderStudyXP(balance) {
   const progress = points % 100;
   const level = 1 + Math.floor(points / 100);
   document.getElementById('profileXP').hidden = !available;
+  document.getElementById('accountXP').hidden = !available;
+  document.getElementById('accountStudyXP').textContent = points + ' XP';
+  document.getElementById('accountStudyLevel').textContent = 'المستوى ' + level;
+  document.getElementById('accountStudyProgress').value = progress;
   document.getElementById('profileLevelRing').toggleAttribute('hidden', !available);
   document.getElementById('profileLevelFill').setAttribute('stroke-dasharray', progress + ' 100');
   document.getElementById('profileLevelFill').style.visibility = progress ? 'visible' : 'hidden';
