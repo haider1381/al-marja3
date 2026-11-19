@@ -3137,6 +3137,10 @@ body:has(:is(#friendsDialog,#friendChatDialog,#friendInboxDialog,#friendProfileD
 }
 :root[data-theme="dark"] #navDrawer .mb-nav :is(button,a) svg :is([fill="none"]) {fill:none !important;}
 
+
+/* Full-screen swipeable Top 10 leaderboard */
+#progressComparisonDialog.mb-ranking-full{position:fixed!important;inset:0!important;width:100vw!important;max-width:none!important;height:100dvh!important;max-height:none!important;margin:0!important;border:0!important;border-radius:0!important;padding:16px max(16px,env(safe-area-inset-right)) 30px max(16px,env(safe-area-inset-left))!important;overflow:auto!important;background:var(--surface,#17132d);color:var(--text,#f4efff)}
+.mb-ranking-tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;position:sticky;top:0;background:inherit;z-index:3;padding:10px 0}.mb-ranking-tabs button{padding:13px 8px;border:1px solid var(--border,#8885);border-radius:12px;background:transparent;color:inherit;font-weight:700}.mb-ranking-tabs button[aria-selected=true]{background:#6a52ac;color:white}.mb-ranking-panels{touch-action:pan-y}.mb-ranking-panels>div[hidden]{display:none!important}.mb-ranking-full #globalRanking,.mb-ranking-full #friendRanking{display:block;border:0!important}.mb-ranking-full #globalRanking>summary,.mb-ranking-full #friendRanking>summary{display:none}.mb-ranking-full .top-ranking-list{list-style:none;padding:0;margin:12px auto;max-width:780px;display:grid;gap:10px}.mb-ranking-full .top-ranking-list li{display:flex;align-items:center;gap:14px;min-height:76px;padding:14px;border:1px solid var(--border,#8885);border-radius:16px;background:var(--card,#ffffff10)}.mb-ranking-full .top-ranking-list li.mb-rank-self{border:2px solid #a78bfa;background:#a78bfa24}.mb-ranking-full .top-ranking-position{font-size:25px;min-width:44px;text-align:center}.mb-ranking-full .top-ranking-score{margin-inline-start:auto;font-weight:800;white-space:nowrap}.mb-ranking-full .mb-rank-info{flex:1;min-width:0}.mb-ranking-full .mb-rank-level{display:block;font-size:12px;opacity:.8}.mb-ranking-full .mb-rank-xp{display:block;height:6px;border-radius:99px;background:#8885;margin-top:7px;overflow:hidden}.mb-ranking-full .mb-rank-xp i{display:block;height:100%;background:#9c83ee}.mb-ranking-full .mb-rank-avatar{width:44px;height:44px;flex:none;border-radius:50%;display:grid;place-items:center;background:#67568b;color:white;font-size:20px}.mb-ranking-full .mb-rank-profile{border:0;background:transparent;color:inherit;text-align:start;cursor:pointer;font:inherit;font-weight:700}
 </style>
 <link rel="manifest" href="./manifest.webmanifest?v=indigo1">
 <link rel="icon" type="image/png" sizes="192x192" href="./assets/app-icon-192.png?v=indigo1">
@@ -3272,7 +3276,7 @@ body:has(:is(#friendsDialog,#friendChatDialog,#friendInboxDialog,#friendProfileD
       </button>
     </div>
 <nav class="mb-nav" aria-label="صفحاتي">
-<button type="button" id="drawerGlobalRanking">Top 10</button>
+
 <button type="button" id="openFriends" data-friends-ready hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="9" cy="7" r="3"/><path d="M3 20v-2a6 6 0 0 1 12 0v2m4-11v6m-3-3h6"/></svg><span>الأصدقاء<small>إضافة صديق ومتابعة تقدّمه</small></span><b class="friend-request-count" id="friendMenuCount" hidden></b></button>
 <button type="button" data-tool-view="subscription"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M3 10h18M7 15h4"/></svg><span>اشتراكي<small>الوصول والخدمات المتاحة</small></span></button>
 <button type="button" data-tool-view="schedule"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="5" width="16" height="15" rx="3"/><path d="M8 3v4m8-4v4M4 10h16m-7 5 2 2 4-4"/></svg><span>جدولي الدراسي<small>مهامي وخطتي الأسبوعية</small></span></button>
@@ -3280,6 +3284,7 @@ body:has(:is(#friendsDialog,#friendChatDialog,#friendInboxDialog,#friendProfileD
 <button type="button" class="mb-settings-nav" data-tool-view="settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="m9 3-1 3-3 1-2 3 2 2-1 3 3 2 3-1 2 2 3-1 1-3 3-1 2-3-2-2 1-3-3-2-3 1-2-2z"/></svg><span>الإعدادات<small>المظهر والقراءة والحساب</small></span></button>
 <a class="mb-support-nav" href="https://wa.me/9647837271707" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M20 11.5a8 8 0 0 1-11.8 7L4 20l1.3-4a8 8 0 1 1 14.7-4.5Z"/><path d="M9 9c.5 3 2 4.5 5 5" stroke-linecap="round"/></svg><span>مراسلة الدعم<small>واتساب</small></span></a>
 <button type="button" class="friend-invite-link" id="openFriendInvite" data-friends-ready hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 4l18 8-18 8 3-8-3-8zm3 8h15"/></svg><span>دعوة صديق<small>مشاركة رابط الدعوة</small></span></button>
+<button type="button" id="drawerGlobalRanking"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="2" y="15" width="5" height="7" rx="1"/><rect x="9.5" y="3" width="5" height="19" rx="1"/><rect x="17" y="10" width="5" height="12" rx="1"/></svg><span>Top 10<small>التقييم العام والمحلي</small></span></button>
 </nav>
 
   </aside>
@@ -3960,9 +3965,10 @@ body:has(:is(#friendsDialog,#friendChatDialog,#friendInboxDialog,#friendProfileD
   <form method="dialog" class="sp-card-head"><h2 id="friendInboxTitle">المراسلات</h2><button class="mb-close" aria-label="إغلاق">×</button></form>
   <div id="friendInboxList"></div>
 </dialog>
-<dialog id="progressComparisonDialog" class="device-dialog" aria-label="Top 10">
+<dialog id="progressComparisonDialog" class="device-dialog mb-ranking-full" aria-label="Top 10">
   <form method="dialog" class="sp-card-head"><h2>Top 10</h2><button class="mb-close" aria-label="إغلاق">×</button></form>
-  <section class="mb-profile-xp" aria-label="تقدّمك">
+  <div class="mb-ranking-tabs" role="tablist" aria-label="نوع التقييم"><button type="button" id="rankingGlobalTab" role="tab" aria-selected="true">التقييم العام</button><button type="button" id="rankingLocalTab" role="tab" aria-selected="false">التقييم المحلي</button></div><div class="mb-ranking-panels" id="rankingSwipeArea"><div id="rankingGlobalPanel" role="tabpanel">
+<section class="mb-profile-xp" aria-label="تقدّمك">
     <div class="mb-profile-xp-head"><span>تقدّمك</span><output id="topRankingXP" dir="ltr">—</output></div>
     <progress id="topRankingProgress" max="100" value="0" aria-label="التقدّم إلى المستوى التالي"></progress>
   </section>
@@ -3971,11 +3977,12 @@ body:has(:is(#friendsDialog,#friendChatDialog,#friendInboxDialog,#friendProfileD
     <label><input type="checkbox" id="shareLeaderboard" disabled> أسمح بظهور اسمي ونقاطي في الترتيب العام</label>
     <ol class="top-ranking-list" id="globalRankingList"></ol><p id="globalRankingStatus" role="status"></p>
   </details>
+</div><div id="rankingLocalPanel" role="tabpanel" hidden>
   <details class="mb-list-fold" id="friendRanking">
     <summary>الترتيب المحلي · الأصدقاء</summary>
     <ol class="top-ranking-list" id="friendRankingList"></ol><p id="friendRankingStatus" role="status">لا يوجد ترتيب للأصدقاء بعد.</p>
   </details>
-</dialog>
+</div></div></dialog>
 <dialog id="friendChatDialog" class="device-dialog friend-chat-drawer" aria-labelledby="friendChatTitle">
   <form method="dialog" class="sp-card-head"><h2 id="friendChatTitle" dir="auto"></h2><button class="mb-close" aria-label="إغلاق">×</button></form>
   <p id="friendChatStatus" role="status"></p>
@@ -8145,23 +8152,22 @@ function openFriendChat(peer) {
   chatPoll = setInterval(() => { if (!document.hidden) void updateFriendChat(); }, 8000);
 }
 function renderTopRanking(id, entries) {
-  document.getElementById(id).replaceChildren(...entries.slice(0, 10).map((entry, index) => {
-    const item = document.createElement('li');
-    const position = document.createElement('span');
-    position.className = 'top-ranking-position';
-    position.dataset.place = String(index + 1);
-    position.textContent = ['🥇', '🥈', '🥉'][index] || String(index + 1);
-    position.setAttribute('aria-label', 'المركز ' + (index + 1));
-    const name = document.createElement('bdi');
-    name.textContent = entry.name;
-    const score = document.createElement('span');
-    score.className = 'top-ranking-score';
-    score.dir = 'ltr';
-    score.textContent = entry.points + ' XP';
-    item.append(position, name, score);
-    return item;
+  document.getElementById(id).replaceChildren(...entries.slice(0,10).map((entry,index)=>{
+    const item=document.createElement('li');
+    if(entry.isSelf || entry.name==='أنت')item.classList.add('mb-rank-self');
+    const position=document.createElement('span');position.className='top-ranking-position';position.dataset.place=String(index+1);position.textContent=['🥇','🥈','🥉'][index]||String(index+1);
+    const avatar=document.createElement('span');avatar.className='mb-rank-avatar';avatar.textContent=String(entry.name||'؟').trim().slice(0,1)||'؟';
+    const info=document.createElement('div');info.className='mb-rank-info';
+    const name=document.createElement('button');name.type='button';name.className='mb-rank-profile';name.textContent=entry.name||'مستخدم';
+    name.onclick=()=>{const peer=entry.peer;if(!peer){if(entry.isSelf||entry.name==='أنت'){document.getElementById('progressComparisonDialog').close();const account=document.querySelector('[data-tool-view="account"]');if(account)account.click()}else showMbToast('هذا الحساب لم يسمح بعرض ملفه العام.');return;}const dialog=document.getElementById('friendProfileDialog');dialog.querySelector('h2').textContent=peer.name||entry.name;dialog.querySelector('p').textContent=peer.share_progress===false?'هذا المستخدم لا يشارك تفاصيل تقدّمه.':(peer.points!=null?peer.points+' XP':'لا توجد تفاصيل عامة متاحة');dialog.showModal()};
+    const level=document.createElement('small');level.className='mb-rank-level';const pts=Number(entry.points)||0;level.textContent='XP: '+pts.toLocaleString('en-US');
+    const bar=document.createElement('span');bar.className='mb-rank-xp';const fill=document.createElement('i');fill.style.width=(pts%100)+'%';bar.append(fill);
+    info.append(name,level,bar);item.append(position,avatar,info);return item;
   }));
 }
+function setRankingTab(local){const a=document.getElementById('rankingGlobalTab'),b=document.getElementById('rankingLocalTab');a.setAttribute('aria-selected',String(!local));b.setAttribute('aria-selected',String(local));document.getElementById('rankingGlobalPanel').hidden=local;document.getElementById('rankingLocalPanel').hidden=!local;if(local)void loadFriends();else void loadGlobalRanking()}
+function initRankingTabs(){const a=document.getElementById('rankingGlobalTab'),b=document.getElementById('rankingLocalTab'),area=document.getElementById('rankingSwipeArea');a.addEventListener('click',()=>setRankingTab(false));b.addEventListener('click',()=>setRankingTab(true));let x=null,y=null;area.addEventListener('touchstart',e=>{if(e.touches.length!==1)return;x=e.touches[0].clientX;y=e.touches[0].clientY},{passive:true});area.addEventListener('touchend',e=>{if(x===null)return;const dx=e.changedTouches[0].clientX-x,dy=e.changedTouches[0].clientY-y;x=null;if(Math.abs(dx)>65&&Math.abs(dx)>Math.abs(dy)*1.5)setRankingTab(dx>0?false:true)},{passive:true})}
+
 async function loadGlobalRanking(share = null) {
   const user = activeUserId;
   if (!user || !client) return;
@@ -8188,9 +8194,11 @@ function initFriends() {
     scheduleForAdoption = null;
     document.getElementById('sharedScheduleReview').hidden = true;
   });
+  initRankingTabs();
   document.getElementById('drawerGlobalRanking').addEventListener('click', () => {
     document.getElementById('drawerClose').click();
     document.getElementById('progressComparisonDialog').showModal();
+    setRankingTab(false);
     const ranking = document.getElementById('globalRanking');
     if (ranking.open) void loadGlobalRanking();
     else ranking.open = true;
@@ -8471,9 +8479,9 @@ async function loadFriends() {
   void notifyIncomingChats();
   void notifyFriendMessages();
   const ranking = peers.filter(peer => peer.status === 'friend' && peer.points != null)
-    .map(peer => ({ name: peer.name?.trim() || peer.friend_code, points: Number(peer.points) }));
+    .map(peer => ({ name: peer.name?.trim() || peer.friend_code, points: Number(peer.points),peer }));
   if (data.profile.points != null) {
-    ranking.push({ name: 'أنت', points: Number(data.profile.points) });
+    ranking.push({ name: 'أنت', points: Number(data.profile.points),isSelf:true });
   }
   ranking.sort((a, b) => b.points - a.points || a.name.localeCompare(b.name));
   document.getElementById('friendRankingStatus').textContent = ranking.length ? '' : 'لا يوجد ترتيب للأصدقاء بعد.';
