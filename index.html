@@ -421,6 +421,8 @@
   [data-reader-related] { width:auto !important; padding-inline:8px; white-space:nowrap; }
   .pv-text-layer { position:absolute; inset:0; overflow:hidden; opacity:1; line-height:1; text-align:left; transform-origin:0 0; user-select:text; -webkit-user-select:text; }
   .pv-text-layer :is(span,br) { position:absolute; color:transparent; white-space:pre; cursor:text; transform-origin:0 0; }
+  .pv-text-layer .markedContent { display:contents; }
+  .pv-text-layer span { -webkit-user-select:text; user-select:text; }
   .pv-text-layer ::selection { background:rgba(24,119,242,.38); color:transparent; }
   .pv-drawing .pv-text-layer { pointer-events:none; user-select:none; }
   .pv-ink { pointer-events:none; }
@@ -4063,6 +4065,15 @@ body>.mb-note-menu[data-open=true]{display:grid!important;position:fixed!importa
 <dialog id="questionReportDialog" class="device-dialog" aria-labelledby="questionReportTitle"><h2 id="questionReportTitle">الإبلاغ عن مشكلة في السؤال</h2><p>يصل بلاغك إلى فريق Medbrain لمراجعة السؤال وتصحيحه.</p><form id="questionReportForm"><fieldset class="report-reasons"><legend>نوع المشكلة</legend><label><input type="radio" name="reportReason" value="wrong_answer"> الإجابة المعتمدة خاطئة</label><label><input type="radio" name="reportReason" value="wrong_question"> السؤال خاطئ أو غير واضح</label><label><input type="radio" name="reportReason" value="incomplete"> السؤال ناقص (خيار أو معلومة مفقودة)</label><label><input type="radio" name="reportReason" value="explanation"> الشرح خاطئ أو غير كافٍ</label><label><input type="radio" name="reportReason" value="other"> مشكلة أخرى</label></fieldset><label for="questionReportNote">تفاصيل (اختياري): ما الصحيح برأيك ومصدره؟<textarea id="questionReportNote" maxlength="1000" rows="3"></textarea></label><div class="device-actions"><button type="submit" class="mb-primary" id="questionReportSubmit">إرسال البلاغ</button><button type="button" class="mb-file-btn" data-device-close="questionReportDialog">إلغاء</button></div><p id="questionReportStatus" role="status"></p></form></dialog>
 <section id="labsPanel" class="labs-panel" role="dialog" aria-modal="false" aria-labelledby="labsTitle" data-no-i18n dir="ltr" hidden><div class="labs-head"><h2 id="labsTitle">Lab values</h2><button type="button" class="labs-close" data-labs-close aria-label="Close">×</button></div><div class="labs-tools"><select id="labsTab" aria-label="Lab group"><option value="blood">Blood</option><option value="heme">Hematologic</option><option value="csf">Cerebrospinal</option><option value="other">Sweat, Urine, BMI</option><option value="infl">Inflammation & Immunology</option><option value="vit">Vitamins & Minerals</option><option value="cardiac">Cardiac & Tumor markers</option></select><input type="search" id="labsSearch" class="labs-search" placeholder="Search…" autocomplete="off" aria-label="Search lab values"></div><div class="labs-body" id="labsBody"></div></section>
 <dialog id="selfQuizDialog" class="device-dialog" aria-labelledby="selfQuizTitle"><div class="sp-card-head"><h2 id="selfQuizTitle" dir="ltr">Quiz</h2><button type="button" class="mb-mini-btn" data-device-close="selfQuizDialog" aria-label="إغلاق">×</button></div><form id="selfQuizForm"><fieldset class="sq-group"><legend>نوع الاختبار</legend><label><input type="radio" name="sqMode" value="questions" checked> MCQ</label><label><input type="radio" name="sqMode" value="flash"> Flashcards</label></fieldset><fieldset class="sq-group"><legend>المادة</legend><div id="sqSubjects" class="sq-options"></div></fieldset><div id="sqExam"><fieldset class="sq-group"><legend>مصدر الأسئلة</legend><label><input type="radio" name="sqSource" value="all" checked> كل Q Bank</label><label><input type="radio" name="sqSource" value="files"> ملف أو عدة ملفات</label><label><input type="radio" name="sqSource" value="wizari"> وزاري أو تجريبي</label><label><input type="radio" name="sqSource" value="ai"> أسئلة جديدة بالذكاء الاصطناعي</label><label><input type="radio" name="sqSource" value="saved"> ★ الأسئلة المحفوظة</label></fieldset><div id="sqFilesBox" hidden><fieldset class="sq-group sq-files"><legend>اختر الملفات</legend><input type="search" id="sqFileFind" class="sq-find" placeholder="ابحث عن ملف…" autocomplete="off"><details class="mb-list-fold" open><summary>ملفات الأسئلة</summary><div id="sqFiles" class="sq-file-list"></div></details></fieldset></div><div id="sqExamMore" hidden><fieldset class="sq-group"><legend>نوع الأسئلة</legend><label><input type="radio" name="sqKind" value="" checked> الكل</label><label><input type="radio" name="sqKind" value="main"> وزاري (رئيسي)</label><label><input type="radio" name="sqKind" value="mock"> تجريبي</label></fieldset><fieldset class="sq-group" id="sqBranchBox" hidden><legend>الفرع</legend><div id="sqBranches" class="sq-options"></div></fieldset><fieldset class="sq-group"><legend>السنة</legend><div id="sqYears" class="sq-options"></div></fieldset><fieldset class="sq-group"><legend>الدور</legend><label><input type="radio" name="sqRound" value="" checked> كل الأدوار</label><label><input type="radio" name="sqRound" value="1"> الدور الأول</label><label><input type="radio" name="sqRound" value="2"> الدور الثاني</label></fieldset></div><div id="sqAiBox" hidden><fieldset class="sq-group"><legend>موضوع الأسئلة</legend><input type="text" id="sqAiTopic" class="sq-find" maxlength="160" placeholder="مثال: Heart failure management" dir="auto"><p class="sq-hint">يكتب المساعد حتى 10 أسئلة جديدة بخمسة خيارات وشرح لكل خيار. راجعها كمساعدة دراسية.</p></fieldset></div></div><fieldset class="sq-group"><legend>عدد الأسئلة</legend><div class="sq-count"><input type="number" id="sqCountNum" min="1" max="300" value="20" inputmode="numeric" aria-label="عدد الأسئلة"><button type="button" data-sq-count="10">10</button><button type="button" data-sq-count="20">20</button><button type="button" data-sq-count="40">40</button><button type="button" data-sq-count="300">الكل</button></div></fieldset><div class="device-actions"><button type="submit" class="mb-primary" id="sqStart">ابدأ الاختبار</button><button type="button" class="mb-file-btn" data-device-close="selfQuizDialog">إلغاء</button></div><p id="sqStatus" role="status"></p></form></dialog>
+<dialog id="pdfCopyDialog" class="device-dialog" aria-labelledby="pdfCopyTitle">
+  <h2 id="pdfCopyTitle">نسخ نص PDF</h2>
+  <p id="pdfCopyStatus" role="status"></p>
+  <textarea id="pdfCopyText" aria-labelledby="pdfCopyTitle" readonly rows="8" dir="auto" hidden></textarea>
+  <div class="device-actions">
+    <button id="pdfCopySubmit" class="mb-primary" type="button" disabled>نسخ النص</button>
+    <button class="mb-file-btn" type="button" data-device-close="pdfCopyDialog">إغلاق</button>
+  </div>
+</dialog>
 <dialog id="materialSuggestionDialog" class="device-dialog" aria-labelledby="materialSuggestionHeading">
   <h2 id="materialSuggestionHeading">اقتراح إضافة مادة</h2>
   <p>يصل طلبك إلى الدعم للمراجعة. تحصل على نقطتين XP إذا أُضيفت المادة.</p>
@@ -5954,17 +5965,22 @@ function topicSiblings(l) {
   }
   return (topicCountCache.m.get(l.topicId) || 0) > 1;
 }
+function lectureOpenAction(lecture) {
+  if (lectureHasText(lecture)) return 'open-reader';
+  if (lecture.filePath) return 'open-pdf';
+  if (lecture.type === 'أسئلة' && lecture.questionCount > 0) return 'open-quiz';
+  return safeExternalLink(lecture.link) ? 'open-link' : '';
+}
 function renderLectureList(list) {
   const key = list.length + ':' + (list[0] && list[0].id) + ':' + (list[list.length - 1] && list[list.length - 1].id);
   if (key !== lectureListKey) { lectureListKey = key; lectureListLimit = LECTURE_PAGE; }
   let html = (list.length > 12 ? '<details class="mb-list-fold" open><summary>قائمة المواد</summary>' : '') + `<div class="lecture-list">`;
   list.slice(0, lectureListLimit).forEach(l => {
     const iconKey = TYPE_ICON[l.type] || 'bookmark';
-    const hasText = lectureHasText(l);
     const externalLink = safeExternalLink(l.link);
     const hasQuiz = l.type === 'أسئلة' && l.questionCount > 0;
     // The whole row opens the material with its main action: text reader, then PDF, then quiz, then link.
-    const openAction = hasText ? 'open-reader' : l.filePath ? 'open-pdf' : hasQuiz ? 'open-quiz' : externalLink ? 'open-link' : '';
+    const openAction = lectureOpenAction(l);
     const openLabel = { 'open-reader': 'قراءة المحاضرة', 'open-pdf': 'فتح PDF', 'open-quiz': 'بدء الأسئلة', 'open-link': 'فتح الرابط' }[openAction] || '';
     html += `<div class="lecture${openAction ? ' openable' : ''}"${openAction ? ` data-open="${openAction}" data-id="${escapeHtml(l.id)}" role="button" tabindex="0" aria-label="${openLabel}: ${escapeHtml(l.title)}"` : ''}>
       <div class="icon">${ICONS[iconKey]}</div>
@@ -6028,6 +6044,18 @@ function wireStaticEvents() {
     if (e.target.id === 'overlay') closeModal();
   });
 
+  document.getElementById('pdfCopySubmit').addEventListener('click', async () => {
+    const text = document.getElementById('pdfCopyText');
+    const status = document.getElementById('pdfCopyStatus');
+    try {
+      await navigator.clipboard.writeText(text.value);
+      status.textContent = 'تم نسخ النص.';
+    } catch (_) {
+      text.focus();
+      text.select();
+      status.textContent = 'تم تحديد النص. اختر نسخ من جهازك.';
+    }
+  });
   document.getElementById('readerCloseBtn').addEventListener('click', returnFromReaderQuiz);
   document.getElementById('readerOverlay').addEventListener('click', e => {
     if (e.target.id === 'readerOverlay') closeReader();
@@ -6162,14 +6190,17 @@ function onContentClick(e) {
   if (card && !e.target.closest('.actions, a, button')) openLectureCard(card);
 }
 function openLectureCard(card) {
-  const id = card.dataset.id;
-  if (card.dataset.open === 'open-reader') openReader(id);
-  else if (card.dataset.open === 'open-pdf') openPdfInReader(id);
-  else if (card.dataset.open === 'open-quiz') openQuiz(id);
-  else if (card.dataset.open === 'open-link') {
-    const link = safeExternalLink((lectures.find(l => l.id === id) || {}).link);
-    if (link) window.open(link, '_blank', 'noopener,noreferrer');
-  }
+  const lecture = lectures.find(l => l.id === card.dataset.id);
+  if (lecture) openLibraryMaterial(lecture);
+}
+function openLibraryMaterial(lecture) {
+  closeSearchSuggestions();
+  setSearchFiltersOpen(false);
+  const action = lectureOpenAction(lecture);
+  if (action === 'open-reader') openReader(lecture.id);
+  else if (action === 'open-pdf') openPdfInReader(lecture.id);
+  else if (action === 'open-quiz') openQuiz(lecture.id);
+  else if (action === 'open-link') window.open(safeExternalLink(lecture.link), '_blank', 'noopener,noreferrer');
 }
 function onLectureCardKey(e) {
   if ((e.key !== 'Enter' && e.key !== ' ') || !e.target.matches('.lecture[data-open]')) return;
@@ -7293,6 +7324,7 @@ function saveInk() { if (!pdfView) return; try { localStorage.setItem(inkKey(pdf
 function pvPrefs() { try { return JSON.parse(localStorage.getItem('medbrain_pv_prefs') || '{}') || {}; } catch (_) { return {}; } }
 function savePvPrefs(v) { try { localStorage.setItem('medbrain_pv_prefs', JSON.stringify({ pen: v.pen, hl: v.hl, night: v.night, line: v.line || 'band' })); } catch (_) {} }
 function destroyPdfViewer() {
+  document.getElementById('pdfCopyDialog').close();
   document.getElementById('readerOverlay').classList.remove('pv-active');
   if (!pdfView) return;
   const v = pdfView; pdfView = null;
@@ -7426,6 +7458,7 @@ async function mountPdfViewer(body, bytes, lec) {
     '<div class="pv-pop" id="pvLinePop" hidden style="left:50%;transform:translateX(-50%)">' + linePopHtml('pv', prefs.line) + '</div>' +
     '<div class="pv-pop" id="pvPagesPop" hidden style="left:12px"><div class="pv-pagegrid" id="pvPageGrid"></div></div>' +
     '<div class="pv-pop pv-menu" id="pvMorePop" hidden style="left:12px">' +
+      '<button type="button" data-pv="copy"><span>نسخ نص PDF</span></button>' +
       (topicQuizAvailable(lec.topicId) ? '<button type="button" data-pv="quiz">' + PVI.quiz + '<span>Quick Quiz</span></button>' : '') +
       '<button type="button" data-pv="clear-page">' + PVI.clear + '<span>مسح كتابتي في هذه الصفحة</span></button>' +
       '<button type="button" data-pv="clear-all">' + PVI.clear + '<span>مسح كل ملاحظاتي على الملف</span></button></div>' +
@@ -7768,6 +7801,40 @@ function bindTextTools(bar, body) {
   });
   syncHist();
 }
+async function showPdfCopyText(view) {
+  const dialog = document.getElementById('pdfCopyDialog');
+  const text = document.getElementById('pdfCopyText');
+  const status = document.getElementById('pdfCopyStatus');
+  const copy = document.getElementById('pdfCopySubmit');
+  const selection = window.getSelection();
+  const pages = document.getElementById('pvPages');
+  const selected = selection && pages.contains(selection.anchorNode) && pages.contains(selection.focusNode)
+    ? selection.toString().trim() : '';
+  text.value = '';
+  text.hidden = true;
+  copy.disabled = true;
+  status.textContent = 'جارٍ استخراج النص…';
+  dialog.showModal();
+  try {
+    let value = selected;
+    if (!value) {
+      const page = await view.doc.getPage(view.current);
+      const content = await page.getTextContent();
+      value = content.items.map(item => item.str ? item.str + (item.hasEOL ? '\n' : ' ') : '').join('').trim();
+    }
+    if (!dialog.open || pdfView !== view) return;
+    if (!value) {
+      status.textContent = 'هذه الصفحة مصوّرة أو لا تحتوي على نص قابل للنسخ.';
+      return;
+    }
+    text.value = value;
+    text.hidden = false;
+    copy.disabled = false;
+    status.textContent = selected ? 'النص المحدّد' : 'نص الصفحة الحالية';
+  } catch (_) {
+    if (dialog.open && pdfView === view) status.textContent = 'تعذّر استخراج نص الصفحة.';
+  }
+}
 function bindPdfViewer(wrap) {
   const viewer = document.getElementById('pdfViewer');
   const v0 = pdfView;
@@ -7891,6 +7958,7 @@ function bindPdfViewer(wrap) {
       togglePop('pvPagesPop');
       const cur = document.querySelector('#pvPageGrid [aria-current="true"]'); if (cur) cur.scrollIntoView({ block: 'nearest' });
     } else if (act === 'more') togglePop('pvMorePop');
+    else if (act === 'copy') { closePops(); void showPdfCopyText(v); }
     else if (act === 'timer') { if (pdfTimer && !pdfTimer.done) { closePops(); return; } togglePop('pvTimerPop'); }
     else if (act === 'timer-stop') stopPdfTimer();
     else if (act === 'close') { closePops(); closeReader(); }
@@ -9498,11 +9566,15 @@ function browseStartFor(kind, label) {
 }
 function chooseSearchSuggestion(index) {
   let item=suggestionItems[index];if(!item)return;
+  const isMaterial = item.kind === 'title';
   if(item.kind==='recent')item={kind:item.recentKind||'title',label:item.label};
   rememberSearch(item.kind,item.label);
   if(suggestionInput.id==='searchInput'){
     state.search='';state.filterCategory=state.filterSource=state.filterTopic=state.filterKind='';
   }
+  const exactMaterials = isMaterial
+    ? filterMaterials(lectures, { ...state, search: '' }).filter(lecture => lecture.title === item.label)
+    : [];
   if(item.kind==='title')state.search=item.label;
   else {
     state.search='';
@@ -9511,6 +9583,10 @@ function chooseSearchSuggestion(index) {
   }
   ['searchInput','librarySearchInput'].forEach(id=>{document.getElementById(id).value=state.search;});
   closeSearchSuggestions();render();showMainView('library','');
+  if (exactMaterials.length === 1 && lectureOpenAction(exactMaterials[0])) {
+    openLibraryMaterial(exactMaterials[0]);
+    return;
+  }
   document.getElementById('librarySearchInput').focus();
   closeSearchSuggestions();
 }
@@ -11115,6 +11191,13 @@ Object.assign(I18N_EN, {
   "نعم": "Yes",
   "لوحة الإدارة": "Admin panel",
   "بلاغات الطلاب والاقتراحات": "Student reports and suggestions",
+  "نسخ نص PDF": "Copy PDF text",
+  "جارٍ استخراج النص…": "Extracting text…",
+  "هذه الصفحة مصوّرة أو لا تحتوي على نص قابل للنسخ.": "This page is scanned or has no selectable text.",
+  "النص المحدّد": "Selected text",
+  "نص الصفحة الحالية": "Current page text",
+  "تعذّر استخراج نص الصفحة.": "Could not extract the page text.",
+  "تم تحديد النص. اختر نسخ من جهازك.": "Text selected. Use your device’s Copy command.",
   "اقتراح إضافة مادة": "Suggest a material",
   "يصل طلبك إلى الدعم للمراجعة. تحصل على نقطتين XP إذا أُضيفت المادة.": "Support will review your request. You earn 2 XP if the material is added.",
   "اسم المحاضرة أو المصدر": "Lecture or source name",
