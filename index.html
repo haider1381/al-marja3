@@ -2786,7 +2786,7 @@ html[lang="en"] .mb-feature-en, html[lang="en"] .sp-title small { display:none; 
 .pv-go { width:44px !important; height:44px !important; border-radius:50% !important; background:#0F6CBD !important; color:#fff !important; }
 .pv-go svg .ic-soft { fill:#fff !important; stroke:#fff; }
 /* Quiz: the study bar already has the lab icon; the progress bar is neutral blue, not "correct" green. */
-#readerOverlay.reader-quiz .rd-tb [data-open-labs] { display:none; }
+
 .study-track span { background:linear-gradient(90deg,#0F6CBD,#3f8fd6) !important; }
 .study-ib { color:#0F6CBD !important; }
 
@@ -2991,6 +2991,41 @@ html[lang="en"] .mb-feature-en, html[lang="en"] .sp-title small { display:none; 
   #dailyReviewResults[hidden], #dailyReviewChoices[hidden] { display:none; }
   #chapterTopicsFold #chapterTopics { margin:0; border:0; }
   details.sp-topic { display:block; }
+/* Match the study cards and social controls to the selected site palette. */
+:root[data-theme="light"] {color-scheme:only light;}
+:root[data-theme="dark"] {--chat-surface:#100f32;--chat-accent:#292052;--chat-border:#443575;}
+:root[data-theme="light"] {--chat-surface:#faf9ff;--chat-accent:#ebe6ff;--chat-border:#cec4f5;}
+:root[data-theme="dark"] :is(.mb-feature,.mb-practice,.mb-topbar,.mb-drawer) {background:#0d1032;color:#f1edff;}
+:root[data-theme="light"] :is(.mb-feature,.mb-practice,.mb-topbar,.mb-drawer) {background:#fff;color:#211842;}
+:root[data-theme] :is(.mb-topbar .mb-icon-btn,#accountOverlay .mb-file-btn,#friendChatPreferences,#accountXP) {background:var(--chat-accent);border-color:var(--chat-border);color:var(--text);}
+body:has(#navBackdrop.open){overflow:hidden;}
+body:has(#navBackdrop.open) .mb-drawer{touch-action:pan-y;overscroll-behavior:contain;}
+
+.mb-drawer .mb-nav > :is(a,button) {border-bottom:1px solid var(--chat-border);border-radius:0;}
+#friendChatDialog,#friendInboxDialog {inset:auto max(10px,env(safe-area-inset-right)) max(12px,env(safe-area-inset-bottom)) auto;margin:0;width:min(84vw,410px);height:min(75dvh,680px);max-height:75dvh;border-radius:22px;background:var(--chat-surface);border:1px solid var(--chat-border);padding:12px;overflow:auto;overscroll-behavior:contain;}
+#friendChatDialog[open] {display:flex;flex-direction:column;}
+#friendChatDialog h2,#friendInboxDialog h2 {font-size:17px;}
+#friendChatMessages {flex:1;min-height:0;max-height:none;}
+#friendChatMessages p {width:fit-content;max-width:92%;padding:6px 10px;border-radius:14px;background:var(--chat-accent);}
+#friendChatMessages .chat-mine {margin-inline-start:auto;background:#393079;color:#fff;}
+#friendChatText {min-height:42px;max-height:96px;border-radius:14px;}
+#friendChatCompose {margin-top:auto;font-size:13px;}
+#friendInboxList .chat-inbox-row {display:flex;text-align:start;align-items:center;gap:9px;border:0;border-bottom:1px solid var(--chat-border);background:transparent;color:var(--text);padding:8px 2px;font:inherit;min-width:0;}
+.chat-inbox-copy {min-width:0;display:grid;}
+.chat-inbox-copy small {overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text-muted);}
+#friendsDialog .friend-action-menu {position:static;}
+#friendsDialog .friend-action-panel {display:flex;flex-direction:column;gap:2px;border:1px solid var(--chat-border);background:var(--chat-accent);border-radius:11px;padding:3px;margin-top:2px;}
+#friendsDialog .friend-action-panel button {position:static;background:transparent;border:0;min-height:26px;padding:4px 8px;text-align:start;color:var(--text);font-size:11px;}
+.account-privacy-switch input,.account-privacy-switch input:checked {position:relative;background-image:none;background-color:var(--chat-accent);width:35px;height:20px;}
+.account-privacy-switch input::before {content:"";position:absolute;left:2px;top:2px;width:14px;height:14px;border-radius:50%;background:#fff;}
+.account-privacy-switch input:checked {background-color:#365fe1;}
+.account-privacy-switch input:checked::before {left:17px;}
+#friendChatMode[hidden] {display:none;}
+#friendChatModeOptions {margin:6px 0;}
+#friendChatModeOptions summary,#friendChatModeOptions button {background:var(--chat-accent);color:var(--text);padding:7px 10px;border:1px solid var(--chat-border);border-radius:12px;font:inherit;cursor:pointer;}
+#friendChatModeOptions button {display:block;width:100%;text-align:start;margin:3px 0;}
+.shared-schedule-card[hidden] {display:none;}
+.shared-schedule-card {display:flex;align-items:center;gap:8px;padding:6px;border:1px solid var(--chat-border);border-radius:12px;}
 </style>
 <link rel="manifest" href="./manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="192x192" href="./assets/app-icon-192.png">
@@ -3126,6 +3161,7 @@ html[lang="en"] .mb-feature-en, html[lang="en"] .sp-title small { display:none; 
       </button>
     </div>
 <nav class="mb-nav" aria-label="صفحاتي">
+<button type="button" id="drawerGlobalRanking">الترتيب العام</button>
 <button type="button" id="openFriends" data-friends-ready hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="9" cy="7" r="3"/><path d="M3 20v-2a6 6 0 0 1 12 0v2m4-11v6m-3-3h6"/></svg><span>الأصدقاء<small>إضافة صديق ومتابعة تقدّمه</small></span><b class="friend-request-count" id="friendMenuCount" hidden></b></button>
 <button type="button" data-open-ai><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 3l2.2 6.8L19 12l-6.8 2.2L10 21l-2.2-6.8L1 12l6.8-2.2L10 3z"/><path d="M20 2v6M17 5h6M21 17v4M19 19h4"/></svg><span dir="ltr">Ask MidBrain AI ✨<small dir="rtl">مساعدك للدراسة وفهم المحاضرات</small></span></button>
 <button type="button" data-tool-view="subscription"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M3 10h18M7 15h4"/></svg><span>اشتراكي<small>الوصول والخدمات المتاحة</small></span></button>
@@ -3255,10 +3291,15 @@ html[lang="en"] .mb-feature-en, html[lang="en"] .sp-title small { display:none; 
       </button>
       <form id="friendChatPreferences" class="mb-profile-xp" hidden>
         <label for="friendChatMode">من يمكنه مراسلتك؟</label>
-        <select id="friendChatMode">
+        <select id="friendChatMode" hidden>
           <option value="off">لا أحد</option><option value="friends">كل أصدقائي</option>
           <option value="selected">أصدقاء أحددهم</option>
         </select>
+        <details id="friendChatModeOptions"><summary id="friendChatModeLabel">لا أحد</summary>
+          <button type="button" data-chat-mode="friends">كل أصدقائي</button>
+          <button type="button" data-chat-mode="selected">أصدقاء أحددهم</button>
+          <button type="button" data-chat-mode="off">لا أحد</button>
+        </details>
         <fieldset id="friendChatAllowed" hidden><legend>الأصدقاء المسموح لهم</legend></fieldset>
         <button type="submit" class="mb-file-btn">حفظ الخصوصية</button>
         <p role="status"></p>
@@ -3311,7 +3352,6 @@ html[lang="en"] .mb-feature-en, html[lang="en"] .sp-title small { display:none; 
         <button class="mb-brand-home" id="brandHomeBtn" type="button" aria-label="Medbrain — الواجهة الرئيسية"><span class="mb-brand-name">Medbrain</span><small class="mb-brand-sub">MEDICAL LEARNING</small></button>
       </div>
       <div class="mb-top-actions">
-        <button class="mb-icon-btn keep-mobile mb-labs-btn" type="button" data-open-labs aria-label="Reference values" title="Reference values"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 3h6M10 3v6l-5 9a2 2 0 0 0 1.7 3h10.6a2 2 0 0 0 1.7-3l-5-9V3"/><path d="M7.5 14h9"/></svg></button>
         <button class="mb-icon-btn keep-mobile mb-lang-btn" id="siteLangToggle" type="button" aria-label="English / العربية" title="English / العربية" data-no-i18n>EN</button>
         <button class="mb-icon-btn keep-mobile" id="siteThemeToggle" type="button" aria-label="تفعيل الوضع الداكن" aria-pressed="false" title="الوضع الداكن">☾</button>
         <div class="mb-avatar-level">
@@ -3521,6 +3561,13 @@ html[lang="en"] .mb-feature-en, html[lang="en"] .sp-title small { display:none; 
 
 
     <section class="mb-tool-page mb-page-view mb-personal-page" id="scheduleSection">
+      <section id="sharedScheduleReview" class="mb-personal-card" hidden>
+        <h3>معاينة الجدول المشترك</h3>
+        <ul id="sharedScheduleItems"></ul>
+        <button type="button" class="mb-primary" id="adoptSharedSchedule">اعتمد الجدول</button>
+        <button type="button" class="mb-file-btn" id="declineSharedSchedule">رفض</button>
+        <p id="sharedScheduleStatus" role="status"></p>
+      </section>
  <div class="mb-page-toolbar"><div class="mb-page-title-wrap"><button class="mb-page-back" type="button" data-tool-view="home" aria-label="رجوع">‹</button><div><h2 class="mb-page-title">جدول الدراسة</h2></div></div></div>
  <p class="schedule-guide">اختَر المادة والفصل، وبعدها اختَر المحاضرة وحدّد شكد تريد تدرس. عاين أوقات الدراسة والاستراحة، وبعدين احفظ الجلسات.</p>
  <details class="mb-personal-card schedule-xp-rules"><summary>قواعد الجدول وتنبيهات XP</summary>
@@ -3826,8 +3873,11 @@ html[lang="en"] .mb-feature-en, html[lang="en"] .sp-title small { display:none; 
       <input id="chatShareSearch" type="search" maxlength="120">
       <div id="chatShareResults"></div><p id="chatShareStatus" role="status"></p>
     </details>
+    <div id="chatScheduleAttachment" class="shared-schedule-card" hidden>
+      <span>جدول دراسي مرفق</span><button type="button" id="removeChatSchedule" class="mb-file-btn">إزالة</button>
+    </div>
     <label for="friendChatText">الرسالة</label>
-    <textarea id="friendChatText" maxlength="2000" required dir="auto"></textarea>
+    <textarea id="friendChatText" maxlength="2000" dir="auto"></textarea>
     <button class="mb-primary" type="submit">إرسال</button>
   </form>
 </dialog>
@@ -6149,6 +6199,7 @@ function wireMedbrainEvents() {
   window.addEventListener('scroll', positionAbout, { passive:true });
   const backdrop = document.getElementById('navBackdrop');
   const profile = document.getElementById('profileMenu');
+  backdrop.querySelector('.mb-drawer').addEventListener('wheel', event => event.stopPropagation(), { passive:true });
   const openDrawer = () => { backdrop.classList.add('open'); backdrop.setAttribute('aria-hidden','false'); };
   const closeDrawer = () => { backdrop.classList.remove('open'); backdrop.setAttribute('aria-hidden','true'); };
   document.getElementById('brandHomeBtn').addEventListener('click', () => {
@@ -7653,6 +7704,7 @@ async function loadChatPreferences() {
   const mode = document.getElementById('friendChatMode');
   const allowed = document.getElementById('friendChatAllowed');
   mode.value = data.mode;
+  document.getElementById('friendChatModeLabel').textContent = mode.selectedOptions[0]?.textContent || '';
   allowed.hidden = mode.value !== 'selected';
   allowed.querySelectorAll('label').forEach(label => label.remove());
   for (const peer of chatFriends) {
@@ -7722,9 +7774,91 @@ function listChatShareResults() {
   }
   if (!list.children.length) list.textContent = 'ماكو مواد مطابقة.';
 }
+let scheduleForAdoption = null;
+let chatScheduleDraft = '';
+function setChatScheduleDraft(value) {
+  chatScheduleDraft = value;
+  document.getElementById('chatScheduleAttachment').hidden = !value;
+}
+function readSharedSchedule(body) {
+  const tag = '[MedbrainSchedule]';
+  const index = body.lastIndexOf('\n' + tag);
+  if (index < 0) return null;
+  try {
+    const data = JSON.parse(body.slice(index + tag.length + 1));
+    if (!Array.isArray(data) || !data.length || data.length > 60 ||
+        !data.every(item => Array.isArray(item) && item.length === 3 &&
+          Number.isInteger(item[0]) && item[0] >= 0 && item[0] <= 6 &&
+          (item[1] === null || /^([01][0-9]|2[0-3]):[0-5][0-9]$/.test(item[1])) &&
+          typeof item[2] === 'string' && item[2].trim().length > 0 && item[2].trim().length <= 160)) return null;
+    return { index, data };
+  } catch (_) { return null; }
+}
+function showSharedSchedule(items) {
+  scheduleForAdoption = { user: activeUserId, items };
+  for (const id of ['friendChatDialog', 'friendInboxDialog', 'friendsDialog']) {
+    const dialog = document.getElementById(id);
+    if (dialog.open) dialog.close();
+  }
+  showMainView('schedule');
+  const review = document.getElementById('sharedScheduleReview');
+  document.getElementById('sharedScheduleItems').replaceChildren(...items.map(([day, time, title]) => {
+    const item = document.createElement('li');
+    item.textContent = [STUDY_DAYS[day], time, title].filter(Boolean).join(' · ');
+    return item;
+  }));
+  document.getElementById('sharedScheduleStatus').textContent = '';
+  document.getElementById('adoptSharedSchedule').disabled = false;
+  review.hidden = false;
+  review.scrollIntoView({ block: 'start' });
+}
+async function adoptSharedSchedule() {
+  const review = scheduleForAdoption;
+  if (!review?.user || review.user !== activeUserId) return;
+  const button = document.getElementById('adoptSharedSchedule');
+  const status = document.getElementById('sharedScheduleStatus');
+  button.disabled = true;
+  try {
+    await loadScheduleItems();
+    if (review.user !== activeUserId) return;
+    const known = new Set(scheduleItems.map(item =>
+      JSON.stringify([Number(item.day_of_week), item.start_time?.slice(0, 5) || null, item.title.trim()])));
+    const rows = [];
+    for (const [day, time, title] of review.items) {
+      const key = JSON.stringify([day, time, title.trim()]);
+      if (known.has(key)) continue;
+      known.add(key);
+      rows.push({ user_id: review.user, day_of_week: day, start_time: time, title: title.trim() });
+    }
+    if (!rows.length) { status.textContent = 'هذه المهام موجودة في جدولك.'; return; }
+    const { error } = await client.from('study_schedule').insert(rows);
+    if (error) throw error;
+    if (scheduleForAdoption !== review || review.user !== activeUserId) return;
+    scheduleForAdoption = null;
+    status.textContent = 'تم اعتماد الجدول.';
+    await loadScheduleItems().catch(() => {});
+  } catch (_) {
+    if (scheduleForAdoption === review) status.textContent = 'تعذّر اعتماد الجدول. جرّب مرة ثانية.';
+  } finally {
+    if (scheduleForAdoption === review) button.disabled = false;
+  }
+}
 function renderFriendMessage(message, peer) {
   const line = document.createElement('p');
   line.dir = 'auto';
+  if (message.mine) line.classList.add('chat-mine');
+  const schedule = readSharedSchedule(message.body);
+  if (schedule) {
+    line.classList.add('shared-schedule-card');
+    line.textContent = message.body.slice(0, schedule.index);
+    const open = document.createElement('button');
+    open.type = 'button';
+    open.className = 'mb-file-btn';
+    open.textContent = 'فتح الجدول';
+    open.addEventListener('click', () => showSharedSchedule(schedule.data));
+    line.append(open);
+    return line;
+  }
   const shared = /\n\[Medbrain:([0-9a-f-]{36})\]$/i.exec(message.body);
   const material = shared && lectures.find(item => item.id === shared[1]);
   line.textContent = (message.mine ? 'أنت: ' : (peer.name || peer.friend_code) + ': ') +
@@ -7824,6 +7958,7 @@ function openFriendChat(peer) {
   chatPeer = peer;
   document.getElementById('friendChatTitle').textContent = peer.name || peer.friend_code;
   document.getElementById('friendChatText').value = '';
+  setChatScheduleDraft('');
   document.getElementById('friendChatShare').open = false;
   document.getElementById('chatShareSearch').value = '';
   document.getElementById('chatShareResults').replaceChildren();
@@ -7863,25 +7998,67 @@ async function loadGlobalRanking(share = null) {
   }));
 }
 function initFriends() {
+  document.getElementById('removeChatSchedule').addEventListener('click', () => setChatScheduleDraft(''));
+  document.getElementById('adoptSharedSchedule').addEventListener('click', adoptSharedSchedule);
+  document.getElementById('declineSharedSchedule').addEventListener('click', () => {
+    scheduleForAdoption = null;
+    document.getElementById('sharedScheduleReview').hidden = true;
+  });
+  document.getElementById('drawerGlobalRanking').addEventListener('click', () => {
+    document.getElementById('drawerClose').click();
+    document.getElementById('openProgressComparison').click();
+  });
   document.getElementById('chatShareSearch').addEventListener('input', listChatShareResults);
   document.getElementById('chatShareSchedule').addEventListener('click', () => {
-    const text = scheduleShareText();
-    if (text) chatInsertShare(text);
-    else document.getElementById('chatShareStatus').textContent = 'ماكو مهام بالأيام المحددة في الجدول.';
+    const items = selectedScheduleShare().map(item => [Number(item.day_of_week), item.start_time?.slice(0, 5) || null, item.title]);
+    const body = 'جدول دراسي مشترك' + '\n[MedbrainSchedule]' + JSON.stringify(items);
+    if (readSharedSchedule(body) && body.length <= 2000) {
+      setChatScheduleDraft(body);
+      document.getElementById('chatShareStatus').textContent = '';
+      document.getElementById('friendChatShare').open = false;
+    }
+    else document.getElementById('chatShareStatus').textContent = 'اختر من جدولك أيامًا تحتوي على 1 إلى 60 مهمة قابلة للمشاركة.';
   });
-  document.getElementById('openFriendInbox').addEventListener('click', () => {
+  document.getElementById('openFriendInbox').addEventListener('click', async () => {
+    const user = activeUserId;
     const inbox = document.getElementById('friendInboxDialog');
     const list = document.getElementById('friendInboxList');
-    list.replaceChildren(...chatFriends.map(peer => {
+    list.textContent = 'جارٍ تحميل المراسلات…';
+    inbox.showModal();
+    const { data } = await client.rpc('friend_chat_inbox_previews');
+    if (activeUserId !== user || !inbox.open) return;
+    const previews = data || {};
+    const peers = [...chatFriends].sort((a, b) =>
+      String(previews[b.id]?.sent_at || '').localeCompare(String(previews[a.id]?.sent_at || '')));
+    list.replaceChildren(...peers.map(peer => {
       const button = document.createElement('button');
       button.type = 'button';
-      button.className = 'mb-file-btn';
-      button.textContent = peer.name || peer.friend_code;
+      button.className = 'chat-inbox-row';
+      const name = peer.name || peer.friend_code;
+      const avatar = document.createElement('span');
+      avatar.className = 'friend-request-avatar';
+      avatar.textContent = Array.from(name)[0];
+      const url = safeExternalLink(peer.avatar_url);
+      if (url) {
+        const image = document.createElement('img');
+        image.alt = '';
+        image.referrerPolicy = 'no-referrer';
+        image.addEventListener('load', () => avatar.replaceChildren(image), { once:true });
+        image.src = url;
+      }
+      const copy = document.createElement('span');
+      copy.className = 'chat-inbox-copy';
+      const title = document.createElement('strong');
+      title.textContent = name;
+      const detail = document.createElement('small');
+      const body = previews[peer.id]?.body || '';
+      detail.textContent = body.split(/\n\[Medbrain(?:Schedule\]|:)/)[0] || 'ابدأ محادثة';
+      copy.append(title, detail);
+      button.append(avatar, copy);
       button.addEventListener('click', () => openFriendChat(peer));
       return button;
     }));
     if (!list.children.length) list.textContent = 'ما عندك أصدقاء للمراسلة حاليًا.';
-    inbox.showModal();
   });
   document.getElementById('globalRanking').addEventListener('toggle', event => {
     if (event.currentTarget.open) void loadGlobalRanking();
@@ -7898,13 +8075,29 @@ function initFriends() {
   document.getElementById('friendChatCompose').addEventListener('submit', async event => {
     event.preventDefault();
     const input = document.getElementById('friendChatText');
-    const body = input.value.trim();
-    if (body && await updateFriendChat(event.currentTarget.dataset.chatAction, body) && input.value.trim() === body) input.value = '';
+    const original = input.value;
+    const attachment = chatScheduleDraft;
+    const body = [original.trim(), attachment].filter(Boolean).join('\n\n');
+    if (body.length > input.maxLength) {
+      document.getElementById('friendChatStatus').textContent = 'قلّل نص الرسالة أو عدد مهام الجدول.';
+      return;
+    }
+    if (body && await updateFriendChat(event.currentTarget.dataset.chatAction, body)) {
+      if (input.value === original) input.value = '';
+      if (chatScheduleDraft === attachment) setChatScheduleDraft('');
+    }
   });
   const preferences = document.getElementById('friendChatPreferences');
   const mode = document.getElementById('friendChatMode');
   const allowed = document.getElementById('friendChatAllowed');
-  mode.addEventListener('change', () => { allowed.hidden = mode.value !== 'selected'; });
+  document.getElementById('friendChatModeOptions').addEventListener('click', event => {
+    const option = event.target.closest('[data-chat-mode]');
+    if (!option) return;
+    mode.value = option.dataset.chatMode;
+    document.getElementById('friendChatModeLabel').textContent = option.textContent;
+    allowed.hidden = mode.value !== 'selected';
+    event.currentTarget.open = false;
+  });
   preferences.addEventListener('submit', async event => {
     event.preventDefault();
     const button = preferences.querySelector('button');
@@ -8023,6 +8216,8 @@ function initFriends() {
 }
 
 function resetFriends() {
+  scheduleForAdoption = null;
+  document.getElementById('sharedScheduleReview').hidden = true;
   chatFriends = [];
   notifiedChatRequests.clear();
   seenFriendMessages = null;
@@ -8206,7 +8401,10 @@ async function loadFriends() {
         const toggle = document.createElement('summary');
         toggle.setAttribute('aria-label', 'خيارات ' + displayName);
         toggle.textContent = '⋯';
-        menu.append(toggle, button);
+        const panel = document.createElement('div');
+        panel.className = 'friend-action-panel';
+        panel.append(button);
+        menu.append(toggle, panel);
         if (!presence.error) {
           const block = document.createElement('button');
           block.type = 'button';
@@ -8217,7 +8415,7 @@ async function loadFriends() {
             block.disabled = true;
             if (!await changeFriends('friend_block', { p_peer: peer.id })) block.disabled = false;
           });
-          menu.append(block);
+          panel.append(block);
         }
         controls.append(menu);
       }
@@ -10127,7 +10325,29 @@ function setLabsOpen(open) {
   document.querySelectorAll('[data-open-labs]').forEach(b => b.setAttribute('aria-pressed', String(open)));
   if (open) { renderLabs(); document.getElementById('labsBody').scrollTop = 0; }
 }
-function openLabs() { setLabsOpen(document.getElementById('labsPanel').hidden); }
+let payingReferenceXP = false;
+async function openLabs() {
+  if (!document.getElementById('labsPanel').hidden) { setLabsOpen(false); return; }
+  if (!quizState || !document.getElementById('readerOverlay').classList.contains('open')) {
+    setLabsOpen(true);
+    return;
+  }
+  if (payingReferenceXP || !client || !activeUserId || !confirm('فتح القيم المرجعية يخصم 1 XP. تتابع؟')) return;
+  const user = activeUserId;
+  const quiz = quizState;
+  payingReferenceXP = true;
+  try {
+    const { error } = await client.rpc('spend_reference_xp', { p_request: crypto.randomUUID() });
+    if (error) {
+      showMbToast(error.message?.includes('insufficient_xp') ? 'رصيد XP غير كافٍ.' : 'تعذّر فتح القيم المرجعية الآن.');
+      return;
+    }
+    if (user === activeUserId && quiz === quizState && document.getElementById('readerOverlay').classList.contains('open')) {
+      setLabsOpen(true);
+      void refreshStudyXP();
+    }
+  } finally { payingReferenceXP = false; }
+}
 function bindLabs() {
   document.addEventListener('click', e => {
     if (e.target.closest('[data-open-labs]')) { e.preventDefault(); e.stopPropagation(); openLabs(); return; }
