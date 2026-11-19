@@ -3108,6 +3108,14 @@ body:has(:is(#friendsDialog,#friendChatDialog,#friendInboxDialog,#friendProfileD
 }
 #navDrawer .mb-nav :is(svg,small),#navDrawer .mb-drawer-user .mb-user-email {color:var(--drawer-icon);}
 :root[data-theme] .mb-brand-mark {background:#231546;border-color:#483475;}
+/* Let the card palette show through the white matte in the illustrations. */
+#dashboardView .mb-art-image {
+  background:transparent;
+  border-radius:0;
+  filter:url(#removeCardArtMatte);
+}
+#selfQuizCard .mb-art {display:grid;place-items:center;min-height:0;overflow:hidden;}
+#selfQuizCard .sq-art {display:block;width:min(100%, 205px);height:100%;max-height:140px;overflow:hidden;margin:0;}
 </style>
 <link rel="manifest" href="./manifest.webmanifest?v=indigo1">
 <link rel="icon" type="image/png" sizes="192x192" href="./assets/app-icon-192.png?v=indigo1">
@@ -3464,6 +3472,15 @@ body:has(:is(#friendsDialog,#friendChatDialog,#friendInboxDialog,#friendProfileD
       <span style="font-size:12px;color:#748296">لوحة Medbrain</span>
     </div>
 
+    <svg width="0" height="0" aria-hidden="true" style="position:absolute;pointer-events:none">
+      <defs>
+        <filter id="removeCardArtMatte" color-interpolation-filters="sRGB">
+          <feColorMatrix in="SourceGraphic" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  -.2126 -.7152 -.0722 0 1" />
+          <feComponentTransfer result="ink"><feFuncA type="linear" slope="16" intercept="-.5" /></feComponentTransfer>
+          <feComposite in="SourceGraphic" in2="ink" operator="in" />
+        </filter>
+      </defs>
+    </svg>
     <section class="mb-feature-grid" aria-label="أقسام Medbrain">
       <button type="button" class="mb-feature" data-dashboard-kind="lectures">
         <div class="mb-feature-top"><div><h3 class="mb-feature-title">المحاضرات</h3><span class="mb-feature-en">Lectures</span></div><span class="mb-feature-count" id="cardLectures" hidden></span></div>
@@ -3479,7 +3496,7 @@ body:has(:is(#friendsDialog,#friendChatDialog,#friendInboxDialog,#friendProfileD
 
       <button type="button" class="mb-feature" id="selfQuizCard" aria-haspopup="dialog">
         <div class="mb-feature-top"><div><h3 class="mb-feature-title" dir="ltr">Quiz</h3></div></div>
-        <div class="mb-art"><svg class="sq-art" viewBox="0 0 160 120" aria-hidden="true"><rect x="34" y="18" width="92" height="88" rx="14" fill="#eef5ff" stroke="#4f5960" stroke-width="3"/><rect x="62" y="10" width="36" height="16" rx="6" fill="#81d6c7" stroke="#4f5960" stroke-width="3"/><path d="M50 46h14M50 66h14M50 86h14" stroke="#4f5960" stroke-width="3" stroke-linecap="round"/><path d="m74 44 6 6 12-12" fill="none" stroke="#39c99b" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><path d="m74 64 6 6 12-12" fill="none" stroke="#39c99b" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><path d="m76 82 12 12m0-12-12 12" stroke="#ef8b9c" stroke-width="5" stroke-linecap="round"/><circle cx="122" cy="88" r="20" fill="#f5c449" stroke="#4f5960" stroke-width="3"/><path d="M122 76v12l8 5" fill="none" stroke="#4f5960" stroke-width="3" stroke-linecap="round"/></svg></div>
+        <div class="mb-art"><svg class="sq-art" viewBox="8 0 160 120" aria-hidden="true"><rect x="34" y="18" width="92" height="88" rx="14" fill="#eef5ff" stroke="#4f5960" stroke-width="3"/><rect x="62" y="10" width="36" height="16" rx="6" fill="#81d6c7" stroke="#4f5960" stroke-width="3"/><path d="M50 46h14M50 66h14M50 86h14" stroke="#4f5960" stroke-width="3" stroke-linecap="round"/><path d="m74 44 6 6 12-12" fill="none" stroke="#39c99b" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><path d="m74 64 6 6 12-12" fill="none" stroke="#39c99b" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><path d="m76 82 12 12m0-12-12 12" stroke="#ef8b9c" stroke-width="5" stroke-linecap="round"/><circle cx="122" cy="88" r="20" fill="#f5c449" stroke="#4f5960" stroke-width="3"/><path d="M122 76v12l8 5" fill="none" stroke="#4f5960" stroke-width="3" stroke-linecap="round"/></svg></div>
         <p class="mb-feature-note">اختبار عشوائي من Q Bank أو Flashcards حسب المادة.</p>
       </button>
 
