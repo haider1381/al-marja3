@@ -7227,10 +7227,10 @@ function mountLectureControls(root, stage, currentTool, lecture, pdfDocument) {
   const toolbar = root.querySelector('.pv-tb');
   const right = toolbar.lastElementChild;
   right.insertAdjacentHTML('afterbegin',
-    '<button type="button" class="pv-ib" data-lecture-notebook aria-label="إضافة ورقة A4 للمحاضرة" title="دفتر ملاحظات مرتبط بالمحاضرة">✎ ورقة A4</button>' +
+    pvBtn('lecture-notebook', '<svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>', 'إضافة ورقة') +
     '<button type="button" class="pv-ib" data-reader-related aria-expanded="false">مرتبط بالمحاضرة ▾</button>' +
     '<button type="button" class="pv-ib" data-reader-focus aria-label="إخفاء الأدوات" title="وضع القراءة">⛶</button>');
-  right.querySelector('[data-lecture-notebook]').addEventListener('click',()=>{const url=new URL('./notebooks.html',location.href);url.searchParams.set('lecture',String(lecture.id));url.searchParams.set('title',String(lecture.title||'ملاحظات المحاضرة'));window.open(url.href,'_blank','noopener')});
+  right.querySelector('[data-pv="lecture-notebook"]').addEventListener('click',()=>{const url=new URL('./notebooks.html',location.href);url.searchParams.set('lecture',String(lecture.id));url.searchParams.set('title',String(lecture.title||'ملاحظات المحاضرة'));window.open(url.href,'_blank','noopener')});
   const related = right.querySelector('[data-reader-related]');
   const focus = right.querySelector('[data-reader-focus]');
   const menu = document.createElement('div');
@@ -10390,7 +10390,8 @@ async function refreshLibraryNotes(){
  const actions=document.createElement('div');actions.className='mb-note-menu';
  const rename=document.createElement('button');rename.type='button';rename.textContent='تسمية';rename.onclick=async()=>{const name=prompt('اسم الورقة (اختياري)',note.title||'');if(name===null||!name.trim())return;note.title=name.trim().slice(0,120);const local=mbLibraryNotebookLocal();const own=local.find(n=>n.id===note.id);if(own){own.title=note.title;localStorage.setItem('medbrain_notebooks_v1',JSON.stringify(local))}if(client&&activeUserId)await client.from('student_notebooks').update({title:note.title}).eq('id',note.id).eq('user_id',activeUserId);void refreshLibraryNotes()};
  const assign=document.createElement('button');assign.type='button';assign.textContent='إضافة إلى…';assign.onclick=async()=>{const choices=lectures.filter(l=>favoriteRecords.has(l.id));if(!choices.length){alert('أضف مادة أو محاضرة إلى مكتبتي أولاً.');return}const choice=prompt('اختر رقم المادة المحفوظة:\n'+choices.map((l,i)=>(i+1)+' - '+l.title).join('\n'));const selected=choices[Number(choice)-1];if(!selected)return;note.subject=selected.title;const local=mbLibraryNotebookLocal(),own=local.find(n=>n.id===note.id);if(own){own.subject=note.subject;localStorage.setItem('medbrain_notebooks_v1',JSON.stringify(local))}if(client&&activeUserId)await client.from('student_notebooks').update({subject:note.subject,lecture_id:String(selected.id)}).eq('id',note.id).eq('user_id',activeUserId);void refreshLibraryNotes()};
- actions.append(rename,assign);menu.append(actions);tile.append(title,detail,menu);root.append(tile);
+ const del=document.createElement('button');del.type='button';del.textContent='حذف';del.className='danger';del.onclick=async()=>{if(!confirm('حذف هذه الورقة وجميع صفحاتها نهائياً؟'))return;const local=mbLibraryNotebookLocal().filter(b=>b.id!==note.id);localStorage.setItem('medbrain_notebooks_v1',JSON.stringify(local));if(client&&activeUserId){const {error}=await client.from('student_notebooks').delete().eq('id',note.id).eq('user_id',activeUserId);if(error){alert('تعذر حذف النسخة السحابية: '+error.message);return}}void refreshLibraryNotes()};
+ actions.append(rename,assign,del);menu.append(actions);tile.append(title,detail,menu);root.append(tile);
  });
 }
 function initializeLibraryPaper(){
