@@ -3039,14 +3039,42 @@ body:has(:is(#friendsDialog,#friendChatDialog,#friendInboxDialog,#friendProfileD
 }
 #friendChatMessages {overflow-y:auto;overscroll-behavior:contain;}
 .owner-user-count {display:flex;justify-content:space-between;gap:8px;padding:8px 0;border-bottom:1px solid var(--border);}
-/* Apply the Daily Practice surface to native button cards in both site themes. */
-:root[data-theme="light"] {--daily-study-surface:#fff;--daily-study-border:#ced8e1;--daily-study-text:#211842;}
-:root[data-theme="dark"] {--daily-study-surface:#0d1032;--daily-study-border:#443575;--daily-study-text:#f1edff;}
-#dashboardView :is(button.mb-feature,.mb-practice),#librarySection {
+/* Use explicitly painted surfaces for the app's selected theme. */
+:root[data-theme="light"] {
+  color-scheme:only light;
+  --study-page:#f4f3ff;
+  --daily-study-surface:#fff;
+  --study-card-paint:linear-gradient(145deg,#fff 48%,#eeebff);
+  --daily-study-border:#d0c7f2;
+  --daily-study-text:#201646;
+  --study-card-muted:#51436f;
+}
+:root[data-theme="dark"] {
+  color-scheme:only dark;
+  --study-page:#090b23;
+  --daily-study-surface:#0d1032;
+  --study-card-paint:linear-gradient(145deg,#0d1032 48%,#201542);
+  --daily-study-border:#453775;
+  --daily-study-text:#f2eeff;
+  --study-card-muted:#bab1db;
+}
+:root[data-theme], :root[data-theme] body {
+  background:var(--study-page);
+  color:var(--daily-study-text);
+}
+:root[data-theme] body :is(#dashboardView .mb-feature,#dashboardView .mb-practice,#dashboardView .mb-hero,#librarySection) {
   appearance:none;
-  background:var(--daily-study-surface) !important;
+  -webkit-appearance:none;
+  background-color:var(--daily-study-surface) !important;
+  background-image:var(--study-card-paint) !important;
   border-color:var(--daily-study-border) !important;
   color:var(--daily-study-text);
+}
+:root[data-theme] #dashboardView :is(.mb-feature-title,.mb-practice-head h3,.mb-practice-copy h4) {
+  color:var(--daily-study-text);
+}
+:root[data-theme] #dashboardView :is(.mb-feature-en,.mb-feature-note,.mb-practice-copy p) {
+  color:var(--study-card-muted);
 }
 #progressComparisonDialog .top-ranking-list {list-style:none;margin:8px 0;padding:0;}
 .top-ranking-list li {display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border);}
