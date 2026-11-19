@@ -4557,7 +4557,10 @@ function wireGateEvents() {
       if(deviceIsNative()){await window.MedbrainNative.signIn(client,'google');return;}
       const { error: authError } = await client.auth.signInWithOAuth({
         provider: 'google',
-        options: { redirectTo: new URL(location.pathname, location.origin).href }
+        options: {
+          redirectTo: new URL(location.pathname, location.origin).href,
+          queryParams: { prompt: 'select_account' }
+        }
       });
       if (authError) throw authError;
     } catch (_) {
