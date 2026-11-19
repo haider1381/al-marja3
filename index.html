@@ -3819,6 +3819,13 @@ html[lang="en"] .mb-feature-en, html[lang="en"] .sp-title small { display:none; 
   <p id="friendChatPreview" hidden dir="auto"></p>
   <div id="friendChatMessages" role="log"></div>
   <form id="friendChatCompose" hidden>
+    <details id="friendChatShare">
+      <summary>مشاركة مادة دراسية</summary>
+      <button type="button" class="mb-file-btn" id="chatShareSchedule">جدولي الدراسي</button>
+      <label for="chatShareSearch">ابحث عن محاضرة أو مجموعة أسئلة</label>
+      <input id="chatShareSearch" type="search" maxlength="120">
+      <div id="chatShareResults"></div><p id="chatShareStatus" role="status"></p>
+    </details>
     <label for="friendChatText">الرسالة</label>
     <textarea id="friendChatText" maxlength="2000" required dir="auto"></textarea>
     <button class="mb-primary" type="submit">إرسال</button>
@@ -7629,6 +7636,7 @@ function notifyFriendChanges(peers) {
 
 let chatFriends = [];
 let notifiedChatRequests = new Set();
+let seenFriendMessages = null;
 let chatPeer = null;
 let chatBusy = false;
 let chatPoll;
@@ -7657,6 +7665,86 @@ async function loadChatPreferences() {
     allowed.append(label, document.createTextNode(' '));
   }
   form.hidden = false;
+}
+function chatInsertShare(text) {
+  const input = document.getElementById('friendChatText');
+  const status = document.getElementById('chatShareStatus');
+  const combined = [input.value.trim(), text].filter(Boolean).join('\n\n');
+  if (combined.length > input.maxLength) {
+    status.textContent = 'المشاركة أطول من الحد المسموح. قلّل الأيام المختارة أو نص الرسالة.';
+    return;
+  }
+  input.value = combined;
+  status.textContent = '';
+  document.getElementById('friendChatShare').open = false;
+  input.focus();
+}
+function listChatShareResults() {
+  const query = normalizeSearch(document.getElementById('chatShareSearch').value);
+  const list = document.getElementById('chatShareResults');
+  list.replaceChildren();
+  if (!query || paywallBlocks()) return;
+  for (const material of lectures.filter(item => normalizeSearch(item.title).includes(query)).slice(0, 8)) {
+    const box = document.createElement('div');
+    const add = document.createElement('button');
+    add.type = 'button';
+    add.textContent = material.title;
+    add.addEventListener('click', () => chatInsertShare('مشاركة من ميديبراين · ' + material.title + '\n[Medbrain:' + material.id + ']'));
+    box.append(add);
+    if (material.questionCount) {
+      const show = document.createElement('button');
+      show.type = 'button';
+      show.textContent = 'اختَر سؤالًا';
+      show.addEventListener('click', async () => {
+        show.disabled = true;
+        try {
+          await ensureLectureDetails(material);
+          const select = document.createElement('select');
+          select.setAttribute('aria-label', 'السؤال');
+          select.add(new Option('اختَر سؤالًا', ''));
+          (material.questions || []).forEach((question, index) => {
+            select.add(new Option((index + 1) + '. ' + String(question.prompt || '').slice(0, 90), index));
+          });
+          select.addEventListener('change', () => {
+            if (select.value === '') return;
+            const question = material.questions[Number(select.value)];
+            chatInsertShare('للنقاش · ' + material.title + '\n' + question.prompt + '\n[Medbrain:' + material.id + ']');
+          });
+          show.replaceWith(select);
+        } catch (_) {
+          document.getElementById('chatShareStatus').textContent = 'تعذّر تحميل الأسئلة.';
+          show.disabled = false;
+        }
+      });
+      box.append(show);
+    }
+    list.append(box);
+  }
+  if (!list.children.length) list.textContent = 'ماكو مواد مطابقة.';
+}
+function renderFriendMessage(message, peer) {
+  const line = document.createElement('p');
+  line.dir = 'auto';
+  const shared = /\n\[Medbrain:([0-9a-f-]{36})\]$/i.exec(message.body);
+  const material = shared && lectures.find(item => item.id === shared[1]);
+  line.textContent = (message.mine ? 'أنت: ' : (peer.name || peer.friend_code) + ': ') +
+    (material ? message.body.slice(0, shared.index) : message.body);
+  if (material) {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'mb-file-btn';
+    button.textContent = 'فتح المادة';
+    button.addEventListener('click', () => {
+      if (paywallBlocks()) return;
+      for (const id of ['friendChatDialog', 'friendInboxDialog', 'friendsDialog']) {
+        const dialog = document.getElementById(id);
+        if (dialog.open) dialog.close();
+      }
+      openMaterialInReader(material.id);
+    });
+    line.append(' ', button);
+  }
+  return line;
 }
 async function updateFriendChat(action = 'read', body = null) {
   if (chatBusy || !chatPeer || !activeUserId) return false;
@@ -7693,12 +7781,7 @@ async function updateFriendChat(action = 'read', body = null) {
     const signature = JSON.stringify(data.messages);
     if (messages.dataset.snapshot !== signature) {
       const atEnd = messages.scrollHeight - messages.scrollTop - messages.clientHeight < 32;
-      messages.replaceChildren(...data.messages.map(message => {
-        const line = document.createElement('p');
-        line.dir = 'auto';
-        line.textContent = (message.mine ? 'أنت: ' : (peer.name || peer.friend_code) + ': ') + message.body;
-        return line;
-      }));
+      messages.replaceChildren(...data.messages.map(message => renderFriendMessage(message, peer)));
       messages.dataset.snapshot = signature;
       if (atEnd || action === 'send') messages.scrollTop = messages.scrollHeight;
     }
@@ -7718,11 +7801,33 @@ async function notifyIncomingChats() {
     });
   }
 }
+async function notifyFriendMessages() {
+  const user = activeUserId;
+  if (!user || !chatFriends.length || document.hidden) return;
+  const key = 'medbrain_message_notices_' + user;
+  const { data, error } = await client.rpc('friend_message_notices');
+  if (user !== activeUserId || error || !Array.isArray(data)) return;
+  if (!seenFriendMessages) {
+    try { seenFriendMessages = JSON.parse(localStorage.getItem(key)); } catch (_) {}
+  }
+  const previous = seenFriendMessages || {};
+  const pending = data.filter(notice => previous[notice.peer] !== notice.message_id && chatPeer?.id !== notice.peer);
+  seenFriendMessages = Object.fromEntries(data.map(notice => [notice.peer, notice.message_id]));
+  try { localStorage.setItem(key, JSON.stringify(seenFriendMessages)); } catch (_) {}
+  const peer = pending[0] && chatFriends.find(friend => friend.id === pending[0].peer);
+  if (peer && !chatPeer) showMbToast('عندك رسالة من ' + (peer.name || peer.friend_code), {
+    label: 'فتح المراسلة', action: () => openFriendChat(peer)
+  });
+}
 function openFriendChat(peer) {
   const dialog = document.getElementById('friendChatDialog');
   chatPeer = peer;
   document.getElementById('friendChatTitle').textContent = peer.name || peer.friend_code;
   document.getElementById('friendChatText').value = '';
+  document.getElementById('friendChatShare').open = false;
+  document.getElementById('chatShareSearch').value = '';
+  document.getElementById('chatShareResults').replaceChildren();
+  document.getElementById('chatShareStatus').textContent = '';
   document.getElementById('friendChatPreview').hidden = true;
   document.getElementById('friendChatStatus').textContent = 'جارٍ تحميل المراسلة…';
   const messages = document.getElementById('friendChatMessages');
@@ -7758,6 +7863,12 @@ async function loadGlobalRanking(share = null) {
   }));
 }
 function initFriends() {
+  document.getElementById('chatShareSearch').addEventListener('input', listChatShareResults);
+  document.getElementById('chatShareSchedule').addEventListener('click', () => {
+    const text = scheduleShareText();
+    if (text) chatInsertShare(text);
+    else document.getElementById('chatShareStatus').textContent = 'ماكو مهام بالأيام المحددة في الجدول.';
+  });
   document.getElementById('openFriendInbox').addEventListener('click', () => {
     const inbox = document.getElementById('friendInboxDialog');
     const list = document.getElementById('friendInboxList');
@@ -7914,6 +8025,7 @@ function initFriends() {
 function resetFriends() {
   chatFriends = [];
   notifiedChatRequests.clear();
+  seenFriendMessages = null;
   document.getElementById('globalRanking').open = false;
   document.getElementById('globalRankingList').replaceChildren();
   document.getElementById('shareLeaderboard').checked = false;
@@ -7981,6 +8093,7 @@ async function loadFriends() {
   const peers = data.peers || [];
   chatFriends = peers.filter(peer => peer.status === 'friend');
   void notifyIncomingChats();
+  void notifyFriendMessages();
   const ranking = peers.filter(peer => peer.status === 'friend' && peer.points != null)
     .map(peer => ({ name: peer.name?.trim() || peer.friend_code, points: Number(peer.points) }));
   if (data.profile.points != null && ranking.length) {
