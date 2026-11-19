@@ -1,21 +1,21 @@
 <!doctype html><html lang="ar" dir="rtl"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#141038"><title>دفاتري — Medbrain</title>
 <style>*{box-sizing:border-box}body{margin:0;background:#141038;color:#f5f2ff;font-family:system-ui,Tahoma,sans-serif}header{position:sticky;top:0;z-index:4;background:#20183f;padding:10px;display:flex;flex-wrap:wrap;gap:8px;align-items:center}button,input,select{font:inherit;border-radius:9px;padding:9px;border:1px solid #8173b3}button{background:#4e398a;color:white;cursor:pointer}button[aria-pressed=true]{background:#bca8f7;color:#18122f}input,select{background:#fff;color:#111}a{color:#d9c7ff}main{max-width:1100px;margin:auto;padding:16px}.toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:12px 0}.paper{position:relative;background:white;color:#222;width:min(100%,700px);aspect-ratio:210/297;margin:14px auto;box-shadow:0 8px 35px #0006;touch-action:pan-x pan-y}.paper.lined{background:repeating-linear-gradient(#fff 0px,#fff 27px,#bdd2f0 28px)}.paper canvas{width:100%;height:100%;position:absolute;inset:0;touch-action:pan-x pan-y}.paper.inking canvas{touch-action:none}#pages{padding-bottom:70px}.page-controls{display:flex;justify-content:center;gap:8px}dialog{background:#211940;color:white;border:1px solid #8070a8;border-radius:14px;max-width:95vw}dialog::backdrop{background:#0009}.bookrow{padding:12px;border-bottom:1px solid #554877;display:flex;gap:8px;align-items:center;flex-wrap:wrap}.muted{color:#c7bbdf;font-size:13px}.danger{background:#79344e}@media(max-width:650px){header{position:static}.paper{width:100%}}@media print{header,.toolbar,.page-controls,#booksPanel,.no-print{display:none!important}body,main{background:white;margin:0;padding:0}.paper{box-shadow:none;width:210mm;height:297mm;break-after:page;margin:0}.paper:last-child{break-after:auto}}</style>
-<header><a href="./">⌂ Medbrain</a><strong>دفاتري</strong><button id="newBook">+ دفتر جديد</button><button id="showBooks">مكتبتي / دفاتري</button><span class="muted">حفظ تلقائي على هذا الجهاز</span></header>
-<main><section id="booksPanel"><h2>دفاتر الطالب</h2><p class="muted">أنشئ دفتراً لكل مادة، ثم أضف صفحات A4 بيضاء أو مخططة. يمكنك تنزيل نسخة PDF من قائمة الطباعة.</p><div id="bookList"></div></section><section id="editor" hidden><h2 id="bookTitle"></h2><div class="toolbar"><button id="addLined">+ ورقة مخططة</button><button id="addBlank">+ ورقة بيضاء</button><button data-tool="pen" aria-pressed="true">✎ قلم</button><button data-tool="highlight">▰ تظليل</button><button data-tool="erase">⌫ ممحاة</button><button data-tool="hand">✋ تمرير</button><label>لون <input id="color" type="color" value="#1c2344"></label><label>سمك <input id="size" type="range" min="1" max="18" value="3"></label><label><input id="stylusOnly" type="checkbox" checked> القلم فقط (الإصبع للتمرير)</label><button id="undo">تراجع</button><button id="savePdf">حفظ PDF / طباعة</button><button id="exportBackup">نسخة احتياطية</button><button id="importBackup">استعادة نسخة</button><input id="backupFile" type="file" accept="application/json" hidden></div><div id="pages"></div></section></main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.js"></script><header><a href="./">⌂ Medbrain</a><strong>دفاتري</strong><button id="newBook">+ دفتر جديد</button><button id="showBooks">مكتبتي / دفاتري</button><span class="muted" id="syncStatus" role="status">جارٍ فحص المزامنة…</span></header>
+<main><section id="booksPanel"><h2>دفاتر الطالب</h2><p class="muted">أنشئ دفتراً لكل مادة، ثم أضف صفحات A4 بيضاء أو مخططة. يمكنك تنزيل نسخة PDF من قائمة الطباعة.</p><div id="bookList"></div></section><section id="editor" hidden><h2 id="bookTitle"></h2><div class="toolbar"><button id="addLined">+ ورقة مخططة</button><button id="addBlank">+ ورقة بيضاء</button><button data-tool="pen" aria-pressed="true">✎ قلم</button><button data-tool="highlight">▰ تظليل</button><button data-tool="erase">⌫ ممحاة</button><button data-tool="hand">✋ تمرير</button><label>لون <input id="color" type="color" value="#1c2344"></label><label>سمك <input id="size" type="range" min="1" max="18" value="3"></label><label><input id="stylusOnly" type="checkbox" checked> القلم فقط (الإصبع للتمرير)</label><button id="undo">تراجع</button><button id="savePdf">حفظ PDF / طباعة</button><button id="favoriteBook">☆ إضافة إلى مكتبتي</button><button id="exportBackup">نسخة احتياطية</button><button id="importBackup">استعادة نسخة</button><input id="backupFile" type="file" accept="application/json" hidden></div><div id="pages"></div></section></main>
 <dialog id="newDialog"><form method="dialog"><h3>دفتر جديد</h3><label>اسم الدفتر <input id="newTitle" maxlength="80" placeholder="مثلاً: تشريح المرحلة الثانية"></label><p><label>المادة / المصدر <input id="newSubject" maxlength="80" placeholder="اسم المادة أو الدكتور"></label></p><button value="cancel">إلغاء</button><button id="createBook" value="ok">إنشاء</button></form></dialog>
 <script>
 'use strict';
-const KEY='medbrain_notebooks_v1';let books=[],current=null,tool='pen',active=null;
+const KEY='medbrain_notebooks_v1';let books=[],current=null,tool='pen',active=null;let cloud=null,user=null,syncTimer=null,syncBusy=false,syncAgain=false,deletedIds=new Set(),deletedPageIds=new Set();
 const $=id=>document.getElementById(id);
 function load(){try{books=JSON.parse(localStorage.getItem(KEY)||'[]');if(!Array.isArray(books))books=[]}catch(e){books=[]}}
-function save(){try{localStorage.setItem(KEY,JSON.stringify(books))}catch(e){alert('مساحة التخزين ممتلئة. صدّر دفتر PDF قبل المتابعة.')} }
+function save(){try{localStorage.setItem(KEY,JSON.stringify(books))}catch(e){alert('مساحة التخزين ممتلئة. صدّر دفتر PDF قبل المتابعة.')} scheduleSync() }
 function esc(s){return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function page(kind='lined'){return {id:crypto.randomUUID(),kind,strokes:[]}}
 function getBook(){return books.find(b=>b.id===current)}
 function list(){const box=$('bookList');box.innerHTML=books.length?books.map(b=>'<div class="bookrow"><strong>'+esc(b.title)+'</strong><span class="muted">'+esc(b.subject)+' · '+b.pages.length+' صفحة</span><button data-open="'+b.id+'">فتح</button><button data-delete="'+b.id+'" class="danger">حذف</button></div>').join(''):'لا توجد دفاتر بعد. اضغط «دفتر جديد».';
-box.querySelectorAll('[data-open]').forEach(x=>x.onclick=()=>openBook(x.dataset.open));box.querySelectorAll('[data-delete]').forEach(x=>x.onclick=()=>{if(confirm('حذف الدفتر نهائياً من هذا الجهاز؟')){books=books.filter(b=>b.id!==x.dataset.delete);save();list()}})}
+box.querySelectorAll('[data-open]').forEach(x=>x.onclick=()=>openBook(x.dataset.open));box.querySelectorAll('[data-delete]').forEach(x=>x.onclick=()=>{if(confirm('حذف الدفتر نهائياً من هذا الجهاز؟')){deletedIds.add(x.dataset.delete);books=books.filter(b=>b.id!==x.dataset.delete);save();list()}})}
 function openBook(id){current=id;$('booksPanel').hidden=true;$('editor').hidden=false;render()}
-function render(){const b=getBook();if(!b)return;$('bookTitle').textContent=b.title+' — '+b.subject;$('pages').replaceChildren();b.pages.forEach((p,i)=>{const section=document.createElement('section');const paper=document.createElement('div');paper.className='paper '+(p.kind==='lined'?'lined':'');const canvas=document.createElement('canvas');canvas.width=840;canvas.height=1188;canvas.dataset.id=p.id;paper.append(canvas);section.append(paper);const controls=document.createElement('div');controls.className='page-controls no-print';controls.innerHTML='<span>صفحة '+(i+1)+'</span><button data-remove="'+p.id+'">حذف الصفحة</button>';section.append(controls);$('pages').append(section);draw(canvas,p);bind(canvas,p);controls.querySelector('button').onclick=()=>{if(b.pages.length===1)return alert('يجب أن تبقى صفحة واحدة على الأقل');if(confirm('حذف هذه الصفحة؟')){b.pages=b.pages.filter(x=>x.id!==p.id);save();render()}}})}
+function render(){const b=getBook();if(!b)return;$('bookTitle').textContent=b.title+' — '+b.subject;$('favoriteBook').textContent=b.isFavorite?'★ إزالة من مكتبتي':'☆ إضافة إلى مكتبتي';$('pages').replaceChildren();b.pages.forEach((p,i)=>{const section=document.createElement('section');const paper=document.createElement('div');paper.className='paper '+(p.kind==='lined'?'lined':'');const canvas=document.createElement('canvas');canvas.width=840;canvas.height=1188;canvas.dataset.id=p.id;paper.append(canvas);section.append(paper);const controls=document.createElement('div');controls.className='page-controls no-print';controls.innerHTML='<span>صفحة '+(i+1)+'</span><button data-remove="'+p.id+'">حذف الصفحة</button>';section.append(controls);$('pages').append(section);draw(canvas,p);bind(canvas,p);controls.querySelector('button').onclick=()=>{if(b.pages.length===1)return alert('يجب أن تبقى صفحة واحدة على الأقل');if(confirm('حذف هذه الصفحة؟')){deletedPageIds.add(p.id);b.pages=b.pages.filter(x=>x.id!==p.id);save();render()}}})}
 function draw(c,p){const ctx=c.getContext('2d');ctx.clearRect(0,0,c.width,c.height);for(const st of p.strokes){if(!st.points.length)continue;ctx.save();ctx.lineCap='round';ctx.lineJoin='round';ctx.lineWidth=st.width;ctx.strokeStyle=st.color;ctx.globalAlpha=st.kind==='highlight'?.28:1;ctx.globalCompositeOperation=st.kind==='erase'?'destination-out':'source-over';ctx.beginPath();ctx.moveTo(st.points[0][0],st.points[0][1]);for(const xy of st.points.slice(1))ctx.lineTo(xy[0],xy[1]);if(st.points.length===1)ctx.lineTo(st.points[0][0]+.1,st.points[0][1]+.1);ctx.stroke();ctx.restore()}}
 function point(c,e){const r=c.getBoundingClientRect();return [(e.clientX-r.left)*c.width/r.width,(e.clientY-r.top)*c.height/r.height]}
 function bind(c,p){c.addEventListener('pointerdown',e=>{if(tool==='hand'||($('stylusOnly').checked&&e.pointerType!=='pen'))return;if(e.pointerType==='touch'&&$('stylusOnly').checked)return;e.preventDefault();c.classList.add('drawing');c.parentElement.classList.add('inking');const st={kind:tool,color:$('color').value,width:Number($('size').value)*(tool==='highlight'?5:tool==='erase'?7:1),points:[point(c,e)]};p.strokes.push(st);active={c,p,st,id:e.pointerId};c.setPointerCapture(e.pointerId);draw(c,p)});c.addEventListener('pointermove',e=>{if(!active||active.c!==c||active.id!==e.pointerId)return;e.preventDefault();active.st.points.push(point(c,e));draw(c,p)});const end=e=>{if(!active||active.c!==c||active.id!==e.pointerId)return;active=null;c.parentElement.classList.remove('inking');save()};c.addEventListener('pointerup',end);c.addEventListener('pointercancel',end)}
@@ -26,10 +26,54 @@ $('showBooks').onclick=()=>{current=null;$('editor').hidden=true;$('booksPanel')
 $('addLined').onclick=()=>{getBook().pages.push(page('lined'));save();render()};
 $('addBlank').onclick=()=>{getBook().pages.push(page('blank'));save();render()};
 $('undo').onclick=()=>{const b=getBook();for(let i=b.pages.length-1;i>=0;i--)if(b.pages[i].strokes.length){b.pages[i].strokes.pop();save();render();return}};
-$('savePdf').onclick=()=>window.print();
+$('savePdf').onclick=()=>window.print();$('favoriteBook').onclick=()=>{const b=getBook();if(!b)return;b.isFavorite=!b.isFavorite;save();render()};
 $('exportBackup').onclick=()=>{const blob=new Blob([JSON.stringify({type:'medbrain-notebooks',version:1,books},null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='medbrain-notebooks-backup.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)};
 $('importBackup').onclick=()=>$('backupFile').click();
 $('backupFile').onchange=async e=>{const file=e.target.files[0];if(!file)return;try{const payload=JSON.parse(await file.text());if(payload.type!=='medbrain-notebooks'||!Array.isArray(payload.books)||payload.books.length>300)throw Error('invalid');const clean=payload.books.filter(b=>b&&typeof b.title==='string'&&Array.isArray(b.pages)&&b.pages.length<=500).map(b=>({id:crypto.randomUUID(),title:b.title.slice(0,80),subject:String(b.subject||'').slice(0,80),pages:b.pages.filter(p=>p&&['lined','blank'].includes(p.kind)&&Array.isArray(p.strokes)).map(p=>({id:crypto.randomUUID(),kind:p.kind,strokes:p.strokes.slice(0,2000).filter(st=>st&&Array.isArray(st.points)&&st.points.length<20000).map(st=>({kind:['pen','highlight','erase'].includes(st.kind)?st.kind:'pen',color:/^#[0-9a-fA-F]{6}$/.test(st.color)?st.color:'#222222',width:Math.max(1,Math.min(100,Number(st.width)||3)),points:st.points.filter(pt=>Array.isArray(pt)&&pt.length===2&&pt.every(Number.isFinite)).slice(0,20000)}))}))}));if(!clean.length)throw Error('empty');if(!confirm('استيراد '+clean.length+' دفتر إلى هذا الجهاز؟'))return;books.push(...clean);save();list();alert('تم الاستيراد')}catch(_){alert('ملف النسخة الاحتياطية غير صالح')}e.target.value=''};
+
+function syncLabel(message){$('syncStatus').textContent=message}
+function scheduleSync(){if(!user||!cloud)return;clearTimeout(syncTimer);syncTimer=setTimeout(()=>void syncCloud(),1800)}
+async function syncCloud(){
+ if(!user||!cloud)return;
+ if(syncBusy){syncAgain=true;return}
+ syncBusy=true;syncLabel('جارٍ حفظ الدفاتر في الحساب…');
+ try{
+  for(const id of deletedIds){const {error}=await cloud.from('student_notebooks').delete().eq('id',id).eq('user_id',user.id);if(error)throw error;deletedIds.delete(id)}
+  for(const id of deletedPageIds){const {error}=await cloud.from('student_notebook_pages').delete().eq('id',id);if(error)throw error;deletedPageIds.delete(id)}
+  for(const b of books){
+   const {error}=await cloud.from('student_notebooks').upsert({id:b.id,user_id:user.id,title:b.title,subject:b.subject||'',source_name:b.source_name||'',lecture_id:b.lectureId||null,is_favorite:!!b.isFavorite},{onConflict:'id'});if(error)throw error;
+   for(let i=0;i<b.pages.length;i++){
+    const p=b.pages[i];
+    const {error:pageError}=await cloud.from('student_notebook_pages').upsert({id:p.id,notebook_id:b.id,page_order:i,paper_size:'A4',paper_type:p.kind==='blank'?'blank':'lined',strokes:p.strokes},{onConflict:'id'});if(pageError)throw pageError;
+   }
+  }
+  syncLabel('✓ الدفاتر محفوظة في حسابك');
+ }catch(e){console.warn('notebook sync failed',e);syncLabel('الحفظ على الجهاز فقط — تعذرت المزامنة. احتفظ بنسخة احتياطية')}
+ finally{syncBusy=false;if(syncAgain){syncAgain=false;scheduleSync()}}
+}
+async function initializeCloud(){
+ try{
+  if(!window.supabase){syncLabel('الحفظ محلي — خدمة الحساب غير متاحة');return}
+  cloud=window.supabase.createClient('https://wuvzteosknrzddsaexez.supabase.co','sb_publishable_xp2-QPjUpKMxskVfVksY7A_taxJXsPD',{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false}});
+  const {data:{user:account},error}=await cloud.auth.getUser();if(error||!account){syncLabel('الحفظ على الجهاز — سجّل الدخول للمزامنة');return}
+  user=account;
+  const {data:remote,error:fetchError}=await cloud.from('student_notebooks').select('id,title,subject,source_name,lecture_id,is_favorite').eq('user_id',user.id);
+  if(fetchError)throw fetchError;
+  const remoteBooks=[];
+  for(const row of remote||[]){
+   const {data:pages,error:pageError}=await cloud.from('student_notebook_pages').select('id,page_order,paper_type,strokes').eq('notebook_id',row.id).order('page_order');
+   if(pageError)throw pageError;
+   remoteBooks.push({id:row.id,title:row.title,subject:row.subject,source_name:row.source_name,lectureId:row.lecture_id,isFavorite:row.is_favorite,pages:(pages||[]).map(p=>({id:p.id,kind:p.paper_type,strokes:p.strokes||[]}))});
+  }
+  const existing=new Set(books.map(b=>b.id));
+  for(const b of remoteBooks)if(!existing.has(b.id))books.push(b);
+  try{localStorage.setItem(KEY,JSON.stringify(books))}catch(_){}
+  list();if(current)render();
+  syncLabel('✓ الحساب متصل — المزامنة مفعّلة');scheduleSync();
+ }catch(e){console.warn('notebook cloud initialization failed',e);syncLabel('الحفظ على الجهاز فقط — فشلت المزامنة')}
+}
+
 load();list();
 const linked=new URLSearchParams(location.search);const lec=linked.get('lecture');if(lec&&/^[a-zA-Z0-9_-]{1,100}$/.test(lec)){const found=books.find(b=>b.lectureId===lec);if(found){openBook(found.id)}else{const b={id:crypto.randomUUID(),title:(linked.get('title')||'ملاحظات المحاضرة').slice(0,80),subject:'محاضرة مرتبطة',lectureId:lec,pages:[page()]};books.unshift(b);save();list();openBook(b.id)}}
+void initializeCloud();
 </script></html>
