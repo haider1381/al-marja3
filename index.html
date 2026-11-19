@@ -2871,7 +2871,7 @@ html[lang="en"] .mb-feature-en, html[lang="en"] .sp-title small { display:none; 
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Medbrain">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<script src="./pwa.js" defer></script>
+<script src="./pwa.js?v=2" defer></script>
 </head>
 <body>
 
@@ -2927,6 +2927,7 @@ html[lang="en"] .mb-feature-en, html[lang="en"] .sp-title small { display:none; 
       </svg>
       <span>المتابعة باستخدام Google</span>
     </button>
+    <p class="sub" data-embedded-browser-help hidden>إذا تعذّر دخول Google داخل التطبيق الذي فتح الرابط، افتح Medbrain في متصفح جهازك وجرّب مرة أخرى. تسجيل الدخول بالبريد متاح أيضًا للحسابات التي لديها كلمة مرور.</p>
     <p class="login-divider"><span>أو بالبريد الإلكتروني</span></p>
     <form id="gateForm" novalidate>
       <div class="gate-field">
@@ -2944,6 +2945,10 @@ html[lang="en"] .mb-feature-en, html[lang="en"] .sp-title small { display:none; 
       <p id="gateError" class="gate-message" role="status" aria-live="polite"></p>
       <button type="submit" class="btn-save gate-submit" id="gateSubmit">دخول</button>
     </form>
+    <div data-install-on-web hidden>
+      <button type="button" class="gate-link" data-install-app>أضف Medbrain إلى شاشتك</button>
+      <p class="sub" data-install-status role="status"></p>
+    </div>
     <p class="gate-policy-links"><a href="./privacy.html">الخصوصية</a> · <a href="./delete-account.html">حذف الحساب</a> · <a href="./support.html">الدعم</a></p>
   </div>
 </div>
@@ -4602,7 +4607,7 @@ function wireGateEvents() {
       });
       if (authError) throw authError;
     } catch (_) {
-      error.textContent = 'تعذّر بدء الدخول عبر Google. تأكد من تفعيل Google في إعدادات الدخول، ثم حاول مجددًا.';
+      error.textContent = 'تعذّر بدء الدخول عبر Google. إذا فتحت الرابط داخل تطبيق، افتحه في متصفح جهازك وجرّب مرة أخرى.';
       button.disabled = false;
       label.textContent = 'المتابعة باستخدام Google';
     }

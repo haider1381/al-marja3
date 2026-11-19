@@ -43,12 +43,9 @@ dialog{color:var(--ink);background:#251b50;border:1px solid #8571b7;border-radiu
 </nav></header>
 <main>
 <div class="wrap">
-  <aside class="browser-note" id="browser-note" hidden>
-    <h2 id="browser-title">افتح الموقع في المتصفح</h2>
-    <p>من قائمة تيليجرام اختر «فتح في المتصفح». إذا لم يظهر الخيار، انسخ الرابط وافتحه في المتصفح.</p>
-    <button class="primary" id="external-browser" type="button">طريقة الفتح في المتصفح</button>
-    <button class="secondary" id="copy" type="button">نسخ رابط Medbrain</button>
-    <p id="copy-status" aria-live="polite"></p>
+  <aside class="browser-note" data-embedded-browser-help hidden>
+    <h2>افتح Medbrain في متصفح جهازك</h2>
+    <p>إذا كنت داخل تطبيق، اختر «فتح في المتصفح» من قائمته. يمكنك أيضًا نسخ عنوان الصفحة وفتحه في المتصفح الذي تستخدمه.</p>
   </aside>
   <section class="hero" aria-labelledby="title">
     <div class="intro">
@@ -57,8 +54,9 @@ dialog{color:var(--ink);background:#251b50;border:1px solid #8571b7;border-radiu
       <p>مساحة الدراسة لطلاب الطب بالعراق.</p>
       <div class="actions">
         <a class="primary" href="./">ابدأ الدراسة مجانًا</a>
-        <button class="secondary" id="install" type="button">أضف <bdi>Medbrain</bdi> إلى شاشتك</button>
+        <button class="secondary" data-install-app type="button">أضف <bdi>Medbrain</bdi> إلى شاشتك</button>
       </div>
+      <p id="installAppStatus" role="status"></p>
     </div>
     <figure class="phone" aria-label="معاينة صفحة Medbrain الرئيسية داخل إطار آيفون Pro"><div class="screen"><div class="status" aria-hidden="true"><span>9:41</span><i></i><span>▰ ▰</span></div><iframe sandbox="" title="واجهة Medbrain الرئيسية من كود الموقع" scrolling="no" tabindex="-1" srcdoc="&lt;!doctype html&gt;&lt;html lang=&quot;ar&quot; dir=&quot;rtl&quot;&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;meta name=&quot;viewport&quot; content=&quot;width=device-width,initial-scale=1&quot;&gt;&lt;style&gt;
 /* Arabic letters use Lemonada (playful, rounded, slightly slanted like the English Nunito); Latin letters keep Cairo. */
@@ -2952,74 +2950,10 @@ html,body{height:100%;overflow:hidden;margin:0;padding:0!important}body{backgrou
   <div aria-hidden="true"><span>رتّب مراجعتك</span><span>اختبر نفسك</span><span>اعثر على مادتك</span></div>
 </div></div>
 </main>
-<dialog id="external-steps" aria-labelledby="external-title">
-  <h2 id="external-title">افتح الموقع في المتصفح</h2>
-  <p id="external-instructions"></p>
-  <form method="dialog"><button class="secondary">تم</button></form>
+<dialog id="installAppDialog" aria-labelledby="installAppTitle">
+  <h2 id="installAppTitle">أضف <bdi>Medbrain</bdi> إلى شاشتك</h2>
+  <p id="installAppGuidance"></p>
+  <button class="secondary" type="button" id="installAppClose">تم</button>
 </dialog>
-<dialog id="steps" aria-labelledby="steps-title">
-  <h2 id="steps-title">أضف <bdi>Medbrain</bdi> إلى شاشتك</h2>
-  <p><a class="primary" href="./">افتح موقع Medbrain</a></p>
-  <p id="apple-steps"><strong>آيفون وآيباد</strong><br>في Safari اضغط «مشاركة» ثم «إضافة إلى الشاشة الرئيسية». فعّل «فتح كتطبيق ويب» إذا ظهر، ثم اضغط «إضافة».</p>
-  <p id="android-steps"><strong>أندرويد</strong><br>في Chrome افتح قائمة ⋮ واختر «إضافة إلى الشاشة الرئيسية»، ثم «تثبيت» إذا ظهر الخيار.</p>
-  <form method="dialog"><button class="secondary">تم</button></form>
-</dialog>
-<script>
-const site = new URL('./', location.href).href;
-const ua = navigator.userAgent;
-const apple = /iPhone|iPad|iPod/i.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-const android = /Android/i.test(ua);
-const telegram = /Telegram/i.test(ua) || new URLSearchParams(location.search).get('from') === 'telegram';
-const landing = location.protocol === 'https:' ? new URL(location.pathname, location.origin).href : site;
-const note = document.querySelector('#browser-note');
-const browserName = apple ? 'Safari' : android ? 'Chrome' : 'المتصفح';
-const externalButton = document.querySelector('#external-browser');
-externalButton.textContent = 'افتح في ' + browserName;
-externalButton.addEventListener('click', () => {
-  const dialog = document.querySelector('#external-steps');
-  document.querySelector('#external-title').textContent = 'افتح في ' + browserName;
-  document.querySelector('#external-instructions').textContent = 'افتح قائمة تيليجرام، واختر «فتح في ' + browserName + '» أو «فتح في المتصفح». إذا لم تجد الخيار، انسخ الرابط والصقه في ' + browserName + '.';
-  dialog.showModal();
-});
-if (telegram) {
-  note.hidden = false;
-  document.querySelector('#browser-title').textContent = apple ? 'افتح الموقع في Safari' : android ? 'افتح الموقع في Chrome' : 'افتح الموقع في المتصفح';
-}
-document.querySelector('#copy').addEventListener('click', async () => {
-  const status = document.querySelector('#copy-status');
-  try {
-    await navigator.clipboard.writeText(landing);
-    status.textContent = 'تم نسخ الرابط.';
-  } catch {
-    status.textContent = landing;
-    status.dir = 'ltr';
-  }
-});
-let installPrompt;
-window.addEventListener('beforeinstallprompt', event => {
-  event.preventDefault();
-  installPrompt = event;
-});
-document.querySelector('#install').addEventListener('click', async () => {
-  if (installPrompt) {
-    const prompt = installPrompt;
-    installPrompt = null;
-    try {
-      await prompt.prompt();
-      return;
-    } catch {
-      // Fall back to the browser menu instructions.
-    }
-  }
-  document.querySelector('#apple-steps').hidden = android;
-  document.querySelector('#android-steps').hidden = apple;
-  document.querySelector('#steps').showModal();
-});
-
-if (window.isSecureContext && 'serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js', { scope: './', updateViaCache: 'none' }).catch(() => {});
-  }, { once: true });
-}
-</script>
+<script src="./pwa.js?v=2" defer></script>
 </html>
