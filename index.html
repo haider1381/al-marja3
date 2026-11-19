@@ -3083,6 +3083,30 @@ body:has(:is(#friendsDialog,#friendChatDialog,#friendInboxDialog,#friendProfileD
 .top-ranking-position[data-place="2"] {background:#d3dce8;color:#263348;}
 .top-ranking-position[data-place="3"] {background:#c58963;color:#301600;}
 .top-ranking-score {margin-inline-start:auto;white-space:nowrap;}
+/* Keep links and buttons on the same drawer palette. */
+:root[data-theme="light"] {--drawer-row:#f8f5ff;--drawer-row-end:#eee8ff;--drawer-icon:#4e359e;--drawer-active:#e1d8ff;}
+:root[data-theme="dark"] {--drawer-row:#131438;--drawer-row-end:#231546;--drawer-icon:#c4b4ff;--drawer-active:#352466;}
+#navDrawer {
+  background:var(--study-card-paint);
+  color:var(--daily-study-text);
+}
+#navDrawer .mb-nav {gap:0;}
+#navDrawer .mb-nav > :is(button,a),
+#navDrawer :is(#drawerClose,#drawerProfileBtn) {
+  appearance:none;
+  -webkit-appearance:none;
+  background:linear-gradient(145deg,var(--drawer-row),var(--drawer-row-end)) !important;
+  color:var(--daily-study-text);
+  border-color:var(--daily-study-border);
+}
+#navDrawer .mb-nav > :is(button,a) {
+  border-radius:0;
+  border-bottom:1px solid var(--daily-study-border);
+}
+#navDrawer .mb-nav > :is(button,a):is(:hover,:focus-visible,.active) {
+  background:var(--drawer-active) !important;
+}
+#navDrawer .mb-nav :is(svg,small),#navDrawer .mb-drawer-user .mb-user-email {color:var(--drawer-icon);}
 </style>
 <link rel="manifest" href="./manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="192x192" href="./assets/app-icon-192.png">
