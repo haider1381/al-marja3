@@ -253,6 +253,7 @@
     margin-bottom: 16px;
   }
   .banner.show { display: block; }
+  #storageBanner {background:var(--surface-alt);border-color:var(--border);color:var(--text);}
 
   /* ---------- Search ---------- */
   .search-box {
@@ -3191,7 +3192,6 @@ body:has(:is(#friendsDialog,#friendChatDialog,#friendInboxDialog,#friendProfileD
 <nav class="mb-nav" aria-label="صفحاتي">
 <button type="button" id="drawerGlobalRanking">توب 10</button>
 <button type="button" id="openFriends" data-friends-ready hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="9" cy="7" r="3"/><path d="M3 20v-2a6 6 0 0 1 12 0v2m4-11v6m-3-3h6"/></svg><span>الأصدقاء<small>إضافة صديق ومتابعة تقدّمه</small></span><b class="friend-request-count" id="friendMenuCount" hidden></b></button>
-<button type="button" data-open-ai><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 3l2.2 6.8L19 12l-6.8 2.2L10 21l-2.2-6.8L1 12l6.8-2.2L10 3z"/><path d="M20 2v6M17 5h6M21 17v4M19 19h4"/></svg><span dir="ltr">Ask MidBrain AI ✨<small dir="rtl">مساعدك للدراسة وفهم المحاضرات</small></span></button>
 <button type="button" data-tool-view="subscription"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M3 10h18M7 15h4"/></svg><span>اشتراكي<small>الوصول والخدمات المتاحة</small></span></button>
 <button type="button" data-tool-view="schedule"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="5" width="16" height="15" rx="3"/><path d="M8 3v4m8-4v4M4 10h16m-7 5 2 2 4-4"/></svg><span>جدولي الدراسي<small>مهامي وخطتي الأسبوعية</small></span></button>
 <button type="button" data-tool-view="favorites"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m19 21-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg><span>المفضلات<small>المواد التي حفظتها للرجوع إليها</small></span></button>
@@ -3386,7 +3386,7 @@ body:has(:is(#friendsDialog,#friendChatDialog,#friendInboxDialog,#friendProfileD
   </header>
 
   <main class="mb-main" id="homeSection">
-    <div class="banner" id="storageBanner">تعذّر الاتصال بالتخزين. جرّب إعادة تحميل الصفحة.</div>
+    <div class="banner" id="storageBanner" role="status">تعذّر تحميل المحتوى مؤقتًا. حاول مجددًا بعد قليل.</div>
 
     <section class="mb-page-view active" id="dashboardView">
     <section class="mb-hero">
@@ -3975,6 +3975,9 @@ let activeAvatarUrl = '';
 let scheduleItems = [];
 let flashcards = [];
 let currentMainView = 'home';
+let currentMainKind = '';
+let restoringMainView = false;
+const previousMainViews = [];
 let contentRequest = 0;
 
 
@@ -4635,7 +4638,12 @@ function showMainView(view, kind='', scrollBehavior='smooth') {
   if (view === 'shareSchedule') view = 'schedule';
   if ((view === 'library' || view === 'flashcards') && paywallBlocks()) return;
   if (view === 'subscription') { loadAccessState(false).then(() => { if (accessState && accessState.owner) loadCodeList(); }).catch(() => {}); }
-  currentMainView=view;
+  if (!restoringMainView && (view !== currentMainView || kind !== currentMainKind)) {
+    previousMainViews.push({ view: currentMainView, kind: currentMainKind, top: window.scrollY });
+    if (previousMainViews.length > 60) previousMainViews.shift();
+  }
+  currentMainView = view;
+  currentMainKind = kind;
   deviceSyncNav();
   ['dashboardView','librarySection','scheduleSection','flashcardsSection','subscriptionSection','shareScheduleSection','favoritesSection','settingsSection'].forEach(id=>{
     const el=document.getElementById(id); if(el)el.classList.remove('active');
@@ -4854,12 +4862,47 @@ let focusState=null,focusInterval=null,focusWake=null;
 const deviceEl=id=>document.getElementById(id);
 function deviceIsNative(){return !!window.MedbrainNative?.isNative;}
 function deviceCloseDrawer(){const b=deviceEl('navBackdrop');b.classList.remove('open');b.setAttribute('aria-hidden','true');}
-function deviceBack(){
- const openDialog=[...document.querySelectorAll('dialog[open]')].at(-1);if(openDialog){openDialog.close();return true;}
- if(isAIChatOpen()){closeAIChat();return true;}
- if(deviceEl('readerOverlay').classList.contains('open')){closeReader();return true;}
- for(const [id,close] of [['overlay',closeModal],['navBackdrop',deviceCloseDrawer],['accountOverlay',()=>setLayerOpen('accountOverlay',false)]])if(deviceEl(id)?.classList.contains('open')){close();return true;}
- if(currentMainView!=='home'){showMainView('home');return true;}return false;
+function deviceBack() {
+  const dialogs = [...document.querySelectorAll('dialog[open]')];
+  const openDialog = document.getElementById('friendChatDialog')?.open
+    ? document.getElementById('friendChatDialog') : dialogs.at(-1);
+  if (openDialog) { openDialog.close(); return true; }
+  if (isAIChatOpen()) { closeAIChat(); return true; }
+  if (!deviceEl('labsPanel').hidden) { setLabsOpen(false); return true; }
+  if (!deviceEl('readerSide').hidden) { closeSidePanel(); return true; }
+  if (deviceEl('readerOverlay').classList.contains('open')) { void returnFromReaderQuiz(); return true; }
+  for (const [id, close] of [
+    ['overlay', closeModal], ['navBackdrop', deviceCloseDrawer],
+    ['accountOverlay', () => setLayerOpen('accountOverlay', false)],
+    ['topicsOverlay', () => setLayerOpen('topicsOverlay', false)]
+  ]) {
+    if (deviceEl(id)?.classList.contains('open')) { close(); return true; }
+  }
+  if (browseBack()) return true;
+  const previous = previousMainViews.pop();
+  if (!previous && currentMainView === 'home') return false;
+  restoringMainView = true;
+  try {
+    if (previous?.view === 'library') goToLibraryKind(previous.kind);
+    else {
+      showMainView(previous?.view || 'home', previous?.kind || '', 'instant');
+      renderPersonalPage(previous?.view || 'home');
+    }
+    if (previous) window.scrollTo({ top: previous.top, behavior: 'instant' });
+  } finally { restoringMainView = false; }
+  return true;
+}
+function wireWebBack() {
+  const arm = () => {
+    if (history.state?.medbrainBack === 'guard') return;
+    history.replaceState({ ...history.state, medbrainBack: 'base' }, '');
+    history.pushState({ ...history.state, medbrainBack: 'guard' }, '');
+  };
+  document.addEventListener('click', arm, { capture:true });
+  window.addEventListener('popstate', event => {
+    if (event.state?.medbrainBack !== 'base') return;
+    if (deviceBack() || matchMedia('(display-mode: standalone)').matches || navigator.standalone) arm();
+  });
 }
 function deviceSyncNav(){document.querySelectorAll('[data-device-view]').forEach(button=>{const active=button.dataset.deviceView===currentMainView;if(active)button.setAttribute('aria-current','page');else button.removeAttribute('aria-current');});}
 function focusPhases(work,rest,count){if(!Number.isInteger(work)||work<1||work>240||!Number.isInteger(rest)||rest<0||rest>120||!Number.isInteger(count)||count<1||count>24)throw new Error('راجع مدة الدراسة والراحة وعدد الجلسات.');const phases=[];for(let i=0;i<count;i++){phases.push({kind:'study',minutes:work,number:i+1});if(rest&&i<count-1)phases.push({kind:'break',minutes:rest,number:i+1});}return phases;}
@@ -4895,7 +4938,9 @@ function wireDeviceTools(){
  deviceEl('openDeleteAccount').addEventListener('click',()=>{deviceEl('deleteAccountConfirm').value='';deviceEl('deleteAccountStatus').textContent='';deviceEl('deleteAccountDialog').showModal();});
  deviceEl('deleteAccountSubmit').addEventListener('click',async e=>{if(deviceEl('deleteAccountConfirm').value.trim()!=='حذف حسابي'){deviceEl('deleteAccountStatus').textContent='اكتب عبارة التأكيد أولًا.';return;}if(!client||!activeUserId)return;const uid=activeUserId;e.currentTarget.disabled=true;try{const {data,error}=await client.functions.invoke('delete-my-account',{body:{confirmation:'حذف حسابي'}});if(error){let message='تعذّر حذف الحساب. أعد تسجيل الدخول ثم حاول مجددًا.';try{const body=await error.context.json();message=body.error||message;}catch(_){}throw new Error(message);}if(!data?.deleted)throw new Error('لم يُحذف الحساب. حاول مجددًا.');if(uid!==activeUserId)return;deviceEl('deleteAccountDialog').close();focusEnd();await client.auth.signOut({scope:'local'});await syncAccess(null);showMbToast('حُذف حسابك وبياناته الشخصية.');}catch(error){deviceEl('deleteAccountStatus').textContent=error.message;}finally{e.currentTarget.disabled=false;}});
  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.querySelector('.device-dialog[open]')){e.stopImmediatePropagation();}},true);
- window.MedbrainNative?.onBack?.(deviceBack);deviceSyncNav();
+ if (deviceIsNative()) window.MedbrainNative?.onBack?.(() => { deviceBack(); return true; });
+ else wireWebBack();
+ deviceSyncNav();
 }
 
 // ---------------- Init ----------------
@@ -4955,6 +5000,7 @@ async function syncAccess(session, signedIn = false) {
   window.MedbrainNative?.clearExports?.();
   spReset();
   activeUserId = userId;
+  previousMainViews.length = 0;
   renderStudyXP(null);
   resetFriends();
   favoriteRecords = new Map();
@@ -5000,7 +5046,7 @@ async function syncAccess(session, signedIn = false) {
     canWrite = false;
     applyAccessUI();
     document.getElementById('storageBanner').classList.add('show');
-    document.getElementById('storageBanner').textContent = 'تعذّر التحقق من صلاحيات الحساب. تأكد من تطبيق إعدادات Supabase ثم أعد تحميل الصفحة.';
+    document.getElementById('storageBanner').textContent = 'تعذّر التحقق من حسابك مؤقتًا. حاول مجددًا بعد قليل.';
   }
 }
 const pendingSignupProfileKey = 'medbrain_pending_signup_profile';
@@ -5230,7 +5276,7 @@ async function startApp(version = accessVersion) {
     banner.classList.remove('show');
   } catch (_) {
     if (version !== accessVersion || request !== contentRequest) return;
-    banner.textContent = 'تعذّر تحميل المحاضرات. تحقق من الاتصال وصلاحيات Supabase ثم أعد تحميل الصفحة.';
+    banner.textContent = 'تعذّر تحميل المحاضرات مؤقتًا. حاول مجددًا بعد قليل.';
     banner.classList.add('show');
   }
   if (version === accessVersion && request === contentRequest) {
