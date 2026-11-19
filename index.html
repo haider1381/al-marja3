@@ -2917,6 +2917,7 @@ html[lang="en"] .mb-feature-en, html[lang="en"] .sp-title small { display:none; 
   .friend-request-sheet h3 { margin:0 0 6px; font-size:14px; }
   .friend-request-sheet .friend-row { display:grid; justify-content:stretch; margin:8px 0; }
   .friend-request-profile { display:flex; align-items:center; gap:8px; min-width:0; }
+  .friend-request-avatar img { width:100%; height:100%; object-fit:cover; border-radius:inherit; }
   .friend-request-profile small { display:block; color:var(--text-muted); }
   .friend-request-avatar { flex:none; width:30px; height:30px; display:grid; place-items:center; border-radius:50%; background:var(--accent-soft); font-size:12px; font-weight:700; }
   .friend-request-actions { display:flex; flex-wrap:wrap; gap:6px; }
@@ -3138,11 +3139,9 @@ html[lang="en"] .mb-feature-en, html[lang="en"] .sp-title small { display:none; 
     <div class="mb-profile-xp-head"><span id="studyLevel"></span><output id="studyXP" dir="ltr"></output></div>
     <progress id="studyLevelProgress" max="100" value="0" aria-label="التقدم إلى المستوى التالي"></progress>
   </div>
-  <label class="mb-profile-xp" id="friendPrivacyOption" hidden><input id="friendPrivacy" type="checkbox"> أسمح لأصدقائي برؤية تقدّمي</label>
-  <p id="friendPrivacyStatus" role="status"></p>
   <button type="button" data-profile="account">الملف الشخصي والحساب</button>
   <button type="button" data-profile="topics">استعراض المواضيع</button>
-  <button type="button" data-profile="logout" id="profileLogoutBtn">تسجيل الخروج</button>
+  
 </div>
 
 <div id="aboutOverlay" aria-hidden="true">
@@ -3194,6 +3193,9 @@ html[lang="en"] .mb-feature-en, html[lang="en"] .sp-title small { display:none; 
         <div class="mb-profile-xp-head"><span id="accountStudyLevel"></span><output id="accountStudyXP" dir="ltr"></output></div>
         <progress id="accountStudyProgress" max="100" value="0" aria-label="التقدم إلى المستوى التالي"></progress>
       </div>
+  <label class="mb-profile-xp" id="friendPrivacyOption" hidden><input id="friendPrivacy" type="checkbox"> أسمح لأصدقائي برؤية تقدّمي</label>
+  <p id="friendPrivacyStatus" role="status"></p>
+      <button type="button" class="mb-file-btn" data-profile="logout" id="profileLogoutBtn">تسجيل الخروج</button>
       <form class="mb-profile-fields" id="profileForm" hidden>
         <label>الاسم الأول
           <input type="text" id="profileFirstName" maxlength="40" autocomplete="given-name" dir="auto" required>
@@ -3261,7 +3263,7 @@ html[lang="en"] .mb-feature-en, html[lang="en"] .sp-title small { display:none; 
       <span class="mb-watermark mb-wm-heart" aria-hidden="true"><svg viewBox="0 0 80 80" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M30 31C21 34 15 43 17 54C19 66 31 75 44 73C57 71 65 60 63 46C62 38 57 32 50 30"/><path d="M37 31C36 21 40 13 49 11C56 10 61 14 60 21"/><path d="M44 13V5M50 11V3M56 13V6"/><path d="M33 31C31 24 26 20 19 20M28 35C23 29 23 20 26 12M38 40C43 50 43 59 38 67"/></svg></span>
       <span class="mb-watermark mb-wm-micro" aria-hidden="true"><svg viewBox="0 0 90 90" fill="none" stroke="currentColor" stroke-width="4"><circle cx="43" cy="45" r="17"/><path d="m31 14 9 18m20-11-8 14M15 45h11m36 0h14M26 72l8-13m25 14-9-14"/><circle cx="43" cy="45" r="4"/></svg></span>
 
-      <h1 class="mb-welcome" dir="ltr">أهلًا، <span id="welcomeName" data-no-i18n>Doctor</span>!</h1>
+      <h1 class="mb-welcome" dir="ltr" data-no-i18n>Welcome, <span id="welcomeName">Doctor</span>!</h1>
       <div class="mb-search-row">
         <form class="search-box smart-search-form" id="homeSearchForm" role="search">
           <button type="submit" class="search-submit" aria-label="بحث"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg></button>
@@ -3723,6 +3725,10 @@ html[lang="en"] .mb-feature-en, html[lang="en"] .sp-title small { display:none; 
 
 <nav class="mb-bottom-nav" id="deviceNav" aria-label="التنقل السريع"><button type="button" data-device-view="home" aria-current="page"><span aria-hidden="true">⌂</span>الرئيسية</button><button type="button" data-device-view="library"><span aria-hidden="true">▤</span>المحاضرات</button><button type="button" data-device-view="schedule"><span aria-hidden="true">▦</span>جدولي</button><button type="button" data-device-view="favorites"><span aria-hidden="true">☆</span>المفضلات</button><button type="button" data-device-view="settings"><span aria-hidden="true">⚙</span>الإعدادات</button></nav>
 <button id="focusCompact" type="button" hidden aria-label="فتح مؤقّت الدراسة"></button><div id="deviceConnection" role="status" hidden>الاتصال بالإنترنت غير متاح. يمكنك استخدام مؤقّت الدراسة؛ حفظ التغييرات يحتاج اتصالًا.</div>
+<dialog id="friendProfileDialog" class="device-dialog" aria-labelledby="friendProfileTitle">
+  <form method="dialog" class="sp-card-head"><h2 id="friendProfileTitle" dir="auto"></h2><button class="mb-close" aria-label="إغلاق">×</button></form>
+  <p></p>
+</dialog>
 <dialog id="focusDialog" class="device-dialog" aria-labelledby="focusTitle"><div class="sp-card-head"><h2 id="focusTitle">وقت التركيز</h2><button type="button" class="mb-mini-btn" data-device-close="focusDialog" aria-label="تصغير المؤقّت">×</button></div><p>قسّم دراستك إلى جلسات قصيرة واستراحات. يبقى المؤقّت دقيقًا عند تصغيره أو العودة للتطبيق.</p><form id="focusForm"><div class="device-pair"><label>مدة الدراسة (دقيقة)<input id="focusWork" type="number" min="1" max="240" value="30" required></label><label>الراحة (دقيقة)<input id="focusRest" type="number" min="0" max="120" value="5" required></label></div><label>عدد جلسات الدراسة<input id="focusCount" type="number" min="1" max="24" value="4" required></label><label id="focusNotifyLabel" hidden><input id="focusNotify" type="checkbox"> تنبيه على الجهاز عند انتهاء الفترة الحالية</label><div class="device-actions"><button type="submit" class="mb-primary" id="focusStart">بدء جلسات التركيز</button></div></form><div id="focusRunning" hidden><output id="focusClock" dir="ltr" aria-label="الوقت المتبقي">30:00</output><p class="focus-stage" id="focusStage"></p><progress id="focusMeter" max="100" value="0" aria-label="تقدم الجلسات"></progress><div class="device-actions"><button type="button" class="mb-primary" id="focusPause">إيقاف مؤقت</button><button type="button" class="mb-primary" id="focusNext" hidden>بدء الفترة التالية</button><button type="button" class="device-danger" id="focusStop">إنهاء المؤقّت</button></div></div><p id="focusStatus" role="status"></p><p>بدء الفترة التالية يدوي، ليكون وقت الراحة تحت تحكمك. المؤقّت لا يعلّم المحاضرة كمكتملة تلقائيًا.</p></dialog>
 <dialog id="deleteAccountDialog" class="device-dialog" aria-labelledby="deleteAccountTitle"><h2 id="deleteAccountTitle">حذف حساب Medbrain</h2><p>يُحذف حسابك وملفك الشخصي ومفضلاتك وبطاقاتك وجدولك وتقدمك نهائيًا. يمكنك تصدير بياناتك من الإعدادات قبل الحذف. تبقى مواد المكتبة المشتركة.</p><p>لحماية الحساب، يلزم تسجيل دخول خلال آخر عشر دقائق. حساب إدارة المنصة يحتاج نقل مسؤوليته أولًا.</p><label for="deleteAccountConfirm">للتأكيد اكتب «حذف حسابي»<input id="deleteAccountConfirm" autocomplete="off"></label><div class="device-actions"><button type="button" class="device-danger" id="deleteAccountSubmit">حذف الحساب نهائيًا</button><button type="button" class="mb-file-btn" data-device-close="deleteAccountDialog">إلغاء</button></div><p id="deleteAccountStatus" role="status"></p></dialog>
 <dialog id="paywallDialog" class="device-dialog" aria-labelledby="paywallTitle"><h2 id="paywallTitle">الاشتراك مطلوب</h2><p id="paywallText"></p><form id="paywallForm"><label for="paywallCode">كود الاشتراك<input id="paywallCode" dir="ltr" autocomplete="off" placeholder="MB-XXXXX-XXXXX" maxlength="20"></label><div class="device-actions"><button type="submit" class="mb-primary">تفعيل الكود</button><button type="button" class="mb-file-btn" data-device-close="paywallDialog">لاحقًا</button></div><p id="paywallStatus" role="status"></p></form><p id="paywallContact"></p></dialog>
@@ -3886,7 +3892,7 @@ function applyIdentityUI() {
   const extras = profileExtrasFromUser(activeUser);
   const stageLabels = ['—', 'المرحلة الأولى', 'المرحلة الثانية', 'المرحلة الثالثة', 'المرحلة الرابعة', 'المرحلة الخامسة', 'المرحلة السادسة', 'خريج / طبيب مقيم'];
   const textMap = {
-    welcomeName: doctorTitle(activeUserName),
+    welcomeName: doctorTitle(namePartsFromUser(activeUser).first || activeUserName.trim().split(/\s+/)[0]),
     profileAge: profileExtrasFromUser(activeUser).age ? String(profileExtrasFromUser(activeUser).age) : '',
     drawerUserName: activeUserName,
     drawerUserEmail: activeUserEmail,
@@ -6054,8 +6060,7 @@ function wireMedbrainEvents() {
 
   document.getElementById('profileBtn').addEventListener('click', e => {
     e.stopPropagation();
-    profile.classList.toggle('open');
-    profile.setAttribute('aria-hidden', profile.classList.contains('open') ? 'false' : 'true');
+    openAccountPanel();
   });
   document.addEventListener('click', e => {
     if (!profile.contains(e.target) && !e.target.closest('#profileBtn')) profile.classList.remove('open');
@@ -7686,12 +7691,34 @@ async function loadFriends() {
     avatar.className = 'friend-request-avatar';
     avatar.setAttribute('aria-hidden', 'true');
     avatar.textContent = Array.from(displayName)[0];
+    const avatarUrl = safeExternalLink(peer.avatar_url);
+    if (avatarUrl) {
+      const photo = document.createElement('img');
+      photo.alt = '';
+      photo.referrerPolicy = 'no-referrer';
+      photo.src = avatarUrl;
+      photo.addEventListener('load', () => avatar.replaceChildren(photo), { once: true });
+    }
     const title = document.createElement('bdi');
     title.dataset.noI18n = '';
     title.textContent = displayName;
     const detail = document.createElement('small');
     detail.textContent = peer.status === 'friend' ? progress : peer.status === 'sent' ? 'طلب مرسل' : peer.friend_code;
-    name.append(title, detail);
+    if (peer.status === 'friend') {
+      const profileButton = document.createElement('button');
+      profileButton.type = 'button';
+      profileButton.className = 'mb-file-btn';
+      profileButton.append(title);
+      profileButton.addEventListener('click', () => {
+        const dialog = document.getElementById('friendProfileDialog');
+        dialog.querySelector('h2').textContent = displayName;
+        dialog.querySelector('p').textContent = progress;
+        dialog.showModal();
+      });
+      name.append(profileButton, detail);
+    } else {
+      name.append(title, detail);
+    }
     profile.append(avatar, name);
     row.append(profile);
     const controls = document.createElement('div');
