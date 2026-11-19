@@ -402,6 +402,15 @@
   .pv-page { position:relative; width:calc(var(--pvz) * 100%); max-width:calc(var(--pvz) * 980px); margin:0 auto 14px; background:#fff; box-shadow:0 1px 6px rgba(0,0,0,.10); }
   .pv-page canvas { position:absolute; inset:0; width:100%; height:100%; }
   .pv-night .pv-canvas { filter:invert(.92) hue-rotate(180deg); }
+  .lecture-focus :is(.pv-tb,.pv-pop,.pv-countdown,.pv-num) { visibility:hidden; }
+  #readerOverlay:has(.lecture-focus) .reader-ai-rail, body:has(#readerOverlay.open .lecture-focus) .ai-fab { visibility:hidden; }
+  .lecture-tools-scrolled [data-reader-related] { display:none; }
+  .lecture-related-menu { right:12px; direction:rtl; }
+  [data-reader-related] { width:auto !important; padding-inline:8px; white-space:nowrap; }
+  .pv-text-layer { position:absolute; inset:0; overflow:hidden; opacity:1; line-height:1; text-align:left; transform-origin:0 0; user-select:text; -webkit-user-select:text; }
+  .pv-text-layer :is(span,br) { position:absolute; color:transparent; white-space:pre; cursor:text; transform-origin:0 0; }
+  .pv-text-layer ::selection { background:rgba(24,119,242,.38); color:transparent; }
+  .pv-drawing .pv-text-layer { pointer-events:none; user-select:none; }
   .pv-ink { pointer-events:none; }
   .pv-drawing .pv-ink { pointer-events:auto; touch-action:none; cursor:crosshair; }
   .pv-drawing.pv-stylus .pv-ink { touch-action:pan-x pan-y; }
@@ -2161,6 +2170,10 @@ body.ai-site-open .mb-main{margin-left:var(--ai-site-width);margin-right:0;max-w
  #readerOverlay.ai-reader-open .reader-body{height:100%;box-sizing:border-box;}
 }
 
+.schedule-guide{padding:12px 16px;border-radius:12px;background:#0b5fa5;color:rgba(255,255,255,.92);line-height:1.7;}
+.schedule-xp-rules{margin-block:12px;}
+#lectureReviewList article{padding:12px 0;border-bottom:1px solid var(--border);}
+#lectureReviewList button{margin:4px;}
 #scheduleSection{--sp-panel:#f6faff;--sp-focus:#0B5FA5;}
 :root[data-theme="dark"] #scheduleSection{--sp-panel:#181A2B;--sp-focus:#aed8ff;}
 #scheduleSection .sp-selectors{display:grid;grid-template-columns:repeat(4,minmax(0,1fr)) auto;gap:14px;align-items:end;}
@@ -3053,6 +3066,8 @@ html[lang="en"] .mb-feature-en, html[lang="en"] .sp-title small { display:none; 
     <div class="banner" id="storageBanner">تعذّر الاتصال بالتخزين. جرّب إعادة تحميل الصفحة.</div>
 
     <section class="mb-page-view active" id="dashboardView">
+      <button type="button" class="mb-file-btn" id="openLectureReview">مراجعة المحاضرات</button>
+      <details class="mb-personal-card"><summary>إنجازاتي <output id="studyXP">— XP</output></summary><p id="studyLevel"></p><p>جلسة مكتملة +10 · جلسة فائتة −3 · اختبار +8 · بطاقات +6 · تلميح −2 · حل AI −5</p><ul id="studyXPHistory"></ul></details>
     <section class="mb-hero">
       <span class="mb-watermark mb-wm-brain" aria-hidden="true"><svg viewBox="0 0 100 80" fill="none" stroke="currentColor" stroke-width="4"><path d="M47 67c-7 7-20 4-22-6-12 1-18-13-10-21-7-8-1-22 10-21 2-11 17-14 23-5 8-10 24-5 25 7 12-1 18 14 10 22 9 7 4 23-8 23-3 10-17 12-24 5-2 3-4 5-8 6Z"/><path d="M48 17v48M35 23c10 4 7 12 2 16m25-16c-10 4-7 12-2 16M29 48c8-4 14 0 18 6m25-6c-8-4-14 0-18 6"/></svg></span>
       <span class="mb-watermark mb-wm-heart" aria-hidden="true"><svg viewBox="0 0 80 80" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M30 31C21 34 15 43 17 54C19 66 31 75 44 73C57 71 65 60 63 46C62 38 57 32 50 30"/><path d="M37 31C36 21 40 13 49 11C56 10 61 14 60 21"/><path d="M44 13V5M50 11V3M56 13V6"/><path d="M33 31C31 24 26 20 19 20M28 35C23 29 23 20 26 12M38 40C43 50 43 59 38 67"/></svg></span>
@@ -3246,6 +3261,12 @@ html[lang="en"] .mb-feature-en, html[lang="en"] .sp-title small { display:none; 
 
     <section class="mb-tool-page mb-page-view mb-personal-page" id="scheduleSection">
  <div class="mb-page-toolbar"><div class="mb-page-title-wrap"><button class="mb-page-back" type="button" data-tool-view="home" aria-label="رجوع">‹</button><div><h2 class="mb-page-title">جدول الدراسة</h2></div></div></div>
+ <p class="schedule-guide">اختَر المادة والفصل، وبعدها اختَر المحاضرة وحدّد شكد تريد تدرس. عاين أوقات الدراسة والاستراحة، وبعدين احفظ الجلسات.</p>
+ <details class="mb-personal-card schedule-xp-rules"><summary>قواعد الجدول وتنبيهات XP</summary>
+  <ul><li>إكمال جلسة دراسة يضيف 10 XP، بحد أقصى خمس مكافآت جلسات باليوم.</li>
+  <li>إذا انتهى يوم الجلسة بتوقيت بغداد وهي غير مكتملة، ينخصم لحد 3 XP. الخصم يطبق على الجلسات الجديدة ورصيدك ما ينزل تحت الصفر.</li>
+  <li>الاستراحات ما عليها خصم أو مكافأة. توليد اختبار جديد بالذكاء الاصطناعي مجاني من ناحية XP.</li></ul>
+ </details>
  <div class="sp-selectors mb-personal-card">
   <label for="studySubject">المادة الأساسية<select id="studySubject"><option value="Medicine">Medicine</option><option value="Surgery">Surgery</option><option value="Pediatrics">Paediatric</option><option value="OB/GYN">OB/GYN</option></select></label>
   <label for="studyChapter">الفصل<select id="studyChapter"></select></label>
@@ -3303,6 +3324,8 @@ html[lang="en"] .mb-feature-en, html[lang="en"] .sp-title small { display:none; 
             <button type="button" class="deck-pill" data-deck-action="shuffle" aria-pressed="false">خلط</button>
           </div>
           <div class="deck-progress" aria-hidden="true" hidden><span id="deckProgressBar"></span></div>
+          <button type="button" class="deck-pill" data-practice-clock>⏱ المؤقت</button>
+          <button type="button" class="deck-pill" data-deck-ai>تلميح AI · 2 XP</button>
           <div id="deckStudyBar"></div>
           <div class="deck-stage" id="deckStage">
             <div class="deck-pile" aria-hidden="true"><span></span><span></span></div>
@@ -3515,9 +3538,13 @@ html[lang="en"] .mb-feature-en, html[lang="en"] .sp-title small { display:none; 
 <dialog id="focusDialog" class="device-dialog" aria-labelledby="focusTitle"><div class="sp-card-head"><h2 id="focusTitle">وقت التركيز</h2><button type="button" class="mb-mini-btn" data-device-close="focusDialog" aria-label="تصغير المؤقّت">×</button></div><p>قسّم دراستك إلى جلسات قصيرة واستراحات. يبقى المؤقّت دقيقًا عند تصغيره أو العودة للتطبيق.</p><form id="focusForm"><div class="device-pair"><label>مدة الدراسة (دقيقة)<input id="focusWork" type="number" min="1" max="240" value="30" required></label><label>الراحة (دقيقة)<input id="focusRest" type="number" min="0" max="120" value="5" required></label></div><label>عدد جلسات الدراسة<input id="focusCount" type="number" min="1" max="24" value="4" required></label><label id="focusNotifyLabel" hidden><input id="focusNotify" type="checkbox"> تنبيه على الجهاز عند انتهاء الفترة الحالية</label><div class="device-actions"><button type="submit" class="mb-primary" id="focusStart">بدء جلسات التركيز</button></div></form><div id="focusRunning" hidden><output id="focusClock" dir="ltr" aria-label="الوقت المتبقي">30:00</output><p class="focus-stage" id="focusStage"></p><progress id="focusMeter" max="100" value="0" aria-label="تقدم الجلسات"></progress><div class="device-actions"><button type="button" class="mb-primary" id="focusPause">إيقاف مؤقت</button><button type="button" class="mb-primary" id="focusNext" hidden>بدء الفترة التالية</button><button type="button" class="device-danger" id="focusStop">إنهاء المؤقّت</button></div></div><p id="focusStatus" role="status"></p><p>بدء الفترة التالية يدوي، ليكون وقت الراحة تحت تحكمك. المؤقّت لا يعلّم المحاضرة كمكتملة تلقائيًا.</p></dialog>
 <dialog id="deleteAccountDialog" class="device-dialog" aria-labelledby="deleteAccountTitle"><h2 id="deleteAccountTitle">حذف حساب Medbrain</h2><p>يُحذف حسابك وملفك الشخصي ومفضلاتك وبطاقاتك وجدولك وتقدمك نهائيًا. يمكنك تصدير بياناتك من الإعدادات قبل الحذف. تبقى مواد المكتبة المشتركة.</p><p>لحماية الحساب، يلزم تسجيل دخول خلال آخر عشر دقائق. حساب إدارة المنصة يحتاج نقل مسؤوليته أولًا.</p><label for="deleteAccountConfirm">للتأكيد اكتب «حذف حسابي»<input id="deleteAccountConfirm" autocomplete="off"></label><div class="device-actions"><button type="button" class="device-danger" id="deleteAccountSubmit">حذف الحساب نهائيًا</button><button type="button" class="mb-file-btn" data-device-close="deleteAccountDialog">إلغاء</button></div><p id="deleteAccountStatus" role="status"></p></dialog>
 <dialog id="paywallDialog" class="device-dialog" aria-labelledby="paywallTitle"><h2 id="paywallTitle">الاشتراك مطلوب</h2><p id="paywallText"></p><form id="paywallForm"><label for="paywallCode">كود الاشتراك<input id="paywallCode" dir="ltr" autocomplete="off" placeholder="MB-XXXXX-XXXXX" maxlength="20"></label><div class="device-actions"><button type="submit" class="mb-primary">تفعيل الكود</button><button type="button" class="mb-file-btn" data-device-close="paywallDialog">لاحقًا</button></div><p id="paywallStatus" role="status"></p></form><p id="paywallContact"></p></dialog>
+<dialog id="lectureReviewDialog" class="device-dialog" aria-labelledby="lectureReviewTitle">
+  <div class="sp-card-head"><h2 id="lectureReviewTitle">مراجعة المحاضرات</h2><button type="button" class="mb-mini-btn" data-close-review aria-label="إغلاق">×</button></div>
+  <p>تظهر هنا المحاضرات بعد 15 دقيقة من فتحها في الواجهة.</p><div id="lectureReviewList"></div>
+</dialog>
 <dialog id="questionReportDialog" class="device-dialog" aria-labelledby="questionReportTitle"><h2 id="questionReportTitle">الإبلاغ عن مشكلة في السؤال</h2><p>يصل بلاغك إلى فريق Medbrain لمراجعة السؤال وتصحيحه.</p><form id="questionReportForm"><fieldset class="report-reasons"><legend>نوع المشكلة</legend><label><input type="radio" name="reportReason" value="wrong_answer"> الإجابة المعتمدة خاطئة</label><label><input type="radio" name="reportReason" value="wrong_question"> السؤال خاطئ أو غير واضح</label><label><input type="radio" name="reportReason" value="incomplete"> السؤال ناقص (خيار أو معلومة مفقودة)</label><label><input type="radio" name="reportReason" value="explanation"> الشرح خاطئ أو غير كافٍ</label><label><input type="radio" name="reportReason" value="other"> مشكلة أخرى</label></fieldset><label for="questionReportNote">تفاصيل (اختياري): ما الصحيح برأيك ومصدره؟<textarea id="questionReportNote" maxlength="1000" rows="3"></textarea></label><div class="device-actions"><button type="submit" class="mb-primary" id="questionReportSubmit">إرسال البلاغ</button><button type="button" class="mb-file-btn" data-device-close="questionReportDialog">إلغاء</button></div><p id="questionReportStatus" role="status"></p></form></dialog>
 <section id="labsPanel" class="labs-panel" role="dialog" aria-modal="false" aria-labelledby="labsTitle" data-no-i18n dir="ltr" hidden><div class="labs-head"><h2 id="labsTitle">Lab values</h2><button type="button" class="labs-close" data-labs-close aria-label="Close">×</button></div><div class="labs-tools"><select id="labsTab" aria-label="Lab group"><option value="blood">Blood</option><option value="heme">Hematologic</option><option value="csf">Cerebrospinal</option><option value="other">Sweat, Urine, BMI</option><option value="infl">Inflammation & Immunology</option><option value="vit">Vitamins & Minerals</option><option value="cardiac">Cardiac & Tumor markers</option></select><input type="search" id="labsSearch" class="labs-search" placeholder="Search…" autocomplete="off" aria-label="Search lab values"></div><div class="labs-body" id="labsBody"></div></section>
-<dialog id="selfQuizDialog" class="device-dialog" aria-labelledby="selfQuizTitle"><div class="sp-card-head"><h2 id="selfQuizTitle" dir="ltr">Quiz</h2><button type="button" class="mb-mini-btn" data-device-close="selfQuizDialog" aria-label="إغلاق">×</button></div><form id="selfQuizForm"><fieldset class="sq-group"><legend>نوع الاختبار</legend><label><input type="radio" name="sqMode" value="questions" checked> أسئلة اختيار من متعدد</label><label><input type="radio" name="sqMode" value="flash"> Flashcards</label></fieldset><fieldset class="sq-group"><legend>المادة</legend><div id="sqSubjects" class="sq-options"></div></fieldset><div id="sqExam"><fieldset class="sq-group"><legend>مصدر الأسئلة</legend><label><input type="radio" name="sqSource" value="all" checked> كل Q Bank</label><label><input type="radio" name="sqSource" value="files"> ملف أو عدة ملفات</label><label><input type="radio" name="sqSource" value="wizari"> وزاري أو تجريبي</label><label><input type="radio" name="sqSource" value="ai"> أسئلة جديدة بالذكاء الاصطناعي</label><label><input type="radio" name="sqSource" value="saved"> ★ الأسئلة المحفوظة</label></fieldset><div id="sqFilesBox" hidden><fieldset class="sq-group sq-files"><legend>اختر الملفات</legend><input type="search" id="sqFileFind" class="sq-find" placeholder="ابحث عن ملف…" autocomplete="off"><div id="sqFiles" class="sq-file-list"></div></fieldset></div><div id="sqExamMore" hidden><fieldset class="sq-group"><legend>نوع الأسئلة</legend><label><input type="radio" name="sqKind" value="" checked> الكل</label><label><input type="radio" name="sqKind" value="main"> وزاري (رئيسي)</label><label><input type="radio" name="sqKind" value="mock"> تجريبي</label></fieldset><fieldset class="sq-group" id="sqBranchBox" hidden><legend>الفرع</legend><div id="sqBranches" class="sq-options"></div></fieldset><fieldset class="sq-group"><legend>السنة</legend><div id="sqYears" class="sq-options"></div></fieldset><fieldset class="sq-group"><legend>الدور</legend><label><input type="radio" name="sqRound" value="" checked> كل الأدوار</label><label><input type="radio" name="sqRound" value="1"> الدور الأول</label><label><input type="radio" name="sqRound" value="2"> الدور الثاني</label></fieldset></div><div id="sqAiBox" hidden><fieldset class="sq-group"><legend>موضوع الأسئلة</legend><input type="text" id="sqAiTopic" class="sq-find" maxlength="160" placeholder="مثال: Heart failure management" dir="auto"><p class="sq-hint">يكتب المساعد حتى 10 أسئلة جديدة بخمسة خيارات وشرح لكل خيار. راجعها كمساعدة دراسية.</p></fieldset></div></div><fieldset class="sq-group"><legend>عدد الأسئلة</legend><div class="sq-count"><input type="number" id="sqCountNum" min="1" max="300" value="20" inputmode="numeric" aria-label="عدد الأسئلة"><button type="button" data-sq-count="10">10</button><button type="button" data-sq-count="20">20</button><button type="button" data-sq-count="40">40</button><button type="button" data-sq-count="300">الكل</button></div></fieldset><div class="device-actions"><button type="submit" class="mb-primary" id="sqStart">ابدأ الاختبار</button><button type="button" class="mb-file-btn" data-device-close="selfQuizDialog">إلغاء</button></div><p id="sqStatus" role="status"></p></form></dialog>
+<dialog id="selfQuizDialog" class="device-dialog" aria-labelledby="selfQuizTitle"><div class="sp-card-head"><h2 id="selfQuizTitle" dir="ltr">Quiz</h2><button type="button" class="mb-mini-btn" data-device-close="selfQuizDialog" aria-label="إغلاق">×</button></div><form id="selfQuizForm"><fieldset class="sq-group"><legend>نوع الاختبار</legend><label><input type="radio" name="sqMode" value="questions" checked> MCQ</label><label><input type="radio" name="sqMode" value="flash"> Flashcards</label></fieldset><fieldset class="sq-group"><legend>المادة</legend><div id="sqSubjects" class="sq-options"></div></fieldset><div id="sqExam"><fieldset class="sq-group"><legend>مصدر الأسئلة</legend><label><input type="radio" name="sqSource" value="all" checked> كل Q Bank</label><label><input type="radio" name="sqSource" value="files"> ملف أو عدة ملفات</label><label><input type="radio" name="sqSource" value="wizari"> وزاري أو تجريبي</label><label><input type="radio" name="sqSource" value="ai"> أسئلة جديدة بالذكاء الاصطناعي</label><label><input type="radio" name="sqSource" value="saved"> ★ الأسئلة المحفوظة</label></fieldset><div id="sqFilesBox" hidden><fieldset class="sq-group sq-files"><legend>اختر الملفات</legend><input type="search" id="sqFileFind" class="sq-find" placeholder="ابحث عن ملف…" autocomplete="off"><div id="sqFiles" class="sq-file-list"></div></fieldset></div><div id="sqExamMore" hidden><fieldset class="sq-group"><legend>نوع الأسئلة</legend><label><input type="radio" name="sqKind" value="" checked> الكل</label><label><input type="radio" name="sqKind" value="main"> وزاري (رئيسي)</label><label><input type="radio" name="sqKind" value="mock"> تجريبي</label></fieldset><fieldset class="sq-group" id="sqBranchBox" hidden><legend>الفرع</legend><div id="sqBranches" class="sq-options"></div></fieldset><fieldset class="sq-group"><legend>السنة</legend><div id="sqYears" class="sq-options"></div></fieldset><fieldset class="sq-group"><legend>الدور</legend><label><input type="radio" name="sqRound" value="" checked> كل الأدوار</label><label><input type="radio" name="sqRound" value="1"> الدور الأول</label><label><input type="radio" name="sqRound" value="2"> الدور الثاني</label></fieldset></div><div id="sqAiBox" hidden><fieldset class="sq-group"><legend>موضوع الأسئلة</legend><input type="text" id="sqAiTopic" class="sq-find" maxlength="160" placeholder="مثال: Heart failure management" dir="auto"><p class="sq-hint">يكتب المساعد حتى 10 أسئلة جديدة بخمسة خيارات وشرح لكل خيار. راجعها كمساعدة دراسية.</p></fieldset></div></div><fieldset class="sq-group"><legend>عدد الأسئلة</legend><div class="sq-count"><input type="number" id="sqCountNum" min="1" max="300" value="20" inputmode="numeric" aria-label="عدد الأسئلة"><button type="button" data-sq-count="10">10</button><button type="button" data-sq-count="20">20</button><button type="button" data-sq-count="40">40</button><button type="button" data-sq-count="300">الكل</button></div></fieldset><div class="device-actions"><button type="submit" class="mb-primary" id="sqStart">ابدأ الاختبار</button><button type="button" class="mb-file-btn" data-device-close="selfQuizDialog">إلغاء</button></div><p id="sqStatus" role="status"></p></form></dialog>
 <dialog id="reportsDialog" class="device-dialog reports-dialog" aria-labelledby="reportsTitle"><div class="sp-card-head"><h2 id="reportsTitle">بلاغات الطلاب</h2><button type="button" class="mb-mini-btn" data-device-close="reportsDialog" aria-label="إغلاق">×</button></div><p>البلاغات المفتوحة عن الأسئلة، الأحدث أولًا. «تمّ الإصلاح» يغلق كل البلاغات عن السؤال نفسه.</p><div id="reportsList"></div><p id="reportsStatus" role="status"></p></dialog>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.js"></script>
@@ -3796,11 +3823,12 @@ async function loadScheduleItems() {
   if (!client || !activeUserId) { scheduleItems=[]; return; }
   const uid=activeUserId, version=accessVersion;
   const result = await client.from('study_schedule')
-    .select('id,day_of_week,start_time,title,notes,completed,session_group_id,session_order,kind,duration_minutes,scheduled_date').eq('user_id',uid)
+    .select('id,day_of_week,start_time,title,notes,completed,session_group_id,session_order,kind,duration_minutes,scheduled_date,studied_seconds').eq('user_id',uid)
     .order('day_of_week',{ascending:true}).order('start_time',{ascending:true,nullsFirst:false});
   if (result.error) throw result.error;
   if(uid!==activeUserId||version!==accessVersion)return;
   scheduleItems = result.data || [];
+  refreshStudyXP();
   renderSchedule();
   if(currentMainView==='shareSchedule')renderShareSchedule();
 }
@@ -3822,6 +3850,7 @@ async function toggleScheduleItem(id, completed) {
   if(uid!==activeUserId)return;
   const item=scheduleItems.find(x=>x.id===id); if(item)item.completed=!!completed;
   renderSchedule();
+  refreshStudyXP();
 }
 async function deleteScheduleItem(id) {
   const result = await client.from('study_schedule').delete().eq('id',id);
@@ -3941,6 +3970,7 @@ async function openDeck(id) {
   study.scrollIntoView({ block: 'start', behavior: document.documentElement.dataset.motion === 'reduce' ? 'auto' : 'smooth' });
 }
 function closeDeck() {
+  if (pdfTimer && !document.getElementById('readerOverlay').classList.contains('open')) stopPdfTimer();
   activeDeck = null;
   document.getElementById('deckStudy').hidden = true;
   document.getElementById('deckGrid').hidden = false;
@@ -3970,6 +4000,7 @@ function showDeckCard() {
     document.getElementById('deckDoneText').textContent = deckProgress.hard.length ? 'بقيت لديك بطاقات صعبة، راجعها لتثبيتها.' : 'أتقنت كل بطاقات هذه المجموعة.';
     document.getElementById('deckAgainHard').hidden = !deckProgress.hard.length;
     // Self-graded result of this sitting, as a percentage only.
+    if (deckSession.right + deckSession.unsure + deckSession.wrong) void awardPracticeXP('deck', activeDeck.id);
     const answered = deckSession.right + deckSession.unsure + deckSession.wrong, score = document.getElementById('deckScore');
     score.hidden = !answered;
     if (answered) score.innerHTML = 'أجبت صحيحًا عن <b>' + Math.round(deckSession.right / answered * 100) + '%</b> من البطاقات' +
@@ -4111,7 +4142,7 @@ function renderStudyPlanner(){
  spEl('subjectChapterProgress').innerHTML=spChapters(category).map(c=>{const rows=spEntries(category,c),n=rows.filter(e=>e.record?.completed).length,p=rows.length?Math.round(n/rows.length*100):0;return '<button type="button" class="sp-chapter-card" data-sp-chapter="'+escapeHtml(c)+'"><strong>'+escapeHtml(c)+'</strong><span>'+ (rows.length?n+' / '+rows.length+' — '+p+'٪':'لا توجد مواد')+'</span><progress value="'+p+'" max="100"></progress></button>';}).join('');
  spEl('saveChapterPlan').disabled=!studyPlannerReady||studyBusy;renderStudySessionGroups();
 }
-function spSessionRows(rows,interactive=false){let date='';return rows.map(r=>{const h=r.scheduled_date!==date?'<h4 class="sp-date">'+escapeHtml(STUDY_DAYS[Number(r.day_of_week)]+' '+r.scheduled_date)+'</h4>':'';date=r.scheduled_date;const [hh,mm]=String(r.start_time).slice(0,5).split(':').map(Number);return h+'<label class="sp-session '+r.kind+(r.completed?' done':'')+'">'+(interactive?'<input type="checkbox" data-sp-session="'+escapeHtml(r.id)+'" aria-label="إنجاز '+escapeHtml(r.title)+'" '+(r.completed?'checked':'')+'>':'<span aria-hidden="true">□</span>')+'<span><strong>'+ (r.kind==='break'?'استراحة':'دراسة')+' — '+r.duration_minutes+' دقيقة</strong><small dir="ltr">'+escapeHtml(String(r.start_time).slice(0,5))+' – '+studyClock(hh*60+mm+r.duration_minutes)+'</small></span></label>';}).join('');}
+function spSessionRows(rows,interactive=false){let date='';return rows.map(r=>{const h=r.scheduled_date!==date?'<h4 class="sp-date">'+escapeHtml(STUDY_DAYS[Number(r.day_of_week)]+' '+r.scheduled_date)+'</h4>':'';date=r.scheduled_date;const [hh,mm]=String(r.start_time).slice(0,5).split(':').map(Number);return h+'<label class="sp-session '+r.kind+(r.completed?' done':'')+'">'+(interactive?'<input type="checkbox" data-sp-session="'+escapeHtml(r.id)+'" aria-label="إنجاز '+escapeHtml(r.title)+'" '+(r.completed?'checked':'')+'>':'<span aria-hidden="true">□</span>')+'<span><strong>'+ (r.kind==='break'?'استراحة':'دراسة')+' — '+r.duration_minutes+' دقيقة</strong>'+(r.kind==='study'&&r.studied_seconds?'<small>'+Math.floor(r.studied_seconds/60)+' / '+r.duration_minutes+' دقيقة مسجّلة</small>':'')+'<small dir="ltr">'+escapeHtml(String(r.start_time).slice(0,5))+' – '+studyClock(hh*60+mm+r.duration_minutes)+'</small></span></label>';}).join('');}
 function renderStudySessionGroups(){
  const opened=new Set([...spEl('savedStudyGroups').querySelectorAll('details[open]')].map(e=>e.dataset.group));
  const {category,chapter}=spSelection(),plan=spPlan(category,chapter),all=spEl('studyGroupsScope').value==='all',groups=studyGroups.filter(g=>all||g.plan_id===plan?.id).sort((a,b)=>String(b.created_at).localeCompare(String(a.created_at)));
@@ -4152,7 +4183,7 @@ function wireStudyPlanner(){
  spEl('studySessionForm').addEventListener('submit',e=>{e.preventDefault();spRun(async()=>{spRequire();const preview=studyPreview;if(!preview||preview.uid!==activeUserId)throw new Error('عاين التقسيم أولًا.');const p=await spEnsurePlan(preview.category,preview.chapter),entry=spEntries(preview.category,preview.chapter).find(e=>e.key===preview.topicKey),topic=entry?await spEnsureTopic(p,entry):null;
  const r=await client.rpc('save_study_session_group',{group_data:{id:preview.id,plan_id:p.id,plan_topic_id:topic?.id||null,title:preview.title,config:preview.config},session_data:preview.result.sessions.map(s=>({...s,title:s.kind==='break'?'استراحة':preview.title}))});if(r.error)throw r.error;if(preview.uid!==activeUserId)return;await Promise.all([loadScheduleItems(),loadStudyPlanner()]);spInvalidate();spStatus('studySessionStatus','حُفظت الجلسات. افتح خطتك أسفل الصفحة وعلّم كل جلسة بعد إنجازها.');},'studySessionStatus');});
  spEl('scheduleSection').addEventListener('change',e=>{const box=e.target,key=box.dataset.spTopic,id=box.dataset.spSession;if(!key&&!id)return;const checked=box.checked;box.disabled=true;spRun(async()=>{spRequire();const uid=activeUserId;if(id){await toggleScheduleItem(id,checked);return;}const {category,chapter}=spSelection(),entry=spEntries(category,chapter).find(e=>e.key===key);if(!entry)throw new Error('الموضوع غير متاح.');const p=await spEnsurePlan(category,chapter),t=await spEnsureTopic(p,entry),r=await client.from('study_plan_topics').update({completed:checked,updated_at:new Date().toISOString()}).eq('id',t.id).eq('user_id',uid).select('*').single();if(r.error)throw r.error;if(uid!==activeUserId)return;Object.assign(t,r.data);spStatus('studyPlannerStatus','حُفظ التقدم في حسابك.');});});
- spEl('scheduleSection').addEventListener('click',e=>{const chapter=e.target.closest('[data-sp-chapter]'),open=e.target.closest('[data-sp-open]'),del=e.target.closest('[data-sp-delete-group]');if(chapter){spEl('studyChapter').value=chapter.dataset.spChapter;spSwitchChapter();spEl('studySubject').scrollIntoView({behavior:'smooth'});}if(open){const l=lectures.find(x=>x.id===open.dataset.spOpen);if(l?.text)openReader(l.id);else if(l?.filePath)openStoredPdf(l.id,open);else if(l?.link){const url=safeExternalLink(l.link);if(url)window.open(url,'_blank','noopener,noreferrer');}else showMbToast('لا يتوفر محتوى لفتح هذه المادة.');}if(del)spRun(async()=>{spRequire();const id=del.dataset.spDeleteGroup,uid=activeUserId,n=scheduleItems.filter(s=>s.session_group_id===id).length;if(!confirm('حذف هذه الخطة و'+n+' فترة مرتبطة بها؟ يبقى إنجاز المحاضرات محفوظًا.'))return;const r=await client.from('study_session_groups').delete().eq('id',id).eq('user_id',uid);if(r.error)throw r.error;if(uid!==activeUserId)return;studyGroups=studyGroups.filter(g=>g.id!==id);scheduleItems=scheduleItems.filter(s=>s.session_group_id!==id);renderSchedule();});});
+ spEl('scheduleSection').addEventListener('click',e=>{const chapter=e.target.closest('[data-sp-chapter]'),open=e.target.closest('[data-sp-open]'),del=e.target.closest('[data-sp-delete-group]');if(chapter){spEl('studyChapter').value=chapter.dataset.spChapter;spSwitchChapter();spEl('studySubject').scrollIntoView({behavior:'smooth'});}if(open){const l=lectures.find(x=>x.id===open.dataset.spOpen);if(l&&(lectureHasText(l)||l.filePath||(l.type==='أسئلة'&&l.questionCount)))openMaterialInReader(l.id);else if(l?.link){const url=safeExternalLink(l.link);if(url)window.open(url,'_blank','noopener,noreferrer');}else showMbToast('لا يتوفر محتوى لفتح هذه المادة.');}if(del)spRun(async()=>{spRequire();const id=del.dataset.spDeleteGroup,uid=activeUserId,n=scheduleItems.filter(s=>s.session_group_id===id).length;if(!confirm('حذف هذه الخطة و'+n+' فترة مرتبطة بها؟ يبقى إنجاز المحاضرات محفوظًا.'))return;const r=await client.from('study_session_groups').delete().eq('id',id).eq('user_id',uid);if(r.error)throw r.error;if(uid!==activeUserId)return;studyGroups=studyGroups.filter(g=>g.id!==id);scheduleItems=scheduleItems.filter(s=>s.session_group_id!==id);renderSchedule();});});
 }
 
 const STUDY_DAYS=['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
@@ -4195,6 +4226,7 @@ function showMainView(view, kind='', scrollBehavior='smooth') {
   const target=({library:'librarySection',schedule:'scheduleSection',flashcards:'flashcardsSection',subscription:'subscriptionSection',shareSchedule:'shareScheduleSection',favorites:'favoritesSection',settings:'settingsSection'})[view] || 'dashboardView';
   const el=document.getElementById(target); if(el)el.classList.add('active');
   if(view==='flashcards') renderFlashDecks();
+  if(view==='schedule' || view==='home') void refreshStudyXP();
   if(view==='library'){
     const labels={
       lectures:['المحاضرات','النصوص وملفات PDF والملخصات الطبية.'],
@@ -4907,7 +4939,28 @@ function browsePath() {
   }
   return path;
 }
+function renderMiscMaterials() {
+  const categories = ['Surgery', 'Pediatrics', 'OB/GYN', 'Medicine'];
+  const misc = lectures.filter(l => materialGroup(l.type) === 'other');
+  const isMindMap = l => /mind[\s-]*maps?|خرائط? ذهني[ةه]/i.test([l.type, l.title, l.source].join(' '));
+  const maps = lectures.filter(isMindMap);
+  const sources = misc.filter(l => !isMindMap(l));
+  const later = '<p class="sp-muted">ستُضاف بقية المواضيع لاحقًا.</p>';
+  const section = (label, children) => '<details class="sp-topic"><summary>' + escapeHtml(label) + '</summary>' + children + '</details>';
+  const mapTopics = [...new Set(maps.map(l => l.topicId || l.topic || l.category))];
+  const topicList = mapTopics.map(key => {
+    const items = maps.filter(l => (l.topicId || l.topic || l.category) === key);
+    const first = items[0];
+    return section((first.topicId && topicName(first.topicId)) || first.topic || first.category, renderLectureList(items));
+  }).join('');
+  const sourceList = categories.map(category => {
+    const items = sources.filter(l => l.category === category);
+    return items.length ? section(SUBJECT_AR[category] || category, renderLectureList(items)) : '';
+  }).join('');
+  return section('Mind Maps', topicList + later) + section('كتب ومصادر', sourceList + later);
+}
 function renderBrowse() {
+  if (state.filterKind === 'other') return renderMiscMaterials();
   const path = browsePath();
   lastBrowsePath = path;
   const b = state.browse;
@@ -5080,7 +5133,7 @@ function renderSearchResults(q) {
   );
   let html = `<p class="section-label">نتائج البحث عن «${escapeHtml(state.search.trim())}»</p>`;
   if (matches.length === 0) {
-    html += `<div class="empty"><strong>لا توجد نتائج</strong>جرّب كلمة بحث مختلفة، أو أضف هذه المحاضرة الآن.</div>`;
+    html += `<div class="empty"><strong>لا توجد نتائج</strong>جرّب كلمة بحث مختلفة، أو <button type="button" class="mb-mini-btn" data-suggest-source>اقترح إضافة هذا المصدر</button>. <a href="./support.html">راسل الدعم</a></div>`;
   } else {
     html += renderLectureList(matches);
   }
@@ -6074,7 +6127,9 @@ function closeAIChat(restoreFocus = true){
   restoreReaderAnchor(anchor);
   fitReaderAIPanel();
 }
+let aiXPAction = 'ai_answer';
 function openAIChat(lectureId = null){
+  aiXPAction = 'ai_answer';
   const anchor=captureReaderAnchor();
   document.getElementById('navBackdrop').classList.remove('open');
   document.getElementById('navBackdrop').setAttribute('aria-hidden','true');
@@ -6124,6 +6179,9 @@ async function sendAIQuestion(e) {
   if(!question)return;
   if(!client||!activeUserId){status.textContent='سجّل الدخول لاستخدام المساعد.';return;}
   if(Date.now()<aiRetryAt){status.textContent='انتظر '+Math.ceil((aiRetryAt-Date.now())/1000)+' ثانية ثم حاول مجددًا.';return;}
+  const xpAction = aiXPAction;
+  const cost = xpAction === 'ai_hint' ? 2 : 5;
+  if (!confirm('هذا الطلب يخصم ' + cost + ' XP إذا وصل الرد. تريد المتابعة؟')) return;
   const generation=++aiGeneration,userId=activeUserId;
   const controller=new AbortController();aiAbort=controller;
   const timeout=setTimeout(()=>controller.abort(),55000);
@@ -6134,7 +6192,7 @@ async function sendAIQuestion(e) {
     if(error||!data.session?.access_token||data.session.user.id!==userId)throw new Error('انتهت الجلسة. سجّل الدخول مجددًا.');
     const response=await fetch(SUPABASE_URL+'/functions/v1/medbrain-ai',{
       method:'POST',headers:{'Content-Type':'application/json',apikey:SUPABASE_KEY,Authorization:'Bearer '+data.session.access_token},
-      body:JSON.stringify({question,lecture_id:aiLectureId||null,history:aiConversation.slice(-6).map(x=>({role:x.role,content:x.content.slice(0,6000)}))}),
+      body:JSON.stringify({question,xp_action:xpAction,xp_request_id:crypto.randomUUID(),lecture_id:aiLectureId||null,history:aiConversation.slice(-6).map(x=>({role:x.role,content:x.content.slice(0,6000)}))}),
       signal:controller.signal
     });
     const result=await response.json().catch(()=>null);
@@ -6144,6 +6202,7 @@ async function sendAIQuestion(e) {
       throw new Error(result?.message||(response.status===401?'انتهت الجلسة. سجّل الدخول مجددًا.':'تعذّر الاتصال بالمساعد. حاول مجددًا.'));
     }
     if(!result||typeof result.answer!=='string'||!result.answer.trim())throw new Error('لم تصل إجابة. حاول مجددًا.');
+    void refreshStudyXP();
     let note=result.context?'استند الرد إلى '+(result.context.partial?'مقتطفات من: ':'نص: ')+result.context.title:'';
     if(result.incomplete)note+=(note?' · ':'')+'قد تكون الإجابة غير مكتملة؛ اطلب توضيح نقطة محددة.';
     aiConversation.push({role:'user',content:question},{role:'assistant',content:result.answer,note});
@@ -6159,6 +6218,27 @@ async function sendAIQuestion(e) {
   }
 }
 function wireAIChat() {
+  wireLectureReview();
+  document.addEventListener('click', async event => {
+    if (event.target.closest('[data-practice-clock]')) {
+      if (pdfTimer && !pdfTimer.done) stopPdfTimer();
+      else startPracticeTimer();
+    }
+    if (event.target.closest('[data-deck-ai]') && deckQueue.length) {
+      const question = document.getElementById('deckFront').textContent.trim();
+      if (!question) return;
+      openAIChat();
+      aiXPAction = 'ai_hint';
+      document.getElementById('aiQuestion').value = ('Give me a hint without revealing the answer: ' + question).slice(0, 1180);
+    }
+    if (!event.target.closest('[data-suggest-source]')) return;
+    if (!activeUserId) { showMbToast('سجّل الدخول لإرسال اقتراح.'); return; }
+    const title = state.search.trim().slice(0, 200);
+    const details = prompt('شنو المعلومات المتوفرة عن المصدر؟ اكتب اسم الدكتور أو الجامعة أو الرابط.');
+    if (details === null) return;
+    const { error } = await client.from('library_source_suggestions').insert({ title, details: details.trim().slice(0, 1000) });
+    showMbToast(error ? 'تعذّر إرسال الاقتراح. تقدر تراسل الدعم.' : 'وصل اقتراحك. شكرًا!');
+  });
   window.addEventListener('resize',fitReaderAIPanel);
   document.addEventListener('keydown', e => {
     if(e.key==='Escape'&&isAIChatOpen()){e.preventDefault();e.stopImmediatePropagation();closeAIChat();}
@@ -6341,6 +6421,7 @@ async function openPdfInReader(id) {
     const bytes = await fetchLecturePdf(lec.id);
     if (readerLectureId !== lec.id) return;
     await mountPdfViewer(body, bytes, lec);
+    autoStartScheduledLecture(lec);
     return;
   } catch (err) { console.warn('in-site PDF viewer unavailable, falling back', err); }
   if (readerLectureId !== lec.id) return;
@@ -6454,6 +6535,99 @@ function destroyPdfViewer() {
   try { v.doc.destroy(); } catch (_) {}
 }
 const pvBtn = (act, icon, label, extra) => '<button type="button" class="pv-ib" data-pv="' + act + '" aria-label="' + label + '" title="' + label + '"' + (extra || '') + '>' + icon + '</button>';
+async function generateLectureQuestions(lecture, pdfDocument, difficulty) {
+  let extractedText = '';
+  if (pdfDocument && !lectureHasText(lecture)) {
+    for (let n = 1; n <= pdfDocument.numPages && extractedText.length < 5500; n++) {
+      const page = await pdfDocument.getPage(n);
+      const content = await page.getTextContent();
+      extractedText += content.items.map(item => item.str || '').join(' ') + '\n';
+    }
+    if (!extractedText.trim()) throw new Error('هذا الملف مصوّر ولا يحتوي على نص يمكن إنشاء أسئلة منه.');
+  }
+  return generateAIQuiz((lecture.title || '').slice(0, 160), lecture.category, 5, {
+    lecture_id: lecture.id, difficulty: difficulty,
+    pdf_text: extractedText.slice(0, 5500)
+  });
+}
+function mountLectureControls(root, stage, currentTool, lecture, pdfDocument) {
+  const toolbar = root.querySelector('.pv-tb');
+  const right = toolbar.lastElementChild;
+  right.insertAdjacentHTML('afterbegin',
+    '<button type="button" class="pv-ib" data-reader-related aria-expanded="false">مرتبط بالمحاضرة ▾</button>' +
+    '<button type="button" class="pv-ib" data-reader-focus aria-label="إخفاء الأدوات" title="وضع القراءة">⛶</button>');
+  const related = right.querySelector('[data-reader-related]');
+  const focus = right.querySelector('[data-reader-focus]');
+  const menu = document.createElement('div');
+  menu.className = 'pv-pop pv-menu lecture-related-menu';
+  menu.hidden = true;
+  menu.innerHTML = document.getElementById('readerRelated').innerHTML;
+  menu.querySelector('.reader-related-label')?.remove();
+  if (!menu.children.length) menu.insertAdjacentHTML('beforeend', '<p>ستُضاف المواد المرتبطة لاحقًا.</p>');
+  menu.insertAdjacentHTML('beforeend', '<label>اختبرني بهذه المحاضرة <select aria-label="صعوبة الأسئلة"><option value="easy">سهل</option><option value="medium" selected>متوسط</option><option value="hard">صعب</option></select></label><button type="button" data-generate-lecture-quiz>إنشاء أسئلة</button><p role="status"></p>');
+  root.appendChild(menu);
+  const scrollArea = pdfDocument ? stage : document.getElementById('readerWorkspace');
+  if (scrollArea.medbrainRelatedScroll) scrollArea.removeEventListener('scroll', scrollArea.medbrainRelatedScroll);
+  scrollArea.medbrainRelatedScroll = () => {
+    root.classList.toggle('lecture-tools-scrolled', scrollArea.scrollTop > 48);
+    if (scrollArea.scrollTop > 48) closeMenu();
+  };
+  scrollArea.addEventListener('scroll', scrollArea.medbrainRelatedScroll, { passive: true });
+  const closeMenu = () => { menu.hidden = true; related.setAttribute('aria-expanded', 'false'); };
+  related.addEventListener('click', () => {
+    menu.hidden = !menu.hidden;
+    related.setAttribute('aria-expanded', String(!menu.hidden));
+  });
+  menu.addEventListener('click', async event => {
+    const button = event.target.closest('button');
+    if (!button) return;
+    if (button.hasAttribute('data-generate-lecture-quiz')) {
+      const status = menu.querySelector('[role="status"]');
+      button.disabled = true;
+      status.textContent = 'جارٍ إنشاء الأسئلة…';
+      try {
+        const questions = await generateLectureQuestions(lecture, pdfDocument, menu.querySelector('select').value);
+        void refreshStudyXP();
+        if (root.isConnected && readerLectureId === lecture.id) {
+          openCustomQuiz('MCQ — ' + lecture.title, 'أسئلة مولّدة من المحاضرة', questions, lecture);
+        }
+      } catch (error) {
+        status.textContent = error.message || 'تعذّر إنشاء الأسئلة.';
+      } finally {
+        button.disabled = false;
+      }
+      return;
+    }
+    closeMenu();
+    document.getElementById('readerRelated').querySelector(
+      button.dataset.related ? '[data-related="' + button.dataset.related + '"]' : '[data-topic-quiz]'
+    )?.click();
+  });
+  const setFocus = enabled => {
+    closeMenu();
+    root.classList.toggle('lecture-focus', enabled);
+    if (!enabled) focus.focus({ preventScroll: true });
+  };
+  focus.addEventListener('click', () => {
+    root.querySelector('[data-pv="hand"],[data-tx="hand"]')?.click();
+    setFocus(true);
+  });
+  let press;
+  stage.addEventListener('pointerdown', event => {
+    press = event.isPrimary ? { x: event.clientX, y: event.clientY, time: performance.now() } : null;
+  });
+  stage.addEventListener('pointercancel', () => { press = null; });
+  stage.addEventListener('click', event => {
+    if (!root.isConnected || !press) return;
+    const tap = performance.now() - press.time < 350 &&
+      Math.hypot(event.clientX - press.x, event.clientY - press.y) < 8;
+    press = null;
+    if (!tap || currentTool() !== 'hand' || window.getSelection()?.toString() ||
+        event.target.closest('a,button,input,textarea')) return;
+    if (!menu.hidden) closeMenu();
+    else setFocus(!root.classList.contains('lecture-focus'));
+  });
+}
 async function mountPdfViewer(body, bytes, lec) {
   const lib = await loadPdfJs();
   const doc = await lib.getDocument({ data: bytes }).promise;
@@ -6478,7 +6652,6 @@ async function mountPdfViewer(body, bytes, lec) {
       '</div>' +
       '<div class="pv-pill">' + pvBtn('close', PVI.close, 'إغلاق') + '</div>' +
     '</div>' +
-    '<p class="pv-title" dir="auto">' + escapeHtml(lec.title || '') + (lec.source ? '<small>' + escapeHtml([lec.doctor && lec.doctor !== 'غير محدد' ? lec.doctor : '', lec.source].filter(Boolean).join(' · ')) + '</small>' : '') + '</p>' +
     '<div class="pv-pop" id="pvPenPop" hidden style="left:50%;transform:translateX(-50%)"><div class="pv-pop-row">' + PV_COLORS.map(c => '<button type="button" class="pv-color" data-pv-color="' + c + '" style="--c:' + c + '" aria-label="لون" aria-pressed="' + (c === pen.c) + '"></button>').join('') + '</div>' +
       '<div class="pv-pop-row">' + PV_SIZES.map((w, i) => '<button type="button" class="pv-size" data-pv-size="' + w + '" aria-label="سماكة ' + (i + 1) + '" aria-pressed="' + (w === pen.w) + '"><i style="height:' + (2 + i * 2) + 'px"></i></button>').join('') + '</div></div>' +
     '<div class="pv-pop" id="pvHlPop" hidden style="left:50%;transform:translateX(-50%)"><div class="pv-pop-row">' + PV_HL.map(c => '<button type="button" class="pv-color" data-pv-hl="' + c + '" style="--c:' + c + '" aria-label="لون التظليل" aria-pressed="' + (c === hl.c) + '"></button>').join('') + '</div>' + hlAlphaRow('pv', hl.a) + '</div>' +
@@ -6497,7 +6670,7 @@ async function mountPdfViewer(body, bytes, lec) {
     const el = document.createElement('div');
     el.className = 'pv-page'; el.dataset.page = n;
     el.style.aspectRatio = vp1.width + ' / ' + vp1.height;
-    el.innerHTML = '<canvas class="pv-canvas"></canvas><canvas class="pv-ink"></canvas><span class="pv-num">' + n + '</span>';
+    el.innerHTML = '<canvas class="pv-canvas"></canvas><div class="pv-text-layer"></div><canvas class="pv-ink"></canvas><span class="pv-num">' + n + '</span>';
     wrap.appendChild(el); pages.push(el);
   }
   pdfView = { doc, lecId: lec.id, topicId: lec.topicId, pages, rendered: new Set(), rendering: new Map(), zoom: 1, tool: 'hand', pen, hl, line: prefs.line || 'band', night: !!prefs.night,
@@ -6517,6 +6690,7 @@ async function mountPdfViewer(body, bytes, lec) {
   pages.forEach(el => pdfView.observer.observe(el));
   document.getElementById('readerOverlay').classList.add('pv-active');
   bindPdfViewer(wrap);
+  mountLectureControls(document.getElementById('pdfViewer'), wrap, () => pdfView?.tool, lec, doc);
   { const v = pdfView; annGet(['pdf:' + lec.id]).then(m => { const d = m.get('pdf:' + lec.id);
       if (d && typeof d === 'object' && pdfView === v && !v.hist.length) { v.ink = d; try { localStorage.setItem(inkKey(v.lecId), JSON.stringify(d)); } catch (_) {} v.rendered.forEach(n => drawInk(n)); } }).catch(() => {}); }
   if (pdfTimer) showCountdown();
@@ -6537,7 +6711,16 @@ async function renderPdfPage(n) {
     await page.render({ canvasContext: canvas.getContext('2d'), viewport: vp }).promise;
     ink.width = canvas.width; ink.height = canvas.height;
     drawInk(n);
+    const layer = el.querySelector('.pv-text-layer');
+    const textViewport = page.getViewport({ scale: cssW / base.width });
+    layer.replaceChildren();
+    layer.style.setProperty('--scale-factor', textViewport.scale);
     v.rendered.add(n);
+    await window.pdfjsLib.renderTextLayer({
+      textContentSource: page.streamTextContent(),
+      container: layer,
+      viewport: textViewport
+    }).promise;
   })().catch(() => {}).finally(() => v.rendering.delete(n));
   v.rendering.set(n, job);
 }
@@ -6547,13 +6730,18 @@ function releaseFarPages() {
     if (Math.abs(n - v.current) > 4) {
       const el = v.pages[n - 1];
       el.querySelectorAll('canvas').forEach(c => { c.width = 0; c.height = 0; });
+      el.querySelector('.pv-text-layer').replaceChildren();
       v.rendered.delete(n);
     }
   });
 }
 function rerenderPdfPages() {
   const v = pdfView; if (!v) return;
-  v.rendered.forEach(n => v.pages[n - 1].querySelectorAll('canvas').forEach(c => { c.width = 0; c.height = 0; }));
+  v.rendered.forEach(n => {
+    const page = v.pages[n - 1];
+    page.querySelectorAll('canvas').forEach(c => { c.width = 0; c.height = 0; });
+    page.querySelector('.pv-text-layer').replaceChildren();
+  });
   v.rendered.clear();
   v.visible.forEach((_, n) => renderPdfPage(n));
 }
@@ -6696,10 +6884,9 @@ function mountTextTools(lec) {
         '<button type="button" class="pv-ib" data-tx="hl" aria-label="قلم تظليل" title="قلم تظليل" aria-pressed="false" style="--c:' + hl.c + '">' + PVI.hl + '</button>' +
         b('line', LINE_ICON, 'خط مستقيم', ' aria-pressed="false"') +
         '<button type="button" class="pv-ib" data-tx="pen" aria-label="قلم" title="قلم" aria-pressed="false" style="--c:' + pen.c + '">' + PVI.pen + '</button></div>' +
-      '<div class="pv-set" id="txSet2" hidden>' + b('set1', PVI.chevR, 'أدوات الكتابة') + b('night', PVI.night, 'الوضع الداكن') + b('fit', PVI.fit, 'حجم الخط الافتراضي') + b('top', PVI.top, 'بداية النص') + '</div>' +
+      '<div class="pv-set" id="txSet2" hidden>' + b('set1', PVI.chevR, 'أدوات الكتابة') + b('fit', PVI.fit, 'حجم الخط الافتراضي') + b('top', PVI.top, 'بداية النص') + '</div>' +
     '</div>' +
-    '<div class="pv-pill">' + b('close', PVI.close, 'إغلاق') + '</div></div>' +
-    '<p class="pv-title" dir="auto">' + escapeHtml(lec.title || '') + (lec.source ? '<small>' + escapeHtml([lec.doctor && lec.doctor !== 'غير محدد' ? lec.doctor : '', lec.source].filter(Boolean).join(' · ')) + '</small>' : '') + '</p>' +
+    '<div class="pv-pill">' + b('night', PVI.night, 'تبديل الوضع الليلي والنهاري', ' aria-pressed="' + (document.documentElement.dataset.theme === 'dark') + '"') + b('close', PVI.close, 'إغلاق') + '</div></div>' +
     '<div class="pv-pop" id="txPenPop" hidden style="left:50%;transform:translateX(-50%)"><div class="pv-pop-row">' + PV_COLORS.map(c => '<button type="button" class="pv-color" data-tx-color="' + c + '" style="--c:' + c + '" aria-label="لون" aria-pressed="' + (c === pen.c) + '"></button>').join('') + '</div>' +
       '<div class="pv-pop-row">' + PV_SIZES.map((w, i) => '<button type="button" class="pv-size" data-tx-size="' + w + '" aria-label="سماكة ' + (i + 1) + '" aria-pressed="' + (w === pen.w) + '"><i style="height:' + (2 + i * 2) + 'px"></i></button>').join('') + '</div></div>' +
     '<div class="pv-pop" id="txHlPop" hidden style="left:50%;transform:translateX(-50%)"><div class="pv-pop-row">' + PV_HL.map(c => '<button type="button" class="pv-color" data-tx-hl="' + c + '" style="--c:' + c + '" aria-label="لون التظليل" aria-pressed="' + (c === hl.c) + '"></button>').join('') + '</div>' + hlAlphaRow('tx', hl.a) + '</div>' +
@@ -6722,6 +6909,7 @@ function mountTextTools(lec) {
   txView.ro = new ResizeObserver(() => txSize()); txView.ro.observe(body);
   txSize();
   bindTextTools(bar, body);
+  mountLectureControls(bar, body.querySelector('.reader-text-content'), () => txView?.tool, lec);
   { const v = txView; annGet(['tx:' + lec.id]).then(m => { const d = m.get('tx:' + lec.id);
       if (Array.isArray(d) && txView === v && !v.hist.length) { v.items = d; try { localStorage.setItem(txKey(v.lecId), JSON.stringify(d)); } catch (_) {} txDraw(); } }).catch(() => {}); }
   if (pdfTimer) showCountdown();
@@ -6955,20 +7143,208 @@ function bindPdfViewer(wrap) {
   pvSyncHistory();
 }
 // The countdown keeps its end time, so it stays right when the tab sleeps or another PDF is opened.
-function startPdfTimer(minutes) {
+async function refreshStudyXP() {
+  const user = activeUserId;
+  if (!user || !client) return;
+  const balance = await client.rpc('study_xp_balance');
+  if (user !== activeUserId || balance.error) return;
+  const history = await client.from('study_xp_events').select('points,activity').order('created_at', { ascending: false }).limit(10);
+  if (user !== activeUserId) return;
+  const points = balance.data;
+  document.getElementById('studyXP').textContent = points + ' XP';
+  const level = 1 + Math.floor(points / 100);
+  document.getElementById('studyLevel').textContent = 'المستوى ' + level + ' · ' + (100 - points % 100) + ' XP للمستوى التالي';
+  const labels = { study: 'جلسة دراسة', quiz: 'اختبار', deck: 'مراجعة بطاقات', ai_hint: 'تلميح AI', ai_answer: 'حل AI', ai_quiz: 'توليد اختبار سابق', missed_study: 'جلسة دراسة فائتة' };
+  document.getElementById('studyXPHistory').innerHTML = (history.data || []).map(event =>
+    '<li>' + labels[event.activity] + ' ' + (event.points > 0 ? '+' : '') + event.points + ' XP</li>').join('');
+}
+async function awardPracticeXP(activity, key) {
+  if (!activeUserId || !key) return;
+  const { error } = await client.rpc('complete_practice_xp', { p_activity: activity, p_key: String(key).slice(0, 160) });
+  if (!error) refreshStudyXP();
+}
+function studyTitleMatches(a, b) {
+  const clean = value => normalizeSearch(value).replace(/\b(?:lecture|summary|pdf)\b|محاضرة|ملخص/g, '').replace(/ +/g, ' ').trim();
+  a = clean(a); b = clean(b);
+  if (!a || !b) return false;
+  if (a === b) return true;
+  const [short, long] = a.length < b.length ? [a, b] : [b, a];
+  return short.length >= 8 && short.includes(' ') && short.length / long.length >= .65 &&
+    (' ' + long + ' ').includes(' ' + short + ' ');
+}
+function scheduledActivity(material) {
+  if (!material) return null;
+  const today = spToday();
+  const day = studyDate(today).getUTCDay();
+  const ranked = scheduleItems.filter(item => !item.completed && item.kind !== 'break' &&
+    (item.scheduled_date ? item.scheduled_date === today : item.day_of_week === day)).map(item => {
+    const group = studyGroups.find(g => g.id === item.session_group_id);
+    const plan = chapterPlans.find(p => p.id === group?.plan_id);
+    const topic = studyTopics.find(t => t.id === group?.plan_topic_id);
+    if (plan && material.category && plan.category !== material.category) return { item, rank: 0 };
+    const title = topic?.title || group?.title || item.title;
+    const rank = topic?.lecture_id === material.id ? 3 :
+      studyTitleMatches(title, material.title) ? (plan ? 2 : 1) : 0;
+    return { item, rank, group: group?.id || item.id };
+  }).filter(match => match.rank).sort((a,b) => b.rank - a.rank || String(a.item.start_time).localeCompare(String(b.item.start_time)));
+  const best = ranked[0];
+  if (!best || ranked.some(match => match.rank === best.rank && match.group !== best.group)) return null;
+  return best.item;
+}
+function activeStudyMaterial() {
+  if (document.getElementById('readerOverlay').classList.contains('open')) {
+    return quizState ? (quizState.material.studyLecture || quizState.material) : lectures.find(l => l.id === readerLectureId);
+  }
+  return activeDeck;
+}
+async function saveTimedStudy(timer) {
+  if (!timer?.schedule || timer.saved || timer.user !== activeUserId) return;
+  const seconds = Math.floor(timer.elapsed / 1000);
+  if (!seconds) return;
+  timer.saved = true;
+  const { error } = await client.rpc('log_study_time', {
+    p_schedule: timer.schedule.id, p_event: timer.id, p_seconds: seconds
+  });
+  if (error) showMbToast('تعذّر تسجيل وقت الدراسة في الجدول.');
+  else await loadScheduleItems();
+}
+function startPracticeTimer() {
+  const raw = prompt('كم دقيقة تريد تدرس؟', '25');
+  if (raw === null) return;
+  const minutes = Number(raw);
+  if (!Number.isInteger(minutes) || minutes < 1 || minutes > 240) {
+    showMbToast('اختر مدة من دقيقة إلى 240 دقيقة.');
+    return;
+  }
+  startPdfTimer(minutes);
+}
+const lectureReviewThreshold = 15 * 60 * 1000;
+let lectureReviewTimer = null;
+function lectureReviewKey() { return 'medbrain_review_' + activeUserId; }
+function lectureReviewProgress() {
+  try { return JSON.parse(localStorage.getItem(lectureReviewKey()) || '{}') || {}; }
+  catch (_) { return {}; }
+}
+function stopLectureReviewTracking() {
+  if (!lectureReviewTimer) return;
+  clearInterval(lectureReviewTimer);
+  lectureReviewTimer = null;
+}
+function trackLectureReview(lecture) {
+  stopLectureReviewTracking();
+  const user = activeUserId;
+  if (!user) return;
+  let elapsed = lectureReviewProgress()[lecture.id] || 0;
+  if (elapsed >= lectureReviewThreshold) return;
+  let last = performance.now();
+  lectureReviewTimer = setInterval(() => {
+    if (activeUserId !== user || readerLectureId !== lecture.id || quizState ||
+        !document.getElementById('readerOverlay').classList.contains('open')) {
+      stopLectureReviewTracking();
+      return;
+    }
+    const now = performance.now();
+    const period = now - last;
+    last = now;
+    if (document.hidden) return;
+    elapsed = Math.min(lectureReviewThreshold, elapsed + Math.min(period, 1500));
+    try {
+      const progress = lectureReviewProgress();
+      progress[lecture.id] = Math.max(progress[lecture.id] || 0, elapsed);
+      localStorage.setItem(lectureReviewKey(), JSON.stringify(progress));
+    } catch (_) { return; }
+    if (elapsed >= lectureReviewThreshold) {
+      stopLectureReviewTracking();
+      showMbToast('انضافت المحاضرة إلى «مراجعة المحاضرات».');
+      const cacheKey = lectureReviewKey() + ':' + lecture.id;
+      generateLectureQuestions(lecture, pdfView?.doc, 'medium').then(questions => {
+        if (activeUserId === user && questions.length) localStorage.setItem(cacheKey, JSON.stringify(questions));
+      }).catch(() => {});
+    }
+  }, 1000);
+}
+function wireLectureReview() {
+  const dialog = document.getElementById('lectureReviewDialog');
+  const list = document.getElementById('lectureReviewList');
+  document.getElementById('openLectureReview').addEventListener('click', () => {
+    const progress = lectureReviewProgress();
+    const recent = lectures.filter(item => progress[item.id] >= lectureReviewThreshold);
+    const action = (id, kind, label) => '<button type="button" class="mb-mini-btn" data-review-kind="' +
+      kind + '" data-review-id="' + escapeHtml(id) + '">' + label + '</button>';
+    list.innerHTML = recent.map(lecture => {
+      const related = relatedFor(lecture);
+      return '<article><strong dir="auto">' + escapeHtml(lecture.title) + '</strong><div>' +
+        (related.questions.length ? action(lecture.id, 'questions', 'الأسئلة الموجودة') : '') +
+        (related.flash.length ? action(lecture.id, 'flash', 'الفلاش كاردز الموجودة') : '') +
+        (related.summary.length ? action(lecture.id, 'summary', 'الملخصات الموجودة') : '') +
+        action(lecture.id, 'generate', localStorage.getItem(lectureReviewKey() + ':' + lecture.id) ? 'ابدأ اختبار المراجعة' : 'ولّد اختبار مراجعة') +
+        action(lecture.id, 'open', 'افتح المحاضرة') + '</div></article>';
+    }).join('') || '<p>بعد ماكو محاضرات جاهزة للمراجعة.</p>';
+    dialog.showModal();
+  });
+  dialog.querySelector('[data-close-review]').addEventListener('click', () => dialog.close());
+  list.addEventListener('click', async event => {
+    const button = event.target.closest('[data-review-kind]');
+    if (!button) return;
+    const lecture = lectures.find(item => item.id === button.dataset.reviewId);
+    if (!lecture) return;
+    dialog.close();
+    if (lectureHasText(lecture)) await openReader(lecture.id);
+    else await openPdfInReader(lecture.id);
+    if (readerLectureId !== lecture.id || relatedLecture?.id !== lecture.id) return;
+    const kind = button.dataset.reviewKind;
+    if (kind === 'generate') {
+      let saved;
+      try { saved = JSON.parse(localStorage.getItem(lectureReviewKey() + ':' + lecture.id)); } catch (_) {}
+      if (Array.isArray(saved) && saved.length) {
+        openCustomQuiz('مراجعة — ' + lecture.title, 'MCQ', saved, lecture);
+        return;
+      }
+      const relatedButton = document.querySelector('#readerOverlay [data-reader-related]');
+      if (relatedButton && relatedButton.getAttribute('aria-expanded') === 'false') relatedButton.click();
+      if (!relatedButton) showMbToast('تعذّر تجهيز الاختبار من هذا الملف.');
+    } else if (kind !== 'open') openSidePanel(kind);
+  });
+}
+function autoStartScheduledLecture(lecture) {
+  trackLectureReview(lecture);
+  if (pdfTimer?.schedule && !pdfTimer.done && pdfTimer.lectureId === lecture.id) return;
+  if (pdfTimer?.lectureId) stopPdfTimer();
+  const session = scheduledActivity(lecture);
+  if (session) startPdfTimer(Math.max(1, Math.ceil(((session.duration_minutes || 25) * 60 -
+    (session.studied_seconds || 0)) / 60)), lecture.id);
+}
+function startPdfTimer(minutes, lectureId = null) {
   stopPdfTimer();
-  pdfTimer = { end: Date.now() + minutes * 60000, done: false, tick: setInterval(showCountdown, 1000) };
+  const start = Date.now();
+  const schedule = scheduledActivity(activeStudyMaterial());
+  pdfTimer = { id: crypto.randomUUID(), user: activeUserId, schedule, lectureId, elapsed: 0, lastTick: start, end: start + minutes * 60000,
+    done: false, tick: setInterval(showCountdown, 1000) };
+  if (schedule) showMbToast('المؤقت مرتبط بجدول اليوم: ' + schedule.title);
   showCountdown();
 }
 function stopPdfTimer() {
-  if (pdfTimer) clearInterval(pdfTimer.tick);
+  if (pdfTimer) {
+    sampleStudyTime(pdfTimer);
+    clearInterval(pdfTimer.tick);
+    void saveTimedStudy(pdfTimer);
+  }
   pdfTimer = null;
+  showCountdown();
   const box = document.getElementById('pvCountdown'); if (box) box.hidden = true;
   const tb = document.querySelector('#pdfViewer [data-pv="timer"]'); if (tb) tb.classList.remove('is-running');
 }
+function sampleStudyTime(timer) {
+  const now = Math.min(Date.now(), timer.end);
+  const elapsed = Math.max(0, now - timer.lastTick);
+  if (!document.hidden) timer.elapsed += Math.min(elapsed, 2000);
+  timer.lastTick = now;
+}
 function showCountdown() {
   const box = document.getElementById('pvCountdown'), clock = document.getElementById('pvClock');
-  if (!pdfTimer) return;
+  const practice = document.querySelectorAll('[data-practice-clock]');
+  if (!pdfTimer) { practice.forEach(el => el.textContent = '⏱ المؤقت'); return; }
+  sampleStudyTime(pdfTimer);
   const left = Math.max(0, pdfTimer.end - Date.now());
   const tb = document.querySelector('#pdfViewer [data-pv="timer"]'); if (tb) tb.classList.toggle('is-running', left > 0);
   if (box && clock) {
@@ -6979,7 +7355,9 @@ function showCountdown() {
     box.classList.toggle('is-done', !left);
     box.classList.toggle('is-last', left > 0 && left <= 60000);
   }
+  practice.forEach(el => { el.textContent = left ? '⏱ ' + Math.ceil(left / 1000) + ' ث · إيقاف' : '⏱ المؤقت'; });
   if (!left && !pdfTimer.done) {
+    void saveTimedStudy(pdfTimer);
     pdfTimer.done = true; clearInterval(pdfTimer.tick);
     try { navigator.vibrate && navigator.vibrate([200, 100, 200]); } catch (_) {}
   }
@@ -6998,15 +7376,18 @@ async function openReader(id) {
   document.getElementById('readerTitle').textContent = lec.title;
   document.getElementById('readerMeta').textContent = [lec.source, lec.category, lec.topic, lec.type].filter(Boolean).join(' · ');
   document.getElementById('readerOverlay').classList.remove('pdf-mode');
-  document.getElementById('readerBody').innerHTML = renderLectureText(lec.text);
+  document.getElementById('readerBody').innerHTML = '<div class="reader-text-content">' + renderLectureText(lec.text) + '</div>';
   renderRelatedBar(lec);
   const words = String(lec.text || '').trim().split(/\s+/).filter(Boolean).length;
   document.getElementById('readerTime').textContent = 'قراءة تقديرية: ' + Math.max(1, Math.ceil(words / 180)) + ' دقيقة';
   buildReaderContents();
   openReaderSurface();
+  autoStartScheduledLecture(lec);
   try { mountTextTools(lec); } catch (err) { console.warn('text tools unavailable', err); }
 }
 function closeReader() {
+  stopLectureReviewTracking();
+  if (pdfTimer && document.getElementById('readerOverlay').classList.contains('open')) stopPdfTimer();
   destroyPdfViewer();
   destroyTextTools();
   closeAIChat(false);
@@ -7680,8 +8061,13 @@ function wireAuthoringEvents() {
     if (e.target.closest('[data-quiz-report]')) { openQuestionReport(); return; }
     const choice = e.target.closest('[data-quiz-choice]');
     if (choice && quizState && quizState.answers[quizState.index] == null) {
-      quizState.answers[quizState.index] = Number(choice.dataset.quizChoice);
+      const workspace = document.getElementById('readerWorkspace');
+      const choiceIndex = Number(choice.dataset.quizChoice);
+      const top = choice.getBoundingClientRect().top;
+      quizState.answers[quizState.index] = choiceIndex;
       renderQuiz(true);
+      const selected = workspace.querySelector('[data-quiz-choice="' + choiceIndex + '"]');
+      if (selected) workspace.scrollTop += selected.getBoundingClientRect().top - top;
       return;
     }
     const nav = e.target.closest('[data-quiz-nav]');
@@ -7783,6 +8169,7 @@ function renderQuiz(keepScroll) {
   const questions = material.questions;
   const body = document.getElementById('readerBody');
   if (index >= questions.length) {
+    void awardPracticeXP('quiz', material.id === 'self-quiz' ? material.title : material.id);
     body.innerHTML = '<h3>اكتملت المجموعة</h3><p>نتيجتك: ' + quizScore(questions, answers) + ' من ' + questions.length +
       '</p><button type="button" class="quiz-next" data-quiz-nav="restart">إعادة المحاولة</button>';
     document.getElementById('readerWorkspace').scrollTop = 0;
@@ -7797,7 +8184,7 @@ function renderQuiz(keepScroll) {
   const doneCount = answers.filter(a => a != null).length;
   const stemHtml = stemWithMarks(p.text, quizState.hl && Array.isArray(quizState.hl[index]) ? quizState.hl[index] : null);
   let html = studyBarHtml({ pos: index + 1, total: questions.length, done: doneCount, right, wrong, highlight: true, settings: true, ai: true }) +
-    '<div class="study-grid">' + studyGaugeHtml(right, wrong) + '<div class="study-main">' +
+    '<div class="study-grid">' + studyGaugeHtml(right, wrong, true) + '<div class="study-main">' +
     '<div class="quiz-head"><button type="button" class="quiz-save" data-quiz-save aria-pressed="' + isSavedQ(q, index) + '" title="' + (isSavedQ(q, index) ? 'محفوظ' : 'احفظ السؤال') + '" aria-label="احفظ السؤال للرجوع إليه"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.3 5.9.9-4.3 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"/></svg></button>' +
     '<button type="button" class="quiz-report" data-quiz-report title="الإبلاغ عن خطأ في هذا السؤال" aria-label="الإبلاغ عن خطأ في هذا السؤال">' +
     '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 21V4m0 0h11l-2 4 2 4H5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>إبلاغ</button></div>' +
@@ -7842,11 +8229,12 @@ async function collectQuestions(pool, n) {
   }));
   return shuffledCopy(all).slice(0, n);
 }
-function openCustomQuiz(title, meta, questions) {
+function openCustomQuiz(title, meta, questions, studyLecture = null) {
   destroyPdfViewer();
   destroyTextTools();
   if (!questions.length) { alert('لا توجد أسئلة كافية هنا بعد.'); return false; }
-  const material = { id: 'self-quiz', title, source: '', topic: '', questions };
+  if (pdfTimer && pdfTimer.lectureId) stopPdfTimer();
+  const material = { id: 'self-quiz', title, source: '', topic: '', questions, studyLecture };
   quizState = { material, index: 0, answers: [] };
   document.getElementById('readerOverlay').classList.remove('pdf-mode');
   closeSidePanel();
@@ -7936,12 +8324,12 @@ async function collectFromFiles(ids, n) {
   list.forEach(l => (l.questions || []).forEach((q, i) => { if (q && Array.isArray(q.options) && q.options[q.correctIndex]) all.push(Object.assign({}, q, { _lec: l.id, _i: i })); }));
   return shuffledCopy(all).slice(0, n);
 }
-async function generateAIQuiz(topic, cat, n) {
+async function generateAIQuiz(topic, cat, n, lectureOptions = {}) {
   const { data, error } = await client.auth.getSession();
   if (error || !data.session?.access_token) throw new Error('سجّل الدخول أولًا.');
   const response = await fetch(SUPABASE_URL + '/functions/v1/medbrain-ai', { method: 'POST',
     headers: { 'Content-Type': 'application/json', apikey: SUPABASE_KEY, Authorization: 'Bearer ' + data.session.access_token },
-    body: JSON.stringify({ action: 'quiz', topic, subject: cat || '', count: Math.min(10, Math.max(3, n)) }) });
+    body: JSON.stringify({ action: 'quiz', topic, subject: cat || '', count: Math.min(10, Math.max(3, n)), ...lectureOptions }) });
   const result = await response.json().catch(() => null);
   if (!response.ok) throw new Error(result?.message || 'تعذّر إنشاء الأسئلة. حاول لاحقًا.');
   return (result.questions || []).map(q => Object.assign({}, q, { _ai: true }));
@@ -8021,6 +8409,7 @@ async function runSelfQuiz(e) {
         if (!topic) { status.textContent = 'اكتب موضوع الأسئلة.'; document.getElementById('sqAiTopic').focus(); return; }
         status.textContent = 'يكتب المساعد الأسئلة… قد يستغرق ذلك نصف دقيقة.';
         const qs = await generateAIQuiz(topic, cat, n);
+        void refreshStudyXP();
         if (!qs.length) { status.textContent = 'لم تصل أسئلة صالحة. جرّب موضوعًا أوضح.'; return; }
         ok = openCustomQuiz('AI Quiz — ' + topic, 'Quiz', qs);
       } else {
@@ -8585,7 +8974,7 @@ function toggleFullscreen() {
 }
 function studyBarHtml(o) {
   const pct = o.total ? Math.round(o.done / o.total * 100) : 0;
-  return '<div class="study-wrap"><div class="study-bar"><div class="study-tools">' +
+  return '<div class="study-wrap"><div class="study-bar"><div class="study-tools"><button type="button" class="study-ib" data-practice-clock>⏱ المؤقت</button>' +
     '<button type="button" class="study-ib is-lab" data-open-labs aria-pressed="' + !document.getElementById('labsPanel').hidden + '" aria-label="Show lab values" title="Show lab values">' + STUDY_ICONS.lab + '</button>' +
     (o.highlight ? '<button type="button" class="study-ib" data-study="hl" aria-pressed="' + quizHighlight + '" aria-label="Highlight mode" title="Highlight mode">' + STUDY_ICONS.hl + '</button>' +
       '<span class="study-hl-colors"' + (quizHighlight ? '' : ' hidden') + '>' + QUIZ_HL.map(([c, l]) => '<button type="button" class="study-hl-dot hl-dot-' + c + '" data-study-hl="' + c + '" aria-label="' + l + '" aria-pressed="' + (c === quizHlColor) + '"></button>').join('') + '</span>' : '') +
@@ -8598,10 +8987,10 @@ function studyBarHtml(o) {
     '</div>' + (o.settings ? '<div class="study-pop" id="studyPop" hidden><p>حجم خط السؤال</p><div class="chip-row">' +
       [[0.9, 'A−'], [1, 'A'], [1.15, 'A+'], [1.3, 'A++']].map(([v, l]) => '<button type="button" data-study-fs="' + v + '" aria-pressed="' + (v === studyFont) + '">' + l + '</button>').join('') + '</div></div>' : '') + '</div>';
 }
-function studyGaugeHtml(right, wrong) {
+function studyGaugeHtml(right, wrong, restart = false) {
   const answered = right + wrong, pct = answered ? Math.round(right / answered * 100) : 0, ipct = answered ? 100 - pct : 0;
   const len = Math.PI * 80, dash = (pct / 100) * len;
-  return '<aside class="study-progress-card"><h4>Your progress</h4>' +
+  return '<aside class="study-progress-card"><h4>Your progress ' + (restart ? '<button type="button" class="mb-mini-btn" data-quiz-nav="restart" aria-label="إعادة التقييم" title="إعادة التقييم">↻</button>' : '') + '</h4>' +
     '<svg class="study-gauge" viewBox="0 0 200 120" aria-hidden="true"><path d="M20 105a80 80 0 0 1 160 0" fill="none" stroke="var(--surface-alt)" stroke-width="16" stroke-linecap="round"/>' +
     '<path d="M20 105a80 80 0 0 1 160 0" fill="none" stroke="#2da44e" stroke-width="16" stroke-linecap="round" stroke-dasharray="' + dash.toFixed(1) + ' ' + len.toFixed(1) + '"' + (pct ? '' : ' opacity="0"') + '/>' +
     '<text x="100" y="88" text-anchor="middle" class="study-gauge-num">' + pct + '%</text><text x="100" y="108" text-anchor="middle" class="study-gauge-lbl">correct</text></svg>' +
