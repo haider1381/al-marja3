@@ -2913,7 +2913,18 @@ html[lang="en"] .mb-feature-en, html[lang="en"] .sp-title small { display:none; 
   .friend-request-avatar { flex:none; width:30px; height:30px; display:grid; place-items:center; border-radius:50%; background:var(--accent-soft); font-size:12px; font-weight:700; }
   .friend-request-actions { display:flex; flex-wrap:wrap; gap:6px; }
   #friendStatus:empty { display:none; }
-  .mb-drawer .friend-invite-link { margin:10px 12px 16px; padding:8px 5px; align-self:flex-start; border:0; border-radius:0; background:transparent; color:var(--text-muted); font:inherit; font-size:13px; text-decoration:underline; text-underline-offset:4px; cursor:pointer; }
+  .mb-drawer .mb-nav .friend-invite-link { background:transparent; }
+  #accountOverlay { padding:0; }
+  #accountOverlay > .mb-dialog { width:100%; max-width:none; height:100%; max-height:none; border:0; border-radius:0; overflow:auto; padding:clamp(16px,4vw,40px); }
+  #accountOverlay .account-page-head, #accountOverlay .mb-profile-editor { max-width:850px; margin-inline:auto; }
+  #accountOverlay [hidden] { display:none!important; }
+  .account-page-actions { display:flex; align-items:center; gap:8px; }
+  #accountEdit svg { width:18px; height:18px; vertical-align:middle; }
+  .account-profile-summary { margin:0; }
+  .account-profile-summary > div { border-bottom:1px solid var(--border); padding:12px 0; }
+  .account-profile-summary dt { font-size:13px; color:var(--text-muted); }
+  .account-profile-summary dd { margin:4px 0 0; }
+  .account-profile-code { display:flex; flex-wrap:wrap; align-items:center; gap:8px; }
 
   :is(.mb-list-fold,#scheduleSection details,details.sp-topic) > summary { cursor:pointer; list-style:none; }
   :is(.mb-list-fold,#scheduleSection details,details.sp-topic) > summary::-webkit-details-marker { display:none; }
@@ -3033,7 +3044,7 @@ html[lang="en"] .mb-feature-en, html[lang="en"] .sp-title small { display:none; 
         </div>
         <button class="mb-close" id="drawerClose" type="button" aria-label="إغلاق">×</button>
       </div>
-      <button type="button" class="mb-drawer-user" id="drawerProfileBtn" aria-label="تعديل معلومات الملف الشخصي" aria-haspopup="dialog">
+      <button type="button" class="mb-drawer-user" id="drawerProfileBtn" aria-label="عرض الملف الشخصي" aria-haspopup="dialog">
         <span class="mb-avatar" id="drawerAvatar">MB</span>
         <span><span class="mb-user-name" id="drawerUserName" style="display:block">Medbrain User</span><span class="mb-user-email" id="drawerUserEmail" style="display:block"></span><span class="mb-profile-hint">الملف الشخصي</span></span>
       </button>
@@ -3046,8 +3057,8 @@ html[lang="en"] .mb-feature-en, html[lang="en"] .sp-title small { display:none; 
 <button type="button" data-tool-view="favorites"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m19 21-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg><span>المفضلات<small>المواد التي حفظتها للرجوع إليها</small></span></button>
 <button type="button" class="mb-settings-nav" data-tool-view="settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="m9 3-1 3-3 1-2 3 2 2-1 3 3 2 3-1 2 2 3-1 1-3 3-1 2-3-2-2 1-3-3-2-3 1-2-2z"/></svg><span>الإعدادات<small>المظهر والقراءة والحساب</small></span></button>
 <a class="mb-support-nav js-support-tg" href="https://t.me/ha_hayder" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M21.9 4.3 18.7 19.4c-.2 1-.9 1.3-1.8.8l-4.9-3.6-2.4 2.3c-.3.3-.5.5-1 .5l.3-5 9.1-8.2c.4-.4-.1-.6-.6-.2L6.2 13.1l-4.8-1.5c-1-.3-1.1-1 .2-1.5L20.5 2.8c.9-.3 1.6.2 1.4 1.5Z"/></svg><span>مراسلة الدعم<small>للمشاكل والاستفسارات</small></span></a>
+<button type="button" class="friend-invite-link" id="openFriendInvite" data-friends-ready hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 4l18 8-18 8 3-8-3-8zm3 8h15"/></svg><span>دعوة صديق<small>مشاركة رابط الدعوة</small></span></button>
 </nav>
-<button type="button" class="friend-invite-link" id="openFriendInvite" data-friends-ready hidden>دعوة صديق</button>
 
   </aside>
 </div>
@@ -3126,17 +3137,31 @@ html[lang="en"] .mb-feature-en, html[lang="en"] .sp-title small { display:none; 
 
 <div class="mb-layer" id="accountOverlay" aria-hidden="true">
   <section class="mb-dialog" role="dialog" aria-modal="true" aria-labelledby="accountTitle">
-    <div class="mb-dialog-head"><h2 id="accountTitle">الملف الشخصي</h2><button class="mb-close" id="accountClose" type="button" aria-label="إغلاق">×</button></div>
+    <div class="mb-dialog-head account-page-head"><h2 id="accountTitle">الملف الشخصي</h2>
+      <div class="account-page-actions">
+        <button class="mb-file-btn" id="accountEdit" type="button" aria-label="تعديل الملف الشخصي"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m15 5 4 4M4 20l4.5-1 12-12a2.8 2.8 0 0 0-4-4l-12 12L4 20Z"/></svg></button>
+        <button class="mb-close" id="accountClose" type="button" aria-label="إغلاق">×</button>
+      </div>
+    </div>
     <div class="mb-profile-editor">
       <div class="mb-profile-photo-card">
         <div class="big-avatar" id="accountAvatar">MB</div>
         <strong id="accountName">Medbrain User</strong>
         <span id="accountEmail" style="font-size:11px;color:#718096;direction:ltr;word-break:break-all"></span>
-        <label class="mb-file-btn" for="profileAvatarInput">تغيير الصورة</label>
-        <input type="file" id="profileAvatarInput" accept="image/jpeg,image/png,image/webp" hidden>
-        <small style="color:#8291a1;text-align:center">JPG / PNG / WebP — حتى 2MB بعد الضغط</small>
+        <div id="accountPhotoTools" hidden>
+          <label class="mb-file-btn" for="profileAvatarInput">تغيير الصورة</label>
+          <input type="file" id="profileAvatarInput" accept="image/jpeg,image/png,image/webp" hidden>
+          <small style="color:#8291a1;text-align:center">JPG / PNG / WebP — حتى 2MB بعد الضغط</small>
+        </div>
       </div>
-      <form class="mb-profile-fields" id="profileForm">
+      <div>
+      <dl class="account-profile-summary">
+        <div><dt>ID الخاص بك</dt><dd class="account-profile-code"><bdi id="accountFriendCode">—</bdi><button type="button" class="mb-file-btn" id="copyAccountFriendCode" hidden>نسخ</button></dd></div>
+        <div class="account-read-detail"><dt>الجنس</dt><dd id="accountGenderValue">—</dd></div>
+        <div class="account-read-detail"><dt>العمر</dt><dd id="accountAgeValue">—</dd></div>
+        <div class="account-read-detail"><dt>المرحلة الدراسية</dt><dd id="accountStageValue">—</dd></div>
+      </dl>
+      <form class="mb-profile-fields" id="profileForm" hidden>
         <label>الاسم الأول
           <input type="text" id="profileFirstName" maxlength="40" autocomplete="given-name" dir="auto" required>
         </label>
@@ -3157,10 +3182,12 @@ html[lang="en"] .mb-feature-en, html[lang="en"] .sp-title small { display:none; 
         </label>
         <div>
           <button class="mb-primary" id="profileSaveBtn" type="submit">حفظ التغييرات</button>
+          <button class="mb-file-btn" id="cancelAccountEdit" type="button">إلغاء</button>
         </div>
         <div class="mb-status" id="profileStatus"></div>
         <div class="read-only-badge" id="readOnlyBadge" style="display:none;margin-top:4px">حساب طالب — القراءة وإدارة أدواتك الشخصية</div>
       </form>
+      </div>
     </div>
   </section>
 </div>
@@ -3823,6 +3850,8 @@ function doctorTitle(name) {
 }
 function applyIdentityUI() {
   const initials = initialsForName(activeUserName);
+  const extras = profileExtrasFromUser(activeUser);
+  const stageLabels = ['—', 'المرحلة الأولى', 'المرحلة الثانية', 'المرحلة الثالثة', 'المرحلة الرابعة', 'المرحلة الخامسة', 'المرحلة السادسة', 'خريج / طبيب مقيم'];
   const textMap = {
     welcomeName: doctorTitle(activeUserName),
     profileAge: profileExtrasFromUser(activeUser).age ? String(profileExtrasFromUser(activeUser).age) : '',
@@ -3832,6 +3861,9 @@ function applyIdentityUI() {
     profileMenuEmail: activeUserEmail,
     accountName: activeUserName,
     accountEmail: activeUserEmail,
+    accountGenderValue: extras.gender === 'male' ? 'ذكر' : extras.gender === 'female' ? 'أنثى' : '—',
+    accountAgeValue: extras.age || '—',
+    accountStageValue: stageLabels[extras.stage] || '—',
     profileFirstName: namePartsFromUser(activeUser).first,
     profileLastName: namePartsFromUser(activeUser).last,
     profileEmailField: activeUserEmail
@@ -5718,9 +5750,19 @@ function openTopicsPanel() {
 }
 function openAccountPanel() {
   renderMedbrainWidgets();
-  applyIdentityUI();
-  document.getElementById('profileStatus').textContent='';
+  setAccountEditing(false);
   setLayerOpen('accountOverlay', true);
+  document.getElementById('accountClose').focus({ preventScroll: true });
+  if (activeUserId) void loadFriends();
+}
+function setAccountEditing(editing) {
+  applyIdentityUI();
+  document.getElementById('profileStatus').textContent = '';
+  document.getElementById('profileForm').hidden = !editing;
+  document.getElementById('accountPhotoTools').hidden = !editing;
+  document.getElementById('accountEdit').hidden = editing;
+  document.querySelectorAll('.account-read-detail').forEach(row => { row.hidden = editing; });
+  if (editing) document.getElementById('profileFirstName').focus();
 }
 function renderTopicsModal() {
   const grid = document.getElementById('topicsGrid');
@@ -5927,7 +5969,6 @@ function wireMedbrainEvents() {
   document.getElementById('drawerProfileBtn').addEventListener('click', () => {
     closeDrawer();
     openAccountPanel();
-    document.getElementById('profileFirstName').focus();
   });
   backdrop.addEventListener('click', e => { if (e.target === backdrop) closeDrawer(); });
 
@@ -5945,6 +5986,23 @@ function wireMedbrainEvents() {
   });
   document.getElementById('topicsClose').addEventListener('click', () => setLayerOpen('topicsOverlay', false));
   document.getElementById('accountClose').addEventListener('click', () => setLayerOpen('accountOverlay', false));
+  document.getElementById('accountEdit').addEventListener('click', () => setAccountEditing(true));
+  document.getElementById('cancelAccountEdit').addEventListener('click', () => {
+    setAccountEditing(false);
+    document.getElementById('accountEdit').focus();
+  });
+  document.getElementById('copyAccountFriendCode').addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(document.getElementById('accountFriendCode').textContent);
+      showMbToast('نُسخ ID الخاص بك.');
+    } catch (_) {
+      const range = document.createRange();
+      range.selectNodeContents(document.getElementById('accountFriendCode'));
+      const selection = window.getSelection();
+      selection.removeAllRanges();
+      selection.addRange(range);
+    }
+  });
   document.getElementById('topicsOverlay').addEventListener('click', e => { if (e.target.id === 'topicsOverlay') setLayerOpen('topicsOverlay', false); });
   document.getElementById('accountOverlay').addEventListener('click', e => { if (e.target.id === 'accountOverlay') setLayerOpen('accountOverlay', false); });
 
@@ -6037,7 +6095,8 @@ function wireMedbrainEvents() {
     btn.disabled=true; status.textContent='جارٍ الحفظ…';
     try{
       await saveProfileName(document.getElementById('profileFirstName').value, document.getElementById('profileLastName').value, document.getElementById('profileGender').value, document.getElementById('profileAge').value, document.getElementById('profileStage').value);
-      status.textContent='تم حفظ بياناتك.';
+      setAccountEditing(false);
+      document.getElementById('accountEdit').focus();
       showMbToast('تم تحديث الملف الشخصي.');
     }catch(err){console.error(err);status.textContent=err.message||'تعذّر حفظ الملف الشخصي.';}
     finally{btn.disabled=false;}
@@ -7482,6 +7541,8 @@ function resetFriends() {
   document.getElementById('friendPrivacy').checked = false;
   document.getElementById('friendInviteLink').value = '';
   document.getElementById('friendCodeValue').value = '';
+  document.getElementById('accountFriendCode').textContent = '—';
+  document.getElementById('copyAccountFriendCode').hidden = true;
   document.getElementById('friendPeer').value = '';
 }
 
@@ -7505,6 +7566,8 @@ async function loadFriends() {
   status.textContent = '';
   const ownCode = document.getElementById('friendOwnCode');
   document.getElementById('friendCodeValue').value = data.profile.friend_code;
+  document.getElementById('accountFriendCode').textContent = data.profile.friend_code;
+  document.getElementById('copyAccountFriendCode').hidden = false;
   ownCode.hidden = false;
   document.getElementById('friendPrivacyOption').hidden = false;
   document.getElementById('friendPrivacy').checked = data.profile.share_progress === true;
@@ -9657,6 +9720,8 @@ const I18N_EN = {"(اختياري — حتى 50 MB)": "(optional — up to 50 MB
 let uiLang = 'ar';
 try { uiLang = localStorage.getItem('medbrain_lang') === 'en' ? 'en' : 'ar'; } catch (_) {}
 Object.assign(I18N_EN, {
+  "عرض الملف الشخصي": "View profile",
+  "مشاركة رابط الدعوة": "Share your invitation link",
   "تم تسجيل الدخول.": "Signed in.",
   "تم تسجيل الخروج.": "Signed out.",
   "تم حفظ الملف الشخصي.": "Profile saved.",
