@@ -3107,10 +3107,11 @@ body:has(:is(#friendsDialog,#friendChatDialog,#friendInboxDialog,#friendProfileD
   background:var(--drawer-active) !important;
 }
 #navDrawer .mb-nav :is(svg,small),#navDrawer .mb-drawer-user .mb-user-email {color:var(--drawer-icon);}
+:root[data-theme] .mb-brand-mark {background:#231546;border-color:#483475;}
 </style>
-<link rel="manifest" href="./manifest.webmanifest">
-<link rel="icon" type="image/png" sizes="192x192" href="./assets/app-icon-192.png">
-<link rel="apple-touch-icon" sizes="180x180" href="./assets/apple-touch-icon.png">
+<link rel="manifest" href="./manifest.webmanifest?v=indigo1">
+<link rel="icon" type="image/png" sizes="192x192" href="./assets/app-icon-192.png?v=indigo1">
+<link rel="apple-touch-icon" sizes="180x180" href="./assets/apple-touch-icon.png?v=indigo1">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Medbrain">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -3619,7 +3620,7 @@ body:has(:is(#friendsDialog,#friendChatDialog,#friendInboxDialog,#friendProfileD
 <div class="mb-personal-grid">
  <div class="mb-personal-card device-card"><h3>أدوات جهازك</h3><p>جلسات تركيز واستراحات مع مؤقّت يمكنك تصغيره أثناء القراءة.</p><button type="button" class="mb-primary" data-open-focus>فتح مؤقّت الدراسة</button></div>
  <div class="mb-personal-card device-card"><h3>بياناتك وخصوصيتك</h3><p><a href="./privacy.html" target="_blank" rel="noopener">سياسة الخصوصية</a> · <a href="./support.html" target="_blank" rel="noopener">الدعم والملاحظات</a></p><div class="mb-personal-actions"><button type="button" class="mb-file-btn" id="exportMyData">تصدير بياناتي</button><button type="button" class="device-danger" id="openDeleteAccount">حذف حسابي</button></div><p id="devicePrivacyStatus" role="status"></p><p>Medbrain منصة تعليمية للطلاب، ولا تُستخدم لتشخيص المرضى أو اتخاذ قرارات علاجية.</p></div>
- <div class="mb-personal-card mb-install-card"><img src="./assets/app-icon-192.png" alt=""><h3>Medbrain على جهازك</h3><p>أضف التطبيق إلى الشاشة الرئيسية وافتحه بأيقونة مستقلة. المحاضرات والحساب والذكاء الاصطناعي تحتاج اتصالًا بالإنترنت.</p><button type="button" class="mb-primary" data-install-app>تثبيت Medbrain</button><p id="installAppStatus" role="status"></p></div>
+ <div class="mb-personal-card mb-install-card"><img src="./assets/app-icon-192.png?v=indigo1" alt=""><h3>Medbrain على جهازك</h3><p>أضف التطبيق إلى الشاشة الرئيسية وافتحه بأيقونة مستقلة. المحاضرات والحساب والذكاء الاصطناعي تحتاج اتصالًا بالإنترنت.</p><button type="button" class="mb-primary" data-install-app>تثبيت Medbrain</button><p id="installAppStatus" role="status"></p></div>
  <div class="mb-personal-card"><h3>المظهر والقراءة</h3>
   <div class="mb-setting-row"><label for="settingsLang">لغة الواجهة</label><select id="settingsLang" data-no-i18n><option value="ar">العربية</option><option value="en">English</option></select></div>
   <div class="mb-setting-row"><label for="settingsTheme">مظهر التطبيق<small>يسري على الموقع وواجهة القراءة.</small></label><select id="settingsTheme"><option value="light">فاتح</option><option value="dark">داكن</option></select></div>
@@ -11125,6 +11126,6 @@ if (typeof document !== 'undefined' && typeof document.getElementById === 'funct
 
 init();
 </script>
-<dialog id="installAppDialog" aria-labelledby="installAppTitle" aria-describedby="installAppGuidance"><img src="./assets/app-icon-192.png" alt=""><h2 id="installAppTitle">ثبّت Medbrain على جهازك</h2><p id="installAppGuidance"></p><p><a href="https://haider1381.github.io/al-marja3/" target="_blank" rel="noopener noreferrer">فتح رابط التطبيق في المتصفح</a></p><button type="button" class="mb-primary" id="installAppClose">فهمت</button></dialog>
+<dialog id="installAppDialog" aria-labelledby="installAppTitle" aria-describedby="installAppGuidance"><img src="./assets/app-icon-192.png?v=indigo1" alt=""><h2 id="installAppTitle">ثبّت Medbrain على جهازك</h2><p id="installAppGuidance"></p><p><a href="https://haider1381.github.io/al-marja3/" target="_blank" rel="noopener noreferrer">فتح رابط التطبيق في المتصفح</a></p><button type="button" class="mb-primary" id="installAppClose">فهمت</button></dialog>
 </body>
 </html>
