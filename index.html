@@ -3214,7 +3214,7 @@ body>.mb-note-menu[data-open=true]{display:grid!important;position:fixed!importa
       <h2 id="gateTitle">Medbrain</h2>
       <p class="sub" id="gateSubtitle">سجّل الدخول إلى عقلك الطبي ومكتبتك الدراسية.</p>
     </div>
-    <div class="gate-tabs" role="tablist" aria-label="نوع الدخول">
+    <div class="gate-tabs" id="gateTabs" role="tablist" aria-label="نوع الدخول">
       <button type="button" role="tab" id="gateTabSignup" data-gate-mode="signup" aria-selected="false">حساب جديد</button>
       <button type="button" role="tab" id="gateTabLogin" data-gate-mode="login" aria-selected="true">لدي حساب</button>
     </div>
@@ -5153,16 +5153,27 @@ async function init() {
   }
   await syncAccess(session);
 }
+let rememberedSignIn = false;
+function hasSignedInBefore() {
+  if (rememberedSignIn) return true;
+  try { return localStorage.getItem('medbrain_signed_in_before') === '1'; }
+  catch (_) { return false; }
+}
 function shouldShowWelcome(entry) {
   const installedApp = deviceIsNative() || matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
   if (installedApp || entry.hash || ['auth', 'code', 'error', 'error_code', 'delete-account'].some(key => entry.searchParams.has(key))) return false;
-  try { return localStorage.getItem('medbrain_signed_in_before') !== '1'; }
-  catch (_) { return true; }
+  return !hasSignedInBefore();
 }
 function showGate() {
   closeSearchSuggestions();
   setSearchFiltersOpen(false);
-  document.getElementById('gateOverlay').classList.add('open');
+  const gate = document.getElementById('gateOverlay');
+  const returning = hasSignedInBefore();
+  document.getElementById('gateTabs').hidden = returning;
+  if (returning && document.getElementById('gateTabSignup').getAttribute('aria-selected') === 'true') {
+    document.getElementById('gateTabLogin').click();
+  }
+  gate.classList.add('open');
   document.body.classList.remove('auth-pending');
 }
 function hideGate() {
@@ -5218,6 +5229,7 @@ async function syncAccess(session, signedIn = false) {
   applyAccessUI();
   render();
   if (!session) { showGate(); return; }
+  rememberedSignIn = true;
   try { localStorage.setItem('medbrain_signed_in_before', '1'); } catch (_) {}
   hideGate();
   syncNamePrompt();
@@ -5369,11 +5381,10 @@ function wireGateEvents() {
     const msg = document.getElementById('gateError'); msg.textContent = ''; msg.classList.remove('ok');
   };
   document.querySelectorAll('[data-gate-mode]').forEach(tab => tab.addEventListener('click', () => setGateMode(tab.dataset.gateMode)));
-  // Most visitors are new, so "New account" opens first; a device that has signed in before opens "I have an account".
-  let knownDevice = false;
-  try { knownDevice = localStorage.getItem('medbrain_signed_in_before') === '1'; } catch (_) {}
+  const returning = hasSignedInBefore();
+  document.getElementById('gateTabs').hidden = returning;
   const requestedMode = new URLSearchParams(location.search).get('auth');
-  setGateMode(['login', 'signup'].includes(requestedMode) ? requestedMode : knownDevice ? 'login' : 'signup');
+  setGateMode(returning || requestedMode === 'login' ? 'login' : 'signup');
   document.querySelectorAll('[data-toggle-password]').forEach(button => button.addEventListener('click', () => {
     const show = button.getAttribute('aria-pressed') !== 'true';
     button.setAttribute('aria-pressed', String(show));
@@ -5418,13 +5429,14 @@ function wireGateEvents() {
       if (signup && /already|registered/i.test(text)) errEl.textContent = 'هذا البريد لديه حساب بالفعل. اختر «لدي حساب» وسجّل الدخول.';
       else if (signup && /signup.*(disabled|not allowed)/i.test(text)) errEl.textContent = 'إنشاء الحسابات الجديدة متوقف حاليًا.';
       else if (signup) errEl.textContent = 'تعذّر إنشاء الحساب. تحقق من البريد والاتصال ثم حاول مجددًا.';
-      else if (err?.code === 'user_not_found' && gateMode === 'login') {
+      else if (err?.code === 'user_not_found' && gateMode === 'login' && !hasSignedInBefore()) {
         setGateMode('signup');
         errEl.textContent = 'ماكو حساب مسجّل بهذا البريد. كمّل بياناتك في «حساب جديد».';
       }
-      else if (err?.code === 'invalid_credentials' && gateMode === 'login') {
-        errEl.textContent = 'البريد أو كلمة المرور غير صحيحة. إذا ما عندك حساب بهذا البريد، اختر «حساب جديد».';
-        document.getElementById('gateNewAccount').hidden = false;
+      else if (['invalid_credentials', 'user_not_found'].includes(err?.code) && gateMode === 'login') {
+        const returning = hasSignedInBefore();
+        errEl.textContent = returning ? 'البريد أو كلمة المرور غير صحيحة.' : 'البريد أو كلمة المرور غير صحيحة. إذا ما عندك حساب بهذا البريد، اختر «حساب جديد».';
+        document.getElementById('gateNewAccount').hidden = returning;
       }
       else if (/confirm/i.test(text)) errEl.textContent = 'أكّد بريدك أولًا من الرسالة التي وصلتك، ثم سجّل الدخول.';
       else errEl.textContent = 'تعذّر تسجيل الدخول. تحقق من البريد وكلمة المرور والاتصال بالإنترنت.';
