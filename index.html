@@ -3141,6 +3141,9 @@ body:has(:is(#friendsDialog,#friendChatDialog,#friendInboxDialog,#friendProfileD
 /* Full-screen swipeable Top 10 leaderboard */
 #progressComparisonDialog.mb-ranking-full{position:fixed!important;inset:0!important;width:100vw!important;max-width:none!important;height:100dvh!important;max-height:none!important;margin:0!important;border:0!important;border-radius:0!important;padding:16px max(16px,env(safe-area-inset-right)) 30px max(16px,env(safe-area-inset-left))!important;overflow:auto!important;background:var(--surface,#17132d);color:var(--text,#f4efff)}
 .mb-ranking-tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;position:sticky;top:0;background:inherit;z-index:3;padding:10px 0}.mb-ranking-tabs button{padding:13px 8px;border:1px solid var(--border,#8885);border-radius:12px;background:transparent;color:inherit;font-weight:700}.mb-ranking-tabs button[aria-selected=true]{background:#6a52ac;color:white}.mb-ranking-panels{touch-action:pan-y}.mb-ranking-panels>div[hidden]{display:none!important}.mb-ranking-full #globalRanking,.mb-ranking-full #friendRanking{display:block;border:0!important}.mb-ranking-full #globalRanking>summary,.mb-ranking-full #friendRanking>summary{display:none}.mb-ranking-full .top-ranking-list{list-style:none;padding:0;margin:12px auto;max-width:780px;display:grid;gap:10px}.mb-ranking-full .top-ranking-list li{display:flex;align-items:center;gap:14px;min-height:76px;padding:14px;border:1px solid var(--border,#8885);border-radius:16px;background:var(--card,#ffffff10)}.mb-ranking-full .top-ranking-list li.mb-rank-self{border:2px solid #a78bfa;background:#a78bfa24}.mb-ranking-full .top-ranking-position{font-size:25px;min-width:44px;text-align:center}.mb-ranking-full .top-ranking-score{margin-inline-start:auto;font-weight:800;white-space:nowrap}.mb-ranking-full .mb-rank-info{flex:1;min-width:0}.mb-ranking-full .mb-rank-level{display:block;font-size:12px;opacity:.8}.mb-ranking-full .mb-rank-xp{display:block;height:6px;border-radius:99px;background:#8885;margin-top:7px;overflow:hidden}.mb-ranking-full .mb-rank-xp i{display:block;height:100%;background:#9c83ee}.mb-ranking-full .mb-rank-avatar{width:44px;height:44px;flex:none;border-radius:50%;display:grid;place-items:center;background:#67568b;color:white;font-size:20px}.mb-ranking-full .mb-rank-profile{border:0;background:transparent;color:inherit;text-align:start;cursor:pointer;font:inherit;font-weight:700}
+
+/* Notebook creation belongs in the Library, not the drawer */
+.mb-library-create{display:flex;align-items:center;gap:12px;margin:16px 0}.mb-library-plus{width:46px;height:46px;border-radius:13px;background:var(--accent-soft,#7360a3);color:var(--text,#fff);border:1px solid var(--border,#8886);font-size:30px;line-height:1}.mb-library-notes{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:12px;margin:16px 0}.mb-note-tile{position:relative;min-height:150px;background:var(--surface,#211b43);border:1px solid var(--border,#8885);border-radius:14px;padding:12px;display:flex;flex-direction:column;justify-content:space-between;min-width:0}.mb-note-tile>a{color:inherit;text-decoration:none;overflow-wrap:anywhere;font-weight:700}.mb-note-tile small{opacity:.7}.mb-note-tile details{align-self:end}.mb-note-tile summary{cursor:pointer;font-size:20px;list-style:none;padding:4px}.mb-note-tile .mb-note-menu{position:relative;display:grid;gap:5px;padding:7px;border-radius:8px;background:var(--surface,#1b1641)}.mb-note-tile button{font:inherit;padding:6px}.mb-note-create-dialog{border:1px solid #a58bd8;border-radius:18px;background:#191239;color:#f7f2ff;padding:20px;max-width:min(420px,94vw);width:100%}.mb-note-create-dialog::backdrop{background:#000a}.mb-paper-preview{width:150px;aspect-ratio:210/297;background:white;margin:14px auto;border-radius:2px;box-shadow:0 5px 18px #0005}.mb-paper-preview.lined{background:repeating-linear-gradient(white 0px,white 16px,#b4c8e5 17px)}.mb-note-create-dialog .mb-paper-choices{display:flex;justify-content:center;gap:12px}.mb-note-create-dialog button{padding:10px 15px;border-radius:10px}.mb-note-create-dialog button[aria-pressed=true]{outline:2px solid #b9a5f5}.mb-note-create-dialog .mb-note-use{display:block;width:100%;margin-top:16px;background:#8b74d4;color:#fff}
 </style>
 <link rel="manifest" href="./manifest.webmanifest?v=indigo1">
 <link rel="icon" type="image/png" sizes="192x192" href="./assets/app-icon-192.png?v=indigo1">
@@ -3281,7 +3284,7 @@ body:has(:is(#friendsDialog,#friendChatDialog,#friendInboxDialog,#friendProfileD
 <button type="button" data-tool-view="subscription"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M3 10h18M7 15h4"/></svg><span>اشتراكي<small>الوصول والخدمات المتاحة</small></span></button>
 <button type="button" data-tool-view="schedule"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="5" width="16" height="15" rx="3"/><path d="M8 3v4m8-4v4M4 10h16m-7 5 2 2 4-4"/></svg><span>جدولي الدراسي<small>مهامي وخطتي الأسبوعية</small></span></button>
 <button type="button" data-tool-view="favorites"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m19 21-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg><span>مكتبتي<small>محاضراتي وملخصاتي ودفاتري</small></span></button>
-<a href="./notebooks.html" class="mb-notebook-nav"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 3h14a2 2 0 0 1 2 2v16H6a2 2 0 0 1-2-2V3zm4 0v18m4-13h5m-5 4h5"/></svg><span>دفاتري<small>إنشاء دفاتر وصفحات A4</small></span></a>
+
 <button type="button" class="mb-settings-nav" data-tool-view="settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="m9 3-1 3-3 1-2 3 2 2-1 3 3 2 3-1 2 2 3-1 1-3 3-1 2-3-2-2 1-3-3-2-3 1-2-2z"/></svg><span>الإعدادات<small>المظهر والقراءة والحساب</small></span></button>
 <a class="mb-support-nav" href="https://wa.me/9647837271707" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M20 11.5a8 8 0 0 1-11.8 7L4 20l1.3-4a8 8 0 1 1 14.7-4.5Z"/><path d="M9 9c.5 3 2 4.5 5 5" stroke-linecap="round"/></svg><span>مراسلة الدعم<small>واتساب</small></span></a>
 <button type="button" class="friend-invite-link" id="openFriendInvite" data-friends-ready hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 4l18 8-18 8 3-8-3-8zm3 8h15"/></svg><span>دعوة صديق<small>مشاركة رابط الدعوة</small></span></button>
@@ -3656,7 +3659,7 @@ body:has(:is(#friendsDialog,#friendChatDialog,#friendInboxDialog,#friendProfileD
 </section>
 <section class="mb-tool-page mb-page-view mb-personal-page" id="favoritesSection">
 <div class="mb-page-toolbar"><div class="mb-page-title-wrap"><button class="mb-page-back" type="button" data-tool-view="home" aria-label="العودة للرئيسية">‹</button><div><h2 class="mb-page-title">مكتبتي</h2></div></div></div>
-<div style="margin:12px 0;display:flex;gap:10px;flex-wrap:wrap"><a class="mb-primary" href="./notebooks.html" style="display:inline-flex;align-items:center;gap:8px;text-decoration:none">✎ إنشاء دفتر أو ورقة A4</a><span style="align-self:center;font-size:13px">صفحات مخططة أو بيضاء — كتابة بالقلم — حفظ على الجهاز</span></div>
+<div class="mb-library-create"><button type="button" id="libraryAddPage" class="mb-library-plus" aria-label="إنشاء ورقة A4">+</button><span>إنشاء ورقة A4</span></div><div id="libraryNotes" class="mb-library-notes"></div>
 <div class="mb-favorite-tools"><input class="mb-personal-input" id="favoritesSearch" type="search" placeholder="ابحث داخل مكتبتي…" aria-label="البحث داخل المفضلات"><select class="mb-personal-input" id="favoritesSort" aria-label="ترتيب المفضلات"><option value="latest">الأحدث حفظًا</option><option value="title">حسب العنوان</option></select><button type="button" class="mb-file-btn" id="refreshFavoritesBtn">تحديث</button></div>
 <div class="mb-personal-status" id="favoritesStatus" role="status"></div><details class="mb-list-fold" open><summary>محاضراتي المحفوظة</summary><div id="favoritesContent" class="mb-favorite-content"></div></details>
 </section>
@@ -8197,6 +8200,7 @@ function initFriends() {
     scheduleForAdoption = null;
     document.getElementById('sharedScheduleReview').hidden = true;
   });
+  initializeLibraryPaper();
   initRankingTabs();
   document.getElementById('drawerGlobalRanking').addEventListener('click', () => {
     document.getElementById('drawerClose').click();
@@ -10366,6 +10370,34 @@ function updateFavoriteButtons() {
     button.title = saved ? 'إزالة من مكتبتي' : 'إضافة إلى مكتبتي';
   });
 }
+
+let libraryPaperKind='lined';
+function mbLibraryEscape(s){return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function mbLibraryNotebookLocal(){try{return JSON.parse(localStorage.getItem('medbrain_notebooks_v1')||'[]')}catch(_){return []}}
+async function refreshLibraryNotes(){
+ const root=document.getElementById('libraryNotes');if(!root)return;
+ let notes=mbLibraryNotebookLocal();
+ if(client&&activeUserId){try{const {data,error}=await client.from('student_notebooks').select('id,title,subject,lecture_id,is_favorite').eq('user_id',activeUserId).order('updated_at',{ascending:false});if(!error&&data){const ids=new Set(notes.map(n=>n.id));for(const n of data)if(!ids.has(n.id))notes.push({id:n.id,title:n.title,subject:n.subject,lectureId:n.lecture_id,isFavorite:n.is_favorite,pages:[]})}}catch(_){}}
+ root.replaceChildren();
+ notes.forEach((note,i)=>{
+ const tile=document.createElement('div');tile.className='mb-note-tile';
+ const title=document.createElement('a');title.href='./notebooks.html?id='+encodeURIComponent(note.id);title.textContent=note.title||('ID-'+String(note.id).slice(0,8));
+ const detail=document.createElement('small');detail.textContent=(note.pages?.length?note.pages.length+' صفحة':'ورقة A4')+(note.subject?' · '+note.subject:'');
+ const menu=document.createElement('details');const summary=document.createElement('summary');summary.textContent='⋮';summary.setAttribute('aria-label','خيارات الورقة');menu.append(summary);
+ const actions=document.createElement('div');actions.className='mb-note-menu';
+ const rename=document.createElement('button');rename.type='button';rename.textContent='تسمية';rename.onclick=async()=>{const name=prompt('اسم الورقة (اختياري)',note.title||'');if(name===null||!name.trim())return;note.title=name.trim().slice(0,120);const local=mbLibraryNotebookLocal();const own=local.find(n=>n.id===note.id);if(own){own.title=note.title;localStorage.setItem('medbrain_notebooks_v1',JSON.stringify(local))}if(client&&activeUserId)await client.from('student_notebooks').update({title:note.title}).eq('id',note.id).eq('user_id',activeUserId);void refreshLibraryNotes()};
+ const assign=document.createElement('button');assign.type='button';assign.textContent='إضافة إلى…';assign.onclick=async()=>{const choices=lectures.filter(l=>favoriteRecords.has(l.id));if(!choices.length){alert('أضف مادة أو محاضرة إلى مكتبتي أولاً.');return}const choice=prompt('اختر رقم المادة المحفوظة:\n'+choices.map((l,i)=>(i+1)+' - '+l.title).join('\n'));const selected=choices[Number(choice)-1];if(!selected)return;note.subject=selected.title;const local=mbLibraryNotebookLocal(),own=local.find(n=>n.id===note.id);if(own){own.subject=note.subject;localStorage.setItem('medbrain_notebooks_v1',JSON.stringify(local))}if(client&&activeUserId)await client.from('student_notebooks').update({subject:note.subject,lecture_id:String(selected.id)}).eq('id',note.id).eq('user_id',activeUserId);void refreshLibraryNotes()};
+ actions.append(rename,assign);menu.append(actions);tile.append(title,detail,menu);root.append(tile);
+ });
+}
+function initializeLibraryPaper(){
+ const add=document.getElementById('libraryAddPage'),dialog=document.getElementById('libraryPaperDialog');if(!add||!dialog)return;
+ add.onclick=()=>{libraryPaperKind='lined';document.getElementById('libraryPaperPreview').className='mb-paper-preview lined';dialog.querySelectorAll('[data-paper-kind]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.paperKind==='lined')));dialog.showModal()};
+ dialog.querySelectorAll('[data-paper-kind]').forEach(b=>b.onclick=()=>{libraryPaperKind=b.dataset.paperKind;document.getElementById('libraryPaperPreview').className='mb-paper-preview '+(libraryPaperKind==='lined'?'lined':'');dialog.querySelectorAll('[data-paper-kind]').forEach(x=>x.setAttribute('aria-pressed',String(x===b)))});
+ document.getElementById('libraryPaperCancel').onclick=()=>dialog.close();
+ document.getElementById('libraryPaperUse').onclick=()=>{dialog.close();location.href='./notebooks.html?create='+libraryPaperKind};
+}
+
 function renderFavorites() {
   const content = document.getElementById('favoritesContent');
   if (!content || currentMainView !== 'favorites') return;
@@ -10380,6 +10412,7 @@ function renderFavorites() {
     (query.trim() ? 'لا توجد نتائج مطابقة' : 'مكتبتك تنتظر أول مادة') +
     '</h3><p>اضغط علامة الحفظ بجانب أي محاضرة أو مادة لتظهر هنا.</p><button type="button" class="mb-primary" data-nav-kind="lectures">استعراض المحاضرات</button></div>';
   updateFavoriteButtons();
+  void refreshLibraryNotes();
 }
 function selectedScheduleShare() {
   const selected = new Set(Array.from(document.querySelectorAll('#shareDays input:checked')).map(el=>Number(el.value)));
@@ -11178,5 +11211,5 @@ if (typeof document !== 'undefined' && typeof document.getElementById === 'funct
 init();
 </script>
 <dialog id="installAppDialog" aria-labelledby="installAppTitle" aria-describedby="installAppGuidance"><img src="./assets/app-icon-192.png?v=indigo1" alt=""><h2 id="installAppTitle">ثبّت Medbrain على جهازك</h2><p id="installAppGuidance"></p><p><a href="https://haider1381.github.io/al-marja3/" target="_blank" rel="noopener noreferrer">فتح رابط التطبيق في المتصفح</a></p><button type="button" class="mb-primary" id="installAppClose">فهمت</button></dialog>
-</body>
+<dialog id="libraryPaperDialog" class="mb-note-create-dialog"><h3 style="text-align:center">إنشاء ورقة A4</h3><div id="libraryPaperPreview" class="mb-paper-preview lined"></div><div class="mb-paper-choices"><button type="button" data-paper-kind="lined" aria-pressed="true">مخططة</button><button type="button" data-paper-kind="blank" aria-pressed="false">بيضاء</button></div><button type="button" class="mb-note-use" id="libraryPaperUse">استخدام</button><button type="button" id="libraryPaperCancel" style="display:block;margin:10px auto 0">إلغاء</button></dialog></body>
 </html>
