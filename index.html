@@ -2918,6 +2918,10 @@ html[lang="en"] .mb-feature-en, html[lang="en"] .sp-title small { display:none; 
   .friend-request-sheet .friend-row { display:grid; justify-content:stretch; margin:8px 0; }
   .friend-request-profile { display:flex; align-items:center; gap:8px; min-width:0; }
   .friend-request-avatar img { width:100%; height:100%; object-fit:cover; border-radius:inherit; }
+  .friend-chat-icon { display:inline-grid; place-items:center; padding:0; width:28px; height:28px; }
+  .friend-chat-drawer { position:fixed; margin:0 0 0 auto; inset:0 0 0 auto; height:100%; max-height:100%; width:min(100%, 390px); border-radius:0; }
+  #friendChatMessages { max-height:50dvh; overflow:auto; overflow-wrap:anywhere; }
+  #friendChatMessages p { white-space:pre-wrap; }
   .friend-request-profile small { display:block; color:var(--text-muted); }
   .friend-request-avatar { flex:none; width:30px; height:30px; display:grid; place-items:center; border-radius:50%; background:var(--accent-soft); font-size:12px; font-weight:700; }
   .friend-request-actions { display:flex; flex-wrap:wrap; gap:6px; }
@@ -3024,6 +3028,10 @@ html[lang="en"] .mb-feature-en, html[lang="en"] .sp-title small { display:none; 
         <label for="signupStage">المرحلة الدراسية</label>
         <select id="signupStage" required><option value="">— اختر —</option><option value="1">المرحلة الأولى</option><option value="2">المرحلة الثانية</option><option value="3">المرحلة الثالثة</option><option value="4">المرحلة الرابعة</option><option value="5">المرحلة الخامسة</option><option value="6">المرحلة السادسة</option><option value="7">خريج / طبيب مقيم</option></select>
       </div>
+      <div class="field">
+        <label for="signupInviteCode">مدعو من صديق؟ أدخل كود الدعوة (اختياري)</label>
+        <input id="signupInviteCode" dir="ltr" maxlength="10" pattern="[a-fA-F0-9]{10}" autocomplete="off" autocapitalize="characters" spellcheck="false">
+      </div>
     </form>
     <button type="button" id="googleLoginBtn" class="google-login-btn">
       <svg viewBox="0 0 48 48" aria-hidden="true" focusable="false">
@@ -3108,6 +3116,15 @@ html[lang="en"] .mb-feature-en, html[lang="en"] .sp-title small { display:none; 
     <form method="dialog"><button type="submit" class="mb-file-btn">إغلاق</button></form>
   </div>
   <p class="friend-empty" id="friendEmpty">لا يوجد لديك أصدقاء حاليًا.</p>
+  <details class="mb-list-fold" id="friendRanking" hidden>
+    <summary>ترتيب الأصدقاء حسب XP</summary>
+    <ol id="friendRankingList"></ol>
+  </details>
+  <details class="mb-list-fold" id="globalRanking">
+    <summary>أعلى 10 في ميديبراين حسب XP</summary>
+    <label><input type="checkbox" id="shareLeaderboard" disabled> أسمح بظهور اسمي ونقاطي في الترتيب العام</label>
+    <ol id="globalRankingList"></ol><p id="globalRankingStatus" role="status"></p>
+  </details>
   <div id="friendList"></div>
   <details class="mb-list-fold friend-action" id="friendAddSection" name="friend-actions">
     <summary>إضافة صديق</summary>
@@ -3196,6 +3213,16 @@ html[lang="en"] .mb-feature-en, html[lang="en"] .sp-title small { display:none; 
   <label class="mb-profile-xp" id="friendPrivacyOption" hidden><input id="friendPrivacy" type="checkbox"> أسمح لأصدقائي برؤية تقدّمي</label>
   <p id="friendPrivacyStatus" role="status"></p>
       <button type="button" class="mb-file-btn" data-profile="logout" id="profileLogoutBtn">تسجيل الخروج</button>
+      <form id="friendChatPreferences" class="mb-profile-xp" hidden>
+        <label for="friendChatMode">من يگدر يراسلني؟</label>
+        <select id="friendChatMode">
+          <option value="off">لا أحد</option><option value="friends">كل أصدقائي</option>
+          <option value="selected">أصدقاء أحددهم</option>
+        </select>
+        <fieldset id="friendChatAllowed" hidden><legend>الأصدقاء المسموح لهم</legend></fieldset>
+        <button type="submit" class="mb-file-btn">حفظ الخصوصية</button>
+        <p role="status"></p>
+      </form>
       <form class="mb-profile-fields" id="profileForm" hidden>
         <label>الاسم الأول
           <input type="text" id="profileFirstName" maxlength="40" autocomplete="given-name" dir="auto" required>
@@ -3725,6 +3752,21 @@ html[lang="en"] .mb-feature-en, html[lang="en"] .sp-title small { display:none; 
 
 <nav class="mb-bottom-nav" id="deviceNav" aria-label="التنقل السريع"><button type="button" data-device-view="home" aria-current="page"><span aria-hidden="true">⌂</span>الرئيسية</button><button type="button" data-device-view="library"><span aria-hidden="true">▤</span>المحاضرات</button><button type="button" data-device-view="schedule"><span aria-hidden="true">▦</span>جدولي</button><button type="button" data-device-view="favorites"><span aria-hidden="true">☆</span>المفضلات</button><button type="button" data-device-view="settings"><span aria-hidden="true">⚙</span>الإعدادات</button></nav>
 <button id="focusCompact" type="button" hidden aria-label="فتح مؤقّت الدراسة"></button><div id="deviceConnection" role="status" hidden>الاتصال بالإنترنت غير متاح. يمكنك استخدام مؤقّت الدراسة؛ حفظ التغييرات يحتاج اتصالًا.</div>
+<dialog id="friendChatDialog" class="device-dialog friend-chat-drawer" aria-labelledby="friendChatTitle">
+  <form method="dialog" class="sp-card-head"><h2 id="friendChatTitle" dir="auto"></h2><button class="mb-close" aria-label="إغلاق">×</button></form>
+  <p id="friendChatStatus" role="status"></p>
+  <div id="friendChatActions">
+    <button type="button" class="mb-file-btn" data-chat-action="request" hidden>إرسال طلب مراسلة</button>
+    <button type="button" class="mb-file-btn" data-chat-action="accept" hidden>قبول طلب المراسلة</button>
+    <button type="button" class="mb-file-btn" data-chat-action="decline" hidden>رفض الطلب</button>
+  </div>
+  <div id="friendChatMessages" role="log"></div>
+  <form id="friendChatCompose" hidden>
+    <label for="friendChatText">الرسالة</label>
+    <textarea id="friendChatText" maxlength="2000" required dir="auto"></textarea>
+    <button class="mb-primary" type="submit">إرسال</button>
+  </form>
+</dialog>
 <dialog id="friendProfileDialog" class="device-dialog" aria-labelledby="friendProfileTitle">
   <form method="dialog" class="sp-card-head"><h2 id="friendProfileTitle" dir="auto"></h2><button class="mb-close" aria-label="إغلاق">×</button></form>
   <p></p>
@@ -3753,7 +3795,11 @@ html[lang="en"] .mb-feature-en, html[lang="en"] .sp-title small { display:none; 
 <dialog id="questionReportDialog" class="device-dialog" aria-labelledby="questionReportTitle"><h2 id="questionReportTitle">الإبلاغ عن مشكلة في السؤال</h2><p>يصل بلاغك إلى فريق Medbrain لمراجعة السؤال وتصحيحه.</p><form id="questionReportForm"><fieldset class="report-reasons"><legend>نوع المشكلة</legend><label><input type="radio" name="reportReason" value="wrong_answer"> الإجابة المعتمدة خاطئة</label><label><input type="radio" name="reportReason" value="wrong_question"> السؤال خاطئ أو غير واضح</label><label><input type="radio" name="reportReason" value="incomplete"> السؤال ناقص (خيار أو معلومة مفقودة)</label><label><input type="radio" name="reportReason" value="explanation"> الشرح خاطئ أو غير كافٍ</label><label><input type="radio" name="reportReason" value="other"> مشكلة أخرى</label></fieldset><label for="questionReportNote">تفاصيل (اختياري): ما الصحيح برأيك ومصدره؟<textarea id="questionReportNote" maxlength="1000" rows="3"></textarea></label><div class="device-actions"><button type="submit" class="mb-primary" id="questionReportSubmit">إرسال البلاغ</button><button type="button" class="mb-file-btn" data-device-close="questionReportDialog">إلغاء</button></div><p id="questionReportStatus" role="status"></p></form></dialog>
 <section id="labsPanel" class="labs-panel" role="dialog" aria-modal="false" aria-labelledby="labsTitle" data-no-i18n dir="ltr" hidden><div class="labs-head"><h2 id="labsTitle">Lab values</h2><button type="button" class="labs-close" data-labs-close aria-label="Close">×</button></div><div class="labs-tools"><select id="labsTab" aria-label="Lab group"><option value="blood">Blood</option><option value="heme">Hematologic</option><option value="csf">Cerebrospinal</option><option value="other">Sweat, Urine, BMI</option><option value="infl">Inflammation & Immunology</option><option value="vit">Vitamins & Minerals</option><option value="cardiac">Cardiac & Tumor markers</option></select><input type="search" id="labsSearch" class="labs-search" placeholder="Search…" autocomplete="off" aria-label="Search lab values"></div><div class="labs-body" id="labsBody"></div></section>
 <dialog id="selfQuizDialog" class="device-dialog" aria-labelledby="selfQuizTitle"><div class="sp-card-head"><h2 id="selfQuizTitle" dir="ltr">Quiz</h2><button type="button" class="mb-mini-btn" data-device-close="selfQuizDialog" aria-label="إغلاق">×</button></div><form id="selfQuizForm"><fieldset class="sq-group"><legend>نوع الاختبار</legend><label><input type="radio" name="sqMode" value="questions" checked> MCQ</label><label><input type="radio" name="sqMode" value="flash"> Flashcards</label></fieldset><fieldset class="sq-group"><legend>المادة</legend><div id="sqSubjects" class="sq-options"></div></fieldset><div id="sqExam"><fieldset class="sq-group"><legend>مصدر الأسئلة</legend><label><input type="radio" name="sqSource" value="all" checked> كل Q Bank</label><label><input type="radio" name="sqSource" value="files"> ملف أو عدة ملفات</label><label><input type="radio" name="sqSource" value="wizari"> وزاري أو تجريبي</label><label><input type="radio" name="sqSource" value="ai"> أسئلة جديدة بالذكاء الاصطناعي</label><label><input type="radio" name="sqSource" value="saved"> ★ الأسئلة المحفوظة</label></fieldset><div id="sqFilesBox" hidden><fieldset class="sq-group sq-files"><legend>اختر الملفات</legend><input type="search" id="sqFileFind" class="sq-find" placeholder="ابحث عن ملف…" autocomplete="off"><details class="mb-list-fold" open><summary>ملفات الأسئلة</summary><div id="sqFiles" class="sq-file-list"></div></details></fieldset></div><div id="sqExamMore" hidden><fieldset class="sq-group"><legend>نوع الأسئلة</legend><label><input type="radio" name="sqKind" value="" checked> الكل</label><label><input type="radio" name="sqKind" value="main"> وزاري (رئيسي)</label><label><input type="radio" name="sqKind" value="mock"> تجريبي</label></fieldset><fieldset class="sq-group" id="sqBranchBox" hidden><legend>الفرع</legend><div id="sqBranches" class="sq-options"></div></fieldset><fieldset class="sq-group"><legend>السنة</legend><div id="sqYears" class="sq-options"></div></fieldset><fieldset class="sq-group"><legend>الدور</legend><label><input type="radio" name="sqRound" value="" checked> كل الأدوار</label><label><input type="radio" name="sqRound" value="1"> الدور الأول</label><label><input type="radio" name="sqRound" value="2"> الدور الثاني</label></fieldset></div><div id="sqAiBox" hidden><fieldset class="sq-group"><legend>موضوع الأسئلة</legend><input type="text" id="sqAiTopic" class="sq-find" maxlength="160" placeholder="مثال: Heart failure management" dir="auto"><p class="sq-hint">يكتب المساعد حتى 10 أسئلة جديدة بخمسة خيارات وشرح لكل خيار. راجعها كمساعدة دراسية.</p></fieldset></div></div><fieldset class="sq-group"><legend>عدد الأسئلة</legend><div class="sq-count"><input type="number" id="sqCountNum" min="1" max="300" value="20" inputmode="numeric" aria-label="عدد الأسئلة"><button type="button" data-sq-count="10">10</button><button type="button" data-sq-count="20">20</button><button type="button" data-sq-count="40">40</button><button type="button" data-sq-count="300">الكل</button></div></fieldset><div class="device-actions"><button type="submit" class="mb-primary" id="sqStart">ابدأ الاختبار</button><button type="button" class="mb-file-btn" data-device-close="selfQuizDialog">إلغاء</button></div><p id="sqStatus" role="status"></p></form></dialog>
-<dialog id="reportsDialog" class="device-dialog reports-dialog" aria-labelledby="reportsTitle"><div class="sp-card-head"><h2 id="reportsTitle">بلاغات الطلاب</h2><button type="button" class="mb-mini-btn" data-device-close="reportsDialog" aria-label="إغلاق">×</button></div><p>البلاغات المفتوحة عن الأسئلة، الأحدث أولًا. «تمّ الإصلاح» يغلق كل البلاغات عن السؤال نفسه.</p><div id="reportsList"></div><p id="reportsStatus" role="status"></p></dialog>
+<dialog id="reportsDialog" class="device-dialog reports-dialog" aria-labelledby="reportsTitle"><div class="sp-card-head"><h2 id="reportsTitle">بلاغات الطلاب</h2><button type="button" class="mb-mini-btn" data-device-close="reportsDialog" aria-label="إغلاق">×</button></div><p>البلاغات المفتوحة عن الأسئلة، الأحدث أولًا. «تمّ الإصلاح» يغلق كل البلاغات عن السؤال نفسه.</p><div id="reportsList"></div><p id="reportsStatus" role="status"></p><section id="suggestionsReview" hidden>
+  <h3>اقتراحات المحاضرات والمصادر</h3>
+  <p id="suggestionsReviewStatus" role="status"></p>
+  <div id="suggestionsReviewList"></div>
+</section></dialog>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.js"></script>
 <script>
@@ -4824,6 +4870,7 @@ function readSignupProfile() {
   if (!first || !last) throw new Error('اكتب الاسم الأول واسم العائلة.');
   return {
     first_name: first, last_name: last, display_name: first + ' ' + last,
+    signup_invite_code: document.getElementById('signupInviteCode').value.trim().toUpperCase() || undefined,
     gender: form.elements.signupGender.value,
     age: Number(document.getElementById('signupAge').value),
     stage: Number(document.getElementById('signupStage').value)
@@ -4843,6 +4890,8 @@ function wireGateEvents() {
       const profile = readSignupProfile();
       sessionStorage.removeItem(pendingSignupProfileKey);
       if (profile) sessionStorage.setItem(pendingSignupProfileKey, JSON.stringify({ profile, started: Date.now() }));
+      sessionStorage.removeItem('medbrain_google_invite_code');
+      if (profile?.signup_invite_code) sessionStorage.setItem('medbrain_google_invite_code', profile.signup_invite_code);
       if(deviceIsNative()){await window.MedbrainNative.signIn(client,'google');return;}
       try { sessionStorage.setItem('medbrain_google_signin', String(Date.now())); } catch (_) {}
       const { error: authError } = await client.auth.signInWithOAuth({
@@ -4856,6 +4905,7 @@ function wireGateEvents() {
     } catch (err) {
       try {
         sessionStorage.removeItem(pendingSignupProfileKey);
+        sessionStorage.removeItem('medbrain_google_invite_code');
         sessionStorage.removeItem('medbrain_google_signin');
       } catch (_) {}
       error.textContent = err.message === 'أكمل بيانات الطالب أولًا.' || err.message === 'اكتب الاسم الأول واسم العائلة.' ? err.message : 'تعذّر بدء الدخول عبر Google. إذا فتحت الرابط داخل تطبيق، افتحه في متصفح جهازك وجرّب مرة أخرى.';
@@ -5839,7 +5889,7 @@ function openAccountPanel() {
   setAccountEditing(false);
   setLayerOpen('accountOverlay', true);
   document.getElementById('accountClose').focus({ preventScroll: true });
-  if (activeUserId) void loadFriends();
+  if (activeUserId) void loadFriends().then(loadChatPreferences);
 }
 function setAccountEditing(editing) {
   applyIdentityUI();
@@ -6557,7 +6607,8 @@ function wireAIChat() {
     const title = state.search.trim().slice(0, 200);
     const details = prompt('شنو المعلومات المتوفرة عن المصدر؟ اكتب اسم الدكتور أو الجامعة أو الرابط.');
     if (details === null) return;
-    const { error } = await client.from('library_source_suggestions').insert({ title, details: details.trim().slice(0, 1000) });
+    if (!title || !details.trim()) { showMbToast('اكتب اسم المادة وتفاصيل الاقتراح.'); return; }
+    const { error } = await client.rpc('medbrain_submit_suggestion', { p_title: title, p_details: details.trim().slice(0, 1000) });
     showMbToast(error ? 'تعذّر إرسال الاقتراح. تقدر تراسل الدعم.' : 'وصل اقتراحك. شكرًا!');
   });
   window.addEventListener('resize',fitReaderAIPanel);
@@ -7515,7 +7566,163 @@ function notifyFriendChanges(peers) {
   if (accepted) showMbToast('تمت إضافة صديق: ' + (accepted.name?.trim() || accepted.friend_code));
 }
 
+let chatFriends = [];
+let notifiedChatRequests = new Set();
+let chatPeer = null;
+let chatBusy = false;
+let chatPoll;
+function closeFriendChat() {
+  clearInterval(chatPoll);
+  chatPeer = null;
+}
+async function loadChatPreferences() {
+  const user = activeUserId;
+  if (!user || !client) return;
+  const { data, error } = await client.rpc('friend_chat_preferences');
+  if (user !== activeUserId || error || !data) return;
+  const form = document.getElementById('friendChatPreferences');
+  const mode = document.getElementById('friendChatMode');
+  const allowed = document.getElementById('friendChatAllowed');
+  mode.value = data.mode;
+  allowed.hidden = mode.value !== 'selected';
+  allowed.querySelectorAll('label').forEach(label => label.remove());
+  for (const peer of chatFriends) {
+    const label = document.createElement('label');
+    const input = document.createElement('input');
+    input.type = 'checkbox';
+    input.value = peer.id;
+    input.checked = data.peers.includes(peer.id);
+    label.append(input, ' ' + (peer.name || peer.friend_code));
+    allowed.append(label, document.createTextNode(' '));
+  }
+  form.hidden = false;
+}
+async function updateFriendChat(action = 'read', body = null) {
+  if (chatBusy || !chatPeer || !activeUserId) return false;
+  const peer = chatPeer;
+  const user = activeUserId;
+  chatBusy = true;
+  try {
+    const { data, error } = await client.rpc('friend_chat', { p_peer: peer.id, p_action: action, p_body: body });
+    if (chatPeer !== peer || activeUserId !== user) return false;
+    const status = document.getElementById('friendChatStatus');
+    if (error || !data) {
+      status.textContent = 'تعذّر فتح المراسلة أو إكمال الطلب.';
+      document.getElementById('friendChatCompose').hidden = true;
+      return false;
+    }
+    const ready = data.allowed && data.status === 'accepted';
+    const incoming = data.status === 'pending' && data.incoming;
+    document.querySelector('[data-chat-action="request"]').hidden = !data.allowed || !!data.status;
+    document.querySelector('[data-chat-action="accept"]').hidden = !incoming || !data.allowed;
+    document.querySelector('[data-chat-action="decline"]').hidden = !incoming;
+    document.getElementById('friendChatCompose').hidden = !ready;
+    status.textContent = incoming ? 'لديك طلب مراسلة من ' + (peer.name || peer.friend_code)
+      : !data.allowed ? 'المراسلة غير مسموح بها وفق إعدادات الخصوصية.'
+      : data.status === 'declined' ? 'رُفض طلب المراسلة.'
+      : data.status === 'pending' ? 'بانتظار موافقة صديقك.'
+      : ready ? '' : 'أرسل طلبًا حتى تبدأ المراسلة.';
+    const messages = document.getElementById('friendChatMessages');
+    const signature = JSON.stringify(data.messages);
+    if (messages.dataset.snapshot !== signature) {
+      const atEnd = messages.scrollHeight - messages.scrollTop - messages.clientHeight < 32;
+      messages.replaceChildren(...data.messages.map(message => {
+        const line = document.createElement('p');
+        line.dir = 'auto';
+        line.textContent = (message.mine ? 'أنت: ' : (peer.name || peer.friend_code) + ': ') + message.body;
+        return line;
+      }));
+      messages.dataset.snapshot = signature;
+      if (atEnd || action === 'send') messages.scrollTop = messages.scrollHeight;
+    }
+    return true;
+  } finally { chatBusy = false; }
+}
+async function notifyIncomingChats() {
+  const user = activeUserId;
+  if (!user || !chatFriends.length || document.hidden) return;
+  const { data, error } = await client.rpc('friend_chat_incoming');
+  if (user !== activeUserId || error || !Array.isArray(data)) return;
+  const pendingPeer = chatFriends.find(peer => data.includes(peer.id) && !notifiedChatRequests.has(peer.id));
+  notifiedChatRequests = new Set(data);
+  if (pendingPeer && !document.getElementById('friendChatDialog').open) {
+    showMbToast('لديك طلب مراسلة من ' + (pendingPeer.name || pendingPeer.friend_code), {
+      label: 'عرض الطلب', action: () => openFriendChat(pendingPeer)
+    });
+  }
+}
+function openFriendChat(peer) {
+  const dialog = document.getElementById('friendChatDialog');
+  chatPeer = peer;
+  document.getElementById('friendChatTitle').textContent = peer.name || peer.friend_code;
+  document.getElementById('friendChatText').value = '';
+  document.getElementById('friendChatStatus').textContent = 'جارٍ تحميل المراسلة…';
+  const messages = document.getElementById('friendChatMessages');
+  messages.replaceChildren();
+  delete messages.dataset.snapshot;
+  document.getElementById('friendChatCompose').hidden = true;
+  dialog.querySelectorAll('[data-chat-action]').forEach(button => { button.hidden = true; });
+  dialog.showModal();
+  void updateFriendChat();
+  chatPoll = setInterval(() => { if (!document.hidden) void updateFriendChat(); }, 8000);
+}
+async function loadGlobalRanking(share = null) {
+  const user = activeUserId;
+  if (!user || !client) return;
+  const checkbox = document.getElementById('shareLeaderboard');
+  const status = document.getElementById('globalRankingStatus');
+  checkbox.disabled = true;
+  const { data, error } = await client.rpc('medbrain_leaderboard', { p_share: share });
+  if (user !== activeUserId) return;
+  if (error || !data) {
+    if (share !== null) checkbox.checked = !share;
+    status.textContent = 'تعذّر تحميل الترتيب أو حفظ الإعداد.';
+    checkbox.disabled = share === null;
+    return;
+  }
+  checkbox.checked = data.sharing;
+  checkbox.disabled = false;
+  status.textContent = data.top.length ? '' : 'ماكو طلاب مشاركين بعد.';
+  document.getElementById('globalRankingList').replaceChildren(...data.top.map(entry => {
+    const item = document.createElement('li');
+    item.textContent = entry.name + ' · ' + entry.points + ' XP';
+    return item;
+  }));
+}
 function initFriends() {
+  document.getElementById('globalRanking').addEventListener('toggle', event => {
+    if (event.currentTarget.open) void loadGlobalRanking();
+  });
+  document.getElementById('shareLeaderboard').addEventListener('change', event => {
+    void loadGlobalRanking(event.currentTarget.checked);
+  });
+  const chat = document.getElementById('friendChatDialog');
+  chat.addEventListener('close', closeFriendChat);
+  chat.addEventListener('click', event => {
+    const action = event.target.closest('[data-chat-action]')?.dataset.chatAction;
+    if (action) void updateFriendChat(action);
+  });
+  document.getElementById('friendChatCompose').addEventListener('submit', async event => {
+    event.preventDefault();
+    const input = document.getElementById('friendChatText');
+    const body = input.value.trim();
+    if (body && await updateFriendChat('send', body) && input.value.trim() === body) input.value = '';
+  });
+  const preferences = document.getElementById('friendChatPreferences');
+  const mode = document.getElementById('friendChatMode');
+  const allowed = document.getElementById('friendChatAllowed');
+  mode.addEventListener('change', () => { allowed.hidden = mode.value !== 'selected'; });
+  preferences.addEventListener('submit', async event => {
+    event.preventDefault();
+    const button = preferences.querySelector('button');
+    button.disabled = true;
+    try {
+      const { error } = await client.rpc('friend_chat_preferences', {
+        p_mode: mode.value, p_peers: Array.from(allowed.querySelectorAll('input:checked'), input => input.value)
+      });
+      preferences.querySelector('[role="status"]').textContent = error ? 'تعذّر حفظ الإعدادات.' : 'تم حفظ الإعدادات.';
+    } finally { button.disabled = false; }
+  });
   const url = new URL(location.href);
   const code = url.searchParams.get('invite');
   if (code && /^[0-9a-f-]{36}$/i.test(code)) {
@@ -7615,6 +7822,16 @@ function initFriends() {
 }
 
 function resetFriends() {
+  chatFriends = [];
+  notifiedChatRequests.clear();
+  document.getElementById('globalRanking').open = false;
+  document.getElementById('globalRankingList').replaceChildren();
+  document.getElementById('shareLeaderboard').checked = false;
+  document.getElementById('shareLeaderboard').disabled = true;
+  document.getElementById('globalRankingStatus').textContent = '';
+  const chat = document.getElementById('friendChatDialog');
+  if (chat.open) chat.close();
+  document.getElementById('friendChatPreferences').hidden = true;
   friendLoadVersion++;
   friendBackendReady = false;
   document.querySelectorAll('[data-friends-ready]').forEach(node => { node.hidden = true; });
@@ -7624,6 +7841,8 @@ function resetFriends() {
     document.getElementById(id).hidden = true;
   }
   document.getElementById('friendList').replaceChildren();
+  document.getElementById('friendRankingList').replaceChildren();
+  document.getElementById('friendRanking').hidden = true;
   document.getElementById('incomingFriendRequests').replaceChildren();
   updateFriendRequestCount(0);
   document.getElementById('friendEmpty').hidden = false;
@@ -7668,6 +7887,22 @@ async function loadFriends() {
   const list = document.getElementById('friendList');
   const requests = document.getElementById('incomingFriendRequests');
   const peers = data.peers || [];
+  chatFriends = peers.filter(peer => peer.status === 'friend');
+  void notifyIncomingChats();
+  const ranking = peers.filter(peer => peer.status === 'friend' && peer.points != null)
+    .map(peer => ({ name: peer.name?.trim() || peer.friend_code, points: Number(peer.points) }));
+  if (data.profile.points != null && ranking.length) {
+    ranking.push({ name: 'أنت', points: Number(data.profile.points) });
+  }
+  ranking.sort((a, b) => b.points - a.points || a.name.localeCompare(b.name));
+  const rankingPanel = document.getElementById('friendRanking');
+  rankingPanel.hidden = !ranking.length;
+  const items = ranking.map(entry => {
+    const item = document.createElement('li');
+    item.textContent = entry.name + ' · ' + entry.points + ' XP';
+    return item;
+  });
+  document.getElementById('friendRankingList').replaceChildren(...items);
   const requestCount = peers.filter(peer => peer.status === 'received').length;
   updateFriendRequestCount(requestCount);
   document.getElementById('friendEmpty').hidden = peers.some(peer => peer.status === 'friend');
@@ -7715,7 +7950,13 @@ async function loadFriends() {
         dialog.querySelector('p').textContent = progress;
         dialog.showModal();
       });
-      name.append(profileButton, detail);
+      const messageButton = document.createElement('button');
+      messageButton.type = 'button';
+      messageButton.className = 'mb-file-btn friend-chat-icon';
+      messageButton.setAttribute('aria-label', 'مراسلة ' + displayName);
+      messageButton.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 11.5a8.5 8.5 0 0 1-8.5 8.5H4l1.8-4.2A8.5 8.5 0 1 1 21 11.5Z"/></svg>';
+      messageButton.addEventListener('click', () => openFriendChat(peer));
+      name.append(profileButton, messageButton, detail);
     } else {
       name.append(title, detail);
     }
@@ -7756,14 +7997,28 @@ async function changeFriends(method, args, errorMessage = 'تعذّر حفظ ا�
 }
 
 async function claimFriendInvite() {
-  let code;
-  try { code = localStorage.getItem(FRIEND_INVITE_KEY); } catch (_) { return; }
-  if (!code || !activeUserId || !client) return;
-  const { error } = await client.rpc('friend_claim_invite', { p_code: code });
-  if (error) return;
+  const user = activeUserId;
+  if (!user || !client) return;
+  let linkCode, googleCode;
   try {
-    if (localStorage.getItem(FRIEND_INVITE_KEY) === code) localStorage.removeItem(FRIEND_INVITE_KEY);
+    linkCode = localStorage.getItem(FRIEND_INVITE_KEY);
+    googleCode = sessionStorage.getItem('medbrain_google_invite_code');
   } catch (_) {}
+  const accountCode = activeUser?.user_metadata?.signup_invite_code;
+  const signupCode = accountCode || (activeUser?.app_metadata?.provider === 'google' ? googleCode : '');
+  if (!linkCode && !signupCode) return;
+  const result = signupCode
+    ? await client.rpc('friend_claim_signup_code', { p_code: signupCode })
+    : await client.rpc('friend_claim_invite', { p_code: linkCode });
+  if (result.error || user !== activeUserId) return;
+  try {
+    if (localStorage.getItem(FRIEND_INVITE_KEY) === linkCode) localStorage.removeItem(FRIEND_INVITE_KEY);
+    if (sessionStorage.getItem('medbrain_google_invite_code') === googleCode) sessionStorage.removeItem('medbrain_google_invite_code');
+  } catch (_) {}
+  if (result.data === true) {
+    showMbToast('تم قبول الدعوة. حصلت أنت وصديقك على 10 XP لكل واحد.');
+    void refreshStudyXP();
+  }
 }
 
 async function refreshStudyXP() {
@@ -9342,11 +9597,48 @@ function renderReportsList() {
       '<button type="button" class="mb-file-btn" data-report-close="dismissed">تجاهل</button></div></article>';
   }).join('');
 }
+async function loadSupportSuggestions(id = null, approve = null) {
+  const user = activeUserId;
+  if (!user || !client) return;
+  const section = document.getElementById('suggestionsReview');
+  const status = document.getElementById('suggestionsReviewStatus');
+  if (!id) section.hidden = true;
+  const { data, error } = await client.rpc('medbrain_review_suggestions', { p_id: id, p_approve: approve });
+  if (user !== activeUserId) return;
+  if (error || !data) {
+    status.textContent = 'تعذّر معالجة الاقتراح.';
+    return;
+  }
+  section.hidden = false;
+  status.textContent = data.length ? '' : 'لا توجد اقتراحات قيد المراجعة.';
+  document.getElementById('suggestionsReviewList').replaceChildren(...data.map(suggestion => {
+    const card = document.createElement('article');
+    const title = document.createElement('strong');
+    title.textContent = suggestion.title;
+    const details = document.createElement('p');
+    details.textContent = suggestion.details;
+    card.append(title, details);
+    for (const [label, accept] of [['اعتماد وإضافة 2 XP', true], ['تجاهل', false]]) {
+      const button = document.createElement('button');
+      button.className = 'mb-file-btn';
+      button.type = 'button';
+      button.textContent = label;
+      button.addEventListener('click', async () => {
+        card.querySelectorAll('button').forEach(control => { control.disabled = true; });
+        try { await loadSupportSuggestions(suggestion.id, accept); }
+        finally { card.querySelectorAll('button').forEach(control => { control.disabled = false; }); }
+      });
+      card.append(button);
+    }
+    return card;
+  }));
+}
 async function openReportsInbox() {
   document.getElementById('reportsStatus').textContent = '';
   await loadOpenReports(false);
   renderReportsList();
   document.getElementById('reportsDialog').showModal();
+  void loadSupportSuggestions();
 }
 async function handleReportAction(e) {
   const item = e.target.closest('[data-report-id]'), btn = e.target.closest('button');
