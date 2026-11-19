@@ -3026,6 +3026,18 @@ body:has(#navBackdrop.open) .mb-drawer{touch-action:pan-y;overscroll-behavior:co
 #friendChatModeOptions button {display:block;width:100%;text-align:start;margin:3px 0;}
 .shared-schedule-card[hidden] {display:none;}
 .shared-schedule-card {display:flex;align-items:center;gap:8px;padding:6px;border:1px solid var(--chat-border);border-radius:12px;}
+html:has(:is(#friendsDialog,#friendChatDialog,#friendInboxDialog,#friendProfileDialog,#progressComparisonDialog)[open]),
+body:has(:is(#friendsDialog,#friendChatDialog,#friendInboxDialog,#friendProfileDialog,#progressComparisonDialog)[open]) {
+  overflow:hidden;
+  overscroll-behavior:none;
+}
+:is(#friendsDialog,#friendChatDialog,#friendInboxDialog,#friendProfileDialog,#progressComparisonDialog) {
+  max-height:min(84dvh,760px);
+  overflow-y:auto;
+  overscroll-behavior:contain;
+}
+#friendChatMessages {overflow-y:auto;overscroll-behavior:contain;}
+.owner-user-count {display:flex;justify-content:space-between;gap:8px;padding:8px 0;border-bottom:1px solid var(--border);}
 </style>
 <link rel="manifest" href="./manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="192x192" href="./assets/app-icon-192.png">
@@ -3513,6 +3525,7 @@ body:has(#navBackdrop.open) .mb-drawer{touch-action:pan-y;overscroll-behavior:co
  <article class="mb-personal-card"><span class="mb-personal-pill">الوصول الحالي</span><h3 style="margin-top:16px">حساب Medbrain</h3><p id="subscriptionIdentity" dir="auto"></p><ul><li>قراءة المحاضرات والملخصات وفتح ملفات PDF</li><li>جدول دراسي شخصي محفوظ في حسابك</li><li>حفظ المواد في المفضلات</li></ul><button type="button" class="mb-primary" data-nav="account">إدارة ملفي الشخصي</button></article>
  <article class="mb-personal-card"><h3>حالة الاشتراك</h3><p id="subStatus">جارٍ التحقق…</p><form id="subRedeemForm" class="sub-redeem" hidden><label for="subRedeemCode">كود الاشتراك</label><div class="sub-row"><input id="subRedeemCode" dir="ltr" autocomplete="off" placeholder="MB-XXXXX-XXXXX" maxlength="20"><button type="submit" class="mb-primary">تفعيل الكود</button></div><p id="subRedeemStatus" role="status"></p></form><p id="subContact" hidden></p></article>
  <article class="mb-personal-card sub-admin" id="subAdmin" hidden><span class="mb-personal-pill">لوحة المسؤول</span><h3 style="margin-top:16px">الاشتراكات والأكواد</h3>
+  <div class="owner-user-count"><span>الحسابات المسجّلة</span><output id="ownerUserCount" aria-live="polite">—</output></div>
   <label class="sub-switch"><input type="checkbox" id="paywallToggle"> <span>الموقع مدفوع (طلب كود الاشتراك من الطلاب)</span></label>
   <label for="paywallTelegram">معرّف أو رابط Telegram للتواصل</label><div class="sub-row"><input id="paywallTelegram" dir="ltr" placeholder="@username" maxlength="100"><button type="button" class="mb-file-btn" id="paywallSave">حفظ</button></div>
   <p class="sub-hint">والمفتاح مطفأ، يستخدم الجميع الموقع مجانًا. حسابك يبقى مفتوحًا دائمًا.</p>
@@ -9909,12 +9922,26 @@ function renderSubscriptionPage() {
   }
   const admin = document.getElementById('subAdmin');
   admin.hidden = !(s && s.owner);
+  if (admin.hidden) document.getElementById('ownerUserCount').textContent = '—';
   if (s && s.owner) {
     document.getElementById('paywallToggle').checked = !!s.paywall;
     const tg = document.getElementById('paywallTelegram'); if (document.activeElement !== tg) tg.value = s.telegram || '';
   }
 }
+async function loadOwnerUserCount() {
+  const output = document.getElementById('ownerUserCount');
+  if (!client || !activeUserId || !accessState?.owner) return;
+  const user = activeUserId;
+  const version = accessVersion;
+  output.textContent = 'جارٍ التحميل…';
+  const { data, error } = await client.rpc('owner_registered_user_count');
+  if (user !== activeUserId || version !== accessVersion || !accessState?.owner) return;
+  output.textContent = error || data == null
+    ? 'العدد غير متاح'
+    : new Intl.NumberFormat('ar-IQ').format(Number(data));
+}
 async function loadCodeList() {
+  void loadOwnerUserCount();
   const list = document.getElementById('subCodeList');
   const { data, error } = await client.rpc('admin_list_codes');
   if (error) { list.innerHTML = '<p>تعذّر تحميل الأكواد.</p>'; return; }
