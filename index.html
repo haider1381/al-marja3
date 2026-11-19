@@ -5145,7 +5145,7 @@ async function init() {
   if (error) document.getElementById('gateError').textContent = 'تعذّر استعادة جلسة الدخول.';
   const session = error ? null : data.session;
   const entry = new URL(location.href);
-  if (!session && !error && shouldShowWelcome(entry, deviceIsNative())) {
+  if (!session && !error && shouldShowWelcome(entry)) {
     const welcome = new URL('./welcome.html', entry);
     welcome.search = entry.search;
     location.replace(welcome.href);
@@ -5153,8 +5153,9 @@ async function init() {
   }
   await syncAccess(session);
 }
-function shouldShowWelcome(entry, native) {
-  if (native || entry.hash || ['auth', 'code', 'error', 'error_code', 'delete-account'].some(key => entry.searchParams.has(key))) return false;
+function shouldShowWelcome(entry) {
+  const installedApp = deviceIsNative() || matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+  if (installedApp || entry.hash || ['auth', 'code', 'error', 'error_code', 'delete-account'].some(key => entry.searchParams.has(key))) return false;
   try { return localStorage.getItem('medbrain_signed_in_before') !== '1'; }
   catch (_) { return true; }
 }

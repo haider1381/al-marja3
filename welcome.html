@@ -2955,6 +2955,12 @@ html,body{height:100%;overflow:hidden;margin:0;padding:0!important}body{backgrou
   <button class="secondary" type="button" id="installAppClose">تم</button>
 </dialog>
 <script>
+if (matchMedia('(display-mode: standalone)').matches || navigator.standalone === true) {
+  const home = new URL('./', location.href);
+  home.search = location.search;
+  home.hash = location.hash;
+  location.replace(home.href);
+}
 const inviteCode = new URLSearchParams(location.search).get('invite');
 if (inviteCode) document.querySelectorAll('[data-auth-entry]').forEach(link => {
   const entry = new URL(link.href);
