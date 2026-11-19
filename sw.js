@@ -1,8 +1,8 @@
 /* Only public, explicitly listed assets are cached. Never cache API/auth/PDF/AI traffic. */
 const CACHE_PREFIX = 'medbrain-pwa-';
-const CACHE_NAME = CACHE_PREFIX + 'v2';
+const CACHE_NAME = CACHE_PREFIX + 'v3';
 const ROOT = new URL('./', self.location.href);
-const PUBLIC_PATHS = ['offline.html', 'assets/app-icon-192.png?v=indigo1', 'assets/app-icon-512.png?v=indigo1', 'assets/app-icon-maskable-512.png?v=indigo1', 'assets/apple-touch-icon.png?v=indigo1'];
+const PUBLIC_PATHS = ['offline.html', 'assets/app-icon-192.png?v=sky1', 'assets/app-icon-512.png?v=sky1', 'assets/app-icon-maskable-512.png?v=sky1', 'assets/apple-touch-icon.png?v=sky1'];
 const PUBLIC_URLS = new Set(PUBLIC_PATHS.map(path => new URL(path, ROOT).href));
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll([...PUBLIC_URLS])));
