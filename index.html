@@ -328,6 +328,12 @@
     border: 1px dashed var(--border);
     border-radius: var(--radius);
   }
+  .deck-quiz-only .deck-area-head,
+  .deck-quiz-only > :is(.mb-page-toolbar,.deck-area-title,#flashcardForm,#flashStatus,.mb-list-fold),
+  .deck-quiz-only :is([data-deck-action="shuffle"],[data-deck-action="again-hard"],[data-practice-clock],.rate-btn small,.deck-keys) { display:none; }
+  .deck-quiz-nav { display:flex; justify-content:center; gap:12px; margin-block:12px; }
+  .deck-hint { width:fit-content; max-width:min(100%,32rem); margin:8px auto; padding:8px 12px; border:1px solid var(--border); border-radius:12px; background:var(--surface-alt); color:var(--text); font-size:13px; }
+  #deckSkipDialog { max-width:340px; }
   .empty strong { display: block; color: var(--text); font-size: 15px; margin-bottom: 4px; font-weight: 700; }
 
   /* ---------- Chips (sources / subtopics) ---------- */
@@ -3774,13 +3780,19 @@ body>.mb-note-menu[data-open=true]{display:grid!important;position:fixed!importa
         <div class="deck-grid" id="deckGrid"><div class="mb-empty-tool">جارٍ تحميل المجموعات…</div></div>
         <div class="deck-study" id="deckStudy" hidden>
           <div class="deck-study-head">
-            <button type="button" class="deck-pill" data-deck-action="close">› المجموعات</button>
+            <button type="button" class="deck-pill" data-deck-action="close">› <span id="deckCloseLabel">المجموعات</span></button>
             <div class="deck-study-title"><strong id="deckStudyTitle" dir="auto"></strong><span id="deckStudySource" dir="auto"></span></div>
             <button type="button" class="deck-pill" data-deck-action="shuffle" aria-pressed="false">خلط</button>
           </div>
           <div class="deck-progress" aria-hidden="true" hidden><span id="deckProgressBar"></span></div>
           <button type="button" class="deck-pill" data-practice-clock>⏱ المؤقت</button>
           <button type="button" class="deck-pill" data-deck-ai>تلميح AI · 2 XP</button>
+          <p class="deck-hint" id="deckHint" role="status" dir="auto" hidden></p>
+          <button type="button" class="deck-pill quiz-report" data-deck-action="report" hidden>الإبلاغ عن البطاقة</button>
+          <div class="deck-quiz-nav" id="deckQuizNav" dir="ltr" hidden>
+            <button type="button" class="deck-pill" data-deck-action="next" aria-label="البطاقة التالية">←</button>
+            <button type="button" class="deck-pill" data-deck-action="prev" aria-label="البطاقة السابقة">→</button>
+          </div>
           <div id="deckStudyBar"></div>
           <div class="deck-stage" id="deckStage">
             <div class="deck-pile" aria-hidden="true"><span></span><span></span></div>
@@ -4062,6 +4074,14 @@ body>.mb-note-menu[data-open=true]{display:grid!important;position:fixed!importa
     <h3 id="dailyReviewSource"></h3>
     <div id="lectureReviewList"></div>
   </div>
+</dialog>
+<dialog id="deckSkipDialog" class="device-dialog" aria-labelledby="deckSkipTitle">
+  <h2 id="deckSkipTitle">تجاوز البطاقة؟</h2>
+  <p>إذا انتقلت إلى البطاقة التالية دون إجابة، ستُحسب هذه البطاقة خطأ.</p>
+  <form method="dialog" class="device-actions">
+    <button class="mb-primary" value="answer" autofocus>أريد الإجابة</button>
+    <button class="mb-file-btn" value="skip">موافق</button>
+  </form>
 </dialog>
 <dialog id="questionReportDialog" class="device-dialog" aria-labelledby="questionReportTitle"><h2 id="questionReportTitle">الإبلاغ عن مشكلة في السؤال</h2><p>يصل بلاغك إلى فريق Medbrain لمراجعة السؤال وتصحيحه. قد يتواصل معك الدعم داخل التطبيق للاستيضاح عن هذا البلاغ.</p><form id="questionReportForm"><fieldset class="report-reasons"><legend>نوع المشكلة</legend><label><input type="radio" name="reportReason" value="wrong_answer"> الإجابة المعتمدة خاطئة</label><label><input type="radio" name="reportReason" value="wrong_question"> السؤال خاطئ أو غير واضح</label><label><input type="radio" name="reportReason" value="incomplete"> السؤال ناقص (خيار أو معلومة مفقودة)</label><label><input type="radio" name="reportReason" value="explanation"> الشرح خاطئ أو غير كافٍ</label><label><input type="radio" name="reportReason" value="other"> مشكلة أخرى</label></fieldset><label for="questionReportNote">تفاصيل (اختياري): ما الصحيح برأيك ومصدره؟<textarea id="questionReportNote" maxlength="1000" rows="3"></textarea></label><div class="device-actions"><button type="submit" class="mb-primary" id="questionReportSubmit">إرسال البلاغ</button><button type="button" class="mb-file-btn" data-device-close="questionReportDialog">إلغاء</button></div><p id="questionReportStatus" role="status"></p></form></dialog>
 <section id="labsPanel" class="labs-panel" role="dialog" aria-modal="false" aria-labelledby="labsTitle" data-no-i18n dir="ltr" hidden><div class="labs-head"><h2 id="labsTitle">Lab values</h2><button type="button" class="labs-close" data-labs-close aria-label="Close">×</button></div><div class="labs-tools"><select id="labsTab" aria-label="Lab group"><option value="blood">Blood</option><option value="heme">Hematologic</option><option value="csf">Cerebrospinal</option><option value="other">Sweat, Urine, BMI</option><option value="infl">Inflammation & Immunology</option><option value="vit">Vitamins & Minerals</option><option value="cardiac">Cardiac & Tumor markers</option></select><input type="search" id="labsSearch" class="labs-search" placeholder="Search…" autocomplete="off" aria-label="Search lab values"></div><div class="labs-body" id="labsBody"></div></section>
@@ -4528,6 +4548,7 @@ function buildDeckQueue(onlyHard) {
 function shuffleQueue() { for (let i = deckQueue.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [deckQueue[i], deckQueue[j]] = [deckQueue[j], deckQueue[i]]; } }
 async function openDeck(id) {
   const index = (flashDecks || []).findIndex(d => d.id === id); if (index < 0) return;
+  clearDeckQuiz();
   activeDeck = flashDecks[index];
   deckSession = { right: 0, unsure: 0, wrong: 0 };
   const [c1, c2] = DECK_THEMES[index % DECK_THEMES.length];
@@ -4551,26 +4572,48 @@ async function openDeck(id) {
   showDeckCard();
   study.scrollIntoView({ block: 'start', behavior: document.documentElement.dataset.motion === 'reduce' ? 'auto' : 'smooth' });
 }
+let deckQuiz = null;
+function clearDeckQuiz() {
+  deckQuiz = null;
+  document.getElementById('deckCloseLabel').textContent = 'المجموعات';
+  document.getElementById('flashcardsSection').classList.remove('deck-quiz-only');
+  document.getElementById('deckQuizNav').hidden = true;
+  document.querySelector('[data-deck-action="report"]').hidden = true;
+  document.getElementById('deckSkipDialog').close();
+}
 function closeDeck() {
+  const wasQuiz = !!deckQuiz;
+  clearDeckQuiz();
   if (pdfTimer && !document.getElementById('readerOverlay').classList.contains('open')) stopPdfTimer();
   activeDeck = null;
   document.getElementById('deckStudy').hidden = true;
   document.getElementById('deckGrid').hidden = false;
   renderFlashDecks();
+  if (wasQuiz) showMainView('home');
 }
 function updateDeckStats() {
   const total = deckCards.length || 1;
   document.getElementById('deckProgressBar').style.width = Math.min(100, deckProgress.known.length / total * 100) + '%';
   const seen = deckSession.right + deckSession.unsure + deckSession.wrong;
   const bar = document.getElementById('deckStudyBar');
-  if (bar) bar.innerHTML = studyBarHtml({ pos: Math.min(deckCards.length, deckCards.length - deckQueue.length + 1), total: deckCards.length,
-    done: deckCards.length - deckQueue.length, right: deckSession.right, unsure: deckSession.unsure, wrong: deckSession.wrong, highlight: false, settings: false });
+  if (bar) bar.innerHTML = studyBarHtml({ pos: Math.min(deckCards.length, deckQuiz ? deckQuiz.index + 1 : deckCards.length - deckQueue.length + 1), total: deckCards.length,
+    done: deckQuiz ? seen : deckCards.length - deckQueue.length, right: deckSession.right, unsure: deckSession.unsure, wrong: deckSession.wrong, highlight: false, settings: false });
 }
 function showDeckCard() {
   deckFlipped = false;
   const card = document.getElementById('deckCard');
   card.classList.remove('is-flipped');
-  const done = !deckQueue.length;
+  const done = !currentDeckCard();
+  const hint = document.getElementById('deckHint');
+  hint.textContent = deckHints.get(currentDeckCard()) || '';
+  hint.hidden = !hint.textContent;
+  document.querySelector('[data-deck-ai]').hidden = done;
+  document.querySelector('[data-deck-ai]').disabled = !done && pendingDeckHints.has(currentDeckCard());
+  document.querySelector('[data-deck-action="report"]').hidden = !deckQuiz || done;
+  if (deckQuiz) {
+    document.querySelector('[data-deck-action="prev"]').disabled = deckQuiz.index === 0;
+    document.querySelector('[data-deck-action="next"]').disabled = done;
+  }
   document.getElementById('deckStage').hidden = done;
   document.getElementById('deckFlipRow').hidden = done;
   document.getElementById('deckRateRow').hidden = true;
@@ -4582,15 +4625,15 @@ function showDeckCard() {
     document.getElementById('deckDoneText').textContent = deckProgress.hard.length ? 'بقيت لديك بطاقات صعبة، راجعها لتثبيتها.' : 'أتقنت كل بطاقات هذه المجموعة.';
     document.getElementById('deckAgainHard').hidden = !deckProgress.hard.length;
     // Self-graded result of this sitting, as a percentage only.
-    if (deckSession.right + deckSession.unsure + deckSession.wrong) void awardPracticeXP('deck', activeDeck.id);
+    if (!deckQuiz && deckSession.right + deckSession.unsure + deckSession.wrong) void awardPracticeXP('deck', activeDeck.id);
     const answered = deckSession.right + deckSession.unsure + deckSession.wrong, score = document.getElementById('deckScore');
     score.hidden = !answered;
     if (answered) score.innerHTML = 'أجبت صحيحًا عن <b>' + Math.round(deckSession.right / answered * 100) + '%</b> من البطاقات' +
       (deckSession.unsure ? '، وبتردد عن ' + Math.round(deckSession.unsure / answered * 100) + '%' : '') + '.';
-    deckSession = { right: 0, unsure: 0, wrong: 0 };
+    if (!deckQuiz) deckSession = { right: 0, unsure: 0, wrong: 0 };
     return;
   }
-  const c = deckCards[deckQueue[0]];
+  const c = currentDeckCard();
   const answer = c.back && c.back.trim() ? c.back : '<p class="deck-note">الإجابة موجودة في الصورة.</p>';
   document.getElementById('deckFront').innerHTML = safeCardHtml(c.front);
   document.getElementById('deckBack').innerHTML = c.kind === 'cloze' ? safeCardHtml(c.back) : '<div class="deck-q">' + safeCardHtml(c.front) + '</div><hr>' + safeCardHtml(answer);
@@ -4599,15 +4642,31 @@ function showDeckCard() {
   card.classList.remove('deal'); void card.offsetWidth; card.classList.add('deal');
 }
 function flipDeckCard() {
-  if (!deckQueue.length) return;
+  if (!currentDeckCard()) return;
   deckFlipped = !deckFlipped;
   document.getElementById('deckCard').classList.toggle('is-flipped', deckFlipped);
   document.getElementById('deckFlipRow').hidden = deckFlipped;
-  document.getElementById('deckRateRow').hidden = !deckFlipped;
-  document.getElementById('deckRateAsk').hidden = !deckFlipped;
+  const canRate = deckFlipped && (!deckQuiz || !deckQuiz.ratings.has(deckQuiz.index));
+  document.getElementById('deckRateRow').hidden = !canRate;
+  document.getElementById('deckRateAsk').hidden = !canRate;
 }
 var deckSession = { right: 0, unsure: 0, wrong: 0 };
+function currentDeckCard() {
+  return deckQuiz ? deckCards[deckQuiz.index] : deckCards[deckQueue[0]];
+}
+function advanceDeckQuiz(rate) {
+  if (rate && !deckQuiz.ratings.has(deckQuiz.index)) {
+    deckQuiz.ratings.set(deckQuiz.index, rate);
+    deckSession[rate === 'hard' ? 'wrong' : rate === 'good' ? 'unsure' : 'right']++;
+  }
+  deckQuiz.index++;
+  showDeckCard();
+}
 function rateDeckCard(rate) {
+  if (deckQuiz) {
+    if (deckFlipped && currentDeckCard() && !deckQuiz.ratings.has(deckQuiz.index)) advanceDeckQuiz(rate);
+    return;
+  }
   if (!deckFlipped || !deckQueue.length) return;
   const idx = deckQueue.shift(), id = deckCards[idx].id;
   deckSession[rate === 'hard' ? 'wrong' : rate === 'good' ? 'unsure' : 'right']++;
@@ -4622,6 +4681,32 @@ function rateDeckCard(rate) {
 }
 function deckAction(action) {
   if (action === 'close') { closeDeck(); return; }
+  if (action === 'report' && deckQuiz && currentDeckCard()) {
+    const card = currentDeckCard();
+    openReportForm({ flashcard_id: card.id, question_index: card.ord || 0,
+      question_prompt: document.getElementById('deckFront').textContent.trim().slice(0, 4000) || 'بطاقة مصوّرة' });
+    return;
+  }
+  if (deckQuiz && action === 'prev') {
+    if (deckQuiz.index > 0) { deckQuiz.index--; showDeckCard(); }
+    return;
+  }
+  if (deckQuiz && action === 'next') {
+    if (!currentDeckCard()) return;
+    if (deckQuiz.ratings.has(deckQuiz.index)) advanceDeckQuiz();
+    else {
+      const dialog = document.getElementById('deckSkipDialog');
+      dialog.returnValue = '';
+      dialog.showModal();
+    }
+    return;
+  }
+  if (deckQuiz && action === 'reset') {
+    deckQuiz = { index: 0, ratings: new Map() };
+    deckSession = { right: 0, unsure: 0, wrong: 0 };
+    showDeckCard();
+    return;
+  }
   if (action === 'flip') flipDeckCard();
   else if (action === 'shuffle') {
     const btn = document.querySelector('[data-deck-action="shuffle"]');
@@ -4799,6 +4884,12 @@ function renderFlashcards(){
   ).join('');
 }
 function showMainView(view, kind='', scrollBehavior='smooth') {
+  if (deckQuiz && view !== 'flashcards') {
+    clearDeckQuiz();
+    activeDeck = null;
+    document.getElementById('deckStudy').hidden = true;
+    document.getElementById('deckGrid').hidden = false;
+  }
   if (view === 'shareSchedule') view = 'schedule';
   if ((view === 'library' || view === 'flashcards') && paywallBlocks()) return;
   if (view === 'subscription') { loadAccessState(false).then(() => { if (accessState && accessState.owner) loadCodeList(); }).catch(() => {}); }
@@ -6679,6 +6770,9 @@ function wireMedbrainEvents() {
     }catch(err){console.error(err);status.textContent='تعذّر إضافة المهمة.';}
   });
 
+  document.getElementById('deckSkipDialog').addEventListener('close', e => {
+    if (deckQuiz && currentDeckCard() && e.target.returnValue === 'skip') advanceDeckQuiz('hard');
+  });
   document.getElementById('deckArea').addEventListener('click', e => {
     const subj = e.target.closest('[data-deck-subject]');
     if (subj) { deckSubject = subj.dataset.deckSubject || null; saveUiMemory(); renderFlashDecks(); return; }
@@ -6691,7 +6785,7 @@ function wireMedbrainEvents() {
     if (e.target.closest('#deckCard')) flipDeckCard();
   });
   document.addEventListener('keydown', e => {
-    if (!activeDeck || document.getElementById('deckStudy').hidden || e.target.closest('input, textarea, select')) return;
+    if (!activeDeck || document.getElementById('deckStudy').hidden || e.target.closest('input, textarea, select, button, dialog')) return;
     if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); flipDeckCard(); }
     else if (e.key === '1') rateDeckCard('hard');
     else if (e.key === '2') rateDeckCard('good');
@@ -7055,6 +7149,43 @@ function wireMaterialSuggestion() {
     }
   });
 }
+const deckHints = new WeakMap();
+const pendingDeckHints = new WeakSet();
+async function requestDeckHint() {
+  const card = currentDeckCard(), user = activeUserId;
+  if (!card || !activeDeck || !client || !user || deckHints.has(card) || pendingDeckHints.has(card)) return;
+  const question = document.getElementById('deckFront').textContent.trim();
+  const hint = document.getElementById('deckHint'), button = document.querySelector('[data-deck-ai]');
+  hint.hidden = false;
+  if (!question) { hint.textContent = 'التلميح يحتاج بطاقة تحتوي على نص.'; return; }
+  if (Date.now() < aiRetryAt) { hint.textContent = 'انتظر قليلًا قبل طلب تلميح جديد.'; return; }
+  pendingDeckHints.add(card);
+  button.disabled = true;
+  hint.textContent = 'جارٍ توليد التلميح…';
+  const visible = () => activeUserId === user && activeDeck && currentDeckCard() === card;
+  try {
+    const { data, error } = await client.auth.getSession();
+    if (error || !data.session?.access_token || data.session.user.id !== user) throw new Error('سجّل الدخول مجددًا.');
+    const response = await fetch(SUPABASE_URL + '/functions/v1/medbrain-ai', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', apikey: SUPABASE_KEY, Authorization: 'Bearer ' + data.session.access_token },
+      body: JSON.stringify({ question: 'Give a single short clue in the language of the card. Do not state the answer or expand the abbreviation. Card: ' + question.slice(0, 1000), xp_action: 'ai_hint', xp_request_id: crypto.randomUUID() }),
+      signal: AbortSignal.timeout(55000)
+    });
+    const result = await response.json();
+    if (response.status === 429 && result.retry_seconds) aiRetryAt = Date.now() + Math.min(86400, Number(result.retry_seconds)) * 1000;
+    if (!response.ok || !result.answer?.trim()) throw new Error(result.message || 'تعذّر توليد التلميح.');
+    const answer = result.answer.trim().replace(/^\s*(?:Hint|تلميح)\s*[:：]\s*/i, '').split(/\n|(?<=[.!؟])\s+/)[0].slice(0, 260);
+    deckHints.set(card, answer);
+    if (activeUserId === user) void refreshStudyXP();
+    if (visible()) { hint.textContent = answer; hint.hidden = false; }
+  } catch (error) {
+    if (visible()) { hint.textContent = error.message || 'تعذّر توليد التلميح.'; hint.hidden = false; }
+  } finally {
+    pendingDeckHints.delete(card);
+    if (visible()) button.disabled = false;
+  }
+}
 function wireAIChat() {
   wireLectureReview();
   document.addEventListener('click', async event => {
@@ -7062,13 +7193,11 @@ function wireAIChat() {
       if (pdfTimer && !pdfTimer.done) stopPdfTimer();
       else startPracticeTimer();
     }
-    if (event.target.closest('[data-deck-ai]') && deckQueue.length) {
-      const question = document.getElementById('deckFront').textContent.trim();
-      if (!question) return;
-      openAIChat();
-      aiXPAction = 'ai_hint';
-      document.getElementById('aiQuestion').value = ('Give me a hint without revealing the answer: ' + question).slice(0, 1180);
+    if (event.target.closest('[data-deck-ai]')) {
+      void requestDeckHint();
+      return;
     }
+
   });
   window.addEventListener('resize',fitReaderAIPanel);
   document.addEventListener('keydown', e => {
@@ -9987,6 +10116,10 @@ function startCustomDeck(title, cards) {
   closeReader && document.getElementById('readerOverlay').classList.contains('open') && closeReader();
   showMainView('flashcards');
   activeDeck = { id: 'self-quiz', title };
+  deckQuiz = { index: 0, ratings: new Map() };
+  document.getElementById('deckCloseLabel').textContent = 'خروج من الاختبار';
+  document.getElementById('flashcardsSection').classList.add('deck-quiz-only');
+  document.getElementById('deckQuizNav').hidden = false;
   deckSession = { right: 0, unsure: 0, wrong: 0 };
   const study = document.getElementById('deckStudy');
   study.style.setProperty('--c1', '#5b8def'); study.style.setProperty('--c2', '#3a64c8');
@@ -10394,7 +10527,12 @@ function openQuestionReport() {
   if (!quizState) return;
   if (!client || !activeUserId) { showMbToast('سجّل الدخول للإبلاغ عن السؤال.'); return; }
   const q = quizState.material.questions[quizState.index];
-  reportTarget = { lecture_id: q._lec || quizState.material.id, question_index: q._lec ? q._i : quizState.index, question_prompt: String(q.prompt || '').slice(0, 4000) };
+  openReportForm({ lecture_id: q._lec || quizState.material.id, question_index: q._lec ? q._i : quizState.index, question_prompt: String(q.prompt || '').slice(0, 4000) });
+}
+function openReportForm(target) {
+  if (!client || !activeUserId) { showMbToast('سجّل الدخول لإرسال بلاغ.'); return; }
+  reportTarget = target;
+  document.getElementById('questionReportTitle').textContent = target.flashcard_id ? 'الإبلاغ عن مشكلة في البطاقة' : 'الإبلاغ عن مشكلة في السؤال';
   const form = document.getElementById('questionReportForm');
   form.reset();
   document.getElementById('questionReportStatus').textContent = '';
@@ -10420,7 +10558,7 @@ async function loadOpenReports(notify) {
   if (!canWrite || !client) { openReports = []; btn.hidden = true; return; }
   const version = accessVersion;
   const { data, error } = await client.from('question_reports')
-    .select('id,lecture_id,question_index,question_prompt,reason,note,created_at')
+    .select('id,lecture_id,flashcard_id,question_index,question_prompt,reason,note,created_at')
     .eq('status', 'open').order('created_at', { ascending: false }).limit(200);
   if (version !== accessVersion || !canWrite) return;
   btn.hidden = false;
@@ -10516,12 +10654,13 @@ function renderReportsList() {
     const account = reportSupportAccounts.get(r.id);
     return '<article class="report-item" data-report-id="' + escapeHtml(r.id) + '">' +
       '<p class="report-meta">' + escapeHtml(REPORT_REASONS[r.reason] || r.reason) + ' · ' + escapeHtml(new Date(r.created_at).toLocaleDateString('ar-IQ')) + '</p>' +
-      '<p class="report-where">' + escapeHtml(lec ? lec.title : 'مجموعة أسئلة') + ' — السؤال ' + (r.question_index + 1) + '</p>' +
+      '<p class="report-where">' + escapeHtml(r.flashcard_id ? 'فلاش كارد' : lec ? lec.title : 'مجموعة أسئلة') + (r.flashcard_id ? ' — البطاقة ' : ' — السؤال ') + (r.question_index + 1) + '</p>' +
       '<p class="report-q" dir="' + textDir(p.text) + '">' + escapeHtml(p.text.slice(0, 260)) + (p.text.length > 260 ? '…' : '') + '</p>' +
       (account ? '<p class="report-meta">المبلّغ: <bdi>' + escapeHtml(account.reporter_name) + '</bdi> · <bdi>' + escapeHtml(account.reporter_id) + '</bdi></p>' : '') +
       (r.note ? '<p class="report-note" dir="auto">ملاحظة الطالب: ' + escapeHtml(r.note) + '</p>' : '') +
-      '<div class="device-actions"><button type="button" class="mb-primary" data-report-open>فتح السؤال</button>' +
-      '<button type="button" class="mb-file-btn" data-report-edit>تعديل المجموعة</button>' +
+      '<div class="device-actions">' +
+      (r.flashcard_id ? '<button type="button" class="mb-primary" data-report-open>فتح البطاقة</button>' :
+        '<button type="button" class="mb-primary" data-report-open>فتح السؤال</button><button type="button" class="mb-file-btn" data-report-edit>تعديل المجموعة</button>') +
       (account ? '<button type="button" class="mb-file-btn" data-report-contact>راسل المبلّغ</button>' : '') +
       '<button type="button" class="mb-file-btn" data-report-close="resolved">تمّ الإصلاح</button>' +
       '<button type="button" class="mb-file-btn" data-report-close="dismissed">تجاهل</button></div></article>';
@@ -10591,6 +10730,13 @@ async function handleReportAction(e) {
     return;
   }
   const status = document.getElementById('reportsStatus');
+  if (r.flashcard_id && btn.hasAttribute('data-report-open')) {
+    const { data, error } = await client.from('library_flashcards').select('id,ord,kind,front,back,extra').eq('id', r.flashcard_id).single();
+    if (error || !data) { status.textContent = 'تعذّر فتح البطاقة.'; return; }
+    document.getElementById('reportsDialog').close();
+    startCustomDeck('Flashcard — Report', [data]);
+    return;
+  }
   if (btn.hasAttribute('data-report-open') || btn.hasAttribute('data-report-edit')) {
     document.getElementById('reportsDialog').close();
     if (btn.hasAttribute('data-report-edit')) { openModal(r.lecture_id); return; }
@@ -10608,7 +10754,7 @@ async function handleReportAction(e) {
   const { error } = await client.from('question_reports').update({ status: next, resolved_at: new Date().toISOString() }).eq('id', r.id);
   if (error) { btn.disabled = false; status.textContent = 'تعذّر تحديث البلاغ.'; return; }
   // Close every open report about the same question at once.
-  const same = openReports.filter(x => x.lecture_id === r.lecture_id && x.question_prompt === r.question_prompt && x.id !== r.id).map(x => x.id);
+  const same = openReports.filter(x => (r.flashcard_id ? x.flashcard_id === r.flashcard_id : x.lecture_id === r.lecture_id && x.question_prompt === r.question_prompt) && x.id !== r.id).map(x => x.id);
   if (same.length) await client.from('question_reports').update({ status: next, resolved_at: new Date().toISOString() }).in('id', same);
   openReports = openReports.filter(x => x.id !== r.id && !same.includes(x.id));
   renderReportsBadge(); renderReportsList();
