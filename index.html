@@ -914,13 +914,25 @@
   .reports-btn { position:relative; }
   .reports-badge { display:inline-block; min-width:20px; padding:0 6px; border-radius:999px; background:#e0524a; color:#fff; font-size:12px; line-height:20px; text-align:center; }
   .reports-badge[hidden] { display:none; }
-  .reports-dialog { width:min(620px, calc(100vw - 28px)); }
-  .report-item { border:1px solid var(--border); border-radius:14px; padding:10px 12px; margin:10px 0; }
-  .report-item p { margin:2px 0; }
-  .report-meta { font-weight:700; color:#e0524a; }
-  .report-where { color:var(--muted, #6b7a8c); }
-  .report-q { font-size:14px !important; }
-  .report-item .device-actions { margin-top:8px; }
+  #reportsBtn { justify-self:start; grid-column:1/-1; display:inline-flex; align-items:center; gap:7px; padding:7px 12px; }
+  #reportsBtn svg,.report-actions svg { width:17px; height:17px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
+  #reportsDialog { width:min(420px,calc(100% - 24px)); max-height:min(75dvh,600px); padding:12px; background:var(--surface); color:var(--text); border-radius:18px; overflow-x:hidden; }
+  #reportsDialog h2 { font-size:16px; }
+  #reportsDialog :is(p,summary) { font-size:12px; line-height:1.55; overflow-wrap:anywhere; }
+  #reportsStatus:empty,#suggestionsReviewStatus:empty { display:none; }
+  #suggestionsReview { margin-block-start:8px; padding:6px; border-top:1px solid var(--border); }
+  #suggestionsReview summary { cursor:pointer; font-weight:700; }
+  .report-item { border:1px solid var(--border); border-radius:12px; background:var(--surface-alt); padding:8px; margin-block:6px; min-width:0; overflow-wrap:anywhere; }
+  .report-item p { margin:3px 0; }
+  .report-meta,.report-where { color:var(--text-muted); }
+  .report-q { font-weight:700; }
+  .report-actions { display:flex; flex-wrap:wrap; gap:5px; margin-block-start:6px; }
+  #reportsDialog .report-icon { display:inline-grid; place-items:center; min-height:36px; min-width:36px; padding:5px; border:1px solid var(--border); border-radius:8px; background:var(--surface); color:var(--accent-strong); cursor:pointer; }
+  #reportsDialog .report-icon:hover { background:var(--accent-soft); }
+  [data-owner-progress] #profileLevelFill { stroke:#2785ed; }
+  [data-owner-progress] :is(#studyLevelProgress,#accountStudyProgress,#topRankingProgress) { accent-color:#2785ed; }
+  [data-owner-progress] :is(#studyLevelProgress,#accountStudyProgress,#topRankingProgress)::-webkit-progress-value { background:#2785ed; }
+  [data-owner-progress] :is(#studyLevelProgress,#accountStudyProgress,#topRankingProgress)::-moz-progress-bar { background:#2785ed; }
   .question-tools button, .quiz-choice, .quiz-next { border:1px solid var(--border); border-radius:8px; background:var(--surface-alt); padding:10px 12px; font-size:14px; }
   /* Quiz option: the choice button, and after answering a verdict strip attached directly beneath it. */
   .quiz-option { --ok:#2f9e57; --bad:#e0524a; --tone:var(--border); margin:10px 0; border-radius:14px; border:1.5px solid var(--tone); background:var(--surface); overflow:hidden; transition:border-color .2s ease, box-shadow .2s ease; }
@@ -3307,7 +3319,6 @@ body>.mb-note-menu[data-open=true]{display:grid!important;position:fixed!importa
 <nav class="mb-nav" aria-label="صفحاتي">
 <div id="drawerOwnerTools" hidden>
   <button type="button" data-tool-view="subscription"><span>لوحة الإدارة<small>الاشتراكات والأكواد</small></span></button>
-  <button type="button" data-open-admin-reports><span>بلاغات الطلاب والاقتراحات</span></button>
 </div>
 
 <button type="button" id="openFriends" data-friends-ready hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="9" cy="7" r="3"/><path d="M3 20v-2a6 6 0 0 1 12 0v2m4-11v6m-3-3h6"/></svg><span>الأصدقاء<small>إضافة صديق ومتابعة تقدّمه</small></span><b class="friend-request-count" id="friendMenuCount" hidden></b></button>
@@ -3608,10 +3619,6 @@ body>.mb-note-menu[data-open=true]{display:grid!important;position:fixed!importa
       <div class="mb-library-head">
         <div></div>
         <div class="mb-library-actions">
-          <button class="add-btn reports-btn" id="reportsBtn" type="button" hidden>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 21V4h11l-2 4 2 4H5"/></svg>
-            بلاغات الطلاب <span class="reports-badge" id="reportsBadge" hidden>0</span>
-          </button>
           <button class="add-btn" id="openAddBtn" type="button">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
             إضافة مادة
@@ -3669,7 +3676,6 @@ body>.mb-note-menu[data-open=true]{display:grid!important;position:fixed!importa
   <p class="sub-hint">والمفتاح مطفأ، يستخدم الجميع الموقع مجانًا. حسابك يبقى مفتوحًا دائمًا.</p>
   <label for="subNewNote">ملاحظة للكود (اختياري، مثل اسم الطالب)</label><input id="subNewNote" maxlength="200">
   <div class="sub-plans"><button type="button" class="mb-primary" data-new-code="month">كود شهري</button><button type="button" class="mb-primary" data-new-code="quarter">كود 3 أشهر</button><button type="button" class="mb-primary" data-new-code="half">كود 6 أشهر</button><button type="button" class="mb-primary" data-new-code="year">كود سنوي</button></div>
-  <button type="button" class="mb-file-btn" data-open-admin-reports>بلاغات الأسئلة واقتراحات المواد</button>
   <p id="subAdminStatus" role="status"></p>
   <details class="mb-list-fold" open><summary>قائمة أكواد الاشتراك</summary><div id="subCodeList" class="sub-list"></div></details></article>
 </div>
@@ -3697,6 +3703,10 @@ body>.mb-note-menu[data-open=true]{display:grid!important;position:fixed!importa
 <section class="mb-tool-page mb-page-view mb-personal-page" id="settingsSection">
 <div class="mb-page-toolbar"><div class="mb-page-title-wrap"><button class="mb-page-back" type="button" data-tool-view="home" aria-label="العودة للرئيسية">‹</button><div><h2 class="mb-page-title">الإعدادات</h2></div></div></div>
 <div class="mb-personal-grid">
+ <button type="button" class="mb-file-btn reports-btn" id="reportsBtn" hidden>
+   <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 21V4h11l-2 4 2 4H5"/></svg>
+   <span>البلاغات</span><span class="reports-badge" id="reportsBadge" hidden>0</span>
+ </button>
  <div class="mb-personal-card device-card"><h3>أدوات جهازك</h3><p>جلسات تركيز واستراحات مع مؤقّت يمكنك تصغيره أثناء القراءة.</p><button type="button" class="mb-primary" data-open-focus>فتح مؤقّت الدراسة</button></div>
  <div class="mb-personal-card device-card"><h3>بياناتك وخصوصيتك</h3><p><a href="./privacy.html" target="_blank" rel="noopener">سياسة الخصوصية</a> · <a href="./support.html" target="_blank" rel="noopener">الدعم والملاحظات</a></p><div class="mb-personal-actions"><button type="button" class="mb-file-btn" id="exportMyData">تصدير بياناتي</button><button type="button" class="device-danger" id="openDeleteAccount">حذف حسابي</button></div><p id="devicePrivacyStatus" role="status"></p><p>Medbrain منصة تعليمية للطلاب، ولا تُستخدم لتشخيص المرضى أو اتخاذ قرارات علاجية.</p></div>
  <div class="mb-personal-card mb-install-card"><img src="./assets/app-icon-192.png?v=sky1" alt=""><h3>Medbrain على جهازك</h3><p>أضف التطبيق إلى الشاشة الرئيسية وافتحه بأيقونة مستقلة. المحاضرات والحساب والذكاء الاصطناعي تحتاج اتصالًا بالإنترنت.</p><button type="button" class="mb-primary" data-install-app>تثبيت Medbrain</button><p id="installAppStatus" role="status"></p></div>
@@ -4122,11 +4132,11 @@ body>.mb-note-menu[data-open=true]{display:grid!important;position:fixed!importa
   </form>
   <p id="reportSupportStatus" role="status"></p>
 </dialog>
-<dialog id="reportsDialog" class="device-dialog reports-dialog" aria-labelledby="reportsTitle"><div class="sp-card-head"><h2 id="reportsTitle">بلاغات الطلاب</h2><button type="button" class="mb-mini-btn" data-device-close="reportsDialog" aria-label="إغلاق">×</button></div><p>البلاغات المفتوحة عن الأسئلة، الأحدث أولًا. «تمّ الإصلاح» يغلق كل البلاغات عن السؤال نفسه.</p><div id="reportsList"></div><p id="reportsStatus" role="status"></p><section id="suggestionsReview" hidden>
-  <h3>اقتراحات المحاضرات والمصادر</h3>
+<dialog id="reportsDialog" class="device-dialog reports-dialog" aria-labelledby="reportsTitle"><div class="sp-card-head"><h2 id="reportsTitle">بلاغات الطلاب</h2><button type="button" class="mb-mini-btn" data-device-close="reportsDialog" aria-label="إغلاق">×</button></div><div id="reportsList"></div><p id="reportsStatus" role="status"></p><details id="suggestionsReview" hidden>
+  <summary>الاقتراحات</summary>
   <p id="suggestionsReviewStatus" role="status"></p>
   <div id="suggestionsReviewList"></div>
-</section></dialog>
+</details></dialog>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.js"></script>
 <script>
@@ -6613,11 +6623,6 @@ function wireMedbrainEvents() {
   });
   backdrop.addEventListener('click', e => { if (e.target === backdrop) closeDrawer(); });
 
-  document.querySelectorAll('[data-open-admin-reports]').forEach(button => button.addEventListener('click', () => {
-    if (!activeUserId || !accessState?.owner) return;
-    closeDrawer();
-    void openReportsInbox();
-  }));
   document.addEventListener('click', e => {
     if (!profile.contains(e.target) && !e.target.closest('#profileBtn')) profile.classList.remove('open');
   });
@@ -8141,23 +8146,29 @@ function bindPdfViewer(wrap) {
   });
   pvSyncHistory();
 }
+let displayedStudyBalance = null;
 function renderStudyXP(balance) {
+  displayedStudyBalance = balance;
+  const owner = !!activeUserId && accessState?.owner === true;
+  document.documentElement.toggleAttribute('data-owner-progress', owner);
   const available = balance != null && Number.isFinite(Number(balance));
   const points = available ? Math.max(0, Math.floor(Number(balance))) : 0;
-  const progress = points % 100;
-  const level = 1 + Math.floor(points / 100);
-  document.getElementById('profileXP').hidden = !available;
-  document.getElementById('accountXP').hidden = !available;
-  document.getElementById('accountStudyXP').textContent = points + ' XP';
-  document.getElementById('accountStudyLevel').textContent = 'المستوى ' + level;
+  const progress = owner ? 97 : points % 100;
+  const level = owner ? 10 : 1 + Math.floor(points / 100);
+  const showProgress = owner || available;
+  const levelText = owner ? 'المستوى 10 · باقي 3 XP' : 'المستوى ' + level;
+  document.getElementById('profileXP').hidden = !showProgress;
+  document.getElementById('accountXP').hidden = !showProgress;
+  document.getElementById('accountStudyXP').textContent = available ? points + ' XP' : '—';
+  document.getElementById('accountStudyLevel').textContent = levelText;
   document.getElementById('accountStudyProgress').value = progress;
-  document.getElementById('profileLevelRing').toggleAttribute('hidden', !available);
+  document.getElementById('profileLevelRing').toggleAttribute('hidden', !showProgress);
   document.getElementById('profileLevelFill').setAttribute('stroke-dasharray', progress + ' 100');
   document.getElementById('profileLevelFill').style.visibility = progress ? 'visible' : 'hidden';
-  document.getElementById('studyXP').textContent = points + ' XP';
+  document.getElementById('studyXP').textContent = available ? points + ' XP' : '—';
   document.getElementById('topRankingXP').textContent = available ? points + ' XP' : '—';
-  document.getElementById('topRankingProgress').value = available ? progress : 0;
-  document.getElementById('studyLevel').textContent = 'المستوى ' + level;
+  document.getElementById('topRankingProgress').value = showProgress ? progress : 0;
+  document.getElementById('studyLevel').textContent = levelText;
   const bar = document.getElementById('studyLevelProgress');
   bar.value = progress;
   bar.setAttribute('aria-valuetext', progress + ' من 100 XP إلى المستوى التالي');
@@ -10383,6 +10394,7 @@ async function loadAccessState(promptIfNeeded) {
   const { data, error } = await client.rpc('my_access');
   if (version !== accessVersion) return;
   accessState = error ? null : data;
+  renderStudyXP(displayedStudyBalance);
   renderSubscriptionPage();
   // First time only: a student who never redeemed a code is asked once after signing in.
   if (promptIfNeeded && accessState && accessState.paywall && !accessState.active && !accessState.ever_subscribed) openPaywall();
@@ -10645,6 +10657,20 @@ async function loadReportSupportMessages(id, body = null) {
     }
   }
 }
+const REPORT_ICONS = {
+  open: 'M2 12s3.6-6 10-6 10 6 10 6-3.6 6-10 6-10-6-10-6Z M12 9.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5Z',
+  edit: 'm4 16-1 5 5-1L20 8l-4-4L4 16Z M14 6l4 4',
+  contact: 'M4 5h16v11H9l-5 4V5Z M8 9h8 M8 12h5',
+  resolved: 'm5 12 4 4L19 6',
+  dismissed: 'm6 6 12 12 M18 6 6 18'
+};
+function reportActionIcon(icon) {
+  return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="' + REPORT_ICONS[icon] + '"/></svg>';
+}
+function reportIconButton(icon, label, attribute) {
+  const title = escapeHtml(interfaceText(label));
+  return '<button type="button" class="report-icon" ' + attribute + ' aria-label="' + title + '" title="' + title + '">' + reportActionIcon(icon) + '</button>';
+}
 function renderReportsList() {
   const list = document.getElementById('reportsList');
   if (!openReports.length) { list.innerHTML = '<p>لا توجد بلاغات مفتوحة.</p>'; return; }
@@ -10656,14 +10682,14 @@ function renderReportsList() {
       '<p class="report-meta">' + escapeHtml(REPORT_REASONS[r.reason] || r.reason) + ' · ' + escapeHtml(new Date(r.created_at).toLocaleDateString('ar-IQ')) + '</p>' +
       '<p class="report-where">' + escapeHtml(r.flashcard_id ? 'فلاش كارد' : lec ? lec.title : 'مجموعة أسئلة') + (r.flashcard_id ? ' — البطاقة ' : ' — السؤال ') + (r.question_index + 1) + '</p>' +
       '<p class="report-q" dir="' + textDir(p.text) + '">' + escapeHtml(p.text.slice(0, 260)) + (p.text.length > 260 ? '…' : '') + '</p>' +
-      (account ? '<p class="report-meta">المبلّغ: <bdi>' + escapeHtml(account.reporter_name) + '</bdi> · <bdi>' + escapeHtml(account.reporter_id) + '</bdi></p>' : '') +
+      (account ? '<p class="report-meta">المبلّغ: <bdi>' + escapeHtml(account.reporter_name) + '</bdi></p>' : '') +
       (r.note ? '<p class="report-note" dir="auto">ملاحظة الطالب: ' + escapeHtml(r.note) + '</p>' : '') +
-      '<div class="device-actions">' +
-      (r.flashcard_id ? '<button type="button" class="mb-primary" data-report-open>فتح البطاقة</button>' :
-        '<button type="button" class="mb-primary" data-report-open>فتح السؤال</button><button type="button" class="mb-file-btn" data-report-edit>تعديل المجموعة</button>') +
-      (account ? '<button type="button" class="mb-file-btn" data-report-contact>راسل المبلّغ</button>' : '') +
-      '<button type="button" class="mb-file-btn" data-report-close="resolved">تمّ الإصلاح</button>' +
-      '<button type="button" class="mb-file-btn" data-report-close="dismissed">تجاهل</button></div></article>';
+      '<div class="report-actions">' +
+      reportIconButton('open', r.flashcard_id ? 'فتح البطاقة' : 'فتح السؤال', 'data-report-open') +
+      (!r.flashcard_id ? reportIconButton('edit', 'تعديل المجموعة', 'data-report-edit') : '') +
+      (account ? reportIconButton('contact', 'راسل المبلّغ', 'data-report-contact') : '') +
+      reportIconButton('resolved', 'تمّ الإصلاح', 'data-report-close="resolved"') +
+      reportIconButton('dismissed', 'تجاهل', 'data-report-close="dismissed"') + '</div></article>';
   }).join('');
 }
 async function loadSupportSuggestions(id = null, approve = null) {
@@ -10682,22 +10708,28 @@ async function loadSupportSuggestions(id = null, approve = null) {
   status.textContent = data.length ? '' : 'لا توجد اقتراحات قيد المراجعة.';
   document.getElementById('suggestionsReviewList').replaceChildren(...data.map(suggestion => {
     const card = document.createElement('article');
+    card.className = 'report-item';
     const title = document.createElement('strong');
     title.textContent = suggestion.title;
     const details = document.createElement('p');
     details.textContent = suggestion.details;
     card.append(title, details);
-    for (const [label, accept] of [['تمت الإضافة — امنح 2 XP', true], ['تجاهل', false]]) {
+    const actions = document.createElement('div');
+    actions.className = 'report-actions';
+    card.append(actions);
+    for (const [label, accept] of [['تمت الإضافة', true], ['تجاهل', false]]) {
       const button = document.createElement('button');
-      button.className = 'mb-file-btn';
+      button.className = 'report-icon';
       button.type = 'button';
-      button.textContent = label;
+      button.innerHTML = reportActionIcon(accept ? 'resolved' : 'dismissed');
+      button.title = interfaceText(label);
+      button.setAttribute('aria-label', button.title);
       button.addEventListener('click', async () => {
         card.querySelectorAll('button').forEach(control => { control.disabled = true; });
         try { await loadSupportSuggestions(suggestion.id, accept); }
         finally { card.querySelectorAll('button').forEach(control => { control.disabled = false; }); }
       });
-      card.append(button);
+      actions.append(button);
     }
     return card;
   }));
