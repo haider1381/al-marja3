@@ -333,7 +333,12 @@
   .deck-quiz-only :is([data-deck-action="shuffle"],[data-deck-action="again-hard"],[data-practice-clock],.rate-btn small,.deck-keys) { display:none; }
   .deck-quiz-nav { display:flex; justify-content:center; gap:12px; margin-block:12px; }
   .deck-hint { width:fit-content; max-width:min(100%,32rem); margin:8px auto; padding:8px 12px; border:1px solid var(--border); border-radius:12px; background:var(--surface-alt); color:var(--text); font-size:13px; }
-  #deckSkipDialog { max-width:340px; }
+  :is(#deckSkipDialog,#deckExitDialog,#deckResultDialog) { max-width:340px; }
+  .deck-quiz-nav .deck-pill { display:grid; place-items:center; min-width:56px; min-height:44px; color:var(--accent-strong); background:var(--surface-alt); }
+  .deck-quiz-nav .deck-pill:disabled { opacity:.45; }
+  .deck-quiz-icon { width:20px; height:20px; fill:none; stroke:currentColor; stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round; flex:none; }
+  .deck-quiz-nav .deck-quiz-icon { width:29px; height:29px; }
+  .deck-study :is([data-deck-action="close"],[data-deck-action="report"]) { display:inline-flex; align-items:center; gap:5px; }
   .empty strong { display: block; color: var(--text); font-size: 15px; margin-bottom: 4px; font-weight: 700; }
 
   /* ---------- Chips (sources / subtopics) ---------- */
@@ -3790,19 +3795,15 @@ body>.mb-note-menu[data-open=true]{display:grid!important;position:fixed!importa
         <div class="deck-grid" id="deckGrid"><div class="mb-empty-tool">جارٍ تحميل المجموعات…</div></div>
         <div class="deck-study" id="deckStudy" hidden>
           <div class="deck-study-head">
-            <button type="button" class="deck-pill" data-deck-action="close">› <span id="deckCloseLabel">المجموعات</span></button>
+            <button type="button" class="deck-pill" data-deck-action="close"><svg class="deck-quiz-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 4H5v16h5m4-13 5 5-5 5m5-5H9"/></svg><span id="deckCloseLabel">المجموعات</span></button>
             <div class="deck-study-title"><strong id="deckStudyTitle" dir="auto"></strong><span id="deckStudySource" dir="auto"></span></div>
             <button type="button" class="deck-pill" data-deck-action="shuffle" aria-pressed="false">خلط</button>
           </div>
           <div class="deck-progress" aria-hidden="true" hidden><span id="deckProgressBar"></span></div>
           <button type="button" class="deck-pill" data-practice-clock>⏱ المؤقت</button>
-          <button type="button" class="deck-pill" data-deck-ai>تلميح AI · 2 XP</button>
+          <button type="button" class="deck-pill" data-deck-ai>تلميح AI · 1 XP</button>
           <p class="deck-hint" id="deckHint" role="status" dir="auto" hidden></p>
-          <button type="button" class="deck-pill quiz-report" data-deck-action="report" hidden>الإبلاغ عن البطاقة</button>
-          <div class="deck-quiz-nav" id="deckQuizNav" dir="ltr" hidden>
-            <button type="button" class="deck-pill" data-deck-action="next" aria-label="البطاقة التالية">←</button>
-            <button type="button" class="deck-pill" data-deck-action="prev" aria-label="البطاقة السابقة">→</button>
-          </div>
+          <button type="button" class="deck-pill quiz-report" data-deck-action="report" hidden><svg class="deck-quiz-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v6m0 3h.01"/></svg><span>إبلاغ</span></button>
           <div id="deckStudyBar"></div>
           <div class="deck-stage" id="deckStage">
             <div class="deck-pile" aria-hidden="true"><span></span><span></span></div>
@@ -3810,6 +3811,10 @@ body>.mb-note-menu[data-open=true]{display:grid!important;position:fixed!importa
               <div class="deck-face deck-front"><span class="deck-face-tag">سؤال</span><div class="deck-card-body" id="deckFront"></div><span class="deck-tap">اضغط لقلب البطاقة</span></div>
               <div class="deck-face deck-back"><span class="deck-face-tag">إجابة</span><div class="deck-card-body" id="deckBack"></div><div class="deck-card-extra" id="deckCardExtra" hidden></div></div>
             </article>
+          </div>
+          <div class="deck-quiz-nav" id="deckQuizNav" dir="ltr" hidden>
+            <button type="button" class="deck-pill" data-deck-action="next" aria-label="البطاقة التالية"><svg class="deck-quiz-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12H4m7-7-7 7 7 7"/></svg></button>
+            <button type="button" class="deck-pill" data-deck-action="prev" aria-label="البطاقة السابقة"><svg class="deck-quiz-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h16m-7-7 7 7-7 7"/></svg></button>
           </div>
           <div class="deck-controls" id="deckFlipRow">
             <button type="button" class="deck-flip-btn" data-deck-action="flip">إظهار الإجابة</button>
@@ -4084,6 +4089,23 @@ body>.mb-note-menu[data-open=true]{display:grid!important;position:fixed!importa
     <h3 id="dailyReviewSource"></h3>
     <div id="lectureReviewList"></div>
   </div>
+</dialog>
+<dialog id="deckExitDialog" class="device-dialog" aria-labelledby="deckExitTitle">
+  <h2 id="deckExitTitle">خروج</h2>
+  <p>هل أنت متأكد من الخروج دون إكمال الاختبار؟</p>
+  <form method="dialog" class="device-actions">
+    <button type="submit" class="mb-primary" value="continue" autofocus>متابعة</button>
+    <button type="submit" class="mb-file-btn" value="exit">خروج</button>
+  </form>
+</dialog>
+<dialog id="deckResultDialog" class="device-dialog" aria-labelledby="deckResultTitle">
+  <h2 id="deckResultTitle">نتيجة الكويز</h2>
+  <p id="deckResultSummary"></p>
+  <p id="deckResultBreakdown"></p>
+  <form method="dialog" class="device-actions">
+    <button type="submit" class="mb-primary" value="review" autofocus>مراجعة</button>
+    <button type="submit" class="mb-file-btn" value="restart">إعادة المحاولة</button>
+  </form>
 </dialog>
 <dialog id="deckSkipDialog" class="device-dialog" aria-labelledby="deckSkipTitle">
   <h2 id="deckSkipTitle">تجاوز البطاقة؟</h2>
@@ -4590,6 +4612,8 @@ function clearDeckQuiz() {
   document.getElementById('deckQuizNav').hidden = true;
   document.querySelector('[data-deck-action="report"]').hidden = true;
   document.getElementById('deckSkipDialog').close();
+  document.getElementById('deckExitDialog').close();
+  document.getElementById('deckResultDialog').close();
 }
 function closeDeck() {
   const wasQuiz = !!deckQuiz;
@@ -4632,6 +4656,20 @@ function showDeckCard() {
   document.getElementById('deckDone').hidden = !done;
   updateDeckStats();
   if (done) {
+    if (deckQuiz) {
+      const result = 'نتيجتك: ' + deckSession.right + ' من ' + deckCards.length;
+      document.getElementById('deckDoneText').textContent = result;
+      document.getElementById('deckScore').hidden = true;
+      if (!deckQuiz.resultShown) {
+        deckQuiz.resultShown = true;
+        document.getElementById('deckResultSummary').textContent = result;
+        document.getElementById('deckResultBreakdown').textContent = 'صحيح ' + deckSession.right + ' · بتردد ' + deckSession.unsure + ' · خطأ ' + deckSession.wrong;
+        const dialog = document.getElementById('deckResultDialog');
+        dialog.returnValue = '';
+        dialog.showModal();
+      }
+      return;
+    }
     document.getElementById('deckDoneText').textContent = deckProgress.hard.length ? 'بقيت لديك بطاقات صعبة، راجعها لتثبيتها.' : 'أتقنت كل بطاقات هذه المجموعة.';
     document.getElementById('deckAgainHard').hidden = !deckProgress.hard.length;
     // Self-graded result of this sitting, as a percentage only.
@@ -4689,8 +4727,19 @@ function rateDeckCard(rate) {
   card.classList.add(rate === 'hard' ? 'fly-hard' : 'fly-good');
   setTimeout(() => { card.classList.remove('fly-hard', 'fly-good'); showDeckCard(); }, document.documentElement.dataset.motion === 'reduce' ? 0 : 260);
 }
+function requestDeckExit() {
+  if (deckQuiz && deckQuiz.ratings.size < deckCards.length) {
+    const dialog = document.getElementById('deckExitDialog');
+    if (!dialog.open) {
+      dialog.returnValue = '';
+      dialog.showModal();
+    }
+    return;
+  }
+  closeDeck();
+}
 function deckAction(action) {
-  if (action === 'close') { closeDeck(); return; }
+  if (action === 'close') { requestDeckExit(); return; }
   if (action === 'report' && deckQuiz && currentDeckCard()) {
     const card = currentDeckCard();
     openReportForm({ flashcard_id: card.id, question_index: card.ord || 0,
@@ -5147,6 +5196,7 @@ function deviceBack() {
   ]) {
     if (deviceEl(id)?.classList.contains('open')) { close(); return true; }
   }
+  if (deckQuiz && currentMainView === 'flashcards') { requestDeckExit(); return true; }
   if (browseBack()) return true;
   const previous = previousMainViews.pop();
   if (!previous && currentMainView === 'home') return false;
@@ -6775,6 +6825,14 @@ function wireMedbrainEvents() {
     }catch(err){console.error(err);status.textContent='تعذّر إضافة المهمة.';}
   });
 
+  document.getElementById('deckExitDialog').addEventListener('close', e => {
+    if (deckQuiz && e.target.returnValue === 'exit') closeDeck();
+  });
+  document.getElementById('deckResultDialog').addEventListener('close', e => {
+    if (!deckQuiz) return;
+    if (e.target.returnValue === 'restart') deckAction('reset');
+    if (e.target.returnValue === 'review') deckAction('prev');
+  });
   document.getElementById('deckSkipDialog').addEventListener('close', e => {
     if (deckQuiz && currentDeckCard() && e.target.returnValue === 'skip') advanceDeckQuiz('hard');
   });
@@ -7069,7 +7127,7 @@ async function sendAIQuestion(e) {
   if(!client||!activeUserId){status.textContent='سجّل الدخول لاستخدام المساعد.';return;}
   if(Date.now()<aiRetryAt){status.textContent='انتظر '+Math.ceil((aiRetryAt-Date.now())/1000)+' ثانية ثم حاول مجددًا.';return;}
   const xpAction = aiXPAction;
-  const cost = xpAction === 'ai_hint' ? 2 : 5;
+  const cost = xpAction === 'ai_hint' ? 1 : 5;
   if (!confirm('هذا الطلب يخصم ' + cost + ' XP إذا وصل الرد. تريد المتابعة؟')) return;
   const generation=++aiGeneration,userId=activeUserId;
   const controller=new AbortController();aiAbort=controller;
@@ -10128,7 +10186,7 @@ function startCustomDeck(title, cards) {
   showMainView('flashcards');
   activeDeck = { id: 'self-quiz', title };
   deckQuiz = { index: 0, ratings: new Map() };
-  document.getElementById('deckCloseLabel').textContent = 'خروج من الاختبار';
+  document.getElementById('deckCloseLabel').textContent = 'خروج';
   document.getElementById('flashcardsSection').classList.add('deck-quiz-only');
   document.getElementById('deckQuizNav').hidden = false;
   deckSession = { right: 0, unsure: 0, wrong: 0 };
@@ -11458,7 +11516,7 @@ Object.assign(I18N_EN, {
   "جارٍ تحميل المجموعات…": "Loading decks…",
   "› المجموعات": "‹ Decks",
   "⏱ المؤقت": "⏱ Timer",
-  "تلميح AI · 2 XP": "AI hint · 2 XP",
+  "تلميح AI · 1 XP": "AI hint · 2 XP",
   "البطاقة. اضغط لقلبها": "Flashcard. Press to flip",
   "تذكرتها بجهد": "Recalled with effort",
   "عرفتها فورًا": "Recalled immediately",
