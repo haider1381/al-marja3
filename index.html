@@ -2947,7 +2947,7 @@ html[lang="en"] .mb-feature-en, html[lang="en"] .sp-title small { display:none; 
   .friend-request-avatar img { width:100%; height:100%; object-fit:cover; border-radius:inherit; }
   .friend-chat-icon { display:inline-grid; place-items:center; padding:0; width:28px; height:28px; }
   .friend-chat-drawer { position:fixed; margin:0 0 0 auto; inset:0 0 0 auto; height:100%; max-height:100%; width:min(100%, 390px); border-radius:0; }
-  #friendInboxList {display:grid; gap:6px;}
+  #friendInboxList {display:flex;flex-direction:column;gap:0;}
   #friendChatMessages { max-height:50dvh; overflow:auto; overflow-wrap:anywhere; }
   #friendChatMessages p { white-space:pre-wrap; }
   #friendsDialog {width:min(calc(100% - 22px),480px); padding:16px; font-size:13px;}
@@ -3039,7 +3039,6 @@ body:has(#navBackdrop.open) .mb-drawer{touch-action:pan-y;overscroll-behavior:co
 #friendInboxPeople {display:flex;gap:12px;overflow:auto;flex:none;padding:4px 0 10px;}
 #friendInboxPeople button {display:grid;justify-items:center;gap:6px;flex:0 0 72px;min-width:0;color:var(--text);background:none;border:0;font:inherit;font-size:12px;cursor:pointer;}
 #friendInboxPeople small {max-width:72px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-#friendInboxPeople .friend-request-avatar {outline:2px solid var(--accent);outline-offset:2px;}
 #friendInboxList {flex:1;overflow-y:auto;min-height:0;}
 #friendInboxList .chat-inbox-row {width:100%;gap:12px;padding:11px 2px;}
 #friendInboxList .chat-inbox-row:hover {background:var(--surface-alt);}
@@ -3085,11 +3084,6 @@ body:has(:is(#friendsDialog,#friendChatDialog,#friendInboxDialog,#friendProfileD
   overscroll-behavior:contain;
 }
 #friendChatMessages {overflow-y:auto;overscroll-behavior:contain;}
-#friendInboxDialog .inbox-activity {display:flex;align-items:center;gap:12px;flex:none;width:100%;padding:10px 2px 12px;border:0;border-bottom:1px solid var(--border);background:transparent;color:var(--text);font:inherit;text-align:start;cursor:pointer;}
-.inbox-activity > span:last-child {display:grid;gap:4px;}
-.inbox-activity small {color:var(--text-muted);}
-.inbox-activity-icon {display:grid;place-items:center;width:48px;height:48px;border-radius:16px;background:#4a3ca6;color:white;}
-.inbox-activity-icon svg {width:23px;height:23px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linejoin:round;}
 #friendInboxDialog {padding-inline:18px;gap:0;overflow:hidden;background:var(--surface);}
 #friendInboxDialog .inbox-header {display:grid;grid-template-columns:minmax(34px,1fr) auto minmax(140px,1fr);align-items:center;gap:8px;min-height:54px;flex:none;border-bottom:1px solid var(--border);}
 #friendInboxTitle {font-weight:800;letter-spacing:-.03em;}
@@ -3097,9 +3091,6 @@ body:has(:is(#friendsDialog,#friendChatDialog,#friendInboxDialog,#friendProfileD
 .inbox-header-tools {display:flex;gap:4px;align-items:center;justify-self:end;}
 .inbox-icon {display:grid;place-items:center;width:38px;min-height:38px!important;padding:0;border:0;border-radius:12px;background:var(--surface-alt);color:var(--text);cursor:pointer;}
 .inbox-icon svg,.inbox-chevron {width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
-#friendInboxPeople {gap:14px;padding:18px 3px 15px;}
-#friendInboxPeople button {flex-basis:78px;}
-#friendInboxPeople .friend-request-avatar {width:68px;height:68px;font-size:21px;border:3px solid var(--surface);outline:2px solid #625eea;background:var(--accent-soft);}
 #friendInboxDialog .inbox-section {display:flex;justify-content:space-between;align-items:center;margin:5px 0 0;padding:5px 0;border-top:1px solid var(--border);flex:none;}
 .inbox-section h3 {font-size:13px;font-weight:800;color:var(--text-muted);margin:0;}
 #friendInboxList .chat-inbox-row {border-radius:13px;border-bottom-color:transparent;}
@@ -3116,11 +3107,27 @@ body:has(:is(#friendsDialog,#friendChatDialog,#friendInboxDialog,#friendProfileD
 #friendChatSend svg {width:23px;height:23px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;}
 @media(max-width:540px) { #friendChatDialog {max-height:100dvh;} }
 #friendInboxList .chat-inbox-row {padding:5px 2px;gap:9px;min-height:51px;flex:1;}
-.inbox-conversation {display:flex;align-items:center;gap:4px;border-bottom:1px solid var(--border);}
-.inbox-peer-menu {position:relative;}
-.inbox-peer-menu summary {display:grid;place-items:center;min-width:36px;min-height:36px;cursor:pointer;}
-.inbox-peer-menu div {position:absolute;inset-inline-end:0;z-index:3;min-width:max-content;padding:4px;border:1px solid var(--border);border-radius:10px;background:var(--surface);}
-.inbox-peer-menu button {display:block;background:transparent;border:0;color:var(--text);text-align:start;width:100%;padding:5px 8px;}
+.inbox-conversation {flex:none;display:flex;align-items:center;gap:4px;border-bottom:1px solid var(--border);}
+#friendInboxDialog .inbox-header {grid-template-columns:auto minmax(0,1fr) auto;gap:6px;}
+#friendInboxTitle {font-size:clamp(17px,5vw,22px);}
+#friendInboxDialog .inbox-icon {background:transparent;border-radius:50%;width:34px;position:relative;}
+#inboxActivity .friend-request-count {position:absolute;inset-block-start:1px;inset-inline-end:-1px;}
+#friendInboxPeople {gap:7px;padding:10px 0;}
+#friendInboxPeople[hidden] {display:none;}
+#friendInboxPeople button {flex-basis:55px;gap:3px;font-size:11px;}
+#friendInboxPeople small {max-width:55px;}
+#friendInboxPeople .friend-request-avatar {position:relative;width:42px;height:42px;outline:none;border:0;overflow:visible;font-size:16px;}
+#friendInboxPeople .friend-request-avatar::after {content:"";position:absolute;inset-block-end:0;inset-inline-end:0;width:11px;height:11px;border:2px solid var(--surface);border-radius:50%;background:#21c975;}
+#friendInboxList .chat-inbox-row {user-select:none;-webkit-touch-callout:none;}
+#friendInboxList img {-webkit-user-drag:none;}
+.inbox-extra {position:relative;}
+.inbox-extra summary {list-style:none;}
+.inbox-extra summary::-webkit-details-marker {display:none;}
+.inbox-extra > div {position:absolute;inset-inline-end:0;inset-block-start:100%;z-index:2;display:flex;background:var(--surface-alt);border:1px solid var(--border);border-radius:14px;padding:3px;}
+#friendConversationOptions {width:min(290px,calc(100% - 36px));border-radius:18px;padding:14px;background:var(--surface);color:var(--text);}
+#friendConversationOptions h2 {margin:0 0 8px;font-size:17px;overflow-wrap:anywhere;}
+#friendConversationOptions form {display:grid;gap:5px;}
+#friendConversationOptions button {min-height:38px;border:0;border-radius:9px;background:var(--surface-alt);color:var(--text);font:inherit;text-align:start;padding-inline:10px;}
 #friendRequestSheet {max-height:28dvh;overflow:auto;flex:none;padding:5px 0;background:var(--surface-alt);}
 .inbox-friend-request {display:flex;gap:6px;align-items:center;padding:4px;}
 .inbox-friend-request bdi {flex:1;overflow-wrap:anywhere;}
@@ -3394,7 +3401,7 @@ body>.mb-note-menu[data-open=true]{display:grid!important;position:fixed!importa
   <button type="button" data-tool-view="subscription"><span>لوحة الإدارة<small>الاشتراكات والأكواد</small></span></button>
 </div>
 
-<button type="button" id="openFriends" data-friends-ready hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 5h18v12H9l-6 4V5Zm4 4h10m-10 4h6"/></svg><span>صندوق الوارد<small>المراسلات والأصدقاء</small></span><b class="friend-request-count" id="friendMenuCount" hidden></b></button>
+<button type="button" id="openFriends" data-friends-ready hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 5h18v12H9l-6 4V5Zm4 4h10m-10 4h6"/></svg><span>الأصدقاء<small>المراسلات والأصدقاء</small></span><b class="friend-request-count" id="friendMenuCount" hidden></b></button>
 <button type="button" data-tool-view="subscription"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M3 10h18M7 15h4"/></svg><span>اشتراكي<small>الوصول والخدمات المتاحة</small></span></button>
 <button type="button" data-tool-view="schedule"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="5" width="16" height="15" rx="3"/><path d="M8 3v4m8-4v4M4 10h16m-7 5 2 2 4-4"/></svg><span>جدولي الدراسي<small>مهامي وخطتي الأسبوعية</small></span></button>
 <button type="button" data-tool-view="favorites"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m19 21-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg><span>مكتبتي<small>محاضراتي وملخصاتي ودفاتري</small></span></button>
@@ -4047,24 +4054,26 @@ body>.mb-note-menu[data-open=true]{display:grid!important;position:fixed!importa
 <dialog id="friendInboxDialog" class="device-dialog" aria-labelledby="friendInboxTitle">
   <header class="inbox-header">
     <form method="dialog"><button class="inbox-icon" aria-label="رجوع">×</button></form>
-    <h2 id="friendInboxTitle">صندوق الوارد</h2>
+    <h2 id="friendInboxTitle">الأصدقاء</h2>
     <div class="inbox-header-tools">
       <button type="button" class="inbox-icon" id="inboxSearchToggle" aria-label="بحث" aria-controls="friendInboxSearch" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="5.5"/><path d="m15 15 5 5"/></svg></button>
       <button type="button" class="inbox-icon" id="inboxAddFriend" aria-label="إضافة صديق" title="إضافة صديق"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8.5" cy="8" r="3"/><path d="M2.5 20v-2a6 6 0 0 1 12 0v2m4-12v8m-4-4h8"/></svg></button>
+      <button type="button" class="inbox-icon" id="inboxActivity" aria-label="طلبات الصداقة" title="طلبات الصداقة" aria-controls="friendRequestSheet" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="7" r="3"/><path d="M3 20v-2a6 6 0 0 1 10-4m2 3 2 2 4-5"/></svg><b class="friend-request-count" id="friendDialogCount" hidden></b></button>
+      <details class="inbox-extra"><summary class="inbox-icon" aria-label="خيارات إضافية">⋯</summary><div>
       <button type="button" class="inbox-icon" id="inboxInviteFriend" aria-label="دعوة صديق" title="دعوة صديق"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 15 6-6m-4-2 2-2a4 4 0 0 1 6 6l-2 2m-4 4-2 2a4 4 0 0 1-6-6l2-2"/></svg></button>
       <button type="button" class="inbox-icon" id="inboxNotifyToggle" aria-label="إشعارات الهاتف" aria-pressed="false" title="إشعارات الهاتف"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9m-8 12h4"/></svg></button>
+      </div></details>
     </div>
   </header>
   <input id="friendInboxSearch" class="inbox-search" type="search" aria-label="بحث في المراسلات" placeholder="ابحث عن صديق" autocomplete="off" hidden>
   <div id="friendInboxPeople" aria-label="فتح محادثة مع صديق"></div>
-  <button type="button" id="inboxActivity" class="inbox-activity" aria-controls="friendRequestSheet" aria-expanded="false">
-    <span class="inbox-activity-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m13 2-8 12h6l-1 8 9-12h-6l1-8Z"/></svg></span>
-    <span><strong>نشاط الأصدقاء</strong><small>طلبات الصداقة</small></span><b class="friend-request-count" id="friendDialogCount" hidden></b>
-  </button>
   <section id="friendRequestSheet" aria-label="طلبات الصداقة" hidden><div id="incomingFriendRequests"></div><p id="friendStatus" role="status"></p></section>
   <p id="friendInboxNotifyStatus" role="status" hidden></p>
   <p id="friendInboxStatus" role="status" hidden></p>
   <div id="friendInboxList"></div>
+</dialog>
+<dialog id="friendConversationOptions" class="device-dialog" aria-labelledby="friendConversationTitle">
+  <h2 id="friendConversationTitle"></h2><form method="dialog" id="friendConversationActions"></form>
 </dialog>
 <dialog id="friendActionsDialog" class="device-dialog" aria-labelledby="friendActionsTitle">
   <form method="dialog" class="sp-card-head"><h2 id="friendActionsTitle"></h2><button aria-label="إغلاق" class="inbox-icon">×</button></form>
@@ -6725,6 +6734,26 @@ function wireMedbrainEvents() {
   backdrop.querySelector('.mb-drawer').addEventListener('wheel', event => event.stopPropagation(), { passive:true });
   const openDrawer = () => { backdrop.classList.add('open'); backdrop.setAttribute('aria-hidden','false'); };
   const closeDrawer = () => { backdrop.classList.remove('open'); backdrop.setAttribute('aria-hidden','true'); };
+  let drawerSwipe;
+  document.addEventListener('touchstart', event => {
+    drawerSwipe = null;
+    if (event.touches.length !== 1 || document.querySelector('dialog[open], #readerOverlay.open, #overlay.open, .mb-layer.open')) return;
+    const touch = event.touches[0];
+    const open = backdrop.classList.contains('open');
+    if (open ? !backdrop.contains(event.target) : touch.clientX < window.innerWidth - 30 || touch.clientX > window.innerWidth - 8) return;
+    drawerSwipe = { x: touch.clientX, y: touch.clientY, open };
+  }, { passive: true });
+  document.addEventListener('touchcancel', () => { drawerSwipe = null; }, { passive: true });
+  document.addEventListener('touchend', event => {
+    const start = drawerSwipe;
+    drawerSwipe = null;
+    if (!start || event.touches.length || event.changedTouches.length !== 1) return;
+    const touch = event.changedTouches[0];
+    const dx = touch.clientX - start.x;
+    if (Math.abs(dx) < 55 || Math.abs(dx) < Math.abs(touch.clientY - start.y) * 1.5) return;
+    if (start.open && dx > 0) closeDrawer();
+    if (!start.open && dx < 0) openDrawer();
+  }, { passive: true });
   document.getElementById('brandHomeBtn').addEventListener('click', () => {
     closeDrawer();
     closeAbout(false);
@@ -8650,7 +8679,8 @@ async function updateFriendChat(action = 'read', body = null) {
       : data.status === 'pending' ? 'بانتظار موافقة صديقك.'
       : ready ? '' : isFirstMessage ? 'رسالتك الأولى تُرسل كطلب مراسلة.' : 'أرسل طلبًا حتى تبدأ المراسلة.';
     const messages = document.getElementById('friendChatMessages');
-    const entries = Array.isArray(data.messages) ? data.messages : [];
+    const cutoff = conversationClearedAt(peer);
+    const entries = Array.isArray(data.messages) ? data.messages.filter(message => !cutoff || Date.parse(message.created_at) > cutoff) : [];
     const signature = JSON.stringify(entries);
     if (messages.dataset.snapshot !== signature) {
       const atEnd = messages.scrollHeight - messages.scrollTop - messages.clientHeight < 32;
@@ -8716,18 +8746,84 @@ function friendInboxAvatar(peer) {
   if (url) {
     const img = document.createElement('img');
     img.alt = '';
-    img.referrerPolicy = 'no-referrer';
-    img.addEventListener('load', () => avatar.replaceChildren(img), { once: true });
+    img.draggable = false;
+    const fallback = avatar.textContent;
+    img.addEventListener('error', () => { avatar.textContent = fallback; }, { once: true });
+    avatar.replaceChildren(img);
     img.src = url;
   }
   return avatar;
+}
+function conversationClearKey(peer) {
+  return 'medbrain-chat-cleared:' + activeUserId + ':' + peer.id;
+}
+function conversationClearedAt(peer) {
+  try { return Number(localStorage.getItem(conversationClearKey(peer))) || 0; }
+  catch (_) { return 0; }
+}
+function openFriendConversationOptions(peer) {
+  const dialog = document.getElementById('friendConversationOptions');
+  if (dialog.open || !activeUserId) return;
+  const user = activeUserId;
+  const name = peer.name || peer.friend_code;
+  const title = document.getElementById('friendConversationTitle');
+  const actions = document.getElementById('friendConversationActions');
+  const addAction = (label, callback) => {
+    const button = document.createElement('button');
+    button.textContent = label;
+    if (callback) {
+      button.type = 'button';
+      button.addEventListener('click', callback);
+    }
+    actions.append(button);
+  };
+  const confirmAction = (question, callback) => {
+    title.textContent = question;
+    actions.replaceChildren();
+    addAction('تأكيد', () => {
+      dialog.close();
+      if (user === activeUserId) callback();
+    });
+    addAction('إلغاء');
+  };
+  title.textContent = name;
+  actions.replaceChildren();
+  addAction('الملف الشخصي', () => {
+    dialog.close();
+    const profile = document.getElementById('friendProfileDialog');
+    profile.querySelector('h2').textContent = name;
+    profile.querySelector('p').textContent = peer.points == null ? 'التقدّم خاص' : peer.points + ' XP';
+    profile.showModal();
+  });
+  addAction('مسح المحادثة', () => confirmAction('مسح سجل المحادثة من هذا الجهاز؟', () => {
+    try {
+      localStorage.setItem(conversationClearKey(peer), String(Date.now()));
+      renderFriendInbox();
+    } catch (_) {
+      const status = document.getElementById('friendInboxStatus');
+      status.hidden = false;
+      status.textContent = 'تعذّر مسح المحادثة من هذا الجهاز.';
+    }
+  }));
+  addAction('إزالة الصديق', () => confirmAction('إزالة ' + name + ' من الأصدقاء؟', () => {
+    void changeFriends('friend_respond', {p_peer: peer.id, p_accept: false}, undefined, 'friendInboxStatus');
+  }));
+  addAction('حظر', () => confirmAction('حظر ' + name + '؟', () => {
+    void changeFriends('friend_block', {p_peer: peer.id}, undefined, 'friendInboxStatus');
+  }));
+  addAction('إغلاق');
+  dialog.showModal();
 }
 function renderFriendInbox() {
   const query = document.getElementById('friendInboxSearch').value.trim().toLowerCase();
   const people = document.getElementById('friendInboxPeople');
   const list = document.getElementById('friendInboxList');
+  const peerPreview = peer => {
+    const preview = inboxPreviews[peer.id];
+    return preview && Date.parse(preview.sent_at) > conversationClearedAt(peer) ? preview : null;
+  };
   const peers = chatFriends.filter(peer => (peer.name || peer.friend_code || '').toLowerCase().includes(query))
-    .sort((a, b) => String(inboxPreviews[b.id]?.sent_at || '').localeCompare(String(inboxPreviews[a.id]?.sent_at || '')));
+    .sort((a, b) => String(peerPreview(b)?.sent_at || '').localeCompare(String(peerPreview(a)?.sent_at || '')));
   const now = Date.now();
   const active = peers.filter(peer => now - Date.parse(friendSeenAt[peer.id]) < 120000);
   people.hidden = !active.length || !!query;
@@ -8751,7 +8847,7 @@ function renderFriendInbox() {
     const copy = document.createElement('span');
     copy.className = 'chat-inbox-copy';
     const detail = document.createElement('small');
-    const preview = inboxPreviews[peer.id];
+    const preview = peerPreview(peer);
     detail.textContent = preview?.body?.split(/\n\[Medbrain(?:Schedule\]|:)/)[0] || 'فتح المحادثة';
     copy.append(title, detail);
     button.append(friendInboxAvatar(peer), copy);
@@ -8762,35 +8858,39 @@ function renderFriendInbox() {
       time.textContent = new Date(preview.sent_at).toLocaleDateString('ar-IQ', { month: 'numeric', day: 'numeric' });
       button.append(time);
     }
-    button.addEventListener('click', () => openFriendChat(peer));
-    const menu = document.createElement('details');
-    menu.className = 'inbox-peer-menu';
-    const toggle = document.createElement('summary');
+    let timer;
+    let origin;
+    let held = false;
+    const cancelHold = () => clearTimeout(timer);
+    button.addEventListener('pointerdown', event => {
+      if (!event.isPrimary || event.button !== 0) return;
+      origin = event;
+      held = false;
+      timer = setTimeout(() => {
+        held = true;
+        openFriendConversationOptions(peer);
+      }, 520);
+    });
+    button.addEventListener('pointermove', event => {
+      if (origin && Math.hypot(event.clientX - origin.clientX, event.clientY - origin.clientY) > 9) cancelHold();
+    });
+    for (const type of ['pointerup', 'pointercancel', 'pointerleave']) {
+      button.addEventListener(type, cancelHold);
+    }
+    button.addEventListener('contextmenu', event => {
+      event.preventDefault();
+      cancelHold();
+      held = true;
+      openFriendConversationOptions(peer);
+    });
+    button.addEventListener('click', () => { if (!held) openFriendChat(peer); });
+    const toggle = document.createElement('button');
+    toggle.type = 'button';
+    toggle.className = 'inbox-icon';
     toggle.textContent = '⋯';
     toggle.setAttribute('aria-label', 'خيارات ' + title.textContent);
-    const options = document.createElement('div');
-    for (const [label, callback] of [
-      ['الملف الشخصي', () => {
-        const dialog = document.getElementById('friendProfileDialog');
-        dialog.querySelector('h2').textContent = title.textContent;
-        dialog.querySelector('p').textContent = peer.points == null ? 'التقدّم خاص' : peer.points + ' XP';
-        dialog.showModal();
-      }],
-      ['إزالة الصديق', () => {
-        if (confirm('إزالة ' + title.textContent + ' من الأصدقاء؟')) void changeFriends('friend_respond', {p_peer: peer.id, p_accept: false}, undefined, 'friendInboxStatus');
-      }],
-      ['حظر', () => {
-        if (confirm('حظر ' + title.textContent + '؟')) void changeFriends('friend_block', {p_peer: peer.id}, undefined, 'friendInboxStatus');
-      }]
-    ]) {
-      const action = document.createElement('button');
-      action.type = 'button';
-      action.textContent = label;
-      action.addEventListener('click', () => { menu.open = false; callback(); });
-      options.append(action);
-    }
-    menu.append(toggle, options);
-    row.append(button, menu);
+    toggle.addEventListener('click', () => openFriendConversationOptions(peer));
+    row.append(button, toggle);
     return row;
   }));
   if (!list.children.length) list.textContent = query ? 'لا توجد نتائج مطابقة.' : 'لا يوجد أصدقاء للمراسلة حاليًا.';
@@ -8990,7 +9090,13 @@ function initFriends() {
     url.searchParams.delete('invite');
     history.replaceState(history.state, '', url.href);
   }
-  document.getElementById('friendInboxDialog').addEventListener('close', () => setInboxRequestsOpen(false));
+  document.getElementById('friendInboxDialog').addEventListener('close', () => {
+    setInboxRequestsOpen(false);
+    document.querySelector('.inbox-extra').open = false;
+  });
+  document.querySelectorAll('.inbox-extra button').forEach(button => {
+    button.addEventListener('click', () => { button.closest('details').open = false; });
+  });
   const refreshNotices = () => {
     if (friendBackendReady && activeUserId && !document.hidden) void loadFriends();
   };
@@ -9077,7 +9183,7 @@ function resetFriends() {
   friendLoadVersion++;
   friendBackendReady = false;
   document.querySelectorAll('[data-friends-ready]').forEach(node => { node.hidden = true; });
-  for (const id of ['friendInboxDialog', 'friendActionsDialog']) {
+  for (const id of ['friendConversationOptions', 'friendInboxDialog', 'friendActionsDialog']) {
     const dialog = document.getElementById(id);
     if (dialog.open) dialog.close();
   }
