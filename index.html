@@ -3094,7 +3094,21 @@ body:has(:is(#friendsDialog,#friendChatDialog,#friendInboxDialog,#friendProfileD
 #friendInboxPeople {gap:14px;padding:18px 3px 15px;}
 #friendInboxPeople button {flex-basis:70px;}
 #friendInboxPeople .friend-request-avatar {width:61px;height:61px;font-size:21px;border:3px solid var(--surface);outline:2px solid #625eea;background:var(--accent-soft);}
-#friendInboxDialog .inbox-section {margin:5px 0 0;padding:8px 0;font-size:13px;font-weight:800;border-top:1px solid var(--border);flex:none;color:var(--text-muted);}
+#friendInboxDialog .inbox-section {display:flex;justify-content:space-between;align-items:center;margin:5px 0 0;padding:5px 0;border-top:1px solid var(--border);flex:none;}
+.inbox-section h3 {font-size:13px;font-weight:800;color:var(--text-muted);margin:0;}
+#friendInboxList .chat-inbox-row {border-radius:13px;border-bottom-color:transparent;}
+#friendInboxList .chat-inbox-row:focus-visible {outline-offset:-3px;}
+#friendChatDialog {background:var(--surface);padding-inline:0;overflow:hidden;}
+.thread-header {display:flex;align-items:center;gap:12px;min-height:58px;padding:0 16px;border-bottom:1px solid var(--border);flex:none;}
+.thread-header .friend-request-avatar {width:43px;height:43px;}
+#friendChatMessages {display:flex;flex-direction:column;align-items:flex-start;gap:4px;padding:14px 16px;}
+#friendChatMessages p {margin:0;border-radius:16px 16px 5px 16px;background:var(--surface-alt);padding:9px 12px;}
+#friendChatMessages .chat-mine {border-radius:16px 16px 16px 5px;background:#4a3ca6;}
+#friendChatCompose {padding:10px 16px 0;border-top:1px solid var(--border);}
+#friendChatDialog > :is(#friendChatStatus,#friendChatActions,#friendChatPreview,#friendChatRetry) {margin-inline:16px;}
+#friendChatSend {width:46px;height:46px;display:grid;place-items:center;padding:0;border-radius:15px;background:#4a3ca6;color:#fff;}
+#friendChatSend svg {width:23px;height:23px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;}
+@media(max-width:540px) { #friendChatDialog {max-height:100dvh;} }
 #friendInboxList .chat-inbox-row {padding:12px 2px;gap:11px;min-height:76px;}
 #friendInboxList .friend-request-avatar {width:50px;height:50px;font-size:17px;}
 #friendInboxList .chat-inbox-copy {flex:1;gap:4px;}
@@ -4069,7 +4083,7 @@ body>.mb-note-menu[data-open=true]{display:grid!important;position:fixed!importa
   </header>
   <input id="friendInboxSearch" class="inbox-search" type="search" aria-label="بحث في المراسلات" placeholder="ابحث عن صديق" autocomplete="off" hidden>
   <div id="friendInboxPeople" aria-label="فتح محادثة مع صديق"></div>
-  <h3 class="inbox-section">المحادثات</h3>
+  <div class="inbox-section"><h3>المحادثات</h3><button type="button" class="inbox-icon" id="inboxFriendsShortcut" aria-label="الأصدقاء"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3"/><path d="M3 20v-2a6 6 0 0 1 12 0v2m4-11v6m-3-3h6"/></svg></button></div>
   <p id="friendInboxNotifyStatus" role="status" hidden></p>
   <p id="friendInboxStatus" role="status" hidden></p>
   <div id="friendInboxList"></div>
@@ -4093,7 +4107,10 @@ body>.mb-note-menu[data-open=true]{display:grid!important;position:fixed!importa
   </details>
 </div></div></dialog>
 <dialog id="friendChatDialog" class="device-dialog friend-chat-drawer" aria-labelledby="friendChatTitle">
-  <form method="dialog" class="sp-card-head"><div class="friend-chat-title"><span id="friendChatAvatar" aria-hidden="true"></span><h2 id="friendChatTitle" dir="auto"></h2></div><button class="mb-close" aria-label="رجوع">‹</button></form>
+  <form method="dialog" class="thread-header">
+    <button class="inbox-icon" aria-label="رجوع"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6m6-6H4"/></svg></button>
+    <div class="friend-chat-title"><span id="friendChatAvatar" aria-hidden="true"></span><h2 id="friendChatTitle" dir="auto"></h2></div>
+  </form>
   <p id="friendChatStatus" role="status"></p>
   <button type="button" id="friendChatRetry" class="mb-file-btn" hidden>إعادة المحاولة</button>
   <div id="friendChatActions">
@@ -4105,7 +4122,7 @@ body>.mb-note-menu[data-open=true]{display:grid!important;position:fixed!importa
   <div id="friendChatMessages" role="log"></div>
   <form id="friendChatCompose" hidden>
     <details id="friendChatShare">
-      <summary>مشاركة مادة دراسية</summary>
+      <summary>مشاركة مادة</summary>
       <button type="button" class="mb-file-btn" id="chatShareSchedule">جدولي الدراسي</button>
       <label for="chatShareSearch">ابحث عن محاضرة أو مجموعة أسئلة</label>
       <input id="chatShareSearch" type="search" maxlength="120">
@@ -4116,7 +4133,7 @@ body>.mb-note-menu[data-open=true]{display:grid!important;position:fixed!importa
     </div>
     <div class="chat-composer-row">
       <textarea id="friendChatText" maxlength="2000" dir="auto" rows="1" aria-label="الرسالة" placeholder="اكتب رسالة…"></textarea>
-      <button class="mb-primary" id="friendChatSend" type="submit">إرسال</button>
+      <button class="mb-primary" id="friendChatSend" type="submit" aria-label="إرسال"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m20 4-8 16-2-8-8-2 18-6ZM10 12l10-8"/></svg></button>
     </div>
   </form>
 </dialog>
@@ -5666,6 +5683,7 @@ function wireGateEvents() {
     setLayerOpen('accountOverlay', false);
     try {
       await syncAccess(null);
+      await removePhonePush(activeUserId).catch(() => {});
       const { error } = await client.auth.signOut({ scope: 'local' });
       if (error) throw error;
       document.getElementById('gateError').textContent = '';
@@ -8299,10 +8317,24 @@ function openFriendRequestsFromNotice() {
   toggle.focus();
 }
 
-function phoneNoticesEnabled() {
-  if (!activeUserId || !('Notification' in window) || Notification.permission !== 'granted') return false;
-  try { return localStorage.getItem('medbrain_phone_notices_' + activeUserId) === '1'; }
+function phonePushPreference(user) {
+  try { return localStorage.getItem('medbrain_push_owner') === user; }
   catch (_) { return false; }
+}
+function phoneNoticesEnabled() {
+  return !!activeUserId && typeof Notification !== 'undefined' &&
+    Notification.permission === 'granted' && phonePushPreference(activeUserId);
+}
+async function removePhonePush(user) {
+  if (!phonePushPreference(user) || !navigator.serviceWorker) return;
+  const registration = await navigator.serviceWorker.getRegistration();
+  const subscription = await registration?.pushManager?.getSubscription();
+  if (subscription) {
+    const unsubscribed = await subscription.unsubscribe();
+    const { error } = await client.rpc('medbrain_push_subscription', { p_endpoint: subscription.endpoint });
+    if (error && !unsubscribed) throw error;
+  }
+  localStorage.removeItem('medbrain_push_owner');
 }
 async function togglePhoneNotices(event) {
   const button = event.currentTarget;
@@ -8312,35 +8344,45 @@ async function togglePhoneNotices(event) {
   status.hidden = false;
   button.disabled = true;
   try {
-    if (!('Notification' in window) || !navigator.serviceWorker) {
-      status.textContent = 'إشعارات الهاتف غير متاحة في هذا المتصفح.';
+    if (typeof Notification === 'undefined' || !navigator.serviceWorker || !('PushManager' in window)) {
+      status.textContent = 'الإشعارات غير متاحة هنا. افتح ميدبرين من متصفح يدعمها أو من أيقونته بعد التثبيت.';
       return;
     }
     const enable = !phoneNoticesEnabled();
-    if (enable && await Notification.requestPermission() !== 'granted') {
+    if (!enable) {
+      await removePhonePush(user);
+      button.setAttribute('aria-pressed', 'false');
+      status.textContent = 'أوقفت إشعارات الهاتف.';
+      return;
+    }
+    if (await Notification.requestPermission() !== 'granted') {
       status.textContent = 'لم تمنح إذن الإشعارات.';
       return;
     }
-    if (user !== activeUserId) return;
-    if (enable && !(await navigator.serviceWorker.getRegistration())?.active) {
-      status.textContent = 'أعد فتح التطبيق ثم فعّل الإشعارات.';
+    const registration = await navigator.serviceWorker.getRegistration();
+    if (!registration?.active) {
+      status.textContent = 'أعد فتح الموقع ثم فعّل الإشعارات.';
       return;
     }
+    const { data: key, error } = await client.rpc('medbrain_push_key');
+    if (error || !key) throw error || new Error('missing_push_key');
+    const base64Key = key.replace(/-/g, '+').replace(/_/g, '/').padEnd(Math.ceil(key.length / 4) * 4, '=');
+    const applicationServerKey = Uint8Array.from(atob(base64Key), char => char.charCodeAt(0));
     if (user !== activeUserId) return;
-    localStorage.setItem('medbrain_phone_notices_' + user, enable ? '1' : '0');
-    button.setAttribute('aria-pressed', String(enable));
-    status.textContent = enable ? 'إشعارات الرسائل والصداقة مفعّلة أثناء تشغيل التطبيق.' : 'أوقفت إشعارات الهاتف.';
-  } catch (_) { status.textContent = 'تعذّر تغيير إعداد الإشعارات.'; }
+    let subscription = await registration.pushManager.getSubscription();
+    if (!subscription) subscription = await registration.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey });
+    if (user !== activeUserId) return;
+    const { keys } = subscription.toJSON();
+    const result = await client.rpc('medbrain_push_subscription', {
+      p_endpoint: subscription.endpoint, p_p256dh: keys.p256dh, p_auth: keys.auth
+    });
+    if (result.error) throw result.error;
+    if (user !== activeUserId) return;
+    localStorage.setItem('medbrain_push_owner', user);
+    button.setAttribute('aria-pressed', 'true');
+    status.textContent = 'إشعارات الرسائل والصداقة مفعّلة، حتى بعد إغلاق التطبيق.';
+  } catch (_) { status.textContent = 'تعذّر تغيير إعداد الإشعارات. حاول مجددًا.'; }
   finally { button.disabled = false; }
-}
-async function showFriendPhoneNotice(body, tag) {
-  if (!phoneNoticesEnabled()) return;
-  const user = activeUserId;
-  try {
-    const registration = await navigator.serviceWorker.getRegistration();
-    if (user !== activeUserId || !phoneNoticesEnabled() || !registration?.active) return;
-    await registration.showNotification('Medbrain', { body, tag, lang: 'ar', dir: 'rtl', icon: './assets/app-icon-192.png?v=sky1' });
-  } catch (_) { /* In-app alerts remain available. */ }
 }
 function notifyFriendChanges(peers) {
   const key = 'medbrain_friend_notices_' + activeUserId;
@@ -8352,7 +8394,6 @@ function notifyFriendChanges(peers) {
   const pending = peers.filter(peer => peer.status === 'received' && previous?.[peer.id] !== 'received');
   if (pending.length) {
     const name = pending[0].name?.trim() || pending[0].friend_code;
-    void showFriendPhoneNotice('لديك طلب صداقة جديد.', 'medbrain-friend-request');
     showMbToast(pending.length === 1 ? 'وصلك طلب صداقة من ' + name : 'وصلتك طلبات صداقة جديدة.', {
       label: 'عرض الطلبات', action: openFriendRequestsFromNotice
     });
@@ -8360,7 +8401,6 @@ function notifyFriendChanges(peers) {
   }
   const accepted = peers.find(peer => peer.status === 'friend' && ['sent', 'received'].includes(previous?.[peer.id]));
   if (accepted) {
-    void showFriendPhoneNotice('تم قبول طلب الصداقة.', 'medbrain-friend-accepted');
     showMbToast('تمت إضافة صديق: ' + (accepted.name?.trim() || accepted.friend_code));
   }
 }
@@ -8630,7 +8670,6 @@ async function notifyIncomingChats() {
   const pendingPeer = chatFriends.find(peer => data.includes(peer.id) && !notifiedChatRequests.has(peer.id));
   notifiedChatRequests = new Set(data);
   if (pendingPeer && !document.getElementById('friendChatDialog').open) {
-    void showFriendPhoneNotice('لديك طلب مراسلة جديد.', 'medbrain-chat-request');
     showMbToast('لديك طلب مراسلة من ' + (pendingPeer.name || pendingPeer.friend_code), {
       label: 'عرض الطلب', action: () => openFriendChat(pendingPeer)
     });
@@ -8645,14 +8684,12 @@ async function notifyFriendMessages() {
   if (!seenFriendMessages) {
     try { seenFriendMessages = JSON.parse(localStorage.getItem(key)); } catch (_) {}
   }
-  const seenBefore = seenFriendMessages !== null;
   const previous = seenFriendMessages || {};
   const pending = data.filter(notice => previous[notice.peer] !== notice.message_id && chatPeer?.id !== notice.peer);
   seenFriendMessages = Object.fromEntries(data.map(notice => [notice.peer, notice.message_id]));
   try { localStorage.setItem(key, JSON.stringify(seenFriendMessages)); } catch (_) {}
   const peer = pending[0] && chatFriends.find(friend => friend.id === pending[0].peer);
   if (peer && !chatPeer) {
-    if (Object.keys(previous).length || seenBefore) void showFriendPhoneNotice('لديك رسالة جديدة.', 'medbrain-chat-message');
     showMbToast('عندك رسالة من ' + (peer.name || peer.friend_code), {
       label: 'فتح المراسلة', action: () => openFriendChat(peer)
     });
@@ -8847,6 +8884,11 @@ function initFriends() {
     else input.focus();
   });
   document.getElementById('inboxNotifyToggle').addEventListener('click', togglePhoneNotices);
+  document.getElementById('inboxFriendsShortcut').addEventListener('click', () => {
+    document.getElementById('friendInboxDialog').close();
+    const friends = document.getElementById('friendsDialog');
+    if (!friends.open) document.getElementById('openFriends').click();
+  });
   document.getElementById('friendInboxSearch').addEventListener('input', renderFriendInbox);
   document.getElementById('friendChatRetry').addEventListener('click', () => void updateFriendChat());
   document.getElementById('globalRanking').addEventListener('toggle', event => {

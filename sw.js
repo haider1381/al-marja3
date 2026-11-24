@@ -41,3 +41,23 @@ self.addEventListener('fetch', event => {
     return response;
   })());
 });
+self.addEventListener('push', event => {
+  let notice;
+  try { notice = event.data?.json(); } catch (_) { return; }
+  if (typeof notice?.body !== 'string' || typeof notice.tag !== 'string') return;
+  event.waitUntil(self.registration.showNotification('Medbrain', {
+    body: notice.body, tag: notice.tag, lang: 'ar', dir: 'rtl',
+    icon: new URL('assets/app-icon-192.png?v=sky1', ROOT).href
+  }));
+});
+
+self.addEventListener('notificationclick', event => {
+  if (!event.notification.tag.startsWith('medbrain-')) return;
+  event.notification.close();
+  event.waitUntil((async () => {
+    const windows = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
+    const app = windows.find(client => client.url.startsWith(ROOT.href));
+    if (app) await app.focus();
+    else await self.clients.openWindow(ROOT.href);
+  })());
+});
