@@ -433,7 +433,11 @@
   .pv-text-layer { position:absolute; inset:0; overflow:hidden; opacity:1; line-height:1; text-align:left; transform-origin:0 0; user-select:text; -webkit-user-select:text; }
   .pv-text-layer :is(span,br) { position:absolute; color:transparent; white-space:pre; cursor:text; transform-origin:0 0; }
   .pv-text-layer .markedContent { display:contents; }
+  .pv-text-layer { z-index:1; -webkit-text-size-adjust:none; text-size-adjust:none; }
   .pv-text-layer span { -webkit-user-select:text; user-select:text; }
+  .pv-ink,.pv-num { z-index:2; }
+  .pv-selection-copy { position:absolute; z-index:5; inset-inline-end:14px; bottom:max(14px,env(safe-area-inset-bottom)); border:1px solid var(--border); border-radius:14px; padding:8px 14px; background:var(--surface); color:var(--text); font:inherit; }
+
   .pv-text-layer ::selection { background:rgba(24,119,242,.38); color:transparent; }
   .pv-drawing .pv-text-layer { pointer-events:none; user-select:none; }
   .pv-ink { pointer-events:none; }
@@ -5304,9 +5308,13 @@ function deviceIsNative(){return !!window.MedbrainNative?.isNative;}
 function deviceCloseDrawer(){const b=deviceEl('navBackdrop');b.classList.remove('open');b.setAttribute('aria-hidden','true');}
 function deviceBack() {
   const dialogs = [...document.querySelectorAll('dialog[open]')];
-  const openDialog = document.getElementById('friendChatDialog')?.open
-    ? document.getElementById('friendChatDialog') : dialogs.at(-1);
+  const openDialog = dialogs.at(-1);
   if (openDialog) { openDialog.close(); return true; }
+  const selection = window.getSelection();
+  if (selection && !selection.isCollapsed && deviceEl('pvPages')?.contains(selection.anchorNode)) {
+    selection.removeAllRanges();
+    return true;
+  }
   if (isAIChatOpen()) { closeAIChat(); return true; }
   if (!deviceEl('labsPanel').hidden) { setLabsOpen(false); return true; }
   if (!deviceEl('readerSide').hidden) { closeSidePanel(); return true; }
@@ -5334,16 +5342,43 @@ function deviceBack() {
   return true;
 }
 function wireWebBack() {
+  const standalone = () => matchMedia('(display-mode: standalone), (display-mode: fullscreen)').matches || navigator.standalone;
   const arm = () => {
     if (history.state?.medbrainBack === 'guard') return;
     history.replaceState({ ...history.state, medbrainBack: 'base' }, '');
     history.pushState({ ...history.state, medbrainBack: 'guard' }, '');
   };
-  document.addEventListener('click', arm, { capture:true });
+  document.addEventListener('click', arm, { capture: true });
+  document.addEventListener('pointerup', arm, { capture: true, passive: true });
   window.addEventListener('popstate', event => {
     if (event.state?.medbrainBack !== 'base') return;
-    if (deviceBack() || matchMedia('(display-mode: standalone)').matches || navigator.standalone) arm();
+    if (standalone()) {
+      arm();
+      deviceBack();
+    } else if (deviceBack()) arm();
   });
+  // Native modal dialogs handle the platform back gesture themselves.
+  // The installed app also needs a platform close request on ordinary screens.
+  if (standalone() && typeof window.CloseWatcher === 'function') {
+    let watcher;
+    const syncWatcher = () => {
+      if (document.querySelector('dialog[open]')) {
+        watcher?.destroy();
+        watcher = null;
+      } else if (!watcher) {
+        watcher = new window.CloseWatcher();
+        watcher.addEventListener('close', () => {
+          watcher = null;
+          deviceBack();
+          syncWatcher();
+        }, { once: true });
+      }
+    };
+    new MutationObserver(syncWatcher).observe(document.body, {
+      subtree: true, attributes: true, attributeFilter: ['open']
+    });
+    syncWatcher();
+  }
 }
 function deviceSyncNav(){document.querySelectorAll('[data-device-view]').forEach(button=>{const active=button.dataset.deviceView===currentMainView;if(active)button.setAttribute('aria-current','page');else button.removeAttribute('aria-current');});}
 function focusPhases(work,rest,count){if(!Number.isInteger(work)||work<1||work>240||!Number.isInteger(rest)||rest<0||rest>120||!Number.isInteger(count)||count<1||count>24)throw new Error('راجع مدة الدراسة والراحة وعدد الجلسات.');const phases=[];for(let i=0;i<count;i++){phases.push({kind:'study',minutes:work,number:i+1});if(rest&&i<count-1)phases.push({kind:'break',minutes:rest,number:i+1});}return phases;}
@@ -7697,6 +7732,7 @@ function destroyPdfViewer() {
   document.getElementById('readerOverlay').classList.remove('pv-active');
   if (!pdfView) return;
   const v = pdfView; pdfView = null;
+  v.selectionEvents?.abort();
   if (v.observer) v.observer.disconnect();
   v.rendered.forEach(n => { const c = v.pages[n - 1] && v.pages[n - 1].querySelector('.pv-canvas'); if (c) { c.width = 0; c.height = 0; } });
   try { v.doc.destroy(); } catch (_) {}
@@ -7833,7 +7869,8 @@ async function mountPdfViewer(body, bytes, lec) {
       '<button type="button" data-pv="clear-all">' + PVI.clear + '<span>مسح كل ملاحظاتي على الملف</span></button></div>' +
     '<div class="pv-pop" id="pvTimerPop" hidden style="left:12px"><form class="pv-timeform" id="pvTimeForm" dir="ltr"><label><input type="number" id="pvHours" min="0" max="9" step="1" inputmode="numeric" placeholder="0" aria-label="ساعات"><span>h</span></label><b>:</b><label><input type="number" id="pvMinutes" min="0" max="59" step="1" inputmode="numeric" placeholder="25" aria-label="دقائق"><span>m</span></label><button type="submit" class="pv-ib pv-go" aria-label="ابدأ المؤقت"><svg viewBox="0 0 24 24"><path class="ic-soft" d="M8 5.5v13l10.5-6.5z"/></svg></button></form></div>' +
     '<div class="pv-countdown" id="pvCountdown" hidden><output id="pvClock">00:00</output><button type="button" data-pv="timer-stop" aria-label="إيقاف المؤقت">×</button></div>' +
-    '<div class="pv-stage"><div class="pv-pages' + (prefs.night ? ' pv-night' : '') + '" id="pvPages"></div></div></div>';
+    '<div class="pv-stage"><div class="pv-pages' + (prefs.night ? ' pv-night' : '') + '" id="pvPages"></div></div>' +
+    '<button type="button" class="pv-selection-copy" id="pvCopySelection" hidden>نسخ المحدد</button></div>';
   const wrap = document.getElementById('pvPages');
   const pages = [];
   for (let n = 1; n <= doc.numPages; n++) {
@@ -7860,6 +7897,7 @@ async function mountPdfViewer(body, bytes, lec) {
   pages.forEach(el => pdfView.observer.observe(el));
   document.getElementById('readerOverlay').classList.add('pv-active');
   bindPdfViewer(wrap);
+  bindPdfTextSelection(wrap, pdfView);
   mountLectureControls(document.getElementById('pdfViewer'), wrap, () => pdfView?.tool, lec, doc);
   { const v = pdfView; annGet(['pdf:' + lec.id]).then(m => { const d = m.get('pdf:' + lec.id);
       if (d && typeof d === 'object' && pdfView === v && !v.hist.length) { v.ink = d; try { localStorage.setItem(inkKey(v.lecId), JSON.stringify(d)); } catch (_) {} v.rendered.forEach(n => drawInk(n)); } }).catch(() => {}); }
@@ -7885,20 +7923,26 @@ async function renderPdfPage(n) {
     const textViewport = page.getViewport({ scale: cssW / base.width });
     layer.replaceChildren();
     layer.style.setProperty('--scale-factor', textViewport.scale);
-    v.rendered.add(n);
-    await window.pdfjsLib.renderTextLayer({
-      textContentSource: page.streamTextContent(),
-      container: layer,
-      viewport: textViewport
-    }).promise;
+    try {
+      await window.pdfjsLib.renderTextLayer({
+        textContentSource: page.streamTextContent(),
+        container: layer,
+        viewport: textViewport
+      }).promise;
+    } catch (error) {
+      console.warn('PDF text layer unavailable', error);
+    }
+    if (pdfView === v) v.rendered.add(n);
   })().catch(() => {}).finally(() => v.rendering.delete(n));
   v.rendering.set(n, job);
 }
 function releaseFarPages() {
   const v = pdfView; if (!v) return;
   v.rendered.forEach(n => {
-    if (Math.abs(n - v.current) > 4) {
-      const el = v.pages[n - 1];
+    const el = v.pages[n - 1];
+    const selection = window.getSelection();
+    const selected = selection?.rangeCount && !selection.isCollapsed && selection.getRangeAt(0).intersectsNode(el);
+    if (Math.abs(n - v.current) > 4 && !selected) {
       el.querySelectorAll('canvas').forEach(c => { c.width = 0; c.height = 0; });
       el.querySelector('.pv-text-layer').replaceChildren();
       v.rendered.delete(n);
@@ -8170,15 +8214,65 @@ function bindTextTools(bar, body) {
   });
   syncHist();
 }
-async function showPdfCopyText(view) {
+function pdfWordRange(node, offset) {
+  const text = node.textContent;
+  for (const word of text.matchAll(/[\p{L}\p{N}\p{M}]+/gu)) {
+    const start = word.index;
+    const end = start + word[0].length;
+    if (offset < start || offset > end) continue;
+    const range = document.createRange();
+    range.setStart(node, start);
+    range.setEnd(node, end);
+    return range;
+  }
+  return null;
+}
+function bindPdfTextSelection(wrap, view) {
+  const button = document.getElementById('pvCopySelection');
+  const controller = new AbortController();
+  view.selectionEvents = controller;
+  const pdfSelection = () => {
+    const selection = window.getSelection();
+    return selection && !selection.isCollapsed &&
+      wrap.contains(selection.anchorNode) && wrap.contains(selection.focusNode) ? selection : null;
+  };
+  document.addEventListener('selectionchange', () => {
+    button.hidden = view.tool !== 'hand' || !pdfSelection()?.toString().trim();
+  }, { signal: controller.signal });
+  wrap.addEventListener('click', event => {
+    const span = event.target.closest('.pv-text-layer span:not(.markedContent)');
+    if (!span || view.tool !== 'hand' || event.detail !== 1 || pdfSelection()) return;
+    const selection = window.getSelection();
+    if (!selection) return;
+    const position = document.caretPositionFromPoint?.(event.clientX, event.clientY);
+    const caret = position ? null : document.caretRangeFromPoint?.(event.clientX, event.clientY);
+    const node = position?.offsetNode || caret?.startContainer;
+    const offset = position?.offset ?? caret?.startOffset;
+    let range = node?.nodeType === Node.TEXT_NODE && span.contains(node) ? pdfWordRange(node, offset) : null;
+    if (!range) {
+      range = document.createRange();
+      range.selectNodeContents(span);
+    }
+    if (!range.toString().trim()) return;
+    event.preventDefault();
+    selection.removeAllRanges();
+    selection.addRange(range);
+  });
+  button.addEventListener('pointerdown', event => event.preventDefault());
+  button.addEventListener('click', () => {
+    const selected = pdfSelection()?.toString().trim();
+    if (selected) void showPdfCopyText(view, selected);
+  });
+}
+async function showPdfCopyText(view, selectionText) {
   const dialog = document.getElementById('pdfCopyDialog');
   const text = document.getElementById('pdfCopyText');
   const status = document.getElementById('pdfCopyStatus');
   const copy = document.getElementById('pdfCopySubmit');
   const selection = window.getSelection();
   const pages = document.getElementById('pvPages');
-  const selected = selection && pages.contains(selection.anchorNode) && pages.contains(selection.focusNode)
-    ? selection.toString().trim() : '';
+  const selected = selectionText || (selection && pages.contains(selection.anchorNode) && pages.contains(selection.focusNode)
+    ? selection.toString().trim() : '');
   text.value = '';
   text.hidden = true;
   copy.disabled = true;
@@ -8218,6 +8312,10 @@ function bindPdfViewer(wrap) {
     ['hand', 'text', 'eraser', 'hl', 'line', 'pen'].forEach(t => viewer.querySelector('[data-pv="' + t + '"]').setAttribute('aria-pressed', String(t === tool)));
     wrap.classList.toggle('pv-drawing', tool !== 'hand');
     wrap.dataset.tool = tool;
+    if (tool !== 'hand') {
+      const selection = window.getSelection();
+      if (wrap.contains(selection?.anchorNode)) selection.removeAllRanges();
+    }
   };
   wrap.addEventListener('pointerdown', e => {
     const v = pdfView; const ink = e.target.closest('.pv-ink'); if (!ink || !v || v.tool === 'hand') return;
@@ -9055,6 +9153,7 @@ async function openFriendInbox() {
 }
 function openFriendChat(peer) {
   const dialog = document.getElementById('friendChatDialog');
+  if (!document.getElementById('friendInboxDialog').open) void openFriendInbox();
   closeFriendChat();
   chatPeer = peer;
   document.getElementById('friendChatAvatar').replaceChildren(friendInboxAvatar(peer));
