@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="color-scheme" content="only light">
 <meta name="theme-color" id="siteThemeColor" content="#0B5FA5">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
 <title>Medbrain — Medical Learning</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -3124,7 +3124,7 @@ body:has(:is(#friendsDialog,#friendChatDialog,#friendInboxDialog,#friendProfileD
 #friendChatShare .chat-share-question {width:36%;min-width:0;}
 #friendChatShare button:hover {background:var(--accent-soft);}
 #chatShareStatus {margin:0;color:var(--text-muted);font-size:12px;}
-#friendChatDialog .thread-header {flex-shrink:0;}
+#friendChatDialog .thread-header {flex:0 0 auto;position:relative;background:var(--surface);}
 #friendChatDialog .thread-header,#friendInboxDialog .inbox-header {touch-action:none;}
 #friendChatDialog #friendChatAvatar .friend-request-avatar {position:relative;}
 #friendChatAvatar[data-active] .friend-request-avatar::after {content:"";position:absolute;inset-block-end:0;inset-inline-end:0;width:11px;height:11px;border:2px solid var(--surface);border-radius:50%;background:#21c975;}
@@ -3140,7 +3140,14 @@ body:has(:is(#friendsDialog,#friendChatDialog,#friendInboxDialog,#friendProfileD
 #chatShareSchedule {flex:none;background:transparent;}
 #friendChatSend {flex:none;}
 @media(max-width:540px) {
-  #friendChatDialog {position:fixed;inset:var(--chat-viewport-top,0px) 0 auto;margin:0;height:var(--chat-viewport-height,100dvh);max-height:var(--chat-viewport-height,100dvh);}
+  html:has(#friendChatDialog[open]),body:has(#friendChatDialog[open]) {overflow:clip;overscroll-behavior:none;}
+  #friendChatDialog {
+    position:fixed;inset:var(--chat-viewport-top,0px) 0 auto;margin:0;
+    height:var(--chat-viewport-height,100dvh);max-height:var(--chat-viewport-height,100dvh);
+    overflow:clip;
+  }
+  #friendChatDialog #friendChatMessages {flex:1 1 0;min-height:0;overflow-y:auto;overscroll-behavior-y:contain;}
+  #friendChatDialog #friendChatCompose {flex:0 0 auto;}
   .chat-share-panel {max-height:min(42dvh,calc(var(--chat-viewport-height,100dvh) * .38),360px);}
 }
 #friendChatCompose {padding:8px 16px max(8px,env(safe-area-inset-bottom));border-top:1px solid var(--border);}
@@ -8765,12 +8772,16 @@ function updateThreadPresence() {
 }
 function resizeFriendChat() {
   const dialog = document.getElementById('friendChatDialog');
+  if (!dialog.open || !matchMedia('(max-width:540px)').matches) return;
   const viewport = window.visualViewport;
-  if (!dialog.open || !viewport) return;
+  const viewportHeight = Math.floor(viewport?.height || window.innerHeight);
+  if (viewportHeight <= 0) return;
+  // A resized layout viewport already includes the keyboard inset.
+  const viewportTop = viewportHeight < window.innerHeight - 2 ? Math.max(0, Math.round(viewport.offsetTop)) : 0;
   const messages = document.getElementById('friendChatMessages');
   const atEnd = messages.scrollHeight - messages.clientHeight - messages.scrollTop < 32;
-  dialog.style.setProperty('--chat-viewport-height', Math.round(viewport.height) + 'px');
-  dialog.style.setProperty('--chat-viewport-top', Math.round(viewport.offsetTop) + 'px');
+  dialog.style.setProperty('--chat-viewport-height', viewportHeight + 'px');
+  dialog.style.setProperty('--chat-viewport-top', viewportTop + 'px');
   if (atEnd) messages.scrollTop = messages.scrollHeight;
   requestAnimationFrame(markVisibleFriendMessages);
 }
@@ -9221,6 +9232,7 @@ function initFriends() {
   const inbox = document.getElementById('friendInboxDialog');
   dismissByDownSwipe(thread, thread.querySelector('.thread-header'));
   dismissByDownSwipe(inbox, inbox.querySelector('.inbox-header'));
+  window.addEventListener('resize', resizeFriendChat, { passive:true });
   window.visualViewport?.addEventListener('resize', resizeFriendChat);
   window.visualViewport?.addEventListener('scroll', resizeFriendChat);
   document.getElementById('friendChatMessages').addEventListener('scroll', () => {
