@@ -3115,8 +3115,16 @@ body:has(:is(#friendsDialog,#friendChatDialog,#friendInboxDialog,#friendProfileD
 #friendChatSend {width:46px;height:46px;display:grid;place-items:center;padding:0;border-radius:15px;background:#4a3ca6;color:#fff;}
 #friendChatSend svg {width:23px;height:23px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;}
 @media(max-width:540px) { #friendChatDialog {max-height:100dvh;} }
-#friendInboxList .chat-inbox-row {padding:12px 2px;gap:11px;min-height:76px;}
-#friendInboxList .friend-request-avatar {width:50px;height:50px;font-size:17px;}
+#friendInboxList .chat-inbox-row {padding:5px 2px;gap:9px;min-height:51px;flex:1;}
+.inbox-conversation {display:flex;align-items:center;gap:4px;border-bottom:1px solid var(--border);}
+.inbox-peer-menu {position:relative;}
+.inbox-peer-menu summary {display:grid;place-items:center;min-width:36px;min-height:36px;cursor:pointer;}
+.inbox-peer-menu div {position:absolute;inset-inline-end:0;z-index:3;min-width:max-content;padding:4px;border:1px solid var(--border);border-radius:10px;background:var(--surface);}
+.inbox-peer-menu button {display:block;background:transparent;border:0;color:var(--text);text-align:start;width:100%;padding:5px 8px;}
+#friendRequestSheet {max-height:28dvh;overflow:auto;flex:none;padding:5px 0;background:var(--surface-alt);}
+.inbox-friend-request {display:flex;gap:6px;align-items:center;padding:4px;}
+.inbox-friend-request bdi {flex:1;overflow-wrap:anywhere;}
+#friendInboxList .friend-request-avatar {width:40px;height:40px;font-size:17px;}
 #friendInboxList .chat-inbox-copy {flex:1;gap:4px;}
 #friendInboxList .chat-inbox-copy strong {font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 #friendInboxList .chat-inbox-copy small {font-size:12px;}
@@ -3400,28 +3408,7 @@ body>.mb-note-menu[data-open=true]{display:grid!important;position:fixed!importa
   </aside>
 </div>
 
-<dialog class="mb-friends-dialog" id="friendsDialog" aria-labelledby="friendsTitle">
-  <div class="mb-dialog-head friend-dialog-head">
-    <div class="friend-request-top" dir="rtl">
-      <button type="button" class="mb-file-btn friend-request-trigger" id="friendRequestsToggle" aria-controls="friendRequestSheet" aria-expanded="false" aria-label="طلبات الصداقة">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="7" r="3"/><path d="M5 21v-2a7 7 0 0 1 14 0v2"/></svg><b class="friend-request-count" id="friendDialogCount" hidden></b>
-      </button>
-      <section class="friend-request-sheet" id="friendRequestSheet" hidden aria-labelledby="friendRequestTitle">
-        <h3 id="friendRequestTitle">طلبات الصداقة</h3>
-        <div id="incomingFriendRequests"><p class="friend-empty">لا توجد طلبات صداقة جديدة.</p></div>
-      </section>
-    </div>
-    <button type="button" id="openFriendInbox" class="mb-file-btn friend-chat-icon" aria-label="المراسلات">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 11.5a8.5 8.5 0 0 1-8.5 8.5H4l1.8-4.2A8.5 8.5 0 1 1 21 11.5Z"/></svg>
-    </button>
-    <h2 id="friendsTitle">الأصدقاء</h2>
-    <form method="dialog"><button type="submit" class="mb-file-btn">إغلاق</button></form>
-  </div>
-  <p class="friend-empty" id="friendEmpty">لا يوجد لديك أصدقاء حاليًا.</p>
 
-  <div id="friendList"></div>
-  <p id="friendStatus" role="status"></p>
-</dialog>
 
 <div class="mb-profile-pop" id="profileMenu" aria-hidden="true">
   <div class="name" id="profileMenuName">Medbrain User</div>
@@ -4070,10 +4057,11 @@ body>.mb-note-menu[data-open=true]{display:grid!important;position:fixed!importa
   </header>
   <input id="friendInboxSearch" class="inbox-search" type="search" aria-label="بحث في المراسلات" placeholder="ابحث عن صديق" autocomplete="off" hidden>
   <div id="friendInboxPeople" aria-label="فتح محادثة مع صديق"></div>
-  <button type="button" id="inboxActivity" class="inbox-activity">
+  <button type="button" id="inboxActivity" class="inbox-activity" aria-controls="friendRequestSheet" aria-expanded="false">
     <span class="inbox-activity-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m13 2-8 12h6l-1 8 9-12h-6l1-8Z"/></svg></span>
-    <span><strong>نشاط الأصدقاء</strong><small>طلبات الصداقة</small></span>
+    <span><strong>نشاط الأصدقاء</strong><small>طلبات الصداقة</small></span><b class="friend-request-count" id="friendDialogCount" hidden></b>
   </button>
+  <section id="friendRequestSheet" aria-label="طلبات الصداقة" hidden><div id="incomingFriendRequests"></div><p id="friendStatus" role="status"></p></section>
   <p id="friendInboxNotifyStatus" role="status" hidden></p>
   <p id="friendInboxStatus" role="status" hidden></p>
   <div id="friendInboxList"></div>
@@ -8329,21 +8317,17 @@ function openInboxFriendAction(invite) {
   document.getElementById('friendActionsDialog').showModal();
   void loadFriends();
 }
-function openFriendsPanel() {
-  deviceCloseDrawer();
-  const dialog = document.getElementById('friendsDialog');
-  document.getElementById('friendStatus').textContent = '';
-  if (!dialog.open) dialog.showModal();
-  void loadFriends();
+async function openFriendRequestsFromNotice() {
+  const inbox = document.getElementById('friendInboxDialog');
+  if (!inbox.open) await openFriendInbox();
+  if (!inbox.open) return;
+  setInboxRequestsOpen(true);
+  document.getElementById('inboxActivity').focus();
 }
-function openFriendRequestsFromNotice() {
-  const dialog = document.getElementById('friendsDialog');
-  if (!dialog.open) openFriendsPanel();
-  const toggle = document.getElementById('friendRequestsToggle');
-  if (toggle.getAttribute('aria-expanded') !== 'true') toggle.click();
-  toggle.focus();
+function setInboxRequestsOpen(open) {
+  document.getElementById('friendRequestSheet').hidden = !open;
+  document.getElementById('inboxActivity').setAttribute('aria-expanded', String(open));
 }
-
 function phonePushPreference(user) {
   try { return localStorage.getItem('medbrain_push_owner') === user; }
   catch (_) { return false; }
@@ -8432,7 +8416,7 @@ function notifyFriendChanges(peers) {
   }
 }
 
-let chatFriends = [];
+let chatFriends = [], friendSeenAt = {};
 let notifiedChatRequests = new Set();
 let seenFriendMessages = null;
 let chatPeer = null;
@@ -8545,7 +8529,7 @@ function readSharedSchedule(body) {
 }
 function showSharedSchedule(items) {
   scheduleForAdoption = { user: activeUserId, items };
-  for (const id of ['friendChatDialog', 'friendInboxDialog', 'friendActionsDialog', 'friendsDialog']) {
+  for (const id of ['friendChatDialog', 'friendInboxDialog', 'friendActionsDialog']) {
     const dialog = document.getElementById(id);
     if (dialog.open) dialog.close();
   }
@@ -8619,7 +8603,7 @@ function renderFriendMessage(message, peer) {
     button.textContent = 'فتح المادة';
     button.addEventListener('click', () => {
       if (paywallBlocks()) return;
-      for (const id of ['friendChatDialog', 'friendInboxDialog', 'friendActionsDialog', 'friendsDialog']) {
+      for (const id of ['friendChatDialog', 'friendInboxDialog', 'friendActionsDialog']) {
         const dialog = document.getElementById(id);
         if (dialog.open) dialog.close();
       }
@@ -8744,8 +8728,10 @@ function renderFriendInbox() {
   const list = document.getElementById('friendInboxList');
   const peers = chatFriends.filter(peer => (peer.name || peer.friend_code || '').toLowerCase().includes(query))
     .sort((a, b) => String(inboxPreviews[b.id]?.sent_at || '').localeCompare(String(inboxPreviews[a.id]?.sent_at || '')));
-  people.hidden = !peers.length || !!query;
-  people.replaceChildren(...peers.slice(0, 8).map(peer => {
+  const now = Date.now();
+  const active = peers.filter(peer => now - Date.parse(friendSeenAt[peer.id]) < 120000);
+  people.hidden = !active.length || !!query;
+  people.replaceChildren(...active.slice(0, 8).map(peer => {
     const button = document.createElement('button');
     button.type = 'button';
     const name = document.createElement('small');
@@ -8755,6 +8741,8 @@ function renderFriendInbox() {
     return button;
   }));
   list.replaceChildren(...peers.map(peer => {
+    const row = document.createElement('div');
+    row.className = 'inbox-conversation';
     const button = document.createElement('button');
     button.type = 'button';
     button.className = 'chat-inbox-row';
@@ -8774,9 +8762,36 @@ function renderFriendInbox() {
       time.textContent = new Date(preview.sent_at).toLocaleDateString('ar-IQ', { month: 'numeric', day: 'numeric' });
       button.append(time);
     }
-    button.insertAdjacentHTML('beforeend', '<svg class="inbox-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m14 6-6 6 6 6"/></svg>');
     button.addEventListener('click', () => openFriendChat(peer));
-    return button;
+    const menu = document.createElement('details');
+    menu.className = 'inbox-peer-menu';
+    const toggle = document.createElement('summary');
+    toggle.textContent = '⋯';
+    toggle.setAttribute('aria-label', 'خيارات ' + title.textContent);
+    const options = document.createElement('div');
+    for (const [label, callback] of [
+      ['الملف الشخصي', () => {
+        const dialog = document.getElementById('friendProfileDialog');
+        dialog.querySelector('h2').textContent = title.textContent;
+        dialog.querySelector('p').textContent = peer.points == null ? 'التقدّم خاص' : peer.points + ' XP';
+        dialog.showModal();
+      }],
+      ['إزالة الصديق', () => {
+        if (confirm('إزالة ' + title.textContent + ' من الأصدقاء؟')) void changeFriends('friend_respond', {p_peer: peer.id, p_accept: false}, undefined, 'friendInboxStatus');
+      }],
+      ['حظر', () => {
+        if (confirm('حظر ' + title.textContent + '؟')) void changeFriends('friend_block', {p_peer: peer.id}, undefined, 'friendInboxStatus');
+      }]
+    ]) {
+      const action = document.createElement('button');
+      action.type = 'button';
+      action.textContent = label;
+      action.addEventListener('click', () => { menu.open = false; callback(); });
+      options.append(action);
+    }
+    menu.append(toggle, options);
+    row.append(button, menu);
+    return row;
   }));
   if (!list.children.length) list.textContent = query ? 'لا توجد نتائج مطابقة.' : 'لا يوجد أصدقاء للمراسلة حاليًا.';
 }
@@ -8901,7 +8916,6 @@ function initFriends() {
     }
     else document.getElementById('chatShareStatus').textContent = 'اختر من جدولك أيامًا تحتوي على 1 إلى 60 مهمة قابلة للمشاركة.';
   });
-  document.getElementById('openFriendInbox').addEventListener('click', () => void openFriendInbox());
   document.getElementById('inboxSearchToggle').addEventListener('click', event => {
     const input = document.getElementById('friendInboxSearch');
     input.hidden = !input.hidden;
@@ -8912,7 +8926,7 @@ function initFriends() {
   document.getElementById('inboxNotifyToggle').addEventListener('click', togglePhoneNotices);
   document.getElementById('inboxAddFriend').addEventListener('click', () => openInboxFriendAction(false));
   document.getElementById('inboxInviteFriend').addEventListener('click', () => openInboxFriendAction(true));
-  document.getElementById('inboxActivity').addEventListener('click', openFriendRequestsFromNotice);
+  document.getElementById('inboxActivity').addEventListener('click', () => setInboxRequestsOpen(document.getElementById('friendRequestSheet').hidden));
   document.getElementById('friendInboxSearch').addEventListener('input', renderFriendInbox);
   document.getElementById('friendChatRetry').addEventListener('click', () => void updateFriendChat());
   document.getElementById('globalRanking').addEventListener('toggle', event => {
@@ -8976,19 +8990,7 @@ function initFriends() {
     url.searchParams.delete('invite');
     history.replaceState(history.state, '', url.href);
   }
-  const dialog = document.getElementById('friendsDialog');
-  const status = document.getElementById('friendStatus');
-  const toggle = document.getElementById('friendRequestsToggle');
-  const sheet = document.getElementById('friendRequestSheet');
-  toggle.addEventListener('click', () => {
-    sheet.hidden = !sheet.hidden;
-    toggle.setAttribute('aria-expanded', String(!sheet.hidden));
-    if (!sheet.hidden) void loadFriends();
-  });
-  dialog.addEventListener('close', () => {
-    sheet.hidden = true;
-    toggle.setAttribute('aria-expanded', 'false');
-  });
+  document.getElementById('friendInboxDialog').addEventListener('close', () => setInboxRequestsOpen(false));
   const refreshNotices = () => {
     if (friendBackendReady && activeUserId && !document.hidden) void loadFriends();
   };
@@ -9075,17 +9077,18 @@ function resetFriends() {
   friendLoadVersion++;
   friendBackendReady = false;
   document.querySelectorAll('[data-friends-ready]').forEach(node => { node.hidden = true; });
-  const dialog = document.getElementById('friendsDialog');
-  if (dialog.open) dialog.close();
+  for (const id of ['friendInboxDialog', 'friendActionsDialog']) {
+    const dialog = document.getElementById(id);
+    if (dialog.open) dialog.close();
+  }
+  friendSeenAt = {};
   for (const id of ['friendOwnCode', 'friendPrivacyOption']) {
     document.getElementById(id).hidden = true;
   }
-  document.getElementById('friendList').replaceChildren();
   document.getElementById('friendRankingList').replaceChildren();
   document.getElementById('friendRankingStatus').textContent = 'لا يوجد ترتيب للأصدقاء بعد.';
   document.getElementById('incomingFriendRequests').replaceChildren();
   updateFriendRequestCount(0);
-  document.getElementById('friendEmpty').hidden = false;
   document.getElementById('friendStatus').textContent = '';
   document.getElementById('friendPrivacyStatus').textContent = '';
   document.getElementById('friendPrivacy').checked = false;
@@ -9126,10 +9129,11 @@ async function loadFriends() {
   const invite = new URL('https://haider1381.github.io/al-marja3/');
   invite.searchParams.set('invite', data.profile.invite_code);
   document.getElementById('friendInviteLink').value = invite.href;
-  const list = document.getElementById('friendList');
   const requests = document.getElementById('incomingFriendRequests');
   const peers = data.peers || [];
   chatFriends = peers.filter(peer => peer.status === 'friend');
+  friendSeenAt = presence.error ? {} : presence.data || {};
+  if (document.getElementById('friendInboxDialog').open) renderFriendInbox();
   void notifyIncomingChats();
   void notifyFriendMessages();
   const ranking = peers.filter(peer => peer.status === 'friend' && peer.points != null)
@@ -9142,123 +9146,29 @@ async function loadFriends() {
   renderTopRanking('friendRankingList', ranking);
   const requestCount = peers.filter(peer => peer.status === 'received').length;
   updateFriendRequestCount(requestCount);
-  document.getElementById('friendEmpty').hidden = peers.some(peer => peer.status === 'friend');
-  list.replaceChildren();
   requests.replaceChildren();
-  if (!requestCount) {
-    const empty = document.createElement('p');
-    empty.className = 'friend-empty';
-    empty.textContent = 'لا توجد طلبات صداقة جديدة.';
-    requests.append(empty);
-  }
-  for (const peer of peers) {
+  const pending = peers.filter(peer => peer.status === 'received' || peer.status === 'sent');
+  if (!pending.length) requests.textContent = 'لا توجد طلبات صداقة معلّقة.';
+  for (const peer of pending) {
     const row = document.createElement('div');
-    row.className = 'friend-row';
-    const name = document.createElement('span');
-    const controls = document.createElement('div');
-    controls.className = 'friend-request-actions';
-    const displayName = typeof peer.name === 'string' && peer.name.trim() || peer.friend_code;
-    const progress = peer.points == null ? 'التقدّم خاص' : 'المستوى ' + (1 + Math.floor(Number(peer.points) / 100)) + ' · ' + peer.points + ' XP';
-    const profile = document.createElement('div');
-    profile.className = 'friend-request-profile';
-    const avatar = document.createElement('span');
-    avatar.className = 'friend-request-avatar';
-    avatar.setAttribute('aria-hidden', 'true');
-    avatar.textContent = Array.from(displayName)[0];
-    const avatarUrl = safeExternalLink(peer.avatar_url);
-    if (avatarUrl) {
-      const photo = document.createElement('img');
-      photo.alt = '';
-      photo.referrerPolicy = 'no-referrer';
-      photo.src = avatarUrl;
-      photo.addEventListener('load', () => avatar.replaceChildren(photo), { once: true });
-    }
+    row.className = 'inbox-friend-request';
     const title = document.createElement('bdi');
-    title.dataset.noI18n = '';
-    title.textContent = displayName;
-    const detail = document.createElement('small');
-    detail.textContent = peer.status === 'friend' ? progress : peer.status === 'sent' ? 'طلب مرسل' : peer.friend_code;
-    const seenAt = Date.parse(presence.data?.[peer.id]);
-    const elapsedMinutes = Math.max(0, Math.floor((Date.now() - seenAt) / 60000));
-    if (Number.isFinite(elapsedMinutes)) {
-      if (elapsedMinutes < 2) {
-        const dot = document.createElement('span');
-        dot.className = 'friend-online-dot';
-        dot.setAttribute('aria-label', 'نشط الآن');
-        title.append(dot);
-        detail.textContent = 'نشط الآن';
-      } else {
-        const unit = elapsedMinutes < 60 ? 'minute' : elapsedMinutes < 1440 ? 'hour' : elapsedMinutes < 43200 ? 'day' : 'month';
-        const minutesPerUnit = { minute: 1, hour: 60, day: 1440, month: 43200 };
-        detail.textContent = new Intl.RelativeTimeFormat('ar', { numeric: 'always' })
-          .format(-Math.floor(elapsedMinutes / minutesPerUnit[unit]), unit);
-      }
-    }
-    if (peer.status === 'friend') {
-      const profileButton = document.createElement('button');
-      profileButton.type = 'button';
-      profileButton.className = 'friend-name';
-      profileButton.append(title);
-      profileButton.addEventListener('click', () => {
-        const dialog = document.getElementById('friendProfileDialog');
-        dialog.querySelector('h2').textContent = displayName;
-        dialog.querySelector('p').textContent = progress;
-        dialog.showModal();
-      });
-      const messageButton = document.createElement('button');
-      messageButton.type = 'button';
-      messageButton.className = 'mb-file-btn friend-chat-icon';
-      messageButton.setAttribute('aria-label', 'مراسلة ' + displayName);
-      messageButton.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 11.5a8.5 8.5 0 0 1-8.5 8.5H4l1.8-4.2A8.5 8.5 0 1 1 21 11.5Z"/></svg>';
-      messageButton.addEventListener('click', () => openFriendChat(peer));
-      name.append(profileButton, detail);
-      controls.append(messageButton);
-    } else {
-      name.append(title, detail);
-    }
-    profile.append(avatar, name);
-    row.append(profile);
-    const actions = peer.status === 'received' ? [['موافقة', true], ['تجاهل', false]]
-      : [[peer.status === 'friend' ? 'إزالة الصديق' : 'إلغاء الطلب', false]];
+    title.textContent = peer.name || peer.friend_code;
+    row.append(friendInboxAvatar(peer), title);
+    const actions = peer.status === 'received' ? [['موافقة', true], ['تجاهل', false]] : [['إلغاء الطلب', false]];
     for (const [label, accept] of actions) {
       const button = document.createElement('button');
       button.type = 'button';
       button.className = 'mb-file-btn';
       button.textContent = label;
       button.addEventListener('click', async () => {
-        if (peer.status === 'friend' && !confirm('إزالة ' + displayName + ' من الأصدقاء؟')) return;
         button.disabled = true;
-        if (!await changeFriends('friend_respond', { p_peer: peer.id, p_accept: accept })) button.disabled = false;
+        try { await changeFriends('friend_respond', { p_peer: peer.id, p_accept: accept }); }
+        finally { button.disabled = false; }
       });
-      if (peer.status === 'received') {
-        controls.append(button);
-      } else {
-        const menu = document.createElement('details');
-        menu.className = 'friend-action-menu';
-        const toggle = document.createElement('summary');
-        toggle.setAttribute('aria-label', 'خيارات ' + displayName);
-        toggle.textContent = '⋯';
-        const panel = document.createElement('div');
-        panel.className = 'friend-action-panel';
-        panel.append(button);
-        menu.append(toggle, panel);
-        if (!presence.error) {
-          const block = document.createElement('button');
-          block.type = 'button';
-          block.className = 'mb-file-btn';
-          block.textContent = 'حظر';
-          block.addEventListener('click', async () => {
-            if (!confirm('حظر ' + displayName + '؟ راح تنحذف الصداقة والمحادثة.')) return;
-            block.disabled = true;
-            if (!await changeFriends('friend_block', { p_peer: peer.id })) block.disabled = false;
-          });
-          panel.append(block);
-        }
-        controls.append(menu);
-      }
+      row.append(button);
     }
-    row.append(controls);
-    (peer.status === 'received' ? requests : list).append(row);
+    requests.append(row);
   }
   notifyFriendChanges(peers);
 }
@@ -9269,7 +9179,9 @@ async function changeFriends(method, args, errorMessage = 'تعذّر حفظ ا�
   const { error } = await client.rpc(method, args);
   if (user !== activeUserId) return false;
   if (error) {
-    document.getElementById(statusId).textContent = errorMessage;
+    const status = document.getElementById(statusId);
+    status.textContent = errorMessage;
+    status.hidden = false;
     return false;
   }
   await loadFriends();
