@@ -2951,7 +2951,7 @@ html[lang="en"] .mb-feature-en, html[lang="en"] .sp-title small { display:none; 
   .friend-request-avatar img { width:100%; height:100%; object-fit:cover; border-radius:inherit; }
   .friend-chat-icon { display:inline-grid; place-items:center; padding:0; width:28px; height:28px; }
   .friend-chat-drawer { position:fixed; margin:0 0 0 auto; inset:0 0 0 auto; height:100%; max-height:100%; width:min(100%, 390px); border-radius:0; }
-  #friendInboxList {display:flex;flex-direction:column;gap:0;}
+  #friendInboxList {display:flex;flex-direction:column;gap:7px;padding:8px 3px 10px;}
   #friendChatMessages { max-height:50dvh; overflow:auto; overflow-wrap:anywhere; }
   #friendChatMessages p { white-space:pre-wrap; }
   #friendsDialog {width:min(calc(100% - 22px),480px); padding:16px; font-size:13px;}
@@ -3045,7 +3045,7 @@ body:has(#navBackdrop.open) .mb-drawer{touch-action:pan-y;overscroll-behavior:co
 #friendInboxPeople small {max-width:72px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 #friendInboxList {flex:1;overflow-y:auto;min-height:0;}
 #friendInboxList .chat-inbox-row {width:100%;gap:12px;padding:11px 2px;}
-#friendInboxList .chat-inbox-row:hover {background:var(--surface-alt);}
+#friendInboxList .inbox-conversation:hover {background:var(--surface-alt);}
 #friendInboxList .friend-request-avatar,#friendInboxPeople .friend-request-avatar {width:46px;height:46px;flex:none;}
 .inbox-time {margin-inline-start:auto;color:var(--text-muted);font-size:11px;white-space:nowrap;align-self:start;}
 #friendChatStatus:empty {display:none;}
@@ -3154,8 +3154,14 @@ body:has(:is(#friendsDialog,#friendChatDialog,#friendInboxDialog,#friendProfileD
 #friendChatDialog > :is(#friendChatStatus,#friendChatActions,#friendChatPreview,#friendChatRetry) {margin-inline:16px;}
 #friendChatSend {width:46px;height:46px;display:grid;place-items:center;padding:0;border-radius:15px;background:#4a3ca6;color:#fff;}
 #friendChatSend svg {width:23px;height:23px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;}
-#friendInboxList .chat-inbox-row {padding:5px 2px;gap:9px;min-height:51px;flex:1;}
-.inbox-conversation {flex:none;display:flex;align-items:center;gap:4px;border-bottom:1px solid var(--border);}
+#friendInboxList .chat-inbox-row {padding:5px 9px;gap:9px;min-height:51px;flex:1;}
+.inbox-conversation {
+  flex:none;display:flex;align-items:center;gap:4px;padding-inline-end:4px;
+  border:1px solid var(--border);border-radius:15px;
+  background:color-mix(in srgb,var(--surface-alt) 58%,var(--surface));
+  box-shadow:0 2px 4px rgba(0,0,0,.11);
+}
+:root[data-theme="light"] .inbox-conversation {box-shadow:0 2px 4px rgba(30,34,70,.08);}
 #friendInboxDialog .inbox-header {grid-template-columns:auto minmax(0,1fr) auto;gap:6px;}
 #friendInboxTitle {font-size:clamp(17px,5vw,22px);}
 #friendInboxDialog .inbox-icon {background:transparent;border-radius:50%;width:34px;position:relative;}
