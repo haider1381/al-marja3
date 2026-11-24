@@ -1,7 +1,5 @@
 begin;
 create extension if not exists pg_net;
-revoke usage on schema net from public, anon, authenticated;
-revoke all on net.http_request_queue, net._http_response from public, anon, authenticated;
 
 create table private.medbrain_push_subscriptions (
   endpoint text primary key,
@@ -44,18 +42,28 @@ begin
 end;
 $$;
 
-create function public.medbrain_push_delivery(p_token text,p_user uuid)
+create table private.medbrain_push_jobs (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  kind text not null,
+  created_at timestamptz not null default now()
+);
+alter table private.medbrain_push_jobs enable row level security;
+revoke all on private.medbrain_push_jobs from public, anon, authenticated;
+
+create function public.medbrain_push_claim(p_id uuid)
 returns jsonb language plpgsql security definer set search_path = '' as $$
-declare token text;
+declare job private.medbrain_push_jobs;
 begin
-  select decrypted_secret into token from vault.decrypted_secrets where name='medbrain_push_dispatch';
-  if token is null or p_token is distinct from token then return null; end if;
+  delete from private.medbrain_push_jobs where id=p_id and created_at > now()-interval '15 minutes' returning * into job;
+  if not found then return null; end if;
   return jsonb_build_object(
+    'kind',job.kind,
     'public_key',(select decrypted_secret from vault.decrypted_secrets where name='medbrain_push_public'),
     'private_key',(select decrypted_secret from vault.decrypted_secrets where name='medbrain_push_private'),
     'subscriptions',coalesce((select jsonb_agg(jsonb_build_object(
       'endpoint',endpoint,'keys',jsonb_build_object('auth',auth_key,'p256dh',p256dh)
-    )) from private.medbrain_push_subscriptions where user_id=p_user),'[]'::jsonb)
+    )) from private.medbrain_push_subscriptions where user_id=job.user_id),'[]'::jsonb)
   );
 end;
 $$;
@@ -67,15 +75,15 @@ $$;
 
 create function private.medbrain_queue_push(p_user uuid,p_kind text)
 returns void language plpgsql security definer set search_path = '' as $$
-declare token text;
+declare job_id uuid;
 begin
   if not exists (select 1 from private.medbrain_push_subscriptions where user_id=p_user) then return; end if;
-  select decrypted_secret into token from vault.decrypted_secrets where name='medbrain_push_dispatch';
-  if token is null then return; end if;
+  delete from private.medbrain_push_jobs where created_at <= now()-interval '15 minutes';
+  insert into private.medbrain_push_jobs(user_id,kind) values(p_user,p_kind) returning id into job_id;
   perform net.http_post(
     url := 'https://wuvzteosknrzddsaexez.supabase.co/functions/v1/medbrain-push',
-    headers := jsonb_build_object('Content-Type','application/json','x-medbrain-dispatch',token),
-    body := jsonb_build_object('user',p_user,'kind',p_kind),
+    headers := '{"Content-Type":"application/json"}'::jsonb,
+    body := jsonb_build_object('id',job_id),
     timeout_milliseconds := 10000
   );
 exception when others then
@@ -114,8 +122,8 @@ for each row execute function private.medbrain_friend_push();
 create trigger medbrain_chat_push after insert on private.friend_chat_messages
 for each row execute function private.medbrain_chat_push();
 
-revoke all on function public.medbrain_push_key(), public.medbrain_push_subscription(text,text,text), public.medbrain_push_delivery(text,uuid), public.medbrain_push_prune(text) from public, anon, authenticated;
+revoke all on function public.medbrain_push_key(), public.medbrain_push_subscription(text,text,text), public.medbrain_push_claim(uuid), public.medbrain_push_prune(text) from public, anon, authenticated;
 revoke all on function private.medbrain_queue_push(uuid,text), private.medbrain_friend_push(), private.medbrain_chat_push() from public, anon, authenticated;
 grant execute on function public.medbrain_push_key(), public.medbrain_push_subscription(text,text,text) to authenticated;
-grant execute on function public.medbrain_push_delivery(text,uuid), public.medbrain_push_prune(text) to service_role;
+grant execute on function public.medbrain_push_claim(uuid), public.medbrain_push_prune(text) to service_role;
 commit;

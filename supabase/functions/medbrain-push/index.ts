@@ -9,19 +9,19 @@ const notices: Record<string, string> = {
 };
 
 Deno.serve(async (req) => {
-  if (req.method !== 'POST' || !req.headers.get('x-medbrain-dispatch')) {
+  if (req.method !== 'POST') {
     return new Response(null, { status: 403 });
   }
   try {
     const admin = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!);
-    const { user, kind } = await req.json();
-    if (!/^[0-9a-f-]{36}$/i.test(user) || !Object.hasOwn(notices, kind)) {
+    const { id } = await req.json();
+    if (typeof id !== 'string' || !/^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(id)) {
       return new Response(null, { status: 400 });
     }
-    const { data, error } = await admin.rpc('medbrain_push_delivery', {
-      p_token: req.headers.get('x-medbrain-dispatch'), p_user: user,
-    });
-    if (error || !data) return new Response(null, { status: 403 });
+    const { data, error } = await admin.rpc('medbrain_push_claim', { p_id: id });
+    if (error) return new Response(null, { status: 503 });
+    if (!data || !Object.hasOwn(notices, data.kind)) return new Response(null, { status: 404 });
+    const kind = data.kind;
     const payload = JSON.stringify({ body: notices[kind], tag: 'medbrain-' + kind });
     const results = await Promise.allSettled(data.subscriptions.map(async (sub) => {
       try {
