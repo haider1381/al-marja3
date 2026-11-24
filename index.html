@@ -3449,7 +3449,7 @@ body>.mb-note-menu[data-open=true]{display:grid!important;position:fixed!importa
   <button type="button" data-tool-view="subscription"><span>لوحة الإدارة<small>الاشتراكات والأكواد</small></span></button>
 </div>
 
-<button type="button" id="openFriends" data-friends-ready hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 5h18v12H9l-6 4V5Zm4 4h10m-10 4h6"/></svg><span>الأصدقاء<small>المراسلات والأصدقاء</small></span><b class="friend-request-count" id="friendMenuCount" hidden></b></button>
+<button type="button" id="openFriends" data-friends-ready hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 5h18v12H9l-6 4V5Zm4 4h10m-10 4h6"/></svg><span>الأصدقاء</span><b class="friend-request-count" id="friendMenuCount" hidden></b></button>
 <button type="button" data-tool-view="subscription"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M3 10h18M7 15h4"/></svg><span>اشتراكي<small>الوصول والخدمات المتاحة</small></span></button>
 <button type="button" data-tool-view="schedule"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="5" width="16" height="15" rx="3"/><path d="M8 3v4m8-4v4M4 10h16m-7 5 2 2 4-4"/></svg><span>جدولي الدراسي<small>مهامي وخطتي الأسبوعية</small></span></button>
 <button type="button" data-tool-view="favorites"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m19 21-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg><span>مكتبتي<small>محاضراتي وملخصاتي ودفاتري</small></span></button>
@@ -6818,22 +6818,27 @@ function wireMedbrainEvents() {
   const openDrawer = () => { backdrop.classList.add('open'); backdrop.setAttribute('aria-hidden','false'); };
   const closeDrawer = () => { backdrop.classList.remove('open'); backdrop.setAttribute('aria-hidden','true'); };
   let drawerSwipe;
+  const overlayOpen = () => document.querySelector('dialog[open], #readerOverlay.open, #overlay.open, .mb-layer.open');
   document.addEventListener('touchstart', event => {
     drawerSwipe = null;
-    if (event.touches.length !== 1 || document.querySelector('dialog[open], #readerOverlay.open, #overlay.open, .mb-layer.open')) return;
+    if (event.touches.length !== 1 || overlayOpen()) return;
     const touch = event.touches[0];
     const open = backdrop.classList.contains('open');
-    if (open ? !backdrop.contains(event.target) : touch.clientX < window.innerWidth - 30 || touch.clientX > window.innerWidth - 8) return;
-    drawerSwipe = { x: touch.clientX, y: touch.clientY, open };
+    const fromMenuButton = !!event.target.closest('#menuBtn');
+    const fromRight = window.innerWidth - touch.clientX;
+    // Leave the outermost edge available for Android's system back gesture.
+    if (open ? !backdrop.contains(event.target) : !fromMenuButton && (fromRight < 18 || fromRight > 66)) return;
+    drawerSwipe = { x: touch.clientX, y: touch.clientY, id: touch.identifier, open };
   }, { passive: true });
   document.addEventListener('touchcancel', () => { drawerSwipe = null; }, { passive: true });
   document.addEventListener('touchend', event => {
     const start = drawerSwipe;
     drawerSwipe = null;
-    if (!start || event.touches.length || event.changedTouches.length !== 1) return;
+    if (!start || event.touches.length || event.changedTouches.length !== 1 || overlayOpen()) return;
     const touch = event.changedTouches[0];
+    if (touch.identifier !== start.id || backdrop.classList.contains('open') !== start.open) return;
     const dx = touch.clientX - start.x;
-    if (Math.abs(dx) < 55 || Math.abs(dx) < Math.abs(touch.clientY - start.y) * 1.5) return;
+    if (Math.abs(dx) < 48 || Math.abs(dx) < Math.abs(touch.clientY - start.y) * 1.5) return;
     if (start.open && dx > 0) closeDrawer();
     if (!start.open && dx < 0) openDrawer();
   }, { passive: true });
