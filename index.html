@@ -3121,11 +3121,28 @@ body:has(:is(#friendsDialog,#friendChatDialog,#friendInboxDialog,#friendProfileD
 #friendChatShare button:hover {background:var(--accent-soft);}
 #chatShareStatus {margin:0;color:var(--text-muted);font-size:12px;}
 #friendChatDialog .thread-header {flex-shrink:0;}
-#friendChatCompose {padding:10px 16px 0;border-top:1px solid var(--border);}
+#friendChatDialog .thread-header,#friendInboxDialog .inbox-header {touch-action:none;}
+#friendChatDialog #friendChatAvatar .friend-request-avatar {position:relative;}
+#friendChatAvatar[data-active] .friend-request-avatar::after {content:"";position:absolute;inset-block-end:0;inset-inline-end:0;width:11px;height:11px;border:2px solid var(--surface);border-radius:50%;background:#21c975;}
+.chat-receipt {display:inline-block;vertical-align:middle;margin-inline-start:6px;width:15px;height:12px;color:#e5e0ff;}
+.chat-receipt[data-seen] {color:#a5dfff;}
+.chat-receipt path {fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;}
+#friendChatCompose {flex:none;}
+#chatComposerStatus {margin:5px 4px 0;color:var(--text-muted);font-size:12px;}
+#friendChatCompose .chat-composer-row {align-items:center;gap:6px;}
+#friendChatCompose .chat-composer-input {display:flex;align-items:center;flex:1;min-width:0;border:1px solid var(--border);border-radius:22px;background:var(--surface-alt);padding-inline:4px;}
+#friendChatCompose .chat-composer-input:focus-within {border-color:var(--accent);}
+#friendChatCompose #friendChatText {background:transparent;border:0;outline:0;box-shadow:none;font-size:16px;}
+#chatShareSchedule {flex:none;background:transparent;}
+#friendChatSend {flex:none;}
+@media(max-width:540px) {
+  #friendChatDialog {position:fixed;inset:var(--chat-viewport-top,0px) 0 auto;margin:0;height:var(--chat-viewport-height,100dvh);max-height:var(--chat-viewport-height,100dvh);}
+  .chat-share-panel {max-height:min(42dvh,calc(var(--chat-viewport-height,100dvh) * .38),360px);}
+}
+#friendChatCompose {padding:8px 16px max(8px,env(safe-area-inset-bottom));border-top:1px solid var(--border);}
 #friendChatDialog > :is(#friendChatStatus,#friendChatActions,#friendChatPreview,#friendChatRetry) {margin-inline:16px;}
 #friendChatSend {width:46px;height:46px;display:grid;place-items:center;padding:0;border-radius:15px;background:#4a3ca6;color:#fff;}
 #friendChatSend svg {width:23px;height:23px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;}
-@media(max-width:540px) { #friendChatDialog {max-height:100dvh;} }
 #friendInboxList .chat-inbox-row {padding:5px 2px;gap:9px;min-height:51px;flex:1;}
 .inbox-conversation {flex:none;display:flex;align-items:center;gap:4px;border-bottom:1px solid var(--border);}
 #friendInboxDialog .inbox-header {grid-template-columns:auto minmax(0,1fr) auto;gap:6px;}
@@ -4154,7 +4171,6 @@ body>.mb-note-menu[data-open=true]{display:grid!important;position:fixed!importa
       <summary><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>مشاركة مادة<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary>
       <div class="chat-share-panel">
         <input id="chatShareSearch" type="search" maxlength="120" aria-label="ابحث عن محاضرة أو مجموعة أسئلة" placeholder="ابحث عن محاضرة أو مجموعة أسئلة" dir="auto">
-        <button type="button" class="chat-share-action" id="chatShareSchedule">مشاركة جدولي</button>
         <div id="chatShareResults"></div><p id="chatShareStatus" role="status"></p>
       </div>
     </details>
@@ -4162,9 +4178,13 @@ body>.mb-note-menu[data-open=true]{display:grid!important;position:fixed!importa
       <span>جدول دراسي مرفق</span><button type="button" id="removeChatSchedule" class="mb-file-btn">إزالة</button>
     </div>
     <div class="chat-composer-row">
-      <textarea id="friendChatText" maxlength="2000" dir="auto" rows="1" aria-label="الرسالة" placeholder="اكتب رسالة…"></textarea>
+      <div class="chat-composer-input">
+        <textarea id="friendChatText" maxlength="2000" dir="auto" rows="1" aria-label="الرسالة" placeholder="اكتب رسالة…"></textarea>
+        <button type="button" class="inbox-icon" id="chatShareSchedule" aria-label="مشاركة جدولي الدراسي" title="مشاركة جدولي الدراسي"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="6" width="16" height="15" rx="3"/><path d="M8 3v5m8-5v5M4 11h16m-11 5h6"/></svg></button>
+      </div>
       <button class="mb-primary" id="friendChatSend" type="submit" aria-label="إرسال"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m20 4-8 16-2-8-8-2 18-6ZM10 12l10-8"/></svg></button>
     </div>
+    <p id="chatComposerStatus" role="status" hidden></p>
   </form>
 </dialog>
 <dialog id="friendProfileDialog" class="device-dialog" aria-labelledby="friendProfileTitle">
@@ -8472,11 +8492,15 @@ let seenFriendMessages = null;
 let chatPeer = null;
 let chatRead = null, chatWrite = null, chatVersion = 0;
 let chatPoll;
+let chatSeenIds = new Set();
+let chatSeenRequest = null;
 function closeFriendChat() {
   clearInterval(chatPoll);
   chatPeer = null;
   chatVersion++;
   chatRead = chatWrite = null;
+  chatSeenIds = new Set();
+  chatSeenRequest = null;
 }
 async function loadChatPreferences() {
   const user = activeUserId;
@@ -8634,7 +8658,78 @@ async function adoptSharedSchedule() {
     if (scheduleForAdoption === review) button.disabled = false;
   }
 }
-function renderFriendMessage(message, peer) {
+function updateThreadPresence() {
+  const avatar = document.getElementById('friendChatAvatar');
+  const active = !!chatPeer && Date.now() - Date.parse(friendSeenAt[chatPeer.id]) < 120000;
+  avatar.toggleAttribute('data-active', active);
+  const title = document.getElementById('friendChatTitle');
+  title.setAttribute('aria-label', title.textContent + (active ? '، نشط الآن' : ''));
+}
+function resizeFriendChat() {
+  const dialog = document.getElementById('friendChatDialog');
+  const viewport = window.visualViewport;
+  if (!dialog.open || !viewport) return;
+  const messages = document.getElementById('friendChatMessages');
+  const atEnd = messages.scrollHeight - messages.clientHeight - messages.scrollTop < 32;
+  dialog.style.setProperty('--chat-viewport-height', Math.round(viewport.height) + 'px');
+  dialog.style.setProperty('--chat-viewport-top', Math.round(viewport.offsetTop) + 'px');
+  if (atEnd) messages.scrollTop = messages.scrollHeight;
+  requestAnimationFrame(markVisibleFriendMessages);
+}
+function dismissByDownSwipe(dialog, handle) {
+  let start;
+  handle.addEventListener('touchstart', event => {
+    start = event.touches.length === 1 ? event.touches[0] : null;
+  }, {passive:true});
+  handle.addEventListener('touchcancel', () => { start = null; }, {passive:true});
+  handle.addEventListener('touchend', event => {
+    if (!start || event.touches.length || event.changedTouches.length !== 1) { start = null; return; }
+    const end = event.changedTouches[0];
+    const dy = end.clientY - start.clientY;
+    const dx = end.clientX - start.clientX;
+    start = null;
+    if (dy > 65 && dy > Math.abs(dx) * 1.5 && dialog.open) dialog.close();
+  }, {passive:true});
+}
+async function markVisibleFriendMessages() {
+  const dialog = document.getElementById('friendChatDialog');
+  if (!dialog.open || document.hidden || !chatPeer || !activeUserId || !client || chatSeenRequest) return;
+  const list = document.getElementById('friendChatMessages');
+  const bounds = list.getBoundingClientRect();
+  const ids = Array.from(list.querySelectorAll('[data-incoming-id]')).filter(node => {
+    if (chatSeenIds.has(node.dataset.incomingId)) return false;
+    const box = node.getBoundingClientRect();
+    return box.height > 0 && Math.min(box.bottom, bounds.bottom) - Math.max(box.top, bounds.top) >= Math.min(box.height, bounds.height, 20) && bounds.height > 0;
+  }).map(node => node.dataset.incomingId);
+  if (!ids.length) return;
+  const request = {};
+  chatSeenRequest = request;
+  try {
+    const {error} = await client.rpc('friend_chat_mark_seen', {p_peer: chatPeer.id, p_ids: ids});
+    if (!error && chatSeenRequest === request) ids.forEach(id => chatSeenIds.add(id));
+  } catch (_) {
+    // The next conversation refresh retries visible messages.
+  } finally {
+    if (chatSeenRequest === request) chatSeenRequest = null;
+  }
+}
+function appendChatReceipt(line, message) {
+  if (!message.mine) {
+    if (message.id) line.dataset.incomingId = message.id;
+    return;
+  }
+  const icon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  icon.setAttribute('class', 'chat-receipt');
+  icon.setAttribute('viewBox', '0 0 18 14');
+  icon.setAttribute('role', 'img');
+  icon.setAttribute('aria-label', message.seen ? 'شوهدت' : 'أُرسلت');
+  icon.toggleAttribute('data-seen', !!message.seen);
+  const path = document.createElementNS(icon.namespaceURI, 'path');
+  path.setAttribute('d', message.seen ? 'M1 8l3 3 8-8M8 10l1 1 8-8' : 'M3 8l3 3 8-8');
+  icon.append(path);
+  line.append(icon);
+}
+function renderFriendMessage(message) {
   const line = document.createElement('p');
   line.dir = 'auto';
   if (message.mine) line.classList.add('chat-mine');
@@ -8648,12 +8743,12 @@ function renderFriendMessage(message, peer) {
     open.textContent = 'فتح الجدول';
     open.addEventListener('click', () => showSharedSchedule(schedule.data));
     line.append(open);
+    appendChatReceipt(line, message);
     return line;
   }
   const shared = /\n\[Medbrain:([0-9a-f-]{36})\]$/i.exec(message.body);
   const material = shared && lectures.find(item => item.id === shared[1]);
-  line.textContent = (message.mine ? 'أنت: ' : (peer.name || peer.friend_code) + ': ') +
-    (material ? message.body.slice(0, shared.index) : message.body);
+  line.textContent = material ? message.body.slice(0, shared.index) : message.body;
   if (material) {
     const button = document.createElement('button');
     button.type = 'button';
@@ -8669,6 +8764,7 @@ function renderFriendMessage(message, peer) {
     });
     line.append(' ', button);
   }
+  appendChatReceipt(line, message);
   return line;
 }
 async function updateFriendChat(action = 'read', body = null) {
@@ -8713,10 +8809,13 @@ async function updateFriendChat(action = 'read', body = null) {
     const signature = JSON.stringify(entries);
     if (messages.dataset.snapshot !== signature) {
       const atEnd = messages.scrollHeight - messages.scrollTop - messages.clientHeight < 32;
-      messages.replaceChildren(...entries.map(message => renderFriendMessage(message, peer)));
+      const previousTop = messages.scrollTop;
+      messages.replaceChildren(...entries.map(renderFriendMessage));
       messages.dataset.snapshot = signature;
-      if (atEnd || action === 'send') messages.scrollTop = messages.scrollHeight;
+      messages.scrollTop = atEnd || action === 'send' ? messages.scrollHeight : previousTop;
     }
+    updateThreadPresence();
+    if (ready) requestAnimationFrame(markVisibleFriendMessages);
     return true;
   } catch (error) {
     if (current()) {
@@ -8962,6 +9061,8 @@ function openFriendChat(peer) {
   document.getElementById('friendChatRetry').hidden = true;
   document.querySelector('#friendChatCompose button[type="submit"]').disabled = false;
   document.getElementById('friendChatTitle').textContent = peer.name || peer.friend_code;
+  updateThreadPresence();
+  document.getElementById('chatComposerStatus').hidden = true;
   document.getElementById('friendChatText').value = '';
   setChatScheduleDraft('');
   document.getElementById('friendChatShare').open = false;
@@ -8976,6 +9077,7 @@ function openFriendChat(peer) {
   document.getElementById('friendChatCompose').hidden = true;
   dialog.querySelectorAll('[data-chat-action]').forEach(button => { button.hidden = true; });
   dialog.showModal();
+  resizeFriendChat();
   void updateFriendChat();
   chatPoll = setInterval(() => { if (!document.hidden) void updateFriendChat(); }, 8000);
 }
@@ -9016,6 +9118,16 @@ async function loadGlobalRanking(share = null) {
   renderTopRanking('globalRankingList', data.top);
 }
 function initFriends() {
+  const thread = document.getElementById('friendChatDialog');
+  const inbox = document.getElementById('friendInboxDialog');
+  dismissByDownSwipe(thread, thread.querySelector('.thread-header'));
+  dismissByDownSwipe(inbox, inbox.querySelector('.inbox-header'));
+  window.visualViewport?.addEventListener('resize', resizeFriendChat);
+  window.visualViewport?.addEventListener('scroll', resizeFriendChat);
+  document.getElementById('friendChatMessages').addEventListener('scroll', () => {
+    requestAnimationFrame(markVisibleFriendMessages);
+  }, {passive:true});
+
   document.getElementById('removeChatSchedule').addEventListener('click', () => setChatScheduleDraft(''));
   document.getElementById('adoptSharedSchedule').addEventListener('click', adoptSharedSchedule);
   document.getElementById('declineSharedSchedule').addEventListener('click', () => {
@@ -9036,6 +9148,8 @@ function initFriends() {
   });
   document.getElementById('chatShareSearch').addEventListener('input', listChatShareResults);
   document.getElementById('chatShareSchedule').addEventListener('click', () => {
+    const status = document.getElementById('chatComposerStatus');
+    status.hidden = true;
     const items = selectedScheduleShare().map(item => [Number(item.day_of_week), item.start_time?.slice(0, 5) || null, item.title]);
     const body = 'جدول دراسي مشترك' + '\n[MedbrainSchedule]' + JSON.stringify(items);
     if (readSharedSchedule(body) && body.length <= 2000) {
@@ -9043,7 +9157,10 @@ function initFriends() {
       document.getElementById('chatShareStatus').textContent = '';
       document.getElementById('friendChatShare').open = false;
     }
-    else document.getElementById('chatShareStatus').textContent = 'اختر من جدولك أيامًا تحتوي على 1 إلى 60 مهمة قابلة للمشاركة.';
+    else {
+      status.textContent = 'اختر من جدولك أيامًا تحتوي على 1 إلى 60 مهمة قابلة للمشاركة.';
+      status.hidden = false;
+    }
   });
   document.getElementById('inboxSearchToggle').addEventListener('click', event => {
     const input = document.getElementById('friendInboxSearch');
@@ -9065,7 +9182,7 @@ function initFriends() {
     void loadGlobalRanking(event.currentTarget.checked);
   });
   const chat = document.getElementById('friendChatDialog');
-  chat.addEventListener('close', closeFriendChat);
+  chat.addEventListener('close', () => { if (!chat.open) closeFriendChat(); });
   chat.addEventListener('click', event => {
     const action = event.target.closest('button[data-chat-action]')?.dataset.chatAction;
     if (action) void updateFriendChat(action);
@@ -9268,6 +9385,7 @@ async function loadFriends() {
   const peers = data.peers || [];
   chatFriends = peers.filter(peer => peer.status === 'friend');
   friendSeenAt = presence.error ? {} : presence.data || {};
+  if (chatPeer) updateThreadPresence();
   if (document.getElementById('friendInboxDialog').open) renderFriendInbox();
   void notifyIncomingChats();
   void notifyFriendMessages();
