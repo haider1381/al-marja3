@@ -3101,6 +3101,26 @@ body:has(:is(#friendsDialog,#friendChatDialog,#friendInboxDialog,#friendProfileD
 #friendChatMessages {display:flex;flex-direction:column;align-items:flex-start;gap:4px;padding:14px 16px;}
 #friendChatMessages p {margin:0;border-radius:16px 16px 5px 16px;background:var(--surface-alt);padding:9px 12px;}
 #friendChatMessages .chat-mine {border-radius:16px 16px 16px 5px;background:#4a3ca6;}
+#friendChatShare {margin:0 0 8px;border:1px solid var(--border);border-radius:16px;background:var(--surface-alt);}
+#friendChatShare summary {display:flex;align-items:center;gap:8px;min-height:40px;padding:0 12px;list-style:none;cursor:pointer;color:var(--text);font-weight:700;}
+#friendChatShare summary::-webkit-details-marker {display:none;}
+#friendChatShare summary svg {width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
+#friendChatShare summary svg:last-child {margin-inline-start:auto;}
+#friendChatShare[open] summary svg:last-child {transform:rotate(180deg);}
+.chat-share-panel {display:grid;gap:8px;padding:8px 10px 10px;border-top:1px solid var(--border);max-height:min(42dvh,360px);overflow-y:auto;overscroll-behavior:contain;}
+#chatShareSearch {margin:0;min-width:0;border:1px solid var(--border);border-radius:11px;background:var(--surface);color:var(--text);font-size:16px;}
+#chatShareResults {display:grid;gap:5px;color:var(--text-muted);}
+#chatShareResults:empty,#chatShareStatus:empty {display:none;}
+.chat-share-result {display:flex;align-items:center;gap:6px;min-width:0;padding:4px;border:1px solid var(--border);border-radius:12px;background:var(--surface);}
+#friendChatShare :is(.chat-share-material,.chat-share-action,.chat-share-question) {min-height:38px;padding:5px 8px;border:1px solid transparent;border-radius:9px;background:transparent;color:var(--text);font:inherit;}
+#friendChatShare .chat-share-material {flex:1;min-width:0;text-align:start;overflow-wrap:anywhere;}
+#friendChatShare :is(.chat-share-action,.chat-share-question) {background:var(--surface-alt);border-color:var(--border);}
+#chatShareSchedule {justify-self:start;}
+#friendChatShare .chat-share-action {flex:none;white-space:nowrap;}
+#friendChatShare .chat-share-question {width:36%;min-width:0;}
+#friendChatShare button:hover {background:var(--accent-soft);}
+#chatShareStatus {margin:0;color:var(--text-muted);font-size:12px;}
+#friendChatDialog .thread-header {flex-shrink:0;}
 #friendChatCompose {padding:10px 16px 0;border-top:1px solid var(--border);}
 #friendChatDialog > :is(#friendChatStatus,#friendChatActions,#friendChatPreview,#friendChatRetry) {margin-inline:16px;}
 #friendChatSend {width:46px;height:46px;display:grid;place-items:center;padding:0;border-radius:15px;background:#4a3ca6;color:#fff;}
@@ -4131,11 +4151,12 @@ body>.mb-note-menu[data-open=true]{display:grid!important;position:fixed!importa
   <div id="friendChatMessages" role="log"></div>
   <form id="friendChatCompose" hidden>
     <details id="friendChatShare">
-      <summary>مشاركة مادة</summary>
-      <button type="button" class="mb-file-btn" id="chatShareSchedule">جدولي الدراسي</button>
-      <label for="chatShareSearch">ابحث عن محاضرة أو مجموعة أسئلة</label>
-      <input id="chatShareSearch" type="search" maxlength="120">
-      <div id="chatShareResults"></div><p id="chatShareStatus" role="status"></p>
+      <summary><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>مشاركة مادة<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary>
+      <div class="chat-share-panel">
+        <input id="chatShareSearch" type="search" maxlength="120" aria-label="ابحث عن محاضرة أو مجموعة أسئلة" placeholder="ابحث عن محاضرة أو مجموعة أسئلة" dir="auto">
+        <button type="button" class="chat-share-action" id="chatShareSchedule">مشاركة جدولي</button>
+        <div id="chatShareResults"></div><p id="chatShareStatus" role="status"></p>
+      </div>
     </details>
     <div id="chatScheduleAttachment" class="shared-schedule-card" hidden>
       <span>جدول دراسي مرفق</span><button type="button" id="removeChatSchedule" class="mb-file-btn">إزالة</button>
@@ -8497,23 +8518,31 @@ function listChatShareResults() {
   const query = normalizeSearch(document.getElementById('chatShareSearch').value);
   const list = document.getElementById('chatShareResults');
   list.replaceChildren();
+  const status = document.getElementById('chatShareStatus');
+  status.textContent = '';
   if (!query || paywallBlocks()) return;
   for (const material of lectures.filter(item => normalizeSearch(item.title).includes(query)).slice(0, 8)) {
     const box = document.createElement('div');
     const add = document.createElement('button');
     add.type = 'button';
+    box.className = 'chat-share-result';
+    add.className = 'chat-share-material';
+    add.dir = 'auto';
     add.textContent = material.title;
     add.addEventListener('click', () => chatInsertShare('مشاركة من ميديبراين · ' + material.title + '\n[Medbrain:' + material.id + ']'));
     box.append(add);
     if (material.questionCount) {
       const show = document.createElement('button');
       show.type = 'button';
+      show.className = 'chat-share-action';
       show.textContent = 'اختَر سؤالًا';
       show.addEventListener('click', async () => {
         show.disabled = true;
         try {
           await ensureLectureDetails(material);
           const select = document.createElement('select');
+          if (!show.isConnected) return;
+          select.className = 'chat-share-question';
           select.setAttribute('aria-label', 'السؤال');
           select.add(new Option('اختَر سؤالًا', ''));
           (material.questions || []).forEach((question, index) => {
@@ -8526,7 +8555,7 @@ function listChatShareResults() {
           });
           show.replaceWith(select);
         } catch (_) {
-          document.getElementById('chatShareStatus').textContent = 'تعذّر تحميل الأسئلة.';
+          if (show.isConnected) status.textContent = 'تعذّر تحميل الأسئلة.';
           show.disabled = false;
         }
       });
