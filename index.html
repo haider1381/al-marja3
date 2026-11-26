@@ -3764,6 +3764,15 @@ body>.mb-note-menu[data-open=true]{display:grid!important;position:fixed!importa
  <article class="mb-personal-card"><h3>حالة الاشتراك</h3><p id="subStatus">جارٍ التحقق…</p><form id="subRedeemForm" class="sub-redeem" hidden><label for="subRedeemCode">كود الاشتراك</label><div class="sub-row"><input id="subRedeemCode" dir="ltr" autocomplete="off" placeholder="MB-XXXXX-XXXXX" maxlength="20"><button type="submit" class="mb-primary">تفعيل الكود</button></div><p id="subRedeemStatus" role="status"></p></form><p id="subContact" hidden></p></article>
  <article class="mb-personal-card sub-admin" id="subAdmin" hidden><span class="mb-personal-pill">لوحة المسؤول</span><h3 style="margin-top:16px">الاشتراكات والأكواد</h3>
   <div class="owner-user-count"><span>كل الحسابات المسجّلة (المجانية والمدفوعة)</span><output id="ownerUserCount" aria-live="polite">—</output></div>
+  <section aria-labelledby="ownerActivityTitle">
+    <h4 id="ownerActivityTitle">نشاط الطلاب خلال آخر ٧ أيام</h4>
+    <p class="sub-hint">يبدأ القياس من تفعيل الميزة، حسب توقيت العراق.</p>
+    <div class="owner-user-count"><span>طلاب نشطون</span><output id="ownerActivityActive">—</output></div>
+    <div class="owner-user-count"><span>درسوا في يومين مختلفين أو أكثر</span><output id="ownerActivityReturning">—</output></div>
+    <div class="owner-user-count"><span>فتحوا محاضرة</span><output id="ownerActivityLectures">—</output></div>
+    <div class="owner-user-count"><span>أكملوا اختبارًا</span><output id="ownerActivityQuizzes">—</output></div>
+    <p id="ownerActivityStatus" class="sub-hint" role="status"></p>
+  </section>
   <label class="sub-switch"><input type="checkbox" id="paywallToggle"> <span>الموقع مدفوع (طلب كود الاشتراك من الطلاب)</span></label>
   <label for="paywallTelegram">رقم أو رابط واتساب للتواصل</label><div class="sub-row"><input id="paywallTelegram" dir="ltr" placeholder="+964…" inputmode="tel" maxlength="100"><button type="button" class="mb-file-btn" id="paywallSave">حفظ</button></div>
   <p class="sub-hint">والمفتاح مطفأ، يستخدم الجميع الموقع مجانًا. حسابك يبقى مفتوحًا دائمًا.</p>
@@ -4847,11 +4856,17 @@ function advanceDeckQuiz(rate) {
     deckSession[rate === 'hard' ? 'wrong' : rate === 'good' ? 'unsure' : 'right']++;
   }
   deckQuiz.index++;
+  if (deckQuiz.index === deckCards.length && deckQuiz.ratings.size === deckCards.length && deckQuiz.answered) {
+    void recordStudentActivity('quiz');
+  }
   showDeckCard();
 }
 function rateDeckCard(rate) {
   if (deckQuiz) {
-    if (deckFlipped && currentDeckCard() && !deckQuiz.ratings.has(deckQuiz.index)) advanceDeckQuiz(rate);
+    if (deckFlipped && currentDeckCard() && !deckQuiz.ratings.has(deckQuiz.index)) {
+      deckQuiz.answered = true;
+      advanceDeckQuiz(rate);
+    }
     return;
   }
   if (!deckFlipped || !deckQueue.length) return;
@@ -7121,6 +7136,15 @@ function applyReaderFont() {
   document.getElementById('readerFontPlus').disabled = readerFontSize >= 26;
   syncSettingsControls();
 }
+async function recordStudentActivity(kind) {
+  if (!client || !activeUserId || accessState?.owner) return;
+  try {
+    const { error } = await client.rpc('record_student_activity', { p_kind: kind });
+    if (error) console.warn('Could not record study activity', error.message);
+  } catch (error) {
+    console.warn('Could not record study activity', error);
+  }
+}
 function openReaderSurface(isQuiz = false) {
   closeAIChat(false);
   const overlay = document.getElementById('readerOverlay');
@@ -7640,6 +7664,7 @@ async function openPdfInReader(id) {
     const bytes = await fetchLecturePdf(lec.id);
     if (readerLectureId !== lec.id) return;
     await mountPdfViewer(body, bytes, lec);
+    if (readerLectureId === lec.id) void recordStudentActivity('lecture');
     autoStartScheduledLecture(lec);
     return;
   } catch (err) { console.warn('in-site PDF viewer unavailable, falling back', err); }
@@ -9830,6 +9855,7 @@ async function openReader(id) {
   document.getElementById('readerTime').textContent = 'قراءة تقديرية: ' + Math.max(1, Math.ceil(words / 180)) + ' دقيقة';
   buildReaderContents();
   openReaderSurface();
+  void recordStudentActivity('lecture');
   autoStartScheduledLecture(lec);
   try { mountTextTools(lec); } catch (err) { console.warn('text tools unavailable', err); }
 }
@@ -10639,6 +10665,9 @@ function renderQuiz(keepScroll) {
   const questions = material.questions;
   const body = document.getElementById('readerBody');
   if (index >= questions.length) {
+    if (questions.length && answers.filter(answer => answer != null).length === questions.length) {
+      void recordStudentActivity('quiz');
+    }
     void awardPracticeXP('quiz', material.id === 'self-quiz' ? material.title : material.id);
     body.innerHTML = '<h3>اكتملت المجموعة</h3><p>نتيجتك: ' + quizScore(questions, answers) + ' من ' + questions.length +
       '</p><button type="button" class="quiz-next" data-quiz-nav="restart">إعادة المحاولة</button>';
@@ -11069,8 +11098,24 @@ async function loadOwnerUserCount() {
     ? 'العدد غير متاح'
     : new Intl.NumberFormat('ar-IQ').format(count);
 }
+async function loadOwnerStudentActivity() {
+  if (!client || !activeUserId || !accessState?.owner) return;
+  const user = activeUserId;
+  const version = accessVersion;
+  const status = document.getElementById('ownerActivityStatus');
+  status.textContent = 'جارٍ تحميل النشاط…';
+  const { data, error } = await client.rpc('owner_student_activity').catch(() => ({ error: true }));
+  if (user !== activeUserId || version !== accessVersion || !accessState?.owner) return;
+  status.textContent = error || !data ? 'تعذّر تحميل النشاط.' : '';
+  const formatter = new Intl.NumberFormat('ar-IQ');
+  for (const [label, key] of [['Active', 'active'], ['Returning', 'returning'], ['Lectures', 'lectures'], ['Quizzes', 'quizzes']]) {
+    document.getElementById('ownerActivity' + label).textContent = Number.isSafeInteger(data?.[key])
+      ? formatter.format(data[key]) : '—';
+  }
+}
 async function loadCodeList() {
   void loadOwnerUserCount();
+  void loadOwnerStudentActivity();
   const list = document.getElementById('subCodeList');
   const { data, error } = await client.rpc('admin_list_codes');
   if (error) { list.innerHTML = '<p>تعذّر تحميل الأكواد.</p>'; return; }
