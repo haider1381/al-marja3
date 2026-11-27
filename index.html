@@ -3193,6 +3193,32 @@ body:has(:is(#friendsDialog,#friendChatDialog,#friendInboxDialog,#friendProfileD
 @media(max-width:540px) {
   #friendInboxDialog {position:fixed;inset:0;margin:0;width:100%;height:100dvh;max-width:none;max-height:100dvh;border-radius:0;padding-block:max(8px,env(safe-area-inset-top)) max(12px,env(safe-area-inset-bottom));}
 }
+.owner-activity-link {
+  display:flex; align-items:center; gap:12px; width:100%; margin:14px 0; padding:14px;
+  border:1px solid var(--border); border-radius:14px; background:var(--surface-alt);
+  color:var(--accent-strong); font:inherit; text-align:start; cursor:pointer;
+}
+.owner-activity-link svg { width:22px; height:22px; flex:none; }
+.owner-activity-link:hover { border-color:var(--accent); }
+.owner-activity-note { color:var(--text-muted); margin:10px 0; }
+.owner-activity-note:empty { margin:0; }
+.owner-activity-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; margin-top:18px; }
+.owner-activity-grid[hidden] { display:none; }
+.owner-activity-overview {
+  grid-column:1/-1; display:flex; align-items:center; gap:18px; background:var(--surface-alt);
+}
+.owner-activity-overview h3, .owner-activity-stat h3 { font-size:1rem; margin:0 0 6px; }
+.owner-activity-overview p { margin:0; }
+.owner-activity-ring {
+  --activity-angle:0deg;
+  display:grid; place-items:center; flex:none; width:5.25rem; aspect-ratio:1;
+  border-radius:50%; background:conic-gradient(var(--accent) var(--activity-angle),var(--border) 0);
+}
+.owner-activity-ring strong {
+  display:grid; place-items:center; width:calc(100% - 12px); aspect-ratio:1;
+  border-radius:50%; background:var(--surface-alt); color:var(--accent-strong);
+}
+.owner-activity-stat strong { font-size:1.75rem; line-height:1.2; color:var(--accent-strong); }
 .owner-user-count {display:flex;justify-content:space-between;gap:8px;padding:8px 0;border-bottom:1px solid var(--border);}
 /* Use explicitly painted surfaces for the app's selected theme. */
 :root[data-theme="light"] {
@@ -3764,15 +3790,10 @@ body>.mb-note-menu[data-open=true]{display:grid!important;position:fixed!importa
  <article class="mb-personal-card"><h3>حالة الاشتراك</h3><p id="subStatus">جارٍ التحقق…</p><form id="subRedeemForm" class="sub-redeem" hidden><label for="subRedeemCode">كود الاشتراك</label><div class="sub-row"><input id="subRedeemCode" dir="ltr" autocomplete="off" placeholder="MB-XXXXX-XXXXX" maxlength="20"><button type="submit" class="mb-primary">تفعيل الكود</button></div><p id="subRedeemStatus" role="status"></p></form><p id="subContact" hidden></p></article>
  <article class="mb-personal-card sub-admin" id="subAdmin" hidden><span class="mb-personal-pill">لوحة المسؤول</span><h3 style="margin-top:16px">الاشتراكات والأكواد</h3>
   <div class="owner-user-count"><span>كل الحسابات المسجّلة (المجانية والمدفوعة)</span><output id="ownerUserCount" aria-live="polite">—</output></div>
-  <section aria-labelledby="ownerActivityTitle">
-    <h4 id="ownerActivityTitle">نشاط الطلاب خلال آخر ٧ أيام</h4>
-    <p class="sub-hint">يبدأ القياس من تفعيل الميزة، حسب توقيت العراق.</p>
-    <div class="owner-user-count"><span>طلاب نشطون</span><output id="ownerActivityActive">—</output></div>
-    <div class="owner-user-count"><span>درسوا في يومين مختلفين أو أكثر</span><output id="ownerActivityReturning">—</output></div>
-    <div class="owner-user-count"><span>فتحوا محاضرة</span><output id="ownerActivityLectures">—</output></div>
-    <div class="owner-user-count"><span>أكملوا اختبارًا</span><output id="ownerActivityQuizzes">—</output></div>
-    <p id="ownerActivityStatus" class="sub-hint" role="status"></p>
-  </section>
+  <button type="button" class="owner-activity-link" data-tool-view="ownerActivity">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4 19h16M7 15v-4m5 4V7m5 8V4"/></svg>
+    <strong>نشاط الطلاب خلال آخر ٧ أيام</strong>
+  </button>
   <label class="sub-switch"><input type="checkbox" id="paywallToggle"> <span>الموقع مدفوع (طلب كود الاشتراك من الطلاب)</span></label>
   <label for="paywallTelegram">رقم أو رابط واتساب للتواصل</label><div class="sub-row"><input id="paywallTelegram" dir="ltr" placeholder="+964…" inputmode="tel" maxlength="100"><button type="button" class="mb-file-btn" id="paywallSave">حفظ</button></div>
   <p class="sub-hint">والمفتاح مطفأ، يستخدم الجميع الموقع مجانًا. حسابك يبقى مفتوحًا دائمًا.</p>
@@ -3781,6 +3802,27 @@ body>.mb-note-menu[data-open=true]{display:grid!important;position:fixed!importa
   <p id="subAdminStatus" role="status"></p>
   <details class="mb-list-fold" open><summary>قائمة أكواد الاشتراك</summary><div id="subCodeList" class="sub-list"></div></details></article>
 </div>
+</section>
+<section class="mb-tool-page mb-page-view mb-personal-page" id="ownerActivitySection" aria-labelledby="ownerActivityTitle">
+  <div class="mb-page-toolbar">
+    <div class="mb-page-title-wrap">
+      <button class="mb-page-back" type="button" id="ownerActivityBack" aria-label="العودة إلى الاشتراكات والأكواد">‹</button>
+      <h2 class="mb-page-title" id="ownerActivityTitle">نشاط الطلاب</h2>
+    </div>
+    <button class="mb-file-btn" type="button" id="ownerActivityRefresh">تحديث</button>
+  </div>
+  <p class="owner-activity-note">اليوم والأيام الستة السابقة بتوقيت العراق، منذ بدء تسجيل النشاط.</p>
+  <p id="ownerActivityStatus" class="owner-activity-note" role="status"></p>
+  <div class="owner-activity-grid" id="ownerActivityMetrics" hidden>
+    <article class="mb-personal-card owner-activity-overview">
+      <div class="owner-activity-ring" id="ownerActivityRing"><strong id="ownerActivityPercent"></strong></div>
+      <div><h3>نسبة الطلاب العائدين</h3><p>من الطلاب النشطين، نسبة من درسوا في يومين أو أكثر.</p></div>
+    </article>
+    <article class="mb-personal-card owner-activity-stat"><h3>طلاب نشطون</h3><strong id="ownerActivityActive"></strong></article>
+    <article class="mb-personal-card owner-activity-stat"><h3>درسوا في يومين أو أكثر</h3><strong id="ownerActivityReturning"></strong></article>
+    <article class="mb-personal-card owner-activity-stat"><h3>فتحوا محاضرة</h3><strong id="ownerActivityLectures"></strong></article>
+    <article class="mb-personal-card owner-activity-stat"><h3>أكملوا اختبارًا</h3><strong id="ownerActivityQuizzes"></strong></article>
+  </div>
 </section>
 <section class="mb-tool-page mb-page-view mb-personal-page" id="shareScheduleSection">
 <div class="mb-page-toolbar"><div class="mb-page-title-wrap"><button class="mb-page-back" type="button" data-tool-view="home" aria-label="العودة للرئيسية">‹</button><div><h2 class="mb-page-title">مشاركة جدولي الخاص</h2></div></div></div>
@@ -5104,6 +5146,7 @@ function showMainView(view, kind='', scrollBehavior='smooth') {
     document.getElementById('deckGrid').hidden = false;
   }
   if (view === 'shareSchedule') view = 'schedule';
+  if (view === 'ownerActivity' && !accessState?.owner) return;
   if ((view === 'library' || view === 'flashcards') && paywallBlocks()) return;
   if (view === 'subscription') { loadAccessState(false).then(() => { if (accessState && accessState.owner) loadCodeList(); }).catch(() => {}); }
   if (!restoringMainView && (view !== currentMainView || kind !== currentMainKind)) {
@@ -5112,13 +5155,14 @@ function showMainView(view, kind='', scrollBehavior='smooth') {
   }
   currentMainView = view;
   currentMainKind = kind;
-  try { sessionStorage.setItem('medbrain_active_view_v2', JSON.stringify({view,kind})); } catch (_) {}
+  try { sessionStorage.setItem('medbrain_active_view_v2', JSON.stringify({view:view === 'ownerActivity' ? 'subscription' : view,kind})); } catch (_) {}
   deviceSyncNav();
-  ['dashboardView','librarySection','scheduleSection','flashcardsSection','subscriptionSection','shareScheduleSection','favoritesSection','settingsSection'].forEach(id=>{
+  ['dashboardView','librarySection','scheduleSection','flashcardsSection','subscriptionSection','ownerActivitySection','shareScheduleSection','favoritesSection','settingsSection'].forEach(id=>{
     const el=document.getElementById(id); if(el)el.classList.remove('active');
   });
-  const target=({library:'librarySection',schedule:'scheduleSection',flashcards:'flashcardsSection',subscription:'subscriptionSection',shareSchedule:'shareScheduleSection',favorites:'favoritesSection',settings:'settingsSection'})[view] || 'dashboardView';
+  const target=({library:'librarySection',schedule:'scheduleSection',flashcards:'flashcardsSection',subscription:'subscriptionSection',ownerActivity:'ownerActivitySection',shareSchedule:'shareScheduleSection',favorites:'favoritesSection',settings:'settingsSection'})[view] || 'dashboardView';
   const el=document.getElementById(target); if(el)el.classList.add('active');
+  if(view==='ownerActivity') void loadOwnerStudentActivity();
   if(view==='flashcards') renderFlashDecks();
   if(view==='schedule' || view==='home') void refreshStudyXP();
   if(view==='library'){
@@ -6951,7 +6995,7 @@ function wireMedbrainEvents() {
       e.preventDefault();
       closeDrawer();
       const view=tool.dataset.toolView;
-      if(view==='home') showMainView('home');
+      if(view==='home' || view==='ownerActivity') showMainView(view);
       if(view==='schedule'){showMainView('schedule');renderSchedule();}
       if(view==='flashcards'){showMainView('flashcards');renderFlashcards();renderFlashDecks();}
       if(['subscription','shareSchedule','favorites','settings'].includes(view)){showMainView(view);renderPersonalPage(view);}
@@ -11079,7 +11123,14 @@ function renderSubscriptionPage() {
   const admin = document.getElementById('subAdmin');
   admin.hidden = !s?.owner;
   document.getElementById('drawerOwnerTools').hidden = admin.hidden;
-  if (admin.hidden) document.getElementById('ownerUserCount').textContent = '—';
+  if (admin.hidden) {
+    document.getElementById('ownerUserCount').textContent = '—';
+    document.getElementById('ownerActivityMetrics').hidden = true;
+    if (currentMainView === 'ownerActivity') {
+      restoringMainView = true;
+      try { showMainView('home'); } finally { restoringMainView = false; }
+    }
+  }
   if (s && s.owner) {
     document.getElementById('paywallToggle').checked = !!s.paywall;
     const tg = document.getElementById('paywallTelegram'); if (document.activeElement !== tg) tg.value = whatsappSupportLink(s.telegram) || DEFAULT_SUPPORT_WHATSAPP;
@@ -11098,24 +11149,50 @@ async function loadOwnerUserCount() {
     ? 'العدد غير متاح'
     : new Intl.NumberFormat('ar-IQ').format(count);
 }
+let ownerActivityRequest = 0;
 async function loadOwnerStudentActivity() {
   if (!client || !activeUserId || !accessState?.owner) return;
   const user = activeUserId;
   const version = accessVersion;
+  const request = ++ownerActivityRequest;
+  const isCurrent = () => request === ownerActivityRequest && user === activeUserId
+    && version === accessVersion && accessState?.owner;
   const status = document.getElementById('ownerActivityStatus');
+  const metrics = document.getElementById('ownerActivityMetrics');
+  const refresh = document.getElementById('ownerActivityRefresh');
+  const fields = { active: 'Active', returning: 'Returning', lectures: 'Lectures', quizzes: 'Quizzes' };
   status.textContent = 'جارٍ تحميل النشاط…';
-  const { data, error } = await client.rpc('owner_student_activity').catch(() => ({ error: true }));
-  if (user !== activeUserId || version !== accessVersion || !accessState?.owner) return;
-  status.textContent = error || !data ? 'تعذّر تحميل النشاط.' : '';
-  const formatter = new Intl.NumberFormat('ar-IQ');
-  for (const [label, key] of [['Active', 'active'], ['Returning', 'returning'], ['Lectures', 'lectures'], ['Quizzes', 'quizzes']]) {
-    document.getElementById('ownerActivity' + label).textContent = Number.isSafeInteger(data?.[key])
-      ? formatter.format(data[key]) : '—';
+  metrics.hidden = true;
+  refresh.disabled = true;
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 10000);
+  try {
+    const { data, error } = await client.rpc('owner_student_activity').abortSignal(controller.signal);
+    if (!isCurrent()) return;
+    if (error || !data || Object.keys(fields).some(key => !Number.isSafeInteger(data[key]) || data[key] < 0)) {
+      throw error || new Error('Invalid activity summary');
+    }
+    const formatter = new Intl.NumberFormat('ar-IQ');
+    for (const [key, label] of Object.entries(fields)) {
+      document.getElementById('ownerActivity' + label).textContent = formatter.format(data[key]);
+    }
+    const share = data.active ? data.returning / data.active : 0;
+    document.getElementById('ownerActivityRing').style.setProperty('--activity-angle', (share * 360) + 'deg');
+    document.getElementById('ownerActivityPercent').textContent = data.active
+      ? new Intl.NumberFormat('ar-IQ', { style: 'percent' }).format(share) : '—';
+    metrics.hidden = false;
+    status.textContent = data.active ? 'تم تحميل نشاط الطلاب.' : 'لا يوجد نشاط مسجّل خلال هذه الفترة.';
+  } catch (error) {
+    if (!isCurrent()) return;
+    console.warn('Could not load student activity', error);
+    status.textContent = 'تعذّر تحميل النشاط. اضغط «تحديث» للمحاولة مجددًا.';
+  } finally {
+    clearTimeout(timer);
+    if (isCurrent()) refresh.disabled = false;
   }
 }
 async function loadCodeList() {
   void loadOwnerUserCount();
-  void loadOwnerStudentActivity();
   const list = document.getElementById('subCodeList');
   const { data, error } = await client.rpc('admin_list_codes');
   if (error) { list.innerHTML = '<p>تعذّر تحميل الأكواد.</p>'; return; }
@@ -11130,6 +11207,8 @@ async function loadCodeList() {
   }).join('');
 }
 function bindSubscriptionUI() {
+  document.getElementById('ownerActivityBack').addEventListener('click', deviceBack);
+  document.getElementById('ownerActivityRefresh').addEventListener('click', loadOwnerStudentActivity);
   document.getElementById('paywallForm').addEventListener('submit', async e => {
     e.preventDefault();
     if (await redeemCode(document.getElementById('paywallCode').value, document.getElementById('paywallStatus')))
