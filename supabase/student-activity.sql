@@ -27,6 +27,7 @@ $$;
 create or replace function public.owner_student_activity()
 returns jsonb language plpgsql stable security definer set search_path = ''
 as $$
+declare today_baghdad date := (now() at time zone 'Asia/Baghdad')::date;
 begin
   if auth.uid() is null or public.is_owner() is distinct from true then
     raise exception 'not_owner' using errcode = '42501';
@@ -34,17 +35,25 @@ begin
   return (
     with per_student as (
       select activity.user_id, count(distinct activity_day) as days,
-        bool_or(kind = 'lecture') as read_lecture, bool_or(kind = 'quiz') as finished_quiz
+        bool_or(kind = 'lecture') as read_lecture, bool_or(kind = 'quiz') as finished_quiz,
+        bool_or(activity_day = today_baghdad) as active_today,
+        bool_or(activity_day = today_baghdad and kind = 'lecture') as read_today,
+        bool_or(activity_day = today_baghdad and kind = 'quiz') as quiz_today
       from private.student_activity_days activity
       join auth.users account on account.id = activity.user_id and account.deleted_at is null
-      where activity_day >= (now() at time zone 'Asia/Baghdad')::date - 6
+      where activity_day between today_baghdad - 6 and today_baghdad
       group by activity.user_id
     )
     select jsonb_build_object(
       'active', count(*),
       'returning', count(*) filter (where days >= 2),
       'lectures', count(*) filter (where read_lecture),
-      'quizzes', count(*) filter (where finished_quiz)
+      'quizzes', count(*) filter (where finished_quiz),
+      'today', jsonb_build_object(
+        'active', count(*) filter (where active_today),
+        'lectures', count(*) filter (where read_today),
+        'quizzes', count(*) filter (where quiz_today)
+      )
     )
     from per_student
   );

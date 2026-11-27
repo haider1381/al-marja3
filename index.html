@@ -3193,6 +3193,10 @@ body:has(:is(#friendsDialog,#friendChatDialog,#friendInboxDialog,#friendProfileD
 @media(max-width:540px) {
   #friendInboxDialog {position:fixed;inset:0;margin:0;width:100%;height:100dvh;max-width:none;max-height:100dvh;border-radius:0;padding-block:max(8px,env(safe-area-inset-top)) max(12px,env(safe-area-inset-bottom));}
 }
+.phone-push-reminder { margin-bottom:16px; }
+.phone-push-reminder h2 { font-size:1.1rem; margin:0 0 4px; }
+.phone-push-reminder p { margin:0 0 8px; }
+.phone-push-reminder [role="status"] { margin-block:8px 0; }
 .owner-activity-link {
   display:flex; align-items:center; gap:12px; width:100%; margin:14px 0; padding:14px;
   border:1px solid var(--border); border-radius:14px; background:var(--surface-alt);
@@ -3200,6 +3204,9 @@ body:has(:is(#friendsDialog,#friendChatDialog,#friendInboxDialog,#friendProfileD
 }
 .owner-activity-link svg { width:22px; height:22px; flex:none; }
 .owner-activity-link:hover { border-color:var(--accent); }
+.owner-activity-period { display:flex; align-items:center; gap:10px; }
+.owner-activity-period select { width:auto; }
+.owner-activity-grid [hidden] { display:none; }
 .owner-activity-note { color:var(--text-muted); margin:10px 0; }
 .owner-activity-note:empty { margin:0; }
 .owner-activity-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; margin-top:18px; }
@@ -3639,6 +3646,15 @@ body>.mb-note-menu[data-open=true]{display:grid!important;position:fixed!importa
   <main class="mb-main" id="homeSection">
     <div class="banner" id="storageBanner" role="status">تعذّر تحميل المحتوى مؤقتًا. حاول مجددًا بعد قليل.</div>
 
+    <aside class="mb-personal-card phone-push-reminder" id="phonePushReminder" aria-labelledby="phonePushTitle" hidden>
+      <div><h2 id="phonePushTitle">إشعارات MedBrain</h2><p>فعّل التنبيهات لتصلك الرسائل والمحاضرات والاختبارات الجديدة حتى عند إغلاق الموقع.</p></div>
+      <div class="mb-personal-actions">
+        <button type="button" class="mb-primary" id="phonePushEnable">فعّل الإشعارات</button>
+        <button type="button" class="mb-file-btn" id="phonePushLater">لاحقًا</button>
+      </div>
+      <p id="phonePushStatus" role="status" hidden></p>
+    </aside>
+
     <section class="mb-page-view active" id="dashboardView">
     <section class="mb-hero">
       <span class="mb-watermark mb-wm-brain" aria-hidden="true"><svg viewBox="0 0 100 80" fill="none" stroke="currentColor" stroke-width="4"><path d="M47 67c-7 7-20 4-22-6-12 1-18-13-10-21-7-8-1-22 10-21 2-11 17-14 23-5 8-10 24-5 25 7 12-1 18 14 10 22 9 7 4 23-8 23-3 10-17 12-24 5-2 3-4 5-8 6Z"/><path d="M48 17v48M35 23c10 4 7 12 2 16m25-16c-10 4-7 12-2 16M29 48c8-4 14 0 18 6m25-6c-8-4-14 0-18 6"/></svg></span>
@@ -3811,15 +3827,18 @@ body>.mb-note-menu[data-open=true]{display:grid!important;position:fixed!importa
     </div>
     <button class="mb-file-btn" type="button" id="ownerActivityRefresh">تحديث</button>
   </div>
-  <p class="owner-activity-note">اليوم والأيام الستة السابقة بتوقيت العراق، منذ بدء تسجيل النشاط.</p>
+  <label class="owner-activity-period" for="ownerActivityPeriod">الفترة
+    <select class="mb-personal-input" id="ownerActivityPeriod"><option value="week">آخر ٧ أيام</option><option value="today">اليوم</option></select>
+  </label>
+  <p class="owner-activity-note" id="ownerActivityPeriodNote"></p>
   <p id="ownerActivityStatus" class="owner-activity-note" role="status"></p>
   <div class="owner-activity-grid" id="ownerActivityMetrics" hidden>
-    <article class="mb-personal-card owner-activity-overview">
+    <article class="mb-personal-card owner-activity-overview" data-activity-week>
       <div class="owner-activity-ring" id="ownerActivityRing"><strong id="ownerActivityPercent"></strong></div>
       <div><h3>نسبة الطلاب العائدين</h3><p>من الطلاب النشطين، نسبة من درسوا في يومين أو أكثر.</p></div>
     </article>
     <article class="mb-personal-card owner-activity-stat"><h3>طلاب نشطون</h3><strong id="ownerActivityActive"></strong></article>
-    <article class="mb-personal-card owner-activity-stat"><h3>درسوا في يومين أو أكثر</h3><strong id="ownerActivityReturning"></strong></article>
+    <article class="mb-personal-card owner-activity-stat" data-activity-week><h3>درسوا في يومين أو أكثر</h3><strong id="ownerActivityReturning"></strong></article>
     <article class="mb-personal-card owner-activity-stat"><h3>فتحوا محاضرة</h3><strong id="ownerActivityLectures"></strong></article>
     <article class="mb-personal-card owner-activity-stat"><h3>أكملوا اختبارًا</h3><strong id="ownerActivityQuizzes"></strong></article>
   </div>
@@ -5582,6 +5601,7 @@ async function syncAccess(session, signedIn = false) {
   window.MedbrainNative?.clearExports?.();
   spReset();
   activeUserId = userId;
+  syncPhonePushReminder();
   accessState = null;
   renderSubscriptionPage();
   document.getElementById('reportsDialog').close();
@@ -5611,6 +5631,7 @@ async function syncAccess(session, signedIn = false) {
   rememberedSignIn = true;
   try { localStorage.setItem('medbrain_signed_in_before', '1'); } catch (_) {}
   hideGate();
+  void checkPhonePushReminder();
   syncNamePrompt();
   let returnedFromGoogle = false;
   try {
@@ -8602,11 +8623,29 @@ async function removePhonePush(user) {
   }
   localStorage.removeItem('medbrain_push_owner');
 }
+let phonePushDismissedFor = null;
+let phonePushBusy = false;
+function syncPhonePushReminder() {
+  const reminder = document.getElementById('phonePushReminder');
+  reminder.hidden = !activeUserId || phoneNoticesEnabled() || phonePushDismissedFor === activeUserId;
+}
+async function checkPhonePushReminder() {
+  const user = activeUserId;
+  if (phoneNoticesEnabled() && navigator.serviceWorker) {
+    try {
+      const registration = await navigator.serviceWorker.getRegistration();
+      const subscription = await registration?.pushManager?.getSubscription();
+      if (user === activeUserId && !subscription && !phonePushBusy) localStorage.removeItem('medbrain_push_owner');
+    } catch (_) {}
+  }
+  if (user === activeUserId) syncPhonePushReminder();
+}
 async function togglePhoneNotices(event) {
   const button = event.currentTarget;
-  const status = document.getElementById('friendInboxNotifyStatus');
+  const status = document.getElementById(button.id === 'phonePushEnable' ? 'phonePushStatus' : 'friendInboxNotifyStatus');
   const user = activeUserId;
-  if (!user || button.disabled) return;
+  if (!user || phonePushBusy) return;
+  phonePushBusy = true;
   status.hidden = false;
   button.disabled = true;
   try {
@@ -8621,8 +8660,10 @@ async function togglePhoneNotices(event) {
       status.textContent = 'أوقفت إشعارات الهاتف.';
       return;
     }
-    if (await Notification.requestPermission() !== 'granted') {
-      status.textContent = 'لم تمنح إذن الإشعارات.';
+    if (Notification.permission === 'denied' || await Notification.requestPermission() !== 'granted') {
+      status.textContent = Notification.permission === 'denied'
+        ? 'اسمح بالإشعارات من إعدادات الموقع في المتصفح ثم حاول مجددًا.'
+        : 'لم تمنح إذن الإشعارات.';
       return;
     }
     const registration = await navigator.serviceWorker.getRegistration();
@@ -8646,9 +8687,15 @@ async function togglePhoneNotices(event) {
     if (user !== activeUserId) return;
     localStorage.setItem('medbrain_push_owner', user);
     button.setAttribute('aria-pressed', 'true');
-    status.textContent = 'إشعارات الرسائل والصداقة مفعّلة، حتى بعد إغلاق التطبيق.';
+    status.textContent = 'إشعارات الرسائل والمحتوى الجديد مفعّلة على هذا الجهاز.';
+    if (button.id === 'phonePushEnable') showMbToast(status.textContent);
   } catch (_) { status.textContent = 'تعذّر تغيير إعداد الإشعارات. حاول مجددًا.'; }
-  finally { button.disabled = false; }
+  finally {
+    button.disabled = false;
+    phonePushBusy = false;
+    syncPhonePushReminder();
+    document.getElementById('inboxNotifyToggle').setAttribute('aria-pressed', String(phoneNoticesEnabled()));
+  }
 }
 function notifyFriendChanges(peers) {
   const key = 'medbrain_friend_notices_' + activeUserId;
@@ -9361,6 +9408,14 @@ function initFriends() {
     else input.focus();
   });
   document.getElementById('inboxNotifyToggle').addEventListener('click', togglePhoneNotices);
+  document.getElementById('phonePushEnable').addEventListener('click', togglePhoneNotices);
+  document.getElementById('phonePushLater').addEventListener('click', () => {
+    phonePushDismissedFor = activeUserId;
+    syncPhonePushReminder();
+  });
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') void checkPhonePushReminder();
+  });
   document.getElementById('inboxAddFriend').addEventListener('click', () => openInboxFriendAction(false));
   document.getElementById('inboxInviteFriend').addEventListener('click', () => openInboxFriendAction(true));
   document.getElementById('inboxActivity').addEventListener('click', () => setInboxRequestsOpen(document.getElementById('friendRequestSheet').hidden));
@@ -11160,14 +11215,22 @@ async function loadOwnerStudentActivity() {
   const status = document.getElementById('ownerActivityStatus');
   const metrics = document.getElementById('ownerActivityMetrics');
   const refresh = document.getElementById('ownerActivityRefresh');
-  const fields = { active: 'Active', returning: 'Returning', lectures: 'Lectures', quizzes: 'Quizzes' };
+  const today = document.getElementById('ownerActivityPeriod').value === 'today';
+  const fields = { active: 'Active', lectures: 'Lectures', quizzes: 'Quizzes' };
+  if (!today) fields.returning = 'Returning';
+  document.getElementById('ownerActivityPeriodNote').textContent = today
+    ? 'النشاط منذ منتصف الليل بتوقيت العراق.'
+    : 'اليوم والأيام الستة السابقة بتوقيت العراق، منذ بدء تسجيل النشاط.';
+  metrics.querySelectorAll('[data-activity-week]').forEach(card => { card.hidden = today; });
   status.textContent = 'جارٍ تحميل النشاط…';
   metrics.hidden = true;
   refresh.disabled = true;
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 10000);
   try {
-    const { data, error } = await client.rpc('owner_student_activity').abortSignal(controller.signal);
+    const result = await client.rpc('owner_student_activity').abortSignal(controller.signal);
+    const error = result.error;
+    const data = today ? result.data?.today : result.data;
     if (!isCurrent()) return;
     if (error || !data || Object.keys(fields).some(key => !Number.isSafeInteger(data[key]) || data[key] < 0)) {
       throw error || new Error('Invalid activity summary');
@@ -11176,10 +11239,12 @@ async function loadOwnerStudentActivity() {
     for (const [key, label] of Object.entries(fields)) {
       document.getElementById('ownerActivity' + label).textContent = formatter.format(data[key]);
     }
-    const share = data.active ? data.returning / data.active : 0;
-    document.getElementById('ownerActivityRing').style.setProperty('--activity-angle', (share * 360) + 'deg');
-    document.getElementById('ownerActivityPercent').textContent = data.active
-      ? new Intl.NumberFormat('ar-IQ', { style: 'percent' }).format(share) : '—';
+    if (!today) {
+      const share = data.active ? data.returning / data.active : 0;
+      document.getElementById('ownerActivityRing').style.setProperty('--activity-angle', (share * 360) + 'deg');
+      document.getElementById('ownerActivityPercent').textContent = data.active
+        ? new Intl.NumberFormat('ar-IQ', { style: 'percent' }).format(share) : '—';
+    }
     metrics.hidden = false;
     status.textContent = data.active ? 'تم تحميل نشاط الطلاب.' : 'لا يوجد نشاط مسجّل خلال هذه الفترة.';
   } catch (error) {
@@ -11209,6 +11274,7 @@ async function loadCodeList() {
 function bindSubscriptionUI() {
   document.getElementById('ownerActivityBack').addEventListener('click', deviceBack);
   document.getElementById('ownerActivityRefresh').addEventListener('click', loadOwnerStudentActivity);
+  document.getElementById('ownerActivityPeriod').addEventListener('change', loadOwnerStudentActivity);
   document.getElementById('paywallForm').addEventListener('submit', async e => {
     e.preventDefault();
     if (await redeemCode(document.getElementById('paywallCode').value, document.getElementById('paywallStatus')))

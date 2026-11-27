@@ -6,6 +6,7 @@ const notices: Record<string, string> = {
   chat_request: 'لديك طلب مراسلة جديد.',
   friend_request: 'لديك طلب صداقة جديد.',
   friend_accepted: 'تم قبول طلب الصداقة.',
+  first_quiz: 'تستطيع الآن إكمال أول اختبار لك في بنك الأسئلة.',
 };
 
 Deno.serve(async (req) => {
@@ -20,9 +21,16 @@ Deno.serve(async (req) => {
     }
     const { data, error } = await admin.rpc('medbrain_push_claim', { p_id: id });
     if (error) return new Response(null, { status: 503 });
-    if (!data || !Object.hasOwn(notices, data.kind)) return new Response(null, { status: 404 });
-    const kind = data.kind;
-    const payload = JSON.stringify({ body: notices[kind], tag: 'medbrain-' + kind });
+    if (typeof data?.kind !== 'string') return new Response(null, { status: 404 });
+    const separator = data.kind.indexOf(':');
+    const kind = separator < 0 ? data.kind : data.kind.slice(0, separator);
+    const source = separator < 0 ? '' : data.kind.slice(separator + 1).replace(/[\p{Cc}\p{Cf}]/gu, '').trim().slice(0, 100);
+    const origin = source ? ' من ' + source : '';
+    const body = kind === 'new_lecture' ? 'أُضيفت مادة دراسية جديدة' + origin + '.'
+      : kind === 'new_quiz' ? 'أُضيفت أسئلة جديدة' + origin + '.'
+      : Object.hasOwn(notices, kind) ? notices[kind] : null;
+    if (!body) return new Response(null, { status: 404 });
+    const payload = JSON.stringify({ body, tag: 'medbrain-' + kind });
     const results = await Promise.allSettled(data.subscriptions.map(async (sub) => {
       try {
         await webPush.sendNotification(sub, payload, {
